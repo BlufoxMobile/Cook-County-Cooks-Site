@@ -681,37 +681,36 @@ function extractSlides(html, deck, history) {
     const writeup = hcw ? toText(hcw.inner, true) : '';
 
     /* -- the photograph -- *
-     * A SLIDE THAT NAMES A CHEF AND YIELDS NO PHOTOGRAPH IS A DECK-SHAPE CHANGE,
-     * and it has to stop the run here, before anything is written.
+     * A SLIDE THAT NAMES A CHEF AND YIELDS NO PHOTOGRAPH is usually a deck-shape
+     * change — but not always, and the difference is worth deciding AFTER the
+     * whole deck is read rather than here.
      *
-     * It used to be waved through: extractPhoto returned null, the entry was
-     * written `has_photo: false`, and then — this is the part that made it
-     * expensive — the orphan sweep at the end of section 10e saw a committed
-     * portrait that nothing referenced any more and DELETED it. So the failure
-     * did not merely publish a faceless frame, it destroyed the picture that
-     * would have let the next run recover. Reproduced 2026-09-01 by making the
-     * exporter link photographs instead of inlining them: five committed
-     * portraits deleted, six faceless frames published, exit 0, no warning.
+     * It cannot be waved through. extractPhoto returns null, the entry is written
+     * `has_photo: false`, and then — the expensive part — the orphan sweep in
+     * section 10e sees a committed portrait nothing references any more and
+     * DELETES it. A mis-read does not merely publish a faceless frame, it
+     * destroys the picture that would have let the next run recover. Reproduced
+     * 2026-09-01 by making the exporter link photographs instead of inlining
+     * them: five portraits deleted, six faceless frames published, exit 0.
      *
-     * There is no legitimate "chef with no photograph" in these decks — the
-     * portrait is the point of the slide, and it is carried twice (see
-     * extractPhoto). So the honest reading of "we found a name and no face" is
-     * "we no longer know where the face is kept", and that is a stop.           */
-    const photo = extractPhoto(slide);
-    if (!photo || photo.error) {
-      fail(`${deck.key}: head-chef slide "${title}" names ${name}, but no photograph came out ` +
-           `of it — ${(photo && photo.error) || 'extractPhoto returned nothing'}.\n` +
-           `  Every head-chef slide carries the same portrait twice: the sharp ` +
-           `<img class="hcfg"> and the blurred .hcbg behind it, both inside .hcp. Neither one ` +
-           `yielded an image here, so this is the exporter's markup changing rather than a ` +
-           `chef who happens to have no photograph.\n` +
-           `  This is NOT written through as "chef, no photo". That would publish a faceless ` +
-           `frame AND make this district's committed portrait an orphan, which the sweep at the ` +
-           `end of this script then deletes — so the next run could not put the face back either.\n` +
-           `  Nothing has been written; headchefs.json and headchefs/photos/ are untouched. Fix ` +
-           `the photo selectors against the deck's new markup — see "THE DECK SHAPE" in this ` +
-           `file's header for the shape they were written against.`);
-    }
+     * It cannot simply fail either — that was this guard's first draft and it was
+     * wrong. On 2026-09-11 the Chicago deck carried West Side / Linda Weeks as a
+     * real slide with a real name and write-up and NO picture at all (`.hcp`
+     * present, no `img.hcfg`, no `.hcbg`, zero data URIs) while the other four
+     * slides were entirely normal. Failing the run froze ALL SIX districts over
+     * one chef's missing headshot — a worse outcome than the frame it protected,
+     * and it stopped Big South's genuinely new chef from landing too.
+     *
+     * THE DISCRIMINATOR IS THE SIBLING SLIDES, applied below in THE PHOTOLESS
+     * HARVEST: parsed by the same code, in the same run, against the same markup.
+     * If even one of them produced an image then `img.hcfg` / `.hcbg` are still
+     * where portraits live, and a slide that yielded nothing yielded nothing
+     * because there is nothing there.                                          */
+    const photoAttempt = extractPhoto(slide);
+    const photo = photoAttempt && !photoAttempt.error ? photoAttempt : null;
+    const photoError = photoAttempt && photoAttempt.error
+      ? photoAttempt.error
+      : (photoAttempt ? null : 'extractPhoto returned nothing');
 
     out.push({
       deck: deck.key,
@@ -724,8 +723,53 @@ function extractSlides(html, deck, history) {
       stats,
       writeup,
       photo,
+      photoError,
       district: districtFromTitle(title, deck, isXfinity)
     });
+  }
+
+  /* ── THE PHOTOLESS HARVEST ────────────────────────────────────────────────
+   * Decided here, with the whole deck in hand, for the reason set out at the
+   * photograph step above: ONE slide without a picture is a chef who has not
+   * sent a headshot; EVERY slide without a picture is the exporter moving the
+   * portrait somewhere these selectors no longer look. One missing headshot does
+   * not land on every slide of a deck at once.
+   */
+  const withoutPhoto = out.filter((s) => !s.photo);
+
+  if (out.length && withoutPhoto.length === out.length && history && history.had) {
+    fail(`${deck.key}: ${out.length} head-chef slide(s) parsed and NOT ONE carried a ` +
+         `photograph — the last run got ${history.slides} slide(s)` +
+         `${history.when ? ` at ${history.when}` : ''}.\n` +
+         `  Every head-chef slide keeps the portrait twice: the sharp <img class="hcfg"> and ` +
+         `the blurred .hcbg behind it, both inside .hcp. Neither yielded an image on ANY slide ` +
+         `in this deck, so this is the exporter's markup changing rather than chefs who happen ` +
+         `to have no photograph.\n` +
+         `  Reported per slide: ` +
+         out.map((s) => `"${s.slideTitle}" (${s.name}): ${s.photoError}`).join('; ') + `\n` +
+         `  This is NOT written through as "chefs, no photos". That would publish faceless ` +
+         `frames AND make every committed portrait an orphan, which the sweep at the end of ` +
+         `this script then deletes — so the next run could not put the faces back either.\n` +
+         `  Nothing has been written; headchefs.json and headchefs/photos/ are untouched. Fix ` +
+         `the photo selectors against the deck's new markup — see "THE DECK SHAPE" in this ` +
+         `file's header for the shape they were written against.`);
+  }
+
+  for (const s of withoutPhoto) {
+    // Legitimate, and the wall is built for it: chefwall renders has_photo:false
+    // as the district's plaque over an empty mat, not a broken image. Still said
+    // out loud on every run — a chef the client MEANT to photograph should not
+    // slip past in silence just because the pipeline tolerates it.
+    console.warn(`  ! ${deck.key}: "${s.slideTitle}" names ${s.name} but carries no ` +
+                 `photograph (${s.photoError}) — other slides in this deck do, so the ` +
+                 `selectors are fine and this chef simply has no picture on the slide.`);
+    annotate(`${s.district.district} has no photograph on the deck`,
+      `${deck.key}: "${s.slideTitle}" names ${s.name} but carries no photograph ` +
+      `(${s.photoError}). Other slides in this deck did carry one, so the portrait selectors ` +
+      `are working and this slide genuinely has no picture. The frame shows the name over an ` +
+      `empty mat, and any portrait already on file for this district is retired — it belongs ` +
+      `to the PREVIOUS chef, and showing that face under this name would be worse than ` +
+      `showing none. Add a photo to the slide and the next run picks it up.`);
   }
 
   /* ── THE EMPTY HARVEST ────────────────────────────────────────────────────
@@ -894,6 +938,24 @@ function extractPhoto(slide) {
   if (!buf || buf.length < 512) {
     return { error: `the ${via} image decoded to ${buf ? buf.length : 0} bytes, which is too ` +
                     'small to be a photograph' };
+  }
+  /* A VECTOR IS NOT A PORTRAIT.
+   * On 2026-09-11 the Chicago deck's Xfinity slide — a four-store award rather
+   * than one person — carried an SVG in img.hcfg, with the actual photographs on
+   * elements this function deliberately does not read (`pi`, `cl`). Handing that
+   * SVG to ImageMagick asked it for the rsvg delegate, which is not installed on
+   * the runner, so the whole run died on an unreadable delegate error and the
+   * wall froze for all six districts.
+   * Refusing it HERE rather than at the encoder turns an unexplainable crash
+   * into the ordinary photoless path: the district shows its name over an empty
+   * mat, the annotation says exactly why, and every other district still lands.
+   * Nobody photographs a chef into an SVG; a vector in the portrait slot is a
+   * badge, a wordmark or a ribbon, and cropping it into a 4:5 frame would be
+   * wrong even if it did convert.                                              */
+  if (/^(svg\+xml|svg)$/i.test(mime)) {
+    return { error: `the ${via} image is an SVG (${buf.length} bytes), which is a graphic ` +
+                    'rather than a photograph — a badge or wordmark in the portrait slot, not ' +
+                    'a face' };
   }
   return { buf, mime: `image/${mime}`, sha: sha256(buf), via };
 }
@@ -1325,6 +1387,11 @@ async function run() {
   const dropped = [];
   const held = [];
   const changed = [];
+  // See "ONE PICTURE THE ENCODER CANNOT READ" below: a single unconvertible
+  // image degrades that district, but if NOT ONE photograph in the whole run
+  // converts, the encoder itself is broken and that must stop the run.
+  let encodeAttempts = 0;
+  const encodeFailures = [];
 
   for (const key of order) {
     const slide = found.get(key);
@@ -1358,14 +1425,40 @@ async function run() {
           photoBytes = stamp ? stamp.bytes : 0;
           photoFileSha = stamp ? stamp.sha : null;
         } else {
-          const enc = encodePhoto(slide.photo.buf, key);
-          photos.set(photoName, enc.bytes);
-          photoFile = `photos/${photoName}`;
-          photoW = enc.w; photoH = enc.h; photoBytes = enc.bytes.length;
-          photoFileSha = enc.sha;
-          if (VERBOSE) {
-            console.log(`    photo ${key}: ${slide.photo.buf.length}B source -> ` +
-                        `${enc.bytes.length}B webp ${enc.w}x${enc.h}`);
+          /* ONE PICTURE THE ENCODER CANNOT READ MUST NOT FREEZE SIX DISTRICTS.
+           * encodePhoto calls fail() on a non-zero ImageMagick exit, which threw
+           * straight out of the run — so a single corrupt, truncated or exotic
+           * image anywhere in either deck stopped the wall from following ANY
+           * deck, including the ones that were perfectly fine. That is the same
+           * mistake THE PHOTOLESS HARVEST corrects above, in a second place.
+           * The same discriminator applies: a district whose photo will not
+           * encode degrades to the photoless path, and only a run where EVERY
+           * photo fails (see the check after this loop) is treated as the
+           * encoder itself being broken.                                       */
+          let enc = null;
+          try {
+            enc = encodePhoto(slide.photo.buf, key);
+          } catch (err) {
+            encodeFailures.push({ key, district: slide.district.district,
+                                  reason: (err && err.message) || String(err) });
+            console.warn(`  ! ${slide.district.district}: the photograph on this slide could ` +
+                         `not be converted, so this frame shows the name over an empty mat. ` +
+                         `Every other district is unaffected. ${(err && err.message) || err}`);
+            annotate(`${slide.district.district} photograph could not be converted`,
+              `${key}: the image on this slide did not survive re-encoding, so the frame shows ` +
+              `the name over an empty mat rather than stopping the whole wall. Reason: ` +
+              `${(err && err.message) || err}`);
+          }
+          encodeAttempts += 1;
+          if (enc) {
+            photos.set(photoName, enc.bytes);
+            photoFile = `photos/${photoName}`;
+            photoW = enc.w; photoH = enc.h; photoBytes = enc.bytes.length;
+            photoFileSha = enc.sha;
+            if (VERBOSE) {
+              console.log(`    photo ${key}: ${slide.photo.buf.length}B source -> ` +
+                          `${enc.bytes.length}B webp ${enc.w}x${enc.h}`);
+            }
           }
         }
       }
@@ -1569,6 +1662,23 @@ async function run() {
       last_changed: (prevMeta && prevMeta.last_changed) || null,
       days_since_confirmed: Number.isFinite(ageDays) ? Math.round(ageDays * 10) / 10 : null
     };
+  }
+
+  /* -- 10c-i. is it one bad picture, or a broken encoder? ------------------ *
+   * Degrading a district whose photograph will not convert is right exactly as
+   * long as the encoder still works for everything else. If NOT ONE photograph
+   * in this run converted, the reasonable reading flips: ImageMagick is missing,
+   * misconfigured, or lost its WebP delegate, and writing the file now would
+   * blank every frame on the wall and orphan every committed portrait — which
+   * the sweep below then deletes, so the next run could not recover them.
+   * Same shape of judgement as THE PHOTOLESS HARVEST, one layer down.          */
+  if (encodeAttempts > 0 && encodeFailures.length === encodeAttempts) {
+    fail(`not one of the ${encodeAttempts} photograph(s) in this run could be re-encoded, so ` +
+         `this is the image encoder rather than the pictures.\n` +
+         encodeFailures.map((f) => `  ${f.district}: ${f.reason}`).join('\n') + `\n` +
+         `  Nothing has been written; headchefs.json and headchefs/photos/ are untouched. ` +
+         `Check the "Check the image encoder" step — ubuntu-latest ships no ImageMagick, and ` +
+         `IM7 dropped the \`convert\` alias for \`magick\`.`);
   }
 
   /* -- 10d. the document ---------------------------------------------------- */

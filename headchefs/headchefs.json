@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-11T13:29:08.756Z",
+  "generated_at": "2026-09-11T15:34:36.946Z",
   "generator": "build/pull-headchefs.mjs",
   "note": "GENERATED FILE — do not hand-edit. Rebuilt from the Win-The-Weekend decks by .github/workflows/headchefs.yml every 30 minutes.",
   "policy": {
@@ -31,7 +31,7 @@
       "label": "Big South",
       "page": "https://blufoxmobile.github.io/Win-The-Weekend---Big-South/",
       "raw": "https://raw.githubusercontent.com/BlufoxMobile/Win-The-Weekend---Big-South/main/index.html",
-      "fetched_at": "2026-09-11T13:29:09.835Z",
+      "fetched_at": "2026-09-11T15:34:37.571Z",
       "bytes": 2857840,
       "head_chef_slides": 1,
       "districts": [
@@ -43,8 +43,8 @@
       "label": "Chicago",
       "page": "https://blufoxmobile.github.io/Win-The-Weekend---Chicago/",
       "raw": "https://raw.githubusercontent.com/BlufoxMobile/Win-The-Weekend---Chicago/main/index.html",
-      "fetched_at": "2026-09-11T13:29:11.011Z",
-      "bytes": 9254972,
+      "fetched_at": "2026-09-11T15:34:37.985Z",
+      "bytes": 2502684,
       "head_chef_slides": 5,
       "districts": [
         "North Side",
@@ -64,7 +64,7 @@
       "slide_title": "Head Chef Of The Week — Big South",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-09-11T13:29:08.756Z",
+      "last_confirmed": "2026-09-11T15:34:36.946Z",
       "last_changed": "2026-09-11T13:29:08.756Z",
       "days_since_confirmed": 0
     },
@@ -76,8 +76,8 @@
       "slide_title": "Head Chef Of The Week — West Side",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-09-11T13:29:08.756Z",
-      "last_changed": "2026-09-04T17:33:53.306Z",
+      "last_confirmed": "2026-09-11T15:34:36.946Z",
+      "last_changed": "2026-09-11T15:34:36.946Z",
       "days_since_confirmed": 0
     },
     "east-side": {
@@ -88,8 +88,8 @@
       "slide_title": "Head Chef Of The Week — Outlawz",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-09-11T13:29:08.756Z",
-      "last_changed": "2026-09-04T17:33:53.306Z",
+      "last_confirmed": "2026-09-11T15:34:36.946Z",
+      "last_changed": "2026-09-11T15:34:36.946Z",
       "days_since_confirmed": 0
     },
     "north-side": {
@@ -100,8 +100,8 @@
       "slide_title": "Head Chef Of The Week — North Side",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-09-11T13:29:08.756Z",
-      "last_changed": "2026-09-04T17:33:53.306Z",
+      "last_confirmed": "2026-09-11T15:34:36.946Z",
+      "last_changed": "2026-09-11T15:34:36.946Z",
       "days_since_confirmed": 0
     },
     "south-side": {
@@ -112,8 +112,8 @@
       "slide_title": "Head Chef Of The Week — The South Side",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-09-11T13:29:08.756Z",
-      "last_changed": "2026-09-04T17:33:53.306Z",
+      "last_confirmed": "2026-09-11T15:34:36.946Z",
+      "last_changed": "2026-09-11T15:34:36.946Z",
       "days_since_confirmed": 0
     },
     "xfinity": {
@@ -124,8 +124,8 @@
       "slide_title": "⭐ Xfinity Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-26T04:16:23.645Z",
-      "last_confirmed": "2026-09-11T13:29:08.756Z",
-      "last_changed": "2026-09-04T17:33:53.306Z",
+      "last_confirmed": "2026-09-11T15:34:36.946Z",
+      "last_changed": "2026-09-11T15:34:36.946Z",
       "days_since_confirmed": 0
     }
   },
@@ -169,7 +169,7 @@
       "photo_sha": "a0c62cf6c38c0c8d060fb17ba7a796155a825624fa3f3d0541977e0c368b8c5f",
       "photo_file_sha": "13e56957b3c2c7019b450dfabbb7d187121f6d2eebaca1fb983c8ea7123dabed",
       "photo_low_quality": true,
-      "last_confirmed": "2026-09-11T13:29:08.756Z",
+      "last_confirmed": "2026-09-11T15:34:36.946Z",
       "last_changed": "2026-09-11T13:29:08.756Z",
       "days_since_confirmed": 0,
       "stale": false
@@ -181,15 +181,15 @@
       "region_deck": "Chicago",
       "slide_title": "Head Chef Of The Week — West Side",
       "slide_index": 3,
-      "name": "Alexandro Flores",
-      "store_role": "Glenview • Sales Representative",
+      "name": "Linda Weeks",
+      "store_role": "Glenview • Assistant Manager",
       "stats": [
         {
-          "value": "$3,365",
+          "value": "$7,948",
           "label": "GP $"
         },
         {
-          "value": "44%",
+          "value": "85%",
           "label": "Plus"
         },
         {
@@ -197,24 +197,24 @@
           "label": "GIG Attach"
         },
         {
-          "value": "$0.00",
+          "value": "$0.70",
           "label": "Accy $/Box"
         }
       ],
-      "writeup": "• Consistent Performance\n• Opportunistic\n• Always dripped out\n• Top tier energy\n• ASM KILDEER",
+      "writeup": "• 7.3K GP\n• 6 NETS ALL GIG\n• 31 TOTAL LINES\n• 85% PLUS\n\n•• Always looking for opportunities with every customer",
       "is_xfinity": false,
       "is_store": false,
       "vacant": false,
-      "has_photo": true,
-      "photo_file": "photos/west-side.webp",
-      "photo_w": 384,
-      "photo_h": 512,
-      "photo_bytes": 19786,
-      "photo_sha": "fb006593ca345cf5e730a462ab39d0a8d2ab45a501ce13751044cad2eff51c40",
-      "photo_file_sha": "f184192fa99ddc9ec8c4575547408cc2adf4ca655312c812ff9cd94917683c0e",
+      "has_photo": false,
+      "photo_file": null,
+      "photo_w": 0,
+      "photo_h": 0,
+      "photo_bytes": 0,
+      "photo_sha": null,
+      "photo_file_sha": null,
       "photo_low_quality": false,
-      "last_confirmed": "2026-09-11T13:29:08.756Z",
-      "last_changed": "2026-09-04T17:33:53.306Z",
+      "last_confirmed": "2026-09-11T15:34:36.946Z",
+      "last_changed": "2026-09-11T15:34:36.946Z",
       "days_since_confirmed": 0,
       "stale": false
     },
@@ -225,56 +225,40 @@
       "region_deck": "Chicago",
       "slide_title": "Head Chef Of The Week — Outlawz",
       "slide_index": 1,
-      "name": "Hammond",
-      "store_role": "Store • National Rank #16",
+      "name": "April Vasquez",
+      "store_role": "Schererville • Assistant Manager",
       "stats": [
         {
-          "value": "$87,389",
-          "label": "GP $ Trend"
+          "value": "$5,415",
+          "label": "GP $"
         },
         {
-          "value": "7.75%",
-          "label": "MCR"
-        },
-        {
-          "value": "100.0%",
+          "value": "94%",
           "label": "Plus"
         },
         {
-          "value": "72.5%",
-          "label": "NPS"
+          "value": "20%",
+          "label": "GIG Attach"
         },
         {
-          "value": "76.9%",
-          "label": "GIG"
-        },
-        {
-          "value": "$13.85",
-          "label": "Accy"
-        },
-        {
-          "value": "21",
-          "label": "Mobile"
-        },
-        {
-          "value": "12.05%",
-          "label": "FCR"
+          "value": "$25.23",
+          "label": "Accy $/Box"
         }
       ],
-      "writeup": "Ranked 16th out n the company\n7.75% MCR\n77% gig speed\n100% premium attach\nOver 80% nps",
+      "writeup": "Ranked 111th nationally\nMaintains performance when manager is off\nDevelops those around her\nConsistent top region performer",
       "is_xfinity": false,
-      "is_store": true,
+      "is_store": false,
       "vacant": false,
       "has_photo": true,
       "photo_file": "photos/east-side.webp",
       "photo_w": 384,
-      "photo_h": 397,
-      "photo_bytes": 27514,
-      "photo_sha": "41c681be0dbb9772a94b6dcf71a52008716a64df85936b44f4ca83dace54ab6d",
-      "photo_file_sha": "83bbe09a12a9510ad46dffd6cc1a9937bde87734621013942d4656ab98edf14d",
-      "photo_low_quality": false,
-      "last_confirmed": "2026-09-11T13:29:08.756Z",
-      "last_changed": "2026-09-04T17:33:53.306Z",
+      "photo_h": 365,
+      "photo_bytes": 17144,
+      "photo_sha": "5abcd71ae7e515c5973445fa01fc9cb4a8a094c67728ca823cc6df4371a37678",
+      "photo_file_sha": "004aa7d561174172d28594b52fe6f81e18fa9ca44b01811ddd33c4f3f9ab8189",
+      "photo_low_quality": true,
+      "last_confirmed": "2026-09-11T15:34:36.946Z",
+      "last_changed": "2026-09-11T15:34:36.946Z",
       "days_since_confirmed": 0,
       "stale": false
     },
@@ -285,56 +269,23 @@
       "region_deck": "Chicago",
       "slide_title": "Head Chef Of The Week — North Side",
       "slide_index": 0,
-      "name": "Evanston",
-      "store_role": "Store • National Rank #1",
-      "stats": [
-        {
-          "value": "$121,149",
-          "label": "GP $ Trend"
-        },
-        {
-          "value": "11.73%",
-          "label": "MCR"
-        },
-        {
-          "value": "70.6%",
-          "label": "Plus"
-        },
-        {
-          "value": "85.3%",
-          "label": "NPS"
-        },
-        {
-          "value": "100.0%",
-          "label": "GIG"
-        },
-        {
-          "value": "$20.99",
-          "label": "Accy"
-        },
-        {
-          "value": "34",
-          "label": "Mobile"
-        },
-        {
-          "value": "16.55%",
-          "label": "FCR"
-        }
-      ],
-      "writeup": "#2 Store in the Nation\nHighest T-Sheet Numbers as a store\n11% MCR\n90% NPS\n$120k GP Trend\nDefinition of a hustler",
+      "name": "Mobi",
+      "store_role": "Head Chef Nominee",
+      "stats": [],
+      "writeup": "$1000+ in Commission\nGreat customer service\nAlways looking for a sale\nImpact maker",
       "is_xfinity": false,
-      "is_store": true,
+      "is_store": false,
       "vacant": false,
       "has_photo": true,
       "photo_file": "photos/north-side.webp",
       "photo_w": 384,
-      "photo_h": 369,
-      "photo_bytes": 6158,
-      "photo_sha": "0f739915d8f551c781ffaf78fb9507341cdef73c8c9e9e3d3af94816a20b69a1",
-      "photo_file_sha": "ab0d00fc7f9e990097b001d8abe0c016c1294b5e954cb9e87097e1519dd9190d",
+      "photo_h": 382,
+      "photo_bytes": 8550,
+      "photo_sha": "91ac8dad26fb0b04bd7ddc60cfd2f64653c5b7ac180eda7507e894c6e2f9047b",
+      "photo_file_sha": "1cac867117eb8f3666cb8343753dc0410dd517d8bcbcc15d0c9b5ffd7d0cc888",
       "photo_low_quality": true,
-      "last_confirmed": "2026-09-11T13:29:08.756Z",
-      "last_changed": "2026-09-04T17:33:53.306Z",
+      "last_confirmed": "2026-09-11T15:34:36.946Z",
+      "last_changed": "2026-09-11T15:34:36.946Z",
       "days_since_confirmed": 0,
       "stale": false
     },
@@ -345,56 +296,40 @@
       "region_deck": "Chicago",
       "slide_title": "Head Chef Of The Week — The South Side",
       "slide_index": 2,
-      "name": "Frankfort",
-      "store_role": "Store • National Rank #58",
+      "name": "Alicia Valdez",
+      "store_role": "Evergreen Park • Assistant Manager",
       "stats": [
         {
-          "value": "$56,399",
-          "label": "GP $ Trend"
+          "value": "$6,396",
+          "label": "GP $"
         },
         {
-          "value": "7.71%",
-          "label": "MCR"
-        },
-        {
-          "value": "88.2%",
+          "value": "65%",
           "label": "Plus"
         },
         {
-          "value": "70.4%",
-          "label": "NPS"
+          "value": "78%",
+          "label": "GIG Attach"
         },
         {
-          "value": "50.0%",
-          "label": "GIG"
-        },
-        {
-          "value": "$10.34",
-          "label": "Accy"
-        },
-        {
-          "value": "17",
-          "label": "Mobile"
-        },
-        {
-          "value": "11.31%",
-          "label": "FCR"
+          "value": "$4.91",
+          "label": "Accy $/Box"
         }
       ],
-      "writeup": "Head chef of the week goes to Terron out of Frankfort. Currently leading the southside in the ranker. He has a mobile close rate of 7.6%. Terron comes in every day with a positive mindset and is always on the floor helping and developing his team. Thank you for everything you do.",
+      "writeup": "Currently leading the southside in the ranker coming in at number 76. Alicia is a shark day in and day out. It doesn't matter if it's a remote swap or phone issue she's going into the account and looking for the opportunities. Thank you for all the work you put in.",
       "is_xfinity": false,
-      "is_store": true,
+      "is_store": false,
       "vacant": false,
       "has_photo": true,
       "photo_file": "photos/south-side.webp",
       "photo_w": 384,
-      "photo_h": 396,
-      "photo_bytes": 5518,
-      "photo_sha": "73f682ce35fb3560ed96141ad91b13c82c1047c2f4e842a142aab84dbcd06e8f",
-      "photo_file_sha": "3aca7a1e061dd0150274a4e1e232eb92acaa94912a0e45025a1979d39c295e1a",
-      "photo_low_quality": false,
-      "last_confirmed": "2026-09-11T13:29:08.756Z",
-      "last_changed": "2026-09-04T17:33:53.306Z",
+      "photo_h": 378,
+      "photo_bytes": 4402,
+      "photo_sha": "cf2e12e4925e6189f1af7173a429bfbdbd13f0fc798a448330804e0a8b38399e",
+      "photo_file_sha": "c7d0f0332ffe9d7cbfef8e40d1d3052563d9ff483f73c83c614f700b27578c07",
+      "photo_low_quality": true,
+      "last_confirmed": "2026-09-11T15:34:36.946Z",
+      "last_changed": "2026-09-11T15:34:36.946Z",
       "days_since_confirmed": 0,
       "stale": false
     },
@@ -405,40 +340,23 @@
       "region_deck": "Chicago",
       "slide_title": "⭐ Xfinity Head Chef Of The Week",
       "slide_index": 4,
-      "name": "Kenisha Banks",
-      "store_role": "Uptown • Sales Representative",
-      "stats": [
-        {
-          "value": "$1,660",
-          "label": "GP $"
-        },
-        {
-          "value": "100%",
-          "label": "Plus"
-        },
-        {
-          "value": "100%",
-          "label": "GIG Attach"
-        },
-        {
-          "value": "$5.71",
-          "label": "Accy $/Box"
-        }
-      ],
-      "writeup": "Kenisha is always a consistent seller. She has great customer service and always gets rave reviews. She got an incredible google review this week that really stood out above the rest. Also, she is always one of the top rated salespeople month after month, so she deserves to be the head chef of the week!",
+      "name": "Uptown, Evanston, Cal City, and Cicero",
+      "store_role": "Xfinity Head Chef • Greater Chicago",
+      "stats": [],
+      "writeup": "Congratulations to these stores for delivering an outstanding customer experience and leading the region in NPS performance!\n🥇 55009 - Uptown, Chicago | 89.4 SMS NPS (47 surveys)\n🥈 55008 - Evanston | 87.3 SMS NPS (55 surveys)\n🥉 51041 - Calumet City | 82.2 SMS NPS (45 surveys)\n🏅 55011 - Cicero | 81.7 SMS NPS (60 surveys)\nYour commitment to creating exceptional customer experiences is showing through every interaction. These results don't happen by accident. They come from consistent execution, strong engagement, and a relentless focus on taking care of our customers.\nKeep raising the bar and setting the standard for the market. Great work, teams! 👏🔥",
       "is_xfinity": true,
       "is_store": false,
       "vacant": false,
-      "has_photo": true,
-      "photo_file": "photos/xfinity.webp",
-      "photo_w": 384,
-      "photo_h": 400,
-      "photo_bytes": 7526,
-      "photo_sha": "a863676035863699cfe7c080a265f64a6eb34898dfc6b41c765031023d3ba8a9",
-      "photo_file_sha": "f6dddada723d997c7cb2a324fa40e7d1ac1de9c161539b2462a34e106cbd8e5c",
+      "has_photo": false,
+      "photo_file": null,
+      "photo_w": 0,
+      "photo_h": 0,
+      "photo_bytes": 0,
+      "photo_sha": null,
+      "photo_file_sha": null,
       "photo_low_quality": false,
-      "last_confirmed": "2026-09-11T13:29:08.756Z",
-      "last_changed": "2026-09-04T17:33:53.306Z",
+      "last_confirmed": "2026-09-11T15:34:36.946Z",
+      "last_changed": "2026-09-11T15:34:36.946Z",
       "days_since_confirmed": 0,
       "stale": false
     }
