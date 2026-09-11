@@ -47,7 +47,11 @@
 const VERSION = 'ccc-v1';
 const CACHE = `${VERSION}-shell`;
 
-/** Content-hashed by build/fingerprint.mjs: `app.9f2c81e4a0.js`, `hero@1800.24df9e8171.webp`. */
+/** Matches the content hash build/fingerprint.mjs inserts before the extension:
+ *  ten hex digits, as in `app.<10 hex>.js` or `hero@1800.<10 hex>.webp`. Written
+ *  as a SHAPE and not as real filenames on purpose — every build mints new
+ *  hashes, so quoting actual ones dates this comment the moment they change.
+ *  Both filenames previously named here had already ceased to exist. */
 const HASHED = /\.[0-9a-f]{10}\.[A-Za-z0-9]+$/;
 
 /** Immutable-by-construction, or art that is safe to hold: cache first. */
