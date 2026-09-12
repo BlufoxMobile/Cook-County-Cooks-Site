@@ -22,7 +22,7 @@
  * ========================================================================== */
 
 import { el, $ } from './dom.a199da796c.js';
-import { loadEnvelope, unseal, restore, remember, cryptoAvailable } from './coldstore.4527414663.js';
+import { loadEnvelope, unseal, restore, remember, cryptoAvailable } from './coldstore.70cfc6654d.js';
 
 /* ─────────────────────────────────────────────────────────────────────────────
  * 2 · THE FREEZER GATE — NOW A LOCK, NOT A NOTICE
@@ -308,7 +308,7 @@ export function openKeypad() {
  * inline before there were two of them:
  *
  *   1. resolve the envelope (inline bootstrap first, then a fetch of
- *      data/freezer.sealed.cc18467c12.json — see coldstore.js for why the inline copy has
+ *      data/freezer.sealed.17a06d9d9d.json — see coldstore.js for why the inline copy has
  *      to exist at all)
  *   2. if THIS TAB unlocked earlier in the session, re-adopt the payload out of
  *      sessionStorage rather than re-running 600,000 rounds of PBKDF2
