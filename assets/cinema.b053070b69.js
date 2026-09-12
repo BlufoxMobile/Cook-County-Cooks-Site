@@ -47,11 +47,11 @@
  * ========================================================================== */
 
 import { initEngine, scrollToRoom, onRoomChange } from './engine.cccb8d066e.js';
-import { initOverlay, openTool } from './overlay.9fb4522061.js';
-import { mountRoomScreens } from './screens.6fa9ffc569.js';
+import { initOverlay, openTool } from './overlay.4fca58b581.js';
+import { mountRoomScreens } from './screens.804bcbc71f.js';
 import { initChefWall } from './chefwall.2e2da0a5e6.js';
-import { initLabels } from './labels.1962f33a06.js';
-import { buildWallPrint, revealWallPrints } from './wallprint.ed39d9a0c5.js';
+import { initLabels } from './labels.d0e02b26f5.js';
+import { buildWallPrint, revealWallPrints } from './wallprint.592b9e3470.js';
 import { initFreezer } from './freezer.39bd7199fd.js';
 /* The lock is shared with the pocket list — see coldgate.js. It owns the
    sealed envelope, the session restore, the keypad and every path to
@@ -59,9 +59,9 @@ import { initFreezer } from './freezer.39bd7199fd.js';
 import {
   initColdGate, setAdopt, coldTools, isFreezerUnlocked, sealedCount,
   onFreezerUnlock, openKeypad
-} from './coldgate.9d73e1dc66.js';
+} from './coldgate.785b1508b4.js';
 import { el, fill, $ } from './dom.a199da796c.js';
-import { ROOM_ORDER, HOTSPOTS, CHEF_FRAMES, FREEZER_DOOR } from '../rooms.fd59f289cd.js';
+import { ROOM_ORDER, HOTSPOTS, CHEF_FRAMES, FREEZER_DOOR } from '../rooms.72fde1af2b.js';
 
 
 /* §0 · TINY DOM HELPERS — el(), fill() and $() now live in dom.js, because the
@@ -145,7 +145,7 @@ async function loadData() {
 
   // Fallback for a served deployment where the inline block was removed.
   const [tools, headchefs] = await Promise.all([
-    fetch('data/tools.ac8a24642f.json').then((r) => r.json()),
+    fetch('data/tools.e92e30e302.json').then((r) => r.json()),
     fetch('headchefs/headchefs.json').then((r) => r.json())
   ]);
   return { tools, headchefs };
