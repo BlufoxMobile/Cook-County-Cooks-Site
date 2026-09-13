@@ -2993,6 +2993,168 @@ a { color: inherit; text-decoration: none; }
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   08b · THE MARQUEE CHIP  ·  "C³ ARCADE · 3 GAMES"
+   ═══════════════════════════════════════════════════════════════════════════
+   WHY ONE CHIP IS DRESSED DIFFERENTLY FROM ALL THE OTHERS.
+
+   The client, on the arcade: "I want it to be abundantly clear that there are
+   games there … The reps won't notice it if we don't just point it out."
+
+   The obvious signpost — the arcade cabinet in the break-room photograph — is
+   not available, and that is measured rather than assumed. The share of the
+   cabinet hotspot's own width that is actually on screen (the room is
+   cover-cropped and the cabinet sits at plate-x 89.5 → 100):
+
+       1180x820  (the store iPads, his primary device)      0%
+       1366x768                                            47%
+       1440x900                                            14%
+       1512x770                                            62%
+       1920x1080                                           63%
+       2560x1440                                           64%
+
+   Zero, on the device he actually uses. (Re-checked with the room scrolled to
+   its own centre, where the cover crop sits differently: 0% / 0% / 39% for the
+   same three sizes. The crop moves with --plate-x, so the exact figure depends
+   on where you are in the room — which is itself the argument. It is never
+   dependable.) Re-framing the room to bring the
+   cabinet in pushes the training binders (plate-x 18.2 → 30.4) out the other
+   side — the same trade §06d documents for the Back Office clipboards — and
+   the binders are what the room is for. So the room is not re-framed, and the
+   RAIL CHIP is the whole of the discoverability. It is the one arcade
+   affordance present at every size, in the drawer on a phone and in the flat
+   list when a module fails, so it has to do two jobs a normal chip does not:
+   say that what is behind it is GAMES, and not look like the four training
+   chips beside it.
+
+   THE TREATMENT IS EDISON BULBS, AND IT IS A RESTAURANT DECISION.
+   The break room is lit by bare filament bulbs (they are in the plate, and
+   §06c blooms them), and the site is a restaurant. A row of small warm bulbs
+   around a sign is what an arcade cabinet and a marquee over a dining-room door
+   have in common, so it reads as "games" without a joypad glyph and without
+   leaving the metaphor. TASTE BUDGET, held deliberately: 3px bulbs, --amber at
+   .82, one 5px glow each, a 2.4s chase, and NOTHING blinks — no flashing
+   ground, no colour cycling, no second accent. This is a Michelin room with a
+   cabinet in the corner, not a casino floor.
+
+   COLOUR AND CONTRAST. Nothing new: --amber (#f7b955) for the bulbs, --brass
+   for the rule, --accent-lit (--brass-300) for the count. All §02.
+   Measured on RENDERED PIXELS — the chip screenshotted out of the Break Room at
+   1180x820 with the page's transitions frozen first (see the note on .chip
+   above about what happens when you diff a page mid-transition), ink taken as
+   the extreme 2% of luminance and the field as the median of the pixels on the
+   other side of it:
+       chip label (--fg) on the marquee ground .......... 17.1 : 1
+       "3 GAMES" (--accent-lit) on the same ground ...... 12.8 : 1
+       chip label on the hover/focus brass gradient ..... 10.5 : 1
+       "3 GAMES" on the hover/focus brass gradient ...... 10.2 : 1
+   The floor is 4.5:1. The bulbs themselves are decoration and carry no
+   information — the word GAMES does — so they are not held to a text ratio.
+
+   MOTION. The chase is a background-position translation on one composited
+   pseudo-element, no layout and no paint of the chip itself. It is switched off
+   entirely under prefers-reduced-motion, where the bulbs simply stay lit: the
+   sign still reads as a sign, which is the part that carries meaning.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@keyframes ccc-marquee-chase {
+  /* one bulb pitch, so the loop is seamless — see --bulb-pitch below */
+  to { background-position: var(--bulb-pitch) 2px, var(--bulb-pitch) calc(100% - 2px); }
+}
+
+.chip[data-marquee] {
+  /* the bulbs live on ::after, which needs a containing block */
+  position: relative;
+  /* room for the bulb rails top and bottom, so they never sit on the glyphs */
+  padding-block: 7px;
+  /* a hair warmer than a training chip, and a brass hairline instead of a bone
+     one — the sign is lit from inside */
+  background:
+    linear-gradient(180deg,
+      color-mix(in oklab, var(--brass) 9%, transparent),
+      transparent 42%),
+    color-mix(in oklab, var(--ink-900) 62%, transparent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--brass) 38%, transparent),
+    0 1px 0 rgb(var(--shade) / .5),
+    0 0 18px -8px color-mix(in oklab, var(--amber) 55%, transparent);
+}
+
+/* THE BULBS. Two rails — one along the top inside edge, one along the bottom —
+   drawn as a single repeating radial gradient painted twice at two
+   background-positions. One pseudo-element, two gradient layers, zero extra
+   DOM: the chip is a <button> with one text node and one <span> in it and this
+   must not change that. */
+.chip[data-marquee]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  --bulb-pitch: 11px;
+  background-image:
+    radial-gradient(circle at 3px 50%,
+      color-mix(in oklab, var(--amber) 82%, transparent) 0 1.5px,
+      color-mix(in oklab, var(--amber) 26%, transparent) 1.6px 3px,
+      transparent 3.2px),
+    radial-gradient(circle at 3px 50%,
+      color-mix(in oklab, var(--amber) 82%, transparent) 0 1.5px,
+      color-mix(in oklab, var(--amber) 26%, transparent) 1.6px 3px,
+      transparent 3.2px);
+  background-size: var(--bulb-pitch) 6px;
+  background-position: 0 2px, calc(var(--bulb-pitch) / 2) calc(100% - 2px);
+  background-repeat: repeat-x;
+  /* the two rails fade out at the ends so the sign has soft corners rather than
+     a bulb cut in half by the border radius */
+  -webkit-mask: linear-gradient(90deg, transparent 0, #000 9px, #000 calc(100% - 9px), transparent 100%);
+  mask:         linear-gradient(90deg, transparent 0, #000 9px, #000 calc(100% - 9px), transparent 100%);
+  animation: ccc-marquee-chase 2.4s linear infinite;
+}
+
+/* The brass tick that every other chip carries is redundant here — the bulbs
+   already say "this one is different" — and at 5px it reads as a sixth bulb in
+   the wrong place. */
+.chip[data-marquee]::before { display: none; }
+
+/* the count. One rule, and it is the only thing on the chip that is not --fg. */
+.chip .chip-count {
+  display: inline-flex;
+  align-items: center;
+  color: var(--accent-lit);
+  font-weight: 700;
+  /* nothing until armArcadeChips() fills it, so an empty span costs no gap */
+  &:empty { display: none; }
+}
+.chip .chip-sep::before {
+  content: "\00b7";
+  margin-inline: .45em;
+  color: color-mix(in oklab, var(--brass) 70%, transparent);
+}
+
+/* Hover/focus: the sign goes solid brass like every other chip, so the arcade
+   is not a different KIND of control — it is the same control, lit. The bulbs
+   go dark against it, the way real bulbs do when the sign behind them lights. */
+.chip[data-marquee]:hover,
+.chip[data-marquee]:focus-visible {
+  background: linear-gradient(180deg, var(--brass-300), var(--brass));
+  .chip-count { color: color-mix(in oklab, var(--ink-950) 88%, var(--walnut)); }
+  .chip-sep::before { color: color-mix(in oklab, var(--ink-950) 55%, transparent); }
+  &::after {
+    background-image:
+      radial-gradient(circle at 3px 50%, rgb(var(--shade) / .55) 0 1.5px, transparent 2.2px),
+      radial-gradient(circle at 3px 50%, rgb(var(--shade) / .55) 0 1.5px, transparent 2.2px);
+    animation-play-state: paused;
+  }
+}
+.chip[data-marquee]:hover { box-shadow: inset 0 0 0 1px var(--brass-300), var(--shadow-1); }
+
+@media (prefers-reduced-motion: reduce) {
+  /* the bulbs stay LIT, they just stop travelling: the sign is the message, the
+     chase is only the flourish */
+  .chip[data-marquee]::after { animation: none; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
    09 · HOTSPOTS
    ═══════════════════════════════════════════════════════════════════════════
    Objects in the photograph that are links.
@@ -4809,6 +4971,52 @@ dialog#c3-menu[open],
       text-shadow: 0 1px 2px rgb(var(--shade) / .95);
       box-shadow: 0 0 0 6px var(--brass-300);
       &::before { background: var(--brass-300); }
+    }
+  }
+
+  /* ── THE MARQUEE CHIP IN THE DRAWER (§08b) ────────────────────────────────
+     Below this breakpoint the rail stops being a row of glass tags and becomes
+     a full-width list, and the rule above strips every chip's ground to do it.
+     The arcade row has to survive that, because this is the breakpoint where
+     the drawer IS the navigation and the client's "abundantly clear" applies
+     hardest — on a 393px phone the drawer is the only thing there is.
+
+     So the row keeps its bulbs and gains a left-hand brass spine instead of a
+     ground: at 100% width a filled chip would be a 360px amber slab, which is
+     the casino this section's budget rules out. The bulb rails are narrowed to
+     the top and bottom of the row and the chase is kept — one composited
+     pseudo-element, same as above.
+
+     ⚠ THE `.rail-chips .chip` RULE ABOVE IS THE SAME SPECIFICITY (0,2,0) AS
+     `.chip[data-marquee]` AND SITS LATER IN THE FILE, so it wins the tie and
+     the §08b ground is already gone by the time we get here. That is why this
+     block re-states background and box-shadow rather than relying on §08b: it
+     is not duplication, it is the losing side of a cascade tie being written
+     where it can win. */
+  .rail-chips .chip[data-marquee] {
+    padding-inline-start: var(--sp-3);
+    background: linear-gradient(90deg,
+      color-mix(in oklab, var(--brass) 13%, transparent),
+      transparent 62%);
+    box-shadow: inset 2px 0 0 0 var(--brass);
+    &:hover, &:active {
+      background: color-mix(in oklab, var(--brass) 20%, transparent);
+      box-shadow: inset 2px 0 0 0 var(--brass-300);
+    }
+    &:focus-visible {
+      background: color-mix(in oklab, var(--brass) 20%, transparent);
+      box-shadow: inset 2px 0 0 0 var(--brass-300), 0 0 0 6px var(--brass-300);
+    }
+    /* WIDER BULB PITCH, and it is not a taste tweak. A drawer row is full-width
+       — 780px on an iPad in portrait — and at the 11px pitch §08b uses for a
+       200px chip that is seventy bulbs in a line, which stops reading as a
+       marquee and starts reading as a dotted border. 18px halves the count and
+       the sign reads as a sign again. The mask also keeps the bulbs off the
+       brass spine so the two do not collide at the left corner. */
+    &::after {
+      --bulb-pitch: 18px;
+      -webkit-mask: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 9px), transparent 100%);
+      mask:         linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 9px), transparent 100%);
     }
   }
 

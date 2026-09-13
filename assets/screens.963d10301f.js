@@ -73,11 +73,11 @@
  * -------------------------------------------------------------------------- */
 
 /** The two public, CORS-open data files behind the Host Stand and Back Office. */
-import { freshUrl } from './overlay.4fca58b581.js';
+import { freshUrl } from './overlay.38c3f33d81.js';
 /* Same reason as overlay.js §6: an iframe's `load` fires for a 404, a 500, an
    error page and a refused frame alike, so a live board that 404s was being
    revealed as the board. preflight.js carries the twelve-shape measurement. */
-import { preflight, preflightCopy } from './preflight.45c0b48993.js';   // shared fresh-load cache buster
+import { preflight, preflightCopy } from './preflight.de727ecb0b.js';   // shared fresh-load cache buster
 
 export const PROMO_CARD_URL =
   'https://raw.githubusercontent.com/BlufoxMobile/Daily-Sales-Report/main/data/promo-card.jpg';
@@ -409,7 +409,7 @@ function getTool(slug) {
  * 3 · Stylesheet
  *
  * Injected once, prefixed `ccc-scr`, every colour and face read through a
- * `var(--ccc-…, fallback)` so assets/theme.2d7c2c8824.css owns the look. Nothing here
+ * `var(--ccc-…, fallback)` so assets/theme.a73825e539.css owns the look. Nothing here
  * animates anything but transform / opacity / filter.
  * -------------------------------------------------------------------------- */
 
@@ -4347,7 +4347,7 @@ document.addEventListener('visibilitychange', () => {
 });
 
 /* =============================================================================
- * CLASS HOOKS — the contract with assets/theme.2d7c2c8824.css
+ * CLASS HOOKS — the contract with assets/theme.a73825e539.css
  * -----------------------------------------------------------------------------
  * Structure (one per screen):
  *   .ccc-scr[data-screen-panel="<slug>"]      the panel

@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <title>C³ Arcade | Cook County Cooks</title>
+  <meta name="description" content="The Break Room cabinets — every game on the site, on one screen.">
+
+  <!-- FONTS, NON-BLOCKING — copied from tools/printouts/index.html for the same
+       measured reason: a render-blocking stylesheet also blocks script
+       execution, and fonts.googleapis.com HANGS behind a store's captive portal
+       rather than failing. media="print" keeps it off the critical path; onload
+       flips it to `all` the moment it lands. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,300..700;1,62..125,300..700&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&display=swap"
+        media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,300..700;1,62..125,300..700&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&display=swap"></noscript>
+
+  <!-- THE SITE'S OWN STYLESHEET, not a second design language. Everything below
+       is written against its tokens (§02) and reuses its primitives — .kicker,
+       .t-sub, .lede, .micro, .rule, .visually-hidden, .skip-link and the
+       two-tone focus ring in §16. This page is loaded into the tool overlay (an
+       iframe), so it carries its own <head>; it does not invent a palette. -->
+  <link rel="stylesheet" href="../../assets/theme.a73825e539.css">
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       ⚠ THE MANIFEST IS **NOT** INLINED HERE, AND THAT IS THE DECISION.
+       ══════════════════════════════════════════════════════════════════════
+       tools/printouts/index.html inlines printouts/manifest.json verbatim into
+       its <head> as a file:// fallback, because Jeff and the district managers
+       review builds off a USB stick and fetch() against a file:// URL is
+       CORS-blocked for a null origin. The cost is recorded there and is real:
+       the two copies drift silently, and nothing catches it.
+
+       This page does not take that trade, for a reason specific to what this
+       page IS. The whole point of arcade/manifest.json is that Jeff adds a game
+       by adding ONE ROW TO IT — "I think I want to add a couple more games on
+       the site over the next couple of weeks." An inline copy makes that a
+       two-file edit for ever, and the one week he forgets the second file is
+       the week the arcade quietly renders yesterday's cabinet list.
+
+       The two ways out both fail on that requirement:
+         · inline it and let the fetched copy win — then the inline copy is
+           stale by design and only wrong on the one path (file://) where
+           nothing can correct it;
+         · inline it and assert the two parse equal — then the FIRST game Jeff
+           adds trips the assertion, and a warning banner on a working page is
+           a worse lie than no banner at all.
+       So: one copy, fetched, always. On file:// this page renders the honest
+       state below (offlineState()) naming the manifest and saying the station
+       needs the site served — `python3 -m http.server` in the repo root, which
+       is the same thing every other runtime-data surface on this site needs.
+       The games themselves are still reachable from the Break Room rail on a
+       USB review, because the tool list in data/ IS inlined in index.html.
+       ══════════════════════════════════════════════════════════════════════ -->
+
+  <style>
+    /* ══════════════════════════════════════════════════════════════════════
+       C³ ARCADE · the room behind the cabinet
+       Local to this page. Tokens only — no new colours, no second type scale.
+       ══════════════════════════════════════════════════════════════════════ */
+
+    body {
+      /* the overlay stage is a warm paper; this page is a dark room like the
+         rest of the site, so it needs its own explicit ground */
+      background-color: var(--bg);
+      padding-block-end: calc(var(--sp-9) + env(safe-area-inset-bottom));
+    }
+
+    .ar-wrap {
+      max-inline-size: 74rem;
+      margin-inline: auto;
+      padding-inline: var(--gut);
+    }
+
+    /* ── masthead ───────────────────────────────────────────────────────── */
+    .ar-head {
+      padding-block: var(--sp-7) var(--sp-5);
+      border-block-end: 1px solid var(--line-hair);
+    }
+    .ar-head .kicker { display: block; }
+    .ar-head h1 {
+      margin-block-start: var(--sp-3);
+      font-size: var(--t-4);
+      font-variation-settings: "opsz" 44, "wght" 500;
+      letter-spacing: var(--track-4);
+    }
+    .ar-head .lede { margin-block-start: var(--sp-3); max-inline-size: 54ch; }
+
+    .ar-headline-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: var(--sp-3) var(--sp-5);
+      margin-block-start: var(--sp-4);
+    }
+    .ar-count { color: var(--fg-dim); font-size: var(--t--1); }
+    .ar-count b { color: var(--accent-lit); font-weight: 600; }
+
+    /* lifted from .po-back — same control, same room, same measurements */
+    .ar-back {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--sp-2);
+      min-block-size: 44px;
+      padding-inline-end: var(--sp-2);
+      color: var(--fg-dim);
+      font-size: var(--t--2);
+      font-weight: 600;
+      font-stretch: 90%;
+      text-transform: uppercase;
+      letter-spacing: var(--track-caps);
+      transition: color var(--dur-2) var(--ease-out);
+    }
+    .ar-back::before {
+      content: "";
+      inline-size: 8px; block-size: 8px;
+      border-inline-start: 1.5px solid currentColor;
+      border-block-end: 1.5px solid currentColor;
+      transform: rotate(45deg);
+    }
+    .ar-back:hover, .ar-back:focus-visible { color: var(--accent-lit); }
+
+    /* ── the row of cabinets ────────────────────────────────────────────── */
+    .ar-list {
+      display: grid;
+      gap: var(--sp-5);
+      margin-block-start: var(--sp-6);
+      padding: 0;
+      list-style: none;
+      /* ONE COLUMN UNTIL THERE IS ROOM FOR TWO WHOLE CABINETS. auto-fill with a
+         19rem floor and a 1fr ceiling, NOT a fixed column count: the arcade has
+         three games today and the client has said there will be more, so this
+         rule has to absorb a fourth and a fifth without anyone editing it.
+         Measured, wrap width -> card width -> cabinets across:
+             393x852     393px   349px   1 up
+             820x1180    820px   362px   2 up
+             1180x820   1180px   346px   3 up
+             1440x900   1184px   342px   3 up   (the 74rem wrap caps it here)
+             2560x1440  1184px   331px   3 up
+         Three across is where it stops, by the wrap and not by this rule, and
+         that is right: a fourth game wraps to a second row of the same-sized
+         cabinets rather than shrinking all four. */
+      grid-template-columns: repeat(auto-fill, minmax(min(19rem, 100%), 1fr));
+    }
+
+    /* ── one cabinet ────────────────────────────────────────────────────── */
+    .ar-cab {
+      position: relative;                 /* the stretched link anchors here */
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--line-hair);
+      border-radius: var(--r-md);
+      background: var(--surface);
+      box-shadow: var(--shadow-1);
+      overflow: hidden;
+      transition: border-color var(--dur-2) var(--ease-out),
+                  transform var(--dur-3) var(--ease-cine),
+                  box-shadow var(--dur-2) var(--ease-out);
+    }
+    .ar-cab:hover { border-color: var(--line-soft); transform: translateY(-2px); box-shadow: var(--shadow-2); }
+    /* the card lights when the link inside it has the keyboard: focus-within,
+       so the ring on the button and the lift on the card agree */
+    .ar-cab:focus-within { border-color: var(--line); }
+    .ar-cab.is-unwired { opacity: 1; border-style: dashed; }
+
+    /* the art plate. --tint comes off the manifest row; it is the only thing
+       about a cabinet this stylesheet does not know in advance. */
+    .ar-art {
+      position: relative;
+      display: block;
+      aspect-ratio: 16 / 10;
+      /* so the drawn tile's initials below size against the CARD. Without a
+         container, `cqi` falls back to the viewport and the glyphs on a 2560
+         screen are solved against 2560 rather than against a 19rem column. */
+      container-type: inline-size;
+      background: var(--ink-950);
+      border-block-end: 1px solid var(--line-hair);
+      overflow: hidden;
+    }
+    .ar-art > img {
+      inline-size: 100%;
+      block-size: 100%;
+      max-inline-size: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    /* a hairline of the game's own tint along the foot of the plate, so three
+       cabinets in a row read as three different machines rather than one
+       repeated card */
+    .ar-art::after {
+      content: "";
+      position: absolute;
+      inset-inline: 0;
+      inset-block-end: 0;
+      block-size: 2px;
+      background: var(--tint, var(--brass));
+      opacity: .85;
+    }
+
+    /* THE GENERATED TILE — what a manifest row with no `art` gets.
+       It has to be drawn by CSS and not by a file, because that is the whole
+       "add one row and nothing else" promise: a game added next month with no
+       art still arrives looking like a cabinet. Two conic sweeps in the game's
+       own tint over the page ground, plus the title's initials in display type.
+       Deliberately abstract — a generic joypad glyph on every future game would
+       be worse than no art at all. */
+    .ar-art.is-drawn {
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(120% 90% at 78% 14%, color-mix(in oklab, var(--tint, var(--brass)) 34%, transparent), transparent 62%),
+        repeating-linear-gradient(115deg,
+          color-mix(in oklab, var(--tint, var(--brass)) 10%, transparent) 0 2px,
+          transparent 2px 13px),
+        linear-gradient(180deg, var(--ink-800), var(--ink-950));
+    }
+    .ar-art.is-drawn > span {
+      font-family: var(--font-display);
+      font-optical-sizing: none;
+      font-variation-settings: "opsz" 60, "wght" 500;
+      font-size: clamp(2.4rem, 9cqi, 3.6rem);
+      line-height: 1;
+      letter-spacing: .04em;
+      /* MIXED TOWARD --bone-2, NOT TOWARD THE TINT, and the ratio is the point.
+         At `tint 72%, bone` a DARK tint produced dark glyphs on a dark tile:
+         measured with --tint at --slate (#1d3b52) the initials came out at
+         2.95:1 on the generated ground — a tile whose only content is
+         unreadable. At 34% the tint still colours the letters but the mix can
+         never land below --bone-2's own darkness. Re-measured on rendered
+         pixels with that same worst-case dark tint: 5.86:1. The brass and
+         amber tints the three shipped cabinets use are far lighter again, so
+         every tint in §02 clears the 4.5:1 floor with room to spare. */
+      color: color-mix(in oklab, var(--tint, var(--brass)) 34%, var(--bone-2));
+      text-shadow: 0 2px 18px rgb(var(--shade) / .8);
+    }
+
+    .ar-body {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-2);
+      flex: 1 1 auto;
+      padding: var(--sp-4);
+    }
+    .ar-cab h2 {
+      font-family: var(--font-display);
+      font-optical-sizing: none;
+      font-size: var(--t-1);
+      font-weight: 540;
+      font-variation-settings: "opsz" 26, "wght" 540;
+      line-height: var(--lh-snug);
+      letter-spacing: var(--track-1);
+      color: var(--fg);
+      text-wrap: balance;
+    }
+    .ar-blurb {
+      font-size: var(--t--1);
+      line-height: 1.5;
+      color: var(--fg-dim);
+      text-wrap: pretty;
+      flex: 1 1 auto;
+    }
+    .ar-actions { margin-block-start: var(--sp-3); }
+
+    /* ── the Play control ───────────────────────────────────────────────── */
+    /* Same object as .po-btn.is-primary next door: solid brass, one per card. */
+    .ar-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--sp-2);
+      min-block-size: 44px;
+      min-inline-size: 44px;
+      padding-inline: var(--sp-5);
+      border-radius: var(--r-xs);
+      color: var(--ink-950);
+      background: linear-gradient(180deg, var(--brass-300), var(--brass));
+      box-shadow: inset 0 1px 0 rgb(255 255 255 / .35), var(--shadow-1);
+      font-family: var(--font-text);
+      font-size: var(--t--2);
+      font-weight: 700;
+      font-stretch: 90%;
+      text-transform: uppercase;
+      letter-spacing: var(--track-caps);
+      line-height: 1;
+      white-space: nowrap;
+      transition: filter var(--dur-2) var(--ease-out);
+    }
+    .ar-btn:hover:not(:disabled) { filter: brightness(1.08); }
+    /* THE HALO, PUT BACK — the same note as .po-btn in the Print Outs station.
+       theme.css §16 gives every focused control a two-tone ring (a dark 3px
+       outline plus a light 6px halo) and lists by name the components whose own
+       box-shadow it has to beat. .ar-btn is new, so it opts in here or its own
+       inset highlight wins the cascade and the keyboard user gets the dark half
+       of the ring on a dark card, i.e. nothing. */
+    .ar-btn:focus-visible { box-shadow: 0 0 0 6px var(--brass-300); }
+    .ar-btn .ar-play {
+      inline-size: 0; block-size: 0;
+      border-block: 5px solid transparent;
+      border-inline-start: 8px solid currentColor;
+      transform: translateX(1px);
+    }
+    .ar-btn:disabled {
+      color: var(--fg-dim);
+      background: color-mix(in oklab, var(--ink-900) 70%, transparent);
+      box-shadow: inset 0 0 0 1px var(--line-soft);
+      cursor: not-allowed;
+      filter: none;
+    }
+    .ar-btn:disabled .ar-play { opacity: .5; }
+
+    /* THE STRETCHED LINK. The whole cabinet is the target, not just the
+       button — a 44px pill inside a 300px card is the wrong hit area on an iPad
+       — but there is still exactly ONE focusable element per card and exactly
+       one accessible name ("Play DEEP SIX"). The art and the heading are not
+       separately tabbable, which is what keeps the Tab walk honest. */
+    a.ar-btn::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: var(--r-md);
+    }
+
+    /* ── the honest states ──────────────────────────────────────────────── */
+    /* Same object as .po-note: a dashed aside with a brass spine. */
+    .ar-note {
+      display: flex;
+      gap: var(--sp-3);
+      margin-block-start: var(--sp-3);
+      padding: var(--sp-3);
+      border-radius: var(--r-xs);
+      border: 1px dashed var(--line-soft);
+      background: color-mix(in oklab, var(--ink-950) 45%, transparent);
+      font-size: var(--t--2);
+      line-height: 1.5;
+      color: var(--fg-muted);
+      text-wrap: pretty;
+    }
+    .ar-note::before {
+      content: "";
+      flex: none;
+      inline-size: 2px;
+      align-self: stretch;
+      border-radius: 1px;
+      background: var(--brass-700);
+    }
+    .ar-note.is-alert { border-style: solid; border-color: color-mix(in oklab, var(--alert) 40%, transparent); }
+    .ar-note.is-alert::before { background: var(--alert); }
+    .ar-note b { color: var(--fg); font-weight: 600; }
+    .ar-note code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: .92em;
+      color: var(--accent-lit);
+      word-break: break-word;
+    }
+
+    .ar-empty {
+      margin-block-start: var(--sp-6);
+      padding: var(--sp-6);
+      border: 1px dashed var(--line-soft);
+      border-radius: var(--r-md);
+      text-align: center;
+    }
+    .ar-empty h2 { font-family: var(--font-display); font-size: var(--t-2); font-optical-sizing: none; }
+    .ar-empty p { margin-block-start: var(--sp-3); margin-inline: auto; max-inline-size: 52ch; }
+
+    .ar-banner {
+      display: flex;
+      gap: var(--sp-3);
+      margin-block-start: var(--sp-5);
+      padding: var(--sp-4);
+      border-radius: var(--r-md);
+      border: 1px solid color-mix(in oklab, var(--alert) 38%, transparent);
+      background: color-mix(in oklab, var(--alert) 8%, transparent);
+      font-size: var(--t--1);
+      line-height: 1.55;
+      color: var(--fg-muted);
+      text-wrap: pretty;
+    }
+    .ar-banner::before {
+      content: ""; flex: none; inline-size: 2px; align-self: stretch;
+      border-radius: 1px; background: var(--alert);
+    }
+    .ar-banner b { color: var(--fg); font-weight: 600; }
+
+    .ar-colophon {
+      margin-block-start: var(--sp-8);
+      padding-block-start: var(--sp-5);
+      border-block-start: 1px solid var(--line-hair);
+    }
+
+    /* ── responsive ─────────────────────────────────────────────────────── */
+    @media (min-width: 60rem) {
+      .ar-body { padding: var(--sp-5); }
+    }
+    /* phones: one cabinet at a time, and the Play pill goes full width so the
+       thumb has the whole card foot rather than a pill in the corner */
+    @media (max-width: 33rem) {
+      .ar-list { gap: var(--sp-4); margin-block-start: var(--sp-5); }
+      .ar-btn { inline-size: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ar-cab { transition: none; }
+      .ar-cab:hover { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#ar-main">Skip to the games</a>
+
+  <div class="ar-wrap">
+    <header class="ar-head">
+      <span class="kicker">Break Room · The Cabinets</span>
+      <h1 class="t-sub">C³ Arcade</h1>
+      <p class="lede">Every game on the site, in one place. Pick a cabinet and it opens right here — the Back button brings you straight back to this screen.</p>
+      <div class="ar-headline-row">
+        <a class="ar-back" href="../../" target="_top">Back to the Kitchen</a>
+        <span class="ar-count" id="ar-count"></span>
+      </div>
+    </header>
+
+    <main id="ar-main">
+      <ul class="ar-list" id="ar-list"></ul>
+
+      <noscript>
+        <div class="ar-banner">
+          <div>
+            <b>This station needs JavaScript.</b> The games themselves are all listed
+            in the Break Room on the main page, which works without it.
+          </div>
+        </div>
+      </noscript>
+
+      <p class="ar-colophon micro">
+        Cabinets are listed from <code>arcade/manifest.json</code>. Add a row there and a
+        <!-- ⚠ THE <wbr> IN THE PATH BELOW IS LOAD-BEARING; do not tidy it away.
+             build/fingerprint.mjs rewrites every LITERAL occurrence of a hashed
+             asset path in this file, prose included, and the tool list under data/
+             is one of the assets it hashes — so a verbatim spelling here shipped
+             with a ten-hex build hash in the middle of it, and the rep read that
+             hash in a sentence telling him which file to edit. <wbr> renders
+             nothing, breaks the literal, and is the right element for a long path
+             in a 393px column anyway. -->
+        matching row in <code>data/<wbr>tools.json</code> (same <code>slug</code>), and the game
+        shows up here, in the Break Room, in the C³ menu and on the phone — no change to
+        this page.
+      </p>
+    </main>
+  </div>
+
+  <!-- Screen-reader announcements: how many cabinets, and which one launched. -->
+  <p class="visually-hidden" role="status" aria-live="polite" id="ar-live"></p>
+
+  <script>
+  (function () {
+    'use strict';
+
+    /* ═════════════════════════════════════════════════════════════════════
+       C³ ARCADE · station runtime
+       ─────────────────────────────────────────────────────────────────────
+       Data-driven end to end, exactly like the Print Outs station next door.
+       Nothing about any individual game is written into this file: the list,
+       the titles, the blurbs, the art and the tints all come from
+       arcade/manifest.json.
+
+       AND NOT ONE GAME URL IS EVER RENDERED OR NAVIGATED TO FROM HERE.
+       The manifest carries `url` as a record, and this file never reads it.
+       Every launch is `#/tool/<slug>` against the site's own address, because
+       the client has asked that reps never see where the tools are hosted —
+       claude/v15-framed-data-and-hidden-repos.md, and the same rule
+       normaliseTriggerLinks() in assets/overlay.js enforces on every other
+       surface. Grep this file for "github": there is one match, and it is in
+       this sentence.
+       ═════════════════════════════════════════════════════════════════════ */
+
+    var MANIFEST_URL = '../../arcade/manifest.json';
+    /* ⚠ ASSEMBLED FROM TWO HALVES, AND IT HAS TO STAY THAT WAY.
+       build/fingerprint.mjs rewrites every literal occurrence of a hashed asset
+       path in this file — the prose as well as the code — and the tool list
+       under data/ is one of the assets it hashes. It must be: a tools list served
+       from a stale cache is the same drift the whole fingerprinter exists to kill.
+       Written verbatim, this string came out of the build with a ten-hex hash in
+       it, and the un-wired card below then TOLD THE READER TO EDIT A FILE THAT
+       DOES NOT EXIST. Split, it is invisible to the rewriter — and the unhashed
+       file is the one we actually want here anyway: it is always present and
+       always current, even after a data edit that has not been fingerprinted. */
+    var TOOLS_JSON   = 'data/' + 'tools.json';
+    var ART_BASE     = '../../arcade/art/';
+    var SITE_ROOT    = '../../';
+
+    /* A file:// review copy cannot fetch anything — see the long note in
+       <head> for why this page does NOT carry an inline fallback. */
+    var OFFLINE = location.protocol === 'file:';
+
+    var els = {
+      list:  document.getElementById('ar-list'),
+      count: document.getElementById('ar-count'),
+      live:  document.getElementById('ar-live')
+    };
+
+    /* ── helpers ─────────────────────────────────────────────────────────── */
+
+    function el(tag, props, kids) {
+      var node = document.createElement(tag);
+      props = props || {};
+      Object.keys(props).forEach(function (k) {
+        var v = props[k];
+        if (v === null || v === undefined || v === false) return;
+        if (k === 'class') node.className = v;
+        else if (k === 'text') node.textContent = v;
+        else node.setAttribute(k, v === true ? '' : String(v));
+      });
+      [].concat(kids || []).forEach(function (kid) { if (kid) node.append(kid); });
+      return node;
+    }
+
+    function say(msg) { if (els.live) els.live.textContent = msg; }
+
+    /** The site's own address for a game. The only href this page ever writes. */
+    function internalHref(slug) {
+      return SITE_ROOT + '#/tool/' + encodeURIComponent(slug);
+    }
+
+    /** "DEEP SIX" -> "D6"; "C³ FOX RUN" -> "CF". Two glyphs for the drawn tile. */
+    function initials(title) {
+      var words = String(title || '?').trim().split(/[\s—·]+/).filter(Boolean);
+      var out = '';
+      for (var i = 0; i < words.length && out.length < 2; i++) {
+        var ch = words[i].replace(/[^\p{L}\p{N}]/gu, '').charAt(0);
+        if (ch) out += ch.toUpperCase();
+      }
+      return out || '??';
+    }
+
+    /* ── who is our parent, and may we talk to it? ───────────────────────
+       The arcade is normally mounted in the site's tool overlay, i.e. inside
+       an iframe on cookcountycooks.com. It is same-origin with that page, so
+       this is a real, checkable answer and not a guess.
+
+       Cross-origin (somebody else framed this page) reads as NOT framed: the
+       property access throws, we catch, and the page falls back to navigating
+       itself. That is the safe direction — worst case a rep gets a normal
+       page load instead of a frame swap. */
+    function hostWindow() {
+      try {
+        if (window.parent === window) return null;               // top level
+        if (window.parent.location.origin !== location.origin) return null;
+        return window.parent;
+      } catch (err) { return null; }
+    }
+
+    /* ── the tool registry, so a card can be honest ──────────────────────
+       A game's card can only claim to launch if `#/tool/<slug>` will actually
+       resolve. The authority on that is the registry the OVERLAY reads, which
+       is window.__CCC_INLINE__.tools on the parent page — not the tool list on
+       disk, which can be a sync-inline-tools.mjs run ahead of it. Asking
+       the parent is therefore both more precise and free.
+
+       Un-framed (opened directly), there is no parent to ask, so fall back to
+       fetching data/tools.json. If BOTH are unavailable we return null, which
+       means "no opinion" and every card renders enabled — an optimistic card
+       that might 404 is better than a disabled card on a game that works. */
+    function loadSlugs() {
+      var host = hostWindow();
+      try {
+        if (host && host.__CCC_INLINE__ && host.__CCC_INLINE__.tools) {
+          var list = host.__CCC_INLINE__.tools.tools || [];
+          return Promise.resolve(new Set(list.map(function (t) { return t && t.slug; })));
+        }
+      } catch (err) { /* parent went away mid-read; fall through to the fetch */ }
+      if (OFFLINE) return Promise.resolve(null);
+      return fetch(SITE_ROOT + TOOLS_JSON, { cache: 'no-cache' })
+        .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)); })
+        .then(function (d) { return new Set((d.tools || []).map(function (t) { return t && t.slug; })); })
+        .catch(function () { return null; });
+    }
+
+    /* ── launching ───────────────────────────────────────────────────────
+       THE HANDSHAKE, and why it is a postMessage and not a navigation.
+
+       This page is inside the viewer. If a cabinet simply navigated its own
+       frame to the game, the rep would be looking at the game with the
+       viewer's chrome still saying "C³ Arcade", the Back button would unwind
+       an iframe navigation rather than closing anything, and the arcade would
+       be gone with no way back short of closing the viewer and starting over.
+
+       So the arcade ASKS ITS HOST to open the game as a tool in its own right.
+       assets/overlay.js §6b takes the message and calls openTool(slug), which
+       swaps the frame, re-titles the chrome and pushes `#/tool/<slug>` — so
+       Back lands on `#/tool/arcade` and syncFromLocation() puts this page
+       straight back up. Same shape as the Daily Sales Report's ready
+       handshake in assets/screens.js: a plain object with a `source` tag, and
+       trust by IDENTITY rather than by an origin string.
+
+       THREE WAYS OUT, in order, because a rep pressing Play must never get
+       nothing:
+         1. the host acknowledges (`ccc-arcade-host` / ok) — done;
+         2. no acknowledgement inside ACK_MS, because the parent is an older
+            index.html from before this build that has no listener: set the
+            parent's hash ourselves. overlay.js has listened for `hashchange`
+            since v3, so this works on every version of the page that has ever
+            shipped;
+         3. not framed at all (opened directly at tools/arcade/): follow the
+            anchor's own href, which is the same `#/tool/<slug>` on the site.
+       The control is a REAL <a href> carrying (3) as its default action, so a
+       middle-click, a long-press "Copy Link" and a screen reader's link list
+       all hand out cookcountycooks.com — never a repository. */
+    var ACK_MS = 500;
+
+    /** Ignore anything that is not our own host answering our own question. */
+    var pendingAck = null;
+    window.addEventListener('message', function (event) {
+      var host = hostWindow();
+      if (!host || event.source !== host) return;      // identity, not origin
+      var d = event.data;
+      if (!d || typeof d !== 'object' || d.source !== 'ccc-arcade-host') return;
+      if (!pendingAck || d.slug !== pendingAck.slug) return;
+      window.clearTimeout(pendingAck.timer);
+      pendingAck = null;
+    });
+
+    function launch(game, ev) {
+      var host = hostWindow();
+      if (!host) return;                                // not framed: let the <a> work
+      ev.preventDefault();
+      say('Opening ' + game.title + '…');
+
+      try {
+        host.postMessage({ source: 'ccc-arcade', action: 'open-tool', slug: game.slug }, location.origin);
+      } catch (err) {
+        // postMessage itself failed: go straight to the hash fallback.
+        try { host.location.hash = '#/tool/' + encodeURIComponent(game.slug); } catch (e2) { /* noop */ }
+        return;
+      }
+
+      if (pendingAck) window.clearTimeout(pendingAck.timer);
+      pendingAck = { slug: game.slug, timer: window.setTimeout(function () {
+        pendingAck = null;
+        console.warn('[arcade] the host did not acknowledge; falling back to the hash.');
+        try { host.location.hash = '#/tool/' + encodeURIComponent(game.slug); }
+        catch (err) { location.href = internalHref(game.slug); }
+      }, ACK_MS) };
+    }
+
+    /* ── rendering ───────────────────────────────────────────────────────── */
+
+    function buildArt(game) {
+      var tint = typeof game.tint === 'string' ? game.tint : null;
+      var art  = game.art && typeof game.art === 'object' ? game.art : null;
+
+      if (art && art.file) {
+        var plate = el('span', { class: 'ar-art' });
+        var img = el('img', {
+          src: ART_BASE + encodeURIComponent(art.file),
+          alt: typeof art.alt === 'string' ? art.alt : '',
+          width: '320', height: '200',
+          /* below the fold on a phone, and never the thing a rep is waiting
+             for — the title above it is. decoding=async keeps three SVG
+             rasterisations off the main thread on an iPad. */
+          loading: 'lazy', decoding: 'async'
+        });
+        /* A missing or malformed file must not leave a black rectangle: fall
+           through to the drawn tile, which needs no network at all. */
+        img.addEventListener('error', function () {
+          plate.replaceChildren(el('span', { 'aria-hidden': 'true', text: initials(game.title) }));
+          plate.classList.add('is-drawn');
+        });
+        plate.append(img);
+        return plate;
+      }
+      return el('span', { class: 'ar-art is-drawn' },
+        [el('span', { 'aria-hidden': 'true', text: initials(game.title) })]);
+    }
+
+    function renderCabinet(game, knownSlugs) {
+      // "no opinion" (null) means render it enabled — see loadSlugs().
+      var wired = !knownSlugs || knownSlugs.has(game.slug);
+
+      var card = el('li', { class: 'ar-cab' + (wired ? '' : ' is-unwired') });
+      if (typeof game.tint === 'string' && /^#[0-9a-fA-F]{3,8}$/.test(game.tint)) {
+        card.style.setProperty('--tint', game.tint);
+      }
+
+      card.append(buildArt(game));
+
+      var body = el('div', { class: 'ar-body' }, [
+        el('h2', { text: game.title }),
+        game.blurb ? el('p', { class: 'ar-blurb', text: game.blurb }) : null
+      ]);
+
+      var actions = el('div', { class: 'ar-actions' });
+      if (wired) {
+        /* The accessible name is "Play <title>", not "Play": three identical
+           link names in one list is the classic screen-reader failure, and the
+           stretched ::after makes this one control the whole card's target. */
+        var play = el('a', {
+          class: 'ar-btn',
+          href: internalHref(game.slug),
+          'aria-label': 'Play ' + game.title
+        }, [el('span', { class: 'ar-play', 'aria-hidden': 'true' }), document.createTextNode('Play')]);
+        play.addEventListener('click', function (ev) {
+          // Let a modified click behave like a normal browser click.
+          if (ev.defaultPrevented || ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
+          launch(game, ev);
+        });
+        actions.append(play);
+      } else {
+        /* A real disabled <button>, not a <span> wearing role="link": a span
+           with aria-disabled is still in nobody's tab order AND still claims
+           to be a link, which is the worst of both. Disabled takes it out of
+           the Tab walk, which is right — the .ar-note below says in words why
+           it cannot be played, and that note IS reachable as text. */
+        actions.append(el('button', {
+          type: 'button', class: 'ar-btn', disabled: true,
+          'aria-label': 'Play ' + game.title + ' — not available yet'
+        }, [el('span', { class: 'ar-play', 'aria-hidden': 'true' }), document.createTextNode('Play')]));
+      }
+      body.append(actions);
+
+      if (!wired) {
+        body.append(el('p', { class: 'ar-note is-alert' }, [
+          el('span', {}, [
+            el('b', { text: 'Not wired up yet. ' }),
+            document.createTextNode('This cabinet is in the manifest but there is no '),
+            el('code', { text: game.slug }),
+            document.createTextNode(' row in '),
+            el('code', { text: TOOLS_JSON }),
+            document.createTextNode(', so the site has nothing to open. Add the row (and run '),
+            el('code', { text: 'build/sync-inline-tools.mjs' }),
+            document.createTextNode(') and this card goes live.')
+          ])
+        ]));
+      }
+
+      card.append(body);
+      return card;
+    }
+
+    function render(games, knownSlugs) {
+      var frag = document.createDocumentFragment();
+      games.forEach(function (g) { frag.append(renderCabinet(g, knownSlugs)); });
+      els.list.replaceChildren(frag);
+      els.count.textContent = '';
+      els.count.append(el('b', { text: String(games.length) }),
+                       document.createTextNode(games.length === 1 ? ' game' : ' games'));
+      say(games.length + (games.length === 1 ? ' game listed.' : ' games listed.'));
+    }
+
+    function problemState(title, body) {
+      els.list.replaceChildren();
+      els.list.after(el('div', { class: 'ar-empty' }, [
+        el('h2', { text: title }),
+        el('p', { class: 'prose' }, body)
+      ]));
+      say(title);
+    }
+
+    function offlineState() {
+      problemState('The cabinet list needs the site to be served', [
+        document.createTextNode('This page reads '),
+        el('code', { text: 'arcade/manifest.json' }),
+        document.createTextNode(' at runtime, and a page opened straight off disk ('),
+        el('code', { text: 'file://' }),
+        document.createTextNode(') is not allowed to read it. Run '),
+        el('code', { text: 'python3 -m http.server' }),
+        document.createTextNode(' in the site folder and open it over '),
+        el('code', { text: 'http://localhost:8000' }),
+        document.createTextNode('. Every game is also listed in the Break Room on the main page, which works off disk.')
+      ]);
+    }
+
+    /* ── boot ────────────────────────────────────────────────────────────── */
+
+    if (OFFLINE) { offlineState(); return; }
+
+    Promise.all([
+      /* `no-cache` and not `no-store`: the manifest must never be served from
+         a stale HTTP cache — Jeff adds a game and expects to see it — but the
+         service worker's networkFirst (sw.js) is still allowed to answer for
+         it when the store's wifi drops, which `no-store` would forbid
+         outright (sw.js bails on any request marked no-store). */
+      fetch(MANIFEST_URL, { cache: 'no-cache' })
+        .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)); }),
+      loadSlugs()
+    ]).then(function (both) {
+      var data = both[0];
+      var games = Array.isArray(data) ? data : (data && data.games) || [];
+      games = games.filter(function (g) { return g && g.slug && g.title; });
+      if (!games.length) {
+        problemState('No cabinets listed', [
+          document.createTextNode('The arcade read '),
+          el('code', { text: 'arcade/manifest.json' }),
+          document.createTextNode(' and found no games in it.')
+        ]);
+        return;
+      }
+      render(games, both[1]);
+    }).catch(function (err) {
+      console.error('[arcade] could not read the manifest:', err);
+      problemState('The list didn’t load', [
+        document.createTextNode('This station reads '),
+        el('code', { text: 'arcade/manifest.json' }),
+        document.createTextNode(' and that file couldn’t be read. The games are all still listed in the Break Room on the main page.')
+      ]);
+    });
+  })();
+  </script>
+</body>
+</html>

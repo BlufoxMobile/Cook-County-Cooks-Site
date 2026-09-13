@@ -3,14 +3,14 @@
  * assets/coldstore.js  ·  THE SEALED PAYLOAD
  * -----------------------------------------------------------------------------
  * The fourteen manager tools are not hidden in this site. They are not IN it.
- * What ships is a block of AES-256-GCM ciphertext — `data/freezer.sealed.17a06d9d9d.json`,
+ * What ships is a block of AES-256-GCM ciphertext — `data/freezer.sealed.6eaa4f60f0.json`,
  * and the identical copy inlined on `window.__CCC_INLINE__.freezer`. This module
  * is the only thing that can turn it back into tools, and only with the
  * password.
  *
  * WHAT THAT DOES AND DOES NOT BUY YOU — read this before you promise anything.
  *   IT DOES stop a sales rep reading the manager links out of View Source, out
- *     of data/tools.e92e30e302.json, out of the network tab or out of the DOM. There is no
+ *     of data/tools.8a96955e82.json, out of the network tab or out of the DOM. There is no
  *     list to find and no hash to compare against — without the password the
  *     blob is indistinguishable from noise, and a wrong password fails GCM's
  *     authentication tag and yields nothing at all.
@@ -69,7 +69,7 @@ function b64ToBytes(s) {
  *
  * @returns {Promise<object|null>}
  */
-export async function loadEnvelope(url = 'data/freezer.sealed.17a06d9d9d.json') {
+export async function loadEnvelope(url = 'data/freezer.sealed.6eaa4f60f0.json') {
   const inline = (window.__CCC_INLINE__ || {}).freezer;
   if (validEnvelope(inline)) return inline;
   try {

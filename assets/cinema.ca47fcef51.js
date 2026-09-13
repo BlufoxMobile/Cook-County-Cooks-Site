@@ -47,11 +47,11 @@
  * ========================================================================== */
 
 import { initEngine, scrollToRoom, onRoomChange } from './engine.cccb8d066e.js';
-import { initOverlay, openTool } from './overlay.4fca58b581.js';
-import { mountRoomScreens } from './screens.804bcbc71f.js';
+import { initOverlay, openTool } from './overlay.38c3f33d81.js';
+import { mountRoomScreens } from './screens.963d10301f.js';
 import { initChefWall } from './chefwall.2e2da0a5e6.js';
-import { initLabels } from './labels.a0ddbe0727.js';
-import { buildWallPrint, revealWallPrints } from './wallprint.592b9e3470.js';
+import { initLabels } from './labels.2161e4e862.js';
+import { buildWallPrint, revealWallPrints } from './wallprint.ad07258c1e.js';
 import { initFreezer } from './freezer.39bd7199fd.js';
 /* The lock is shared with the pocket list — see coldgate.js. It owns the
    sealed envelope, the session restore, the keypad and every path to
@@ -59,9 +59,9 @@ import { initFreezer } from './freezer.39bd7199fd.js';
 import {
   initColdGate, setAdopt, coldTools, isFreezerUnlocked, sealedCount,
   onFreezerUnlock, openKeypad
-} from './coldgate.592e28325d.js';
+} from './coldgate.8d62967951.js';
 import { el, fill, $ } from './dom.a199da796c.js';
-import { ROOM_ORDER, HOTSPOTS, CHEF_FRAMES, FREEZER_DOOR } from '../rooms.5ce51f6d22.js';
+import { ROOM_ORDER, HOTSPOTS, CHEF_FRAMES, FREEZER_DOOR } from '../rooms.f6c23aa3de.js';
 
 
 /* §0 · TINY DOM HELPERS — el(), fill() and $() now live in dom.js, because the
@@ -145,7 +145,7 @@ async function loadData() {
 
   // Fallback for a served deployment where the inline block was removed.
   const [tools, headchefs] = await Promise.all([
-    fetch('data/tools.e92e30e302.json').then((r) => r.json()),
+    fetch('data/tools.8a96955e82.json').then((r) => r.json()),
     fetch('headchefs/headchefs.json').then((r) => r.json())
   ]);
   return { tools, headchefs };
@@ -609,7 +609,7 @@ function buildHotspot(spot, data) {
  */
 function buildRail(roomId, index, data) {
   const meta = data.roomById.get(roomId) || { label: roomId, tagline: '' };
-  const tools = data.byRoom.get(roomId) || [];
+  const tools = (data.byRoom.get(roomId) || []).filter(showsChip);
   const titleId = `room-${roomId}-title`;
   // The freezer is the only gated room, and its chips have to LOOK gated.
   const gated = roomId === 'freezer' && !isFreezerUnlocked();
@@ -640,6 +640,41 @@ function buildRail(roomId, index, data) {
   ]);
 }
 
+/**
+ * DOES THIS TOOL GET A RAIL CHIP?
+ *
+ * `object` has always been the field that says how a tool meets the room. Most
+ * values name a thing in the photograph ('binder-1', 'printer', 'clipboard-2')
+ * and rooms.js hangs a hotspot on it. Two values are SENTINELS instead — they
+ * name no object, they answer the question "which of the two affordances does
+ * this tool get?":
+ *
+ *   'chip-only'   a chip in the rail, no hotspot on the plate. Shipped since
+ *                 v3 for the tools whose objects are not in the shot
+ *                 (`discount-close`, `rep-hourly-rate`).
+ *   'no-chip'     THE CONVERSE, and new here: no chip in the rail, and no
+ *                 hotspot either. The tool is still in data/tools.8a96955e82.json and so
+ *                 is still in the C³ menu, the footer index, the phone list's
+ *                 search, the <noscript> floor and `#/tool/<slug>` — it is only
+ *                 absent from the RAIL.
+ *
+ * WHY THE BREAK ROOM NEEDED IT. The room now holds four training tools, the
+ * discount close and THREE GAMES, and a seventh and eighth game are expected
+ * ("I think I want to add a couple more games on the site over the next couple
+ * of weeks"). Eight chips is two full rows at 1180x820 and it buries the
+ * training binders — the room's actual job — under a list of arcade cabinets.
+ * So the three games are marked 'no-chip' and the rail carries ONE chip for the
+ * arcade, which is also the thing the client asked to be unmissable. Nothing
+ * becomes unreachable: `#/tool/deep-six` still opens, "deep six" still finds it
+ * on a phone, and the C³ menu still lists all three under Break Room.
+ *
+ * The test is on the tool, not on a slug list, so the next game Jeff adds is
+ * one `"object": "no-chip"` in data/tools.8a96955e82.json and no code change at all.
+ */
+function showsChip(tool) {
+  return !tool || tool.object !== 'no-chip';
+}
+
 /* A small padlock, sized by attribute so it needs no stylesheet of its own.
    It sits alongside the chip's brass tick rather than replacing it: the tick is
    a ::before and only theme.css can swap that (see the report). */
@@ -665,7 +700,93 @@ function buildChip(tool, staged, i) {
       : null
   });
   chip.append(tool.label);
+  /* THE MARQUEE. A tool carrying `marquee` in data/tools.8a96955e82.json gets the bulb
+     treatment in theme.css §08b and a live count appended to its label. Exactly
+     one tool has it today (`arcade`), and this function still does not know
+     that — the slug is nowhere in this file. See armArcadeChips(). */
+  if (tool.marquee) {
+    chip.dataset.marquee = '';
+    // the plain label, kept so armArcadeChips() can rebuild the accessible name
+    // without re-reading a text node it does not own.
+    chip.dataset.label = tool.label;
+    chip.append(el('span', { class: 'chip-count', 'data-marquee-count': tool.marquee }));
+  }
   return chip;
+}
+
+/**
+ * THE COUNT ON THE ARCADE CHIP, AND WHY IT IS FETCHED RATHER THAN TYPED.
+ *
+ * The client: "I want it to be abundantly clear that there are games there …
+ * The reps won't notice it if we don't just point it out." The chip is the one
+ * arcade affordance that is on screen at EVERY size (the cabinet hotspot is
+ * 0% visible at 1180x820 — see the measurement table in rooms.js), so the chip
+ * has to say what is behind it, and "C³ ARCADE" alone does not say "games".
+ * "C³ ARCADE · 3 GAMES" does.
+ *
+ * THE NUMBER IS NOT WRITTEN DOWN ANYWHERE. He has already said he is adding
+ * games "over the next couple of weeks", and a 3 hand-typed into tools.json, or
+ * into this file, or into the stylesheet's content property, is wrong the first
+ * Tuesday he adds one — and wrong in the worst way, because a stale count reads
+ * as authoritative. So it is counted from arcade/manifest.json, which is the
+ * file he edits, at runtime.
+ *
+ * WHAT IT COSTS, measured: one 1.9 KB JSON over a connection the page has
+ * already opened, issued AFTER the rails are in the DOM, never awaited by
+ * anything, and fetched ONCE for however many chips carry the flag (the Map
+ * below dedupes by URL; there is one URL and one chip today).
+ *
+ * FAIL-SOFT IS THE WHOLE DESIGN. No network, a 404, malformed JSON, a manifest
+ * with no games[] — every one of them leaves the chip reading "C³ ARCADE",
+ * which is the label tools.json already gave it and is a perfectly good chip.
+ * Nothing is ever removed and no error is shown: a rep does not need to know
+ * that a count failed to load, and a chip that says "0 GAMES" would be a lie.
+ * `cache: 'no-cache'` (not no-store) so it revalidates rather than serving a
+ * ten-minute-old copy, while sw.js's networkFirst can still answer it on a
+ * store connection that has dropped — sw.js bails out of any request marked
+ * no-store, which would make the offline case worse, not better.
+ */
+function armArcadeChips() {
+  const spans = document.querySelectorAll('[data-marquee-count]');
+  if (!spans.length) return;
+  const byUrl = new Map();
+  for (const span of spans) {
+    const url = span.getAttribute('data-marquee-count');
+    if (!url) continue;
+    if (!byUrl.has(url)) byUrl.set(url, []);
+    byUrl.get(url).push(span);
+  }
+  for (const [url, targets] of byUrl) {
+    fetch(url, { cache: 'no-cache' })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+      .then((d) => {
+        // The manifest's own shape, tolerating a bare array the way the Print
+        // Outs station tolerates one.
+        const n = Array.isArray(d) ? d.length
+                : (d && Array.isArray(d.games)) ? d.games.length : 0;
+        if (!n) return;                                   // 0 is not a count worth printing
+        const words = n === 1 ? '1 game' : `${n} games`;
+        for (const span of targets) {
+          // The separator is its own aria-hidden element so a screen reader is
+          // not read a middle dot; theme.css §08b supplies the glyph.
+          span.replaceChildren(
+            el('span', { class: 'chip-sep', 'aria-hidden': 'true' }),
+            document.createTextNode(words)
+          );
+          /* AND THE ACCESSIBLE NAME IS SET EXPLICITLY, not left to the text.
+             Concatenating the chip's children gives "C³ Arcade3 games" — the
+             only thing between the two is the aria-hidden separator and a flex
+             gap, neither of which contributes a space to the name computation.
+             One aria-label, written from the same two values that are on
+             screen, so what is announced and what is printed cannot drift. */
+          const chip = span.closest('.chip');
+          if (chip) chip.setAttribute('aria-label', `${chip.dataset.label || 'Arcade'} — ${words}`);
+        }
+      })
+      .catch((err) => {
+        console.warn('[arcade] chip count unavailable; the chip keeps its plain label.', err);
+      });
+  }
 }
 
 /**
@@ -1431,6 +1552,9 @@ export async function boot() {
   initLabels();
   buildTicketRail(data);
   buildC3Menu(data);
+  // After the rails exist, never awaited: see the note on the function. The
+  // chip is fully usable before this resolves and stays usable if it never does.
+  armArcadeChips();
   // The client asked for the Walk-In Freezer to be the hard stop when scrolling:
   // "I want to remove the bottom recap portion on the site. I want the freezer to
   // be the last thing someone could see... All of these tools are listed in the

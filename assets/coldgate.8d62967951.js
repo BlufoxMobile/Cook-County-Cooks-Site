@@ -22,7 +22,7 @@
  * ========================================================================== */
 
 import { el, $ } from './dom.a199da796c.js';
-import { loadEnvelope, unseal, restore, remember, cryptoAvailable } from './coldstore.70cfc6654d.js';
+import { loadEnvelope, unseal, restore, remember, cryptoAvailable } from './coldstore.04a5fd4550.js';
 
 /* ─────────────────────────────────────────────────────────────────────────────
  * 2 · THE FREEZER GATE — NOW A LOCK, NOT A NOTICE

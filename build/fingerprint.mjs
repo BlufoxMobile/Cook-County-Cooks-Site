@@ -148,7 +148,15 @@ const JS_ASSETS  = [...listDir('assets', ['.js']), 'rooms.js'].filter((f) => {
 
 /** Every text file that may NAME an asset. HTML is rewritten, never hashed. */
 const HTML_FILES = ['index.html', ...listDir('tools/printouts', ['.html']),
-  ...listDir('tools/employee-of-week', ['.html']), ...listDir('tools/porting-guide', ['.html'])];
+  ...listDir('tools/employee-of-week', ['.html']), ...listDir('tools/porting-guide', ['.html']),
+  /* tools/arcade — the C³ Arcade station. It is here for ONE reason: its <head>
+     names ../../assets/theme.css, and an un-rewritten reference to the stylesheet
+     would leave that page un-themed for four hours after every art change (which
+     is the whole defect at the top of this file). Its own data — arcade/manifest.json
+     and arcade/art/*.svg — is deliberately NOT fingerprinted, for the same reason
+     printouts/manifest.json is not: the sub-app owns its assets, and adding a game
+     must be one row in that manifest with no build step at all. */
+  ...listDir('tools/arcade', ['.html'])];
 
 /* ── the rewriter ─────────────────────────────────────────────────────────── */
 

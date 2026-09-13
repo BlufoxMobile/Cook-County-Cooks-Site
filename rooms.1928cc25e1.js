@@ -40,7 +40,7 @@
    import the order without dragging this file's 24 KB of hotspot geometry
    down the wire with it. Everything that imports ROOM_ORDER from here is
    unchanged; this is a re-export, so the binding is the same one. */
-export { ROOM_ORDER } from './assets/roomorder.ab7732c869.js';
+export { ROOM_ORDER } from './assets/roomorder.3ab9a70ccf.js';
 
 export const HOTSPOTS = {
   pass: [
@@ -211,7 +211,49 @@ export const HOTSPOTS = {
     { slug:'training-tsheet',       kind:'tool', x:25.1, y:42.0, w:3.3, h:22.0, label:'The Plus-First Playbook' },
     { slug:'training-pos',          kind:'tool', x:28.5, y:42.0, w:1.9, h:22.0, label:'Celestial Point of Sale' },
 
-    { slug:'fox-run',               kind:'tool', x:89.5, y:30.0, w:10.5, h:62.0, label:'C\u00b3 FOX RUN', edge:'right' },
+    /* THE ARCADE CABINET — and it opens the ARCADE now, not one game.
+       The client asked for "a Cook County Cooks Arcade section in the breakroom
+       that has the games listed on there", chose the page-behind-the-cabinet
+       option, and then said the thing that decides the rest: "I want it to be
+       abundantly clear that there are games there … The reps won't notice it if
+       we don't just point it out."
+
+       ⚠ THIS BOX CANNOT BE THE SIGNPOST, AND THAT IS MEASURED, NOT ASSUMED.
+       The cabinet sits at plate-x 89.5 -> 100.0, i.e. hard against the plate's
+       right edge, and the room is cover-cropped. The share of this hotspot's
+       OWN WIDTH that is actually on screen, measured at the runway sizes:
+
+         1180x820 (the store iPads, his primary device)      0%
+         1366x768                                           47%
+         1440x900                                           14%
+         1512x770                                           62%
+         1920x1080                                          63%
+         2560x1440                                          64%
+
+
+       RE-CHECKED INDEPENDENTLY, WITH THE ROOM SCROLLED TO ITS OWN CENTRE, the
+       numbers come out LOWER still — 0% at 1180x820, 0% at 1440x900 and 39% at
+       2560x1440 — because the cover crop moves with --plate-x as the room is
+       scrubbed, so "how much of the cabinet is on screen" is a function of
+       where you are in the room as well as of the viewport. Which way the
+       parallax happens to sit does not change the conclusion: at his device
+       this object is never a signpost, and at the widths where it is visible it
+       is a bonus.
+
+       At his own device the cabinet is not on screen AT ALL. Re-framing the
+       room to bring it in would push the training binders (plate-x 18.2 -> 30.4)
+       out the other side — the identical trade theme.css §06d documents for the
+       Back Office clipboards, and the binders are the room's actual job. So the
+       room is NOT re-framed. The always-visible rail chip carries the
+       discoverability (see buildRail()/armArcadeChips() in cinema.js and §08b in
+       theme.css, which is why that one chip wears a marquee); this hotspot is a
+       bonus at wide sizes and nothing depends on it.
+
+       The box itself is unchanged — it is still traced to the same cabinet —
+       only the slug moved, from `fox-run` to `arcade`. At the widths where it IS
+       visible, clicking the cabinet now opens the arcade and the rep chooses a
+       game, instead of being dropped into whichever game happened to be first. */
+    { slug:'arcade',                kind:'tool', x:89.5, y:30.0, w:10.5, h:62.0, label:'C\u00b3 Arcade \u00b7 Games', edge:'right' },
   ],
   freezer: [
     { kind:'lock', x:34.3, y:47.0, w:2.6, h:8.0, label:'Manager access' },
@@ -241,7 +283,7 @@ export const HOTSPOTS = {
        ⚠ NO slug AND NO label, ON PURPOSE, AND DO NOT ADD THEM.
        This tool lives behind the walk-in's lock, which means it is not in the
        deployed tree at all — it is AES-256-GCM ciphertext in
-       data/freezer.sealed.17a06d9d9d.json (see build/seal-freezer.mjs and the gate note
+       data/freezer.sealed.6eaa4f60f0.json (see build/seal-freezer.mjs and the gate note
        in app.js §2). Writing its slug, its name or its URL here would put in
        plaintext exactly the three strings the seal exists to remove, and
        build/seal-freezer.mjs's own leak check would fail the next build.

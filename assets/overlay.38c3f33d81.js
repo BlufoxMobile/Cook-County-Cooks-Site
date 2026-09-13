@@ -36,7 +36,7 @@ export { freshUrl };
  * build that can tell a tool that loaded from a tool that 404'd — the iframe
  * cannot, and §6 below carries the twelve-shape measurement that proves it.
  * Its own file because screens.js needs it too and must not import this one. */
-import { preflight, preflightCopy } from './preflight.45c0b48993.js';
+import { preflight, preflightCopy } from './preflight.de727ecb0b.js';
 export { preflight };
 
 
@@ -310,7 +310,7 @@ function getTool(slug) {
 /* -----------------------------------------------------------------------------
  * 2. Stylesheet
  *    Injected once. Everything is prefixed `ccc-` and every colour is a
- *    custom property with a fallback, so assets/theme.2d7c2c8824.css (Agent D) can
+ *    custom property with a fallback, so assets/theme.a73825e539.css (Agent D) can
  *    retheme the viewer without touching this file.
  * -------------------------------------------------------------------------- */
 
@@ -837,6 +837,74 @@ function clearFrameTimer() {
 }
 
 /* -----------------------------------------------------------------------------
+ * 6b. The arcade handshake — a framed sub-app asking for a different tool
+ * -----------------------------------------------------------------------------
+ * WHAT THIS IS FOR. tools/arcade/ is a page inside this viewer that lists the
+ * break room's games. When a rep presses Play on one, the right outcome is NOT
+ * for the arcade's own frame to navigate to the game: that leaves the viewer's
+ * chrome still titled "C³ Arcade", makes Back unwind an iframe navigation
+ * instead of closing anything, and loses the arcade with no way back to it.
+ *
+ * The right outcome is openTool(slug) — the same call a hotspot or a chip makes.
+ * The frame is swapped, the chrome is re-titled, `#/tool/<slug>` is pushed, and
+ * Back therefore lands on `#/tool/arcade`, where syncFromLocation() puts the
+ * arcade straight back up. That is the client's ask ("a Cook County Cooks Arcade
+ * section … that has the games listed on there") behaving like a section rather
+ * than like a dead end.
+ *
+ * TRUST IS BY IDENTITY, NOT BY ORIGIN — the same rule, for the same reason, as
+ * the Daily Sales Report's ready handshake in assets/screens.js. A message is
+ * taken ONLY when `event.source === state.ui.frame.contentWindow`: the frame
+ * THIS module put in the DOM and is currently showing. An origin string can be
+ * claimed by any page and changes if the client moves a tool; a WindowProxy
+ * cannot be forged and is null the moment the frame leaves the document, so a
+ * torn-down arcade can never speak for a live viewer. On top of that:
+ *
+ *   · the slug is validated against the registry before anything happens, so
+ *     the message cannot navigate the viewer anywhere that is not already a
+ *     tool this site ships;
+ *   · openTool() is called normally, which means the FREEZER GATE still runs.
+ *     A message naming a sealed tool is refused and raises the keypad exactly
+ *     as a deep link would. This listener creates no way past canOpen().
+ *
+ * THE ACKNOWLEDGEMENT is not decoration. The arcade page waits 500 ms for it and
+ * falls back to setting the parent's hash if it never comes — which is what
+ * happens when a rep is holding an index.html from before this build (GitHub
+ * Pages serves it with max-age=600, so that window is real on every deploy; see
+ * the FLOOR note in app.js). Posting the ack is how the arcade knows it does not
+ * need that fallback. Posted to location.origin, never '*'.
+ * -------------------------------------------------------------------------- */
+
+function onFrameMessage(event) {
+  const ui = state.ui;
+  if (!ui || !ui.frame || state.activeSlug === null) return;
+  // IDENTITY. contentWindow is null for a frame that is out of the document.
+  if (!ui.frame.contentWindow || event.source !== ui.frame.contentWindow) return;
+
+  const d = event.data;
+  if (!d || typeof d !== 'object') return;
+  if (d.source !== 'ccc-arcade' || d.action !== 'open-tool') return;
+
+  const slug = typeof d.slug === 'string' ? d.slug : '';
+  // Shape first (the same character class HASH_RE accepts), then existence.
+  if (!/^[A-Za-z0-9_-]+$/.test(slug) || !getTool(slug)) {
+    console.warn(`[overlay] arcade asked for an unknown tool "${slug}"; ignored.`);
+    return;
+  }
+
+  // Acknowledge BEFORE opening: openTool() replaces the frame element, and a
+  // message posted to a WindowProxy that has just been discarded goes nowhere.
+  try { event.source.postMessage({ source: 'ccc-arcade-host', ok: true, slug }, location.origin); }
+  catch { /* the frame is already gone; the open below is still the right thing */ }
+
+  // A normal open: pushes #/tool/<slug>, so Back returns to the arcade. `api`
+  // and not `click` because there is no DOM trigger to hand focus back to —
+  // restoreFocus() then falls back to the [data-tool] element for this slug,
+  // which is the arcade's own chip in the Break Room rail.
+  openTool(slug, { source: 'api' });
+}
+
+/* -----------------------------------------------------------------------------
  * 6a. The note bar — progress and staleness, never a verdict
  * -------------------------------------------------------------------------- */
 
@@ -1018,7 +1086,7 @@ function showFrame(tool, { force = false } = {}) {
 
   // Known refusers: skip the spinner entirely and go straight to the card.
   // Nothing routes here today except SharePoint/Microsoft hosts — none of which
-  // are in data/tools.e92e30e302.json — but the list stays as cheap insurance for whatever
+  // are in data/tools.8a96955e82.json — but the list stays as cheap insurance for whatever
   // gets added next. It is NOT the failure detection; preflight() is.
   if (!force && isKnownUnframeable(tool.url)) {
     showFallback(
@@ -1577,10 +1645,10 @@ function onDocumentKeydown(ev) {
  * Boot the tool viewer.
  *
  * @param {object}  [options]
- * @param {Array}   [options.tools]     tools array (as in data/tools.e92e30e302.json). If
+ * @param {Array}   [options.tools]     tools array (as in data/tools.8a96955e82.json). If
  *                                      omitted we look at window.CCC_TOOLS /
  *                                      window.CCC?.tools, then fetch toolsUrl.
- * @param {string}  [options.toolsUrl]  default 'data/tools.e92e30e302.json'
+ * @param {string}  [options.toolsUrl]  default 'data/tools.8a96955e82.json'
  * @param {boolean} [options.deepLink]  honour #/tool/<slug> on load (default true)
  *
  * @param {(slug:string, tool:object) => boolean} [options.canOpen]
@@ -1612,7 +1680,7 @@ function onDocumentKeydown(ev) {
 export function initOverlay(options = {}) {
   const {
     tools = null,
-    toolsUrl = 'data/tools.e92e30e302.json',
+    toolsUrl = 'data/tools.8a96955e82.json',
     deepLink = true,
     canOpen = null,
     onRefused = null
@@ -1629,6 +1697,12 @@ export function initOverlay(options = {}) {
     document.addEventListener('keydown', onDocumentKeydown);
     window.addEventListener('popstate', syncFromLocation);
     window.addEventListener('hashchange', syncFromLocation);
+    /* §6b. One listener for the life of the page, not one per open: the frame
+       element is replaced on every navigation (navigateStageFrame) and a
+       per-mount listener would have to be torn down in four places. The
+       identity test inside it reads state.ui.frame live, so it is correct for
+       whichever frame is mounted at the moment a message arrives. */
+    window.addEventListener('message', onFrameMessage);
     /* THE VIEWER HAD NO IDEA THE TAB HAD EVER GONE AWAY. This module carried no
        visibilitychange and no pageshow handler at all, so a tool opened before
        lunch was still, on the rep's return, the pre-lunch document with a
@@ -1649,7 +1723,7 @@ export function initOverlay(options = {}) {
      always written `window.__CCC_INLINE__ = { tools, freezer, headchefs }`, and
      nothing in this build has ever set either of the other two. The branch was
      dead, so a caller that did not pass `tools` fell straight through to a
-     fetch of data/tools.e92e30e302.json — which is the one thing the inline payload exists
+     fetch of data/tools.8a96955e82.json — which is the one thing the inline payload exists
      to avoid (fetch() against a file:// URL is refused outright, and Jeff
      reviews builds off a USB stick). The real global is read first now; the
      two old spellings are kept behind it in case something out there sets one,

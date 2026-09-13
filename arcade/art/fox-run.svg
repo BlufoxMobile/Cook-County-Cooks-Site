@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="320" height="200" role="presentation">
+<!-- C³ FOX RUN — cabinet art, drawn.
+     The live game (blufoxmobile.github.io/C3-Run-Game/) carries no og:image and
+     no logo we could lift: curl'd 2026-09-13, 297 KB of HTML with exactly one
+     <svg>, a 12x8 tile pattern. So this is an abstract tile in the site's own
+     palette rather than a screenshot we cannot take or a generic joypad icon.
+     Colours are theme.css §02 literals — an SVG loaded through <img> cannot read
+     the page's custom properties, so the token VALUES are inlined and the token
+     NAMES recorded, so a palette change has one place to look.
+     (Token names are written here without their leading double dash — an XML
+      comment may not contain one. Put the two dashes back to grep theme.css.)
+       #05070a ink-950   #131a24 ink-800   #8a6323 brass-700
+       #c8973f brass     #ddb463 brass-400 #f7b955 amber
+     A FIRST PASS DREW A RUNNING FIGURE AND IT WAS WRONG: at 300px wide a
+     six-path human silhouette reads as a clip-art pedestrian, not as a fox, and
+     a badly-drawn literal thing is worse than an honest abstract one. This is
+     the mark instead — a fox's head in flat brass geometry over the ground
+     rushing past — which is legible at the 19rem card width the grid actually
+     gives it and still says both halves of the title. -->
+<defs>
+<linearGradient id="fr-sky" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#131a24"/><stop offset="1" stop-color="#05070a"/>
+</linearGradient>
+<radialGradient id="fr-sun" cx="0.5" cy="0.5" r="0.5">
+<stop offset="0" stop-color="#f7b955" stop-opacity=".42"/>
+<stop offset="1" stop-color="#f7b955" stop-opacity="0"/>
+</radialGradient>
+</defs>
+<rect width="320" height="200" fill="url(#fr-sky)"/>
+<circle cx="160" cy="96" r="96" fill="url(#fr-sun)"/>
+<!-- the horizon -->
+<path d="M0 132h320" stroke="#c8973f" stroke-width="1" opacity=".34"/>
+<!-- ground rushing past: speed bars, shorter and dimmer toward the horizon -->
+<g stroke="#ddb463" stroke-linecap="round">
+<path d="M8 188h74" stroke-width="4" opacity=".5"/>
+<path d="M238 188h74" stroke-width="4" opacity=".5"/>
+<path d="M20 172h56" stroke-width="3" opacity=".36"/>
+<path d="M244 172h56" stroke-width="3" opacity=".36"/>
+<path d="M34 158h42" stroke-width="2.4" opacity=".26"/>
+<path d="M244 158h42" stroke-width="2.4" opacity=".26"/>
+<path d="M48 146h30" stroke-width="1.8" opacity=".18"/>
+<path d="M242 146h30" stroke-width="1.8" opacity=".18"/>
+<path d="M58 137h20" stroke-width="1.4" opacity=".12"/>
+<path d="M242 137h20" stroke-width="1.4" opacity=".12"/>
+</g>
+<!-- the mark: ears, face, muzzle. Flat geometry, one accent, no outline. -->
+<g fill="#c8973f">
+<path d="M100 34l30 20-6 40-32-16z"/>
+<path d="M220 34l-30 20 6 40 32-16z"/>
+</g>
+<path d="M92 76l24 10h88l24-10-8 48-44 46-44-46z" fill="#ddb463"/>
+<!-- the cheek notches: what keeps the face from reading as a plain triangle -->
+<path d="M92 76l24 10-6 22zM228 76l-24 10 6 22z" fill="#c8973f"/>
+<!-- eyes, cut out of the face in the ground colour -->
+<path d="M122 104l20 6-4 12-18-8z" fill="#131a24"/>
+<path d="M198 104l-20 6 4 12 18-8z" fill="#131a24"/>
+<!-- the muzzle -->
+<path d="M144 140h32l-16 30z" fill="#8a6323"/>
+</svg>

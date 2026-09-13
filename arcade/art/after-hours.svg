@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="320" height="200" role="presentation">
+<!-- AFTER HOURS — cabinet art, drawn.
+     The live game is a 7.2 MB single page whose only images are three base64
+     sprite sheets (curl'd 2026-09-13); there is no og:image and the folder's
+     index.html is a five-line meta-refresh stub with no title element at all.
+     So, again, a drawn tile rather than an empty box.
+     (Token names are written here without their leading double dash — an XML
+      comment may not contain one. Put the two dashes back to grep theme.css.)
+     theme.css §02 literals: #05070a ink-950, #090d13 ink-900,
+     #131a24 ink-800, #8a6323 brass-700, #c8973f brass, #f7b955 amber,
+     #ff9e4a ember.
+     TWO PASSES WERE WRONG BEFORE THIS ONE, and both failed the same way — at
+     the ~300px the card grid actually gives this tile, the storefront read as a
+     box. Pass 1 put a mullion cross through the window and it looked like a
+     spreadsheet. Pass 2 replaced the cross with a roll shutter but kept the
+     glass at 20% amber, so the lit strip was darker than the shutter above it
+     and the whole thing read as a closed crate.
+     What fixes it is CONTRAST IN THE RIGHT PLACE: the glass under the shutter
+     is now the brightest thing in the tile by a wide margin, the shutter slats
+     are cooler and lighter than the opening so they read as metal in front of
+     it, and the light lands on the pavement directly below the gap rather than
+     in a soft halo around the whole building. That gap is the title: the store
+     is shut and somebody is still in there. -->
+<defs>
+<linearGradient id="ah-night" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#090d13"/><stop offset="1" stop-color="#05070a"/>
+</linearGradient>
+<radialGradient id="ah-spill" cx="0.5" cy="0.5" r="0.5">
+<stop offset="0" stop-color="#f7b955" stop-opacity=".5"/>
+<stop offset="1" stop-color="#f7b955" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="ah-glass" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#ff9e4a" stop-opacity=".72"/>
+<stop offset="1" stop-color="#f7b955" stop-opacity=".42"/>
+</linearGradient>
+</defs>
+<rect width="320" height="200" fill="url(#ah-night)"/>
+<!-- the building: a flat dark face, so the only structure the eye finds is the
+     opening. No outline around the whole shopfront — an outlined rectangle is
+     what made the last two passes read as a box. -->
+<rect x="86" y="40" width="148" height="106" fill="#090d13"/>
+<!-- the light on the pavement, thrown from the gap and no wider than it -->
+<ellipse cx="160" cy="150" rx="74" ry="17" fill="url(#ah-spill)"/>
+<path d="M108 146l-22 30h148l-22-30z" fill="#f7b955" opacity=".09"/>
+<!-- THE LIT GLASS. The brightest thing in the tile, deliberately. -->
+<rect x="98" y="98" width="124" height="46" fill="url(#ah-glass)"/>
+<!-- what is going on in there: a counter line and two figures -->
+<path d="M98 136h124" stroke="#8a6323" stroke-width="2" opacity=".85"/>
+<g fill="#8a6323" opacity=".9">
+<circle cx="132" cy="116" r="6"/><path d="M124 136v-10a8 8 0 0 1 16 0v10z"/>
+<circle cx="186" cy="118" r="5"/><path d="M179 136v-9a7 7 0 0 1 14 0v9z"/>
+</g>
+<!-- THE ROLL SHUTTER, two thirds down. Cooler and lighter than the opening, so
+     it reads as metal in front of the glass rather than as more building. -->
+<g fill="#26313f">
+<rect x="96" y="44" width="128" height="6"/>
+<rect x="96" y="52" width="128" height="6"/>
+<rect x="96" y="60" width="128" height="6"/>
+<rect x="96" y="68" width="128" height="6"/>
+<rect x="96" y="76" width="128" height="6"/>
+<rect x="96" y="84" width="128" height="6"/>
+</g>
+<g stroke="#3a4653" stroke-width="1" opacity=".85">
+<path d="M96 51h128M96 59h128M96 67h128M96 75h128M96 83h128"/>
+</g>
+<!-- the shutter's bottom rail: the one hard edge, and the thing that says the
+     shutter is STOPPED rather than absent -->
+<rect x="94" y="90" width="132" height="7" rx="1.5" fill="#8a6323"/>
+<rect x="94" y="90" width="132" height="2" fill="#c8973f" opacity=".8"/>
+<!-- the jambs, drawn after everything so the shutter runs behind them -->
+<rect x="90" y="40" width="8" height="106" fill="#131a24"/>
+<rect x="222" y="40" width="8" height="106" fill="#131a24"/>
+<rect x="86" y="36" width="148" height="6" fill="#131a24"/>
+<!-- the three Edison bulbs still burning over the counter -->
+<g>
+<path d="M120 4v12M160 4v18M200 4v9" stroke="#8a6323" stroke-width="1.2"/>
+<circle cx="120" cy="21" r="5" fill="#f7b955" opacity=".9"/>
+<circle cx="120" cy="21" r="13" fill="#f7b955" opacity=".14"/>
+<circle cx="160" cy="27" r="6" fill="#ff9e4a"/>
+<circle cx="160" cy="27" r="16" fill="#ff9e4a" opacity=".16"/>
+<circle cx="200" cy="18" r="4.5" fill="#f7b955" opacity=".82"/>
+<circle cx="200" cy="18" r="12" fill="#f7b955" opacity=".12"/>
+</g>
+<!-- the pavement -->
+<path d="M28 146h264" stroke="#c8973f" stroke-width="1" opacity=".28"/>
+<path d="M56 176h208" stroke="#c8973f" stroke-width="1" opacity=".12"/>
+</svg>

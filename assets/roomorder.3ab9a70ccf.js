@@ -17,7 +17,7 @@
  *
  * NOTE: this is the walk-through's PHYSICAL order, and the pocket list uses it
  * as its ordering spine. It is not a room registry: the rooms themselves (id,
- * label, tagline) live in data/tools.e92e30e302.json, and pocket.js appends any room that
+ * label, tagline) live in data/tools.8a96955e82.json, and pocket.js appends any room that
  * appears there but is not named here, so adding a room to tools.json does not
  * silently drop it off the phone.
  * ========================================================================== */

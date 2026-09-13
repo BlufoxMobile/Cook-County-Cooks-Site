@@ -36,7 +36,7 @@
  *
  * THE ONE THING THAT DOES DISCRIMINATE
  *
- *   fetch(). Every tool in data/tools.e92e30e302.json is a GitHub Pages document, and
+ *   fetch(). Every tool in data/tools.8a96955e82.json is a GitHub Pages document, and
  *   GitHub Pages answers with `access-control-allow-origin: *`. Verified by
  *   curl against the real hosts on 2026-08-31:
  *
