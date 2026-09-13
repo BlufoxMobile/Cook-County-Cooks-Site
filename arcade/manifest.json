@@ -1,12 +1,11 @@
 {
- "_comment": "The C³ Arcade reads this at runtime (tools/arcade/index.html) and the Break Room's rail chip counts it for its 'N GAMES' label (assets/cinema.js, the `marquee` field in data/tools.json). ADDING A GAME IS THIS FILE AND data/tools.json — nothing else. No code change, no fingerprint run, no build step. Every game needs a row HERE (so the arcade lists it) and a row in data/tools.json with the same `slug` (so #/tool/<slug> opens it, the phone list finds it by search and the C³ menu lists it); the arcade never links to a game's real URL, only to `#/tool/<slug>`, because reps must never see a repository hostname — see claude/v15-framed-data-and-hidden-repos.md.",
+ "_comment": "The C³ Arcade reads this at runtime (tools/arcade/index.html) and the Break Room's rail chip counts it for its 'N GAMES' label (assets/cinema.js, the `marquee` field in data/tools.json). ADDING A GAME IS THIS FILE AND data/tools.json — nothing else. No code change, no fingerprint run, no build step, and NO ARTWORK: the arcade DRAWS each cabinet from `tint` and `title`, which is what keeps 'one row' true. Every game needs a row HERE (so the arcade lists it) and a row in data/tools.json with the same `slug` (so #/tool/<slug> opens it, the phone list finds it by search and the C³ menu lists it); the arcade never links to a game's real URL, only to `#/tool/<slug>`, because reps must never see a repository hostname — see claude/v15-framed-data-and-hidden-repos.md.",
  "_schema": {
   "slug": "REQUIRED. The tool slug. Must match a `slug` in data/tools.json exactly — that row is what the launch link (#/tool/<slug>) resolves against, and a game whose slug is not in tools.json is listed with its launch disabled and a plain note saying so.",
-  "title": "REQUIRED. The name on the cabinet, as the game itself spells it. The arcade prints THIS, never the tool's label, so a game whose page carries no <title> (After Hours does not) still reads correctly.",
-  "blurb": "REQUIRED. One line — what the game is, in the room's voice. Printed under the title.",
+  "title": "REQUIRED. The name on the marquee, as the game itself spells it. The arcade prints THIS, never the tool's label, so a game whose page carries no <title> (After Hours does not) still reads correctly. Keep it short and uppercase — it is fitted to the marquee and to a 320px attract screen, and a very long one wraps to two lines rather than shrinking to mush.",
+  "blurb": "REQUIRED. One line — what the game is, in the room's voice. It is the subtitle on the cabinet's attract screen and the HOW TO PLAY copy, wrapped to two and three lines respectively, so write it to read well cut short.",
   "url": "The game's real address. RECORDED, NOT RENDERED: the arcade never prints it and never links to it. data/tools.json is what the viewer actually loads; this is here so the manifest is a complete record of the cabinet and so a mismatch between the two files is visible in a diff.",
-  "art": "OPTIONAL. { file, alt } — `file` is a filename inside arcade/art/, exactly the way printouts/manifest.json names a filename inside printouts/. Same-origin and drawn here, never hotlinked to another host. OMIT IT and the arcade composes a tile from `tint` and the title's initials instead, which is what makes 'one row and nothing else' true for the next game Jeff adds. `alt` is normally \"\" — the tile is decoration beside a heading that already names the game, so alt text would be a duplicate announcement.",
-  "tint": "OPTIONAL. A hex from theme.css §02 that keys the generated tile (and the card's hairline when art is present). Defaults to --brass #c8973f. Use a token value, never a new colour."
+  "tint": "OPTIONAL. A hex from theme.css §02 that keys this cabinet ALONE: its T-molding, the marquee's underline and border, its side art, the bloom behind its screen, and the palette its attract loop draws in. It never touches PRESS START, the room, or any body text, so no tint can break contrast or make the call to action unrecognisable. Defaults to --brass #c8973f. Use a token value, never a new colour."
  },
  "version": 1,
  "games": [
@@ -15,24 +14,21 @@
    "title": "C³ FOX RUN",
    "blurb": "Run the fox down the line, clear what the floor throws at you, and hold the high score.",
    "url": "https://blufoxmobile.github.io/C3-Run-Game/",
-   "tint": "#c8973f",
-   "art": { "file": "fox-run.svg", "alt": "" }
+   "tint": "#c8973f"
   },
   {
    "slug": "after-hours",
    "title": "AFTER HOURS",
    "blurb": "The lights are off and the store is yours. When the floor is quiet, the break room is not.",
    "url": "https://blufoxmobile.github.io/After-Hours/",
-   "tint": "#f7b955",
-   "art": { "file": "after-hours.svg", "alt": "" }
+   "tint": "#f7b955"
   },
   {
    "slug": "deep-six",
    "title": "DEEP SIX",
    "blurb": "Blufox Fleet Command. Read the sonar, call the shot, and put the other fleet on the bottom.",
    "url": "https://blufoxmobile.github.io/Deep-Six/",
-   "tint": "#9fb6c4",
-   "art": { "file": "deep-six.svg", "alt": "" }
+   "tint": "#9fb6c4"
   }
  ]
 }

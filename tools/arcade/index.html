@@ -6,27 +6,29 @@
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
   <title>C³ Arcade | Cook County Cooks</title>
   <meta name="description" content="The Break Room cabinets — every game on the site, on one screen.">
+  <meta name="theme-color" content="#05070a">
 
   <!-- FONTS, NON-BLOCKING — copied from tools/printouts/index.html for the same
        measured reason: a render-blocking stylesheet also blocks script
        execution, and fonts.googleapis.com HANGS behind a store's captive portal
        rather than failing. media="print" keeps it off the critical path; onload
-       flips it to `all` the moment it lands. -->
+       flips it to `all` the moment it lands. The room below is drawn entirely in
+       CSS and does not need the fonts to look right — only the marquee titles
+       change weight when they land. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,300..700;1,62..125,300..700&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&display=swap"
         media="print" onload="this.media='all'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,300..700;1,62..125,300..700&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&display=swap"></noscript>
 
-  <!-- THE SITE'S OWN STYLESHEET, not a second design language. Everything below
-       is written against its tokens (§02) and reuses its primitives — .kicker,
-       .t-sub, .lede, .micro, .rule, .visually-hidden, .skip-link and the
-       two-tone focus ring in §16. This page is loaded into the tool overlay (an
-       iframe), so it carries its own <head>; it does not invent a palette. -->
+  <!-- The site's own stylesheet. This page draws its own room, but it still
+       borrows the primitives every other station uses — .visually-hidden,
+       .skip-link, .micro, and the two-tone focus ring in §16 — and it takes its
+       palette from the same §02 tokens rather than inventing one. -->
   <link rel="stylesheet" href="../../assets/theme.a73825e539.css">
 
   <!-- ══════════════════════════════════════════════════════════════════════
-       ⚠ THE MANIFEST IS **NOT** INLINED HERE, AND THAT IS THE DECISION.
+       ⚠ THE MANIFEST IS **NOT** INLINED HERE, AND THAT IS STILL THE DECISION.
        ══════════════════════════════════════════════════════════════════════
        tools/printouts/index.html inlines printouts/manifest.json verbatim into
        its <head> as a file:// fallback, because Jeff and the district managers
@@ -36,776 +38,2721 @@
 
        This page does not take that trade, for a reason specific to what this
        page IS. The whole point of arcade/manifest.json is that Jeff adds a game
-       by adding ONE ROW TO IT — "I think I want to add a couple more games on
-       the site over the next couple of weeks." An inline copy makes that a
-       two-file edit for ever, and the one week he forgets the second file is
-       the week the arcade quietly renders yesterday's cabinet list.
+       by adding ONE ROW TO IT. An inline copy makes that a two-file edit for
+       ever, and the one week he forgets the second file is the week the arcade
+       quietly renders yesterday's cabinet list.
 
-       The two ways out both fail on that requirement:
-         · inline it and let the fetched copy win — then the inline copy is
-           stale by design and only wrong on the one path (file://) where
-           nothing can correct it;
-         · inline it and assert the two parse equal — then the FIRST game Jeff
-           adds trips the assertion, and a warning banner on a working page is
-           a worse lie than no banner at all.
        So: one copy, fetched, always. On file:// this page renders the honest
-       state below (offlineState()) naming the manifest and saying the station
-       needs the site served — `python3 -m http.server` in the repo root, which
-       is the same thing every other runtime-data surface on this site needs.
-       The games themselves are still reachable from the Break Room rail on a
-       USB review, because the tool list in data/ IS inlined in index.html.
+       state named in offlineState() — the room still builds, with one dark
+       cabinet saying the station needs the site served.
        ══════════════════════════════════════════════════════════════════════ -->
 
   <style>
-    /* ══════════════════════════════════════════════════════════════════════
-       C³ ARCADE · the room behind the cabinet
-       Local to this page. Tokens only — no new colours, no second type scale.
-       ══════════════════════════════════════════════════════════════════════ */
+/* ============================================================
+   C³ ARCADE — visual render layer
+   Single file. No CDN, no libraries, no images, no 3D context.
+   Geometry is baked into three inline SVG paths; depth past the
+   first neighbour is 2D scale + translate toward the VP + dim.
+   ============================================================ */
 
-    body {
-      /* the overlay stage is a warm paper; this page is a dark room like the
-         rest of the site, so it needs its own explicit ground */
-      background-color: var(--bg);
-      padding-block-end: calc(var(--sp-9) + env(safe-area-inset-bottom));
-    }
+:root{
+  /* ---- palette: the only colours allowed ---- */
+  --ink-950:#05070a; --ink-900:#090d13; --ink-850:#0d131b; --ink-800:#131a24;
+  --ink-700:#1b2430; --ink-600:#26313f; --steel:#3a4653;
+  --brass:#c8973f;   --brass-300:#ebce93; --brass-700:#8a6323;
+  --amber:#f7b955;   --ember:#ff9e4a;     --lcd:#8ef0d0;      --alert:#ff6f57;
+  --ice-300:#9fb6c4; --ice-100:#dbe8ef;
+  --bone:#f4efe6;    --bone-2:#dcd5c8;    --bone-3:#b4aba0;
 
-    .ar-wrap {
-      max-inline-size: 74rem;
-      margin-inline: auto;
-      padding-inline: var(--gut);
-    }
+  /* rgb triplets for alpha compositing without color-mix() */
+  --ink950-rgb:5 7 10;  --ink800-rgb:19 26 24; --steel-rgb:58 70 83;
+  --brass-rgb:200 151 63; --brass300-rgb:235 206 147; --brass700-rgb:138 99 35;
+  --ember-rgb:255 158 74; --lcd-rgb:142 240 208; --bone-rgb:244 239 230;
 
-    /* ── masthead ───────────────────────────────────────────────────────── */
-    .ar-head {
-      padding-block: var(--sp-7) var(--sp-5);
-      border-block-end: 1px solid var(--line-hair);
-    }
-    .ar-head .kicker { display: block; }
-    .ar-head h1 {
-      margin-block-start: var(--sp-3);
-      font-size: var(--t-4);
-      font-variation-settings: "opsz" 44, "wght" 500;
-      letter-spacing: var(--track-4);
-    }
-    .ar-head .lede { margin-block-start: var(--sp-3); max-inline-size: 54ch; }
+  /* ---- stage metrics: every dimension derives from --hero-h ---- */
+  --hero-h: clamp(420px, 68vh, 640px);
+  --cab-w:  calc(var(--hero-h) * 0.4545);   /* viewBox 100 x 220 */
+  --room-h: calc(var(--hero-h) * 1.32);
+  --horizon: 62%;                            /* VP y */
+  --baseline: 4.5%;                          /* cabinet feet from room bottom */
+  --face-w: var(--cab-w);                    /* front-face width, per geometry */
 
-    .ar-headline-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: baseline;
-      gap: var(--sp-3) var(--sp-5);
-      margin-block-start: var(--sp-4);
-    }
-    .ar-count { color: var(--fg-dim); font-size: var(--t--1); }
-    .ar-count b { color: var(--accent-lit); font-weight: 600; }
+  /* per-slot convergence toward the VP (translate, then scale) */
+  --s1:.78; --s2:.58; --s3:.36;
+  --dx1: calc(var(--cab-w) * .172);
+  --dx2: calc(var(--cab-w) * .468);
+  --dx3: calc(var(--cab-w) * .820);
+  --dy1: calc(var(--hero-h) * -.098);
+  --dy2: calc(var(--hero-h) * -.187);
+  --dy3: calc(var(--hero-h) * -.285);
 
-    /* lifted from .po-back — same control, same room, same measurements */
-    .ar-back {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--sp-2);
-      min-block-size: 44px;
-      padding-inline-end: var(--sp-2);
-      color: var(--fg-dim);
-      font-size: var(--t--2);
-      font-weight: 600;
-      font-stretch: 90%;
-      text-transform: uppercase;
-      letter-spacing: var(--track-caps);
-      transition: color var(--dur-2) var(--ease-out);
-    }
-    .ar-back::before {
-      content: "";
-      inline-size: 8px; block-size: 8px;
-      border-inline-start: 1.5px solid currentColor;
-      border-block-end: 1.5px solid currentColor;
-      transform: rotate(45deg);
-    }
-    .ar-back:hover, .ar-back:focus-visible { color: var(--accent-lit); }
+  --font:'Archivo','Archivo Black','Helvetica Neue',Helvetica,Arial,'Liberation Sans',system-ui,sans-serif;
+  --tint:var(--brass); --tint-rgb:var(--brass-rgb);
+}
 
-    /* ── the row of cabinets ────────────────────────────────────────────── */
-    .ar-list {
-      display: grid;
-      gap: var(--sp-5);
-      margin-block-start: var(--sp-6);
-      padding: 0;
-      list-style: none;
-      /* ONE COLUMN UNTIL THERE IS ROOM FOR TWO WHOLE CABINETS. auto-fill with a
-         19rem floor and a 1fr ceiling, NOT a fixed column count: the arcade has
-         three games today and the client has said there will be more, so this
-         rule has to absorb a fourth and a fifth without anyone editing it.
-         Measured, wrap width -> card width -> cabinets across:
-             393x852     393px   349px   1 up
-             820x1180    820px   362px   2 up
-             1180x820   1180px   346px   3 up
-             1440x900   1184px   342px   3 up   (the 74rem wrap caps it here)
-             2560x1440  1184px   331px   3 up
-         Three across is where it stops, by the wrap and not by this rule, and
-         that is right: a fourth game wraps to a second row of the same-sized
-         cabinets rather than shrinking all four. */
-      grid-template-columns: repeat(auto-fill, minmax(min(19rem, 100%), 1fr));
-    }
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--ink-950); color:var(--bone-2);
+  font-family:var(--font);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
 
-    /* ── one cabinet ────────────────────────────────────────────────────── */
-    .ar-cab {
-      position: relative;                 /* the stretched link anchors here */
-      display: flex;
-      flex-direction: column;
-      border: 1px solid var(--line-hair);
-      border-radius: var(--r-md);
-      background: var(--surface);
-      box-shadow: var(--shadow-1);
-      overflow: hidden;
-      transition: border-color var(--dur-2) var(--ease-out),
-                  transform var(--dur-3) var(--ease-cine),
-                  box-shadow var(--dur-2) var(--ease-out);
-    }
-    .ar-cab:hover { border-color: var(--line-soft); transform: translateY(-2px); box-shadow: var(--shadow-2); }
-    /* the card lights when the link inside it has the keyboard: focus-within,
-       so the ring on the button and the lift on the card agree */
-    .ar-cab:focus-within { border-color: var(--line); }
-    .ar-cab.is-unwired { opacity: 1; border-style: dashed; }
+/* ============================================================
+   ROOM
+   ============================================================ */
+.arcade{
+  position:relative; width:100%; height:var(--room-h);
+  min-height:var(--room-h); overflow:hidden;
+  background:var(--ink-950);
+  isolation:isolate;
+}
 
-    /* the art plate. --tint comes off the manifest row; it is the only thing
-       about a cabinet this stylesheet does not know in advance. */
-    .ar-art {
-      position: relative;
-      display: block;
-      aspect-ratio: 16 / 10;
-      /* so the drawn tile's initials below size against the CARD. Without a
-         container, `cqi` falls back to the viewport and the glyphs on a 2560
-         screen are solved against 2560 rather than against a 19rem column. */
-      container-type: inline-size;
-      background: var(--ink-950);
-      border-block-end: 1px solid var(--line-hair);
-      overflow: hidden;
-    }
-    .ar-art > img {
-      inline-size: 100%;
-      block-size: 100%;
-      max-inline-size: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    /* a hairline of the game's own tint along the foot of the plate, so three
-       cabinets in a row read as three different machines rather than one
-       repeated card */
-    .ar-art::after {
-      content: "";
-      position: absolute;
-      inset-inline: 0;
-      inset-block-end: 0;
-      block-size: 2px;
-      background: var(--tint, var(--brass));
-      opacity: .85;
-    }
+/* --- back wall: one vertical gradient + the horizon seam --- */
+.wall{
+  position:absolute; inset:0 0 auto 0; height:var(--horizon);
+  background:
+    repeating-linear-gradient(90deg, rgba(38,49,63,.07) 0 1px, rgba(0,0,0,0) 1px 96px),
+    linear-gradient(180deg,#070c13 0%,#0b1119 38%,#080d14 76%,var(--ink-950) 100%);
+}
+/* one dead house light, far back */
+.wall::before{
+  content:''; position:absolute; left:50%; bottom:-2%;
+  width:118%; height:92%; transform:translateX(-50%);
+  background:radial-gradient(closest-side,rgba(138,99,35,.06),rgba(138,99,35,.02) 46%,rgba(138,99,35,0) 100%);
+}
+/* the horizon seam. that one line does the work. */
+.wall::after{
+  content:''; position:absolute; left:0; right:0; bottom:0; height:1px;
+  background:rgba(27,36,48,.4);
+}
 
-    /* THE GENERATED TILE — what a manifest row with no `art` gets.
-       It has to be drawn by CSS and not by a file, because that is the whole
-       "add one row and nothing else" promise: a game added next month with no
-       art still arrives looking like a cabinet. Two conic sweeps in the game's
-       own tint over the page ground, plus the title's initials in display type.
-       Deliberately abstract — a generic joypad glyph on every future game would
-       be worse than no art at all. */
-    .ar-art.is-drawn {
-      display: grid;
-      place-items: center;
-      background:
-        radial-gradient(120% 90% at 78% 14%, color-mix(in oklab, var(--tint, var(--brass)) 34%, transparent), transparent 62%),
-        repeating-linear-gradient(115deg,
-          color-mix(in oklab, var(--tint, var(--brass)) 10%, transparent) 0 2px,
-          transparent 2px 13px),
-        linear-gradient(180deg, var(--ink-800), var(--ink-950));
-    }
-    .ar-art.is-drawn > span {
-      font-family: var(--font-display);
-      font-optical-sizing: none;
-      font-variation-settings: "opsz" 60, "wght" 500;
-      font-size: clamp(2.4rem, 9cqi, 3.6rem);
-      line-height: 1;
-      letter-spacing: .04em;
-      /* MIXED TOWARD --bone-2, NOT TOWARD THE TINT, and the ratio is the point.
-         At `tint 72%, bone` a DARK tint produced dark glyphs on a dark tile:
-         measured with --tint at --slate (#1d3b52) the initials came out at
-         2.95:1 on the generated ground — a tile whose only content is
-         unreadable. At 34% the tint still colours the letters but the mix can
-         never land below --bone-2's own darkness. Re-measured on rendered
-         pixels with that same worst-case dark tint: 5.86:1. The brass and
-         amber tints the three shipped cabinets use are far lighter again, so
-         every tint in §02 clears the 4.5:1 floor with room to spare. */
-      color: color-mix(in oklab, var(--tint, var(--brass)) 34%, var(--bone-2));
-      text-shadow: 0 2px 18px rgb(var(--shade) / .8);
-    }
+/* --- floor: one element (+ its far band pseudo). the mask IS the fog --- */
+.floor{
+  position:absolute; left:-12%; right:-12%; top:var(--horizon); bottom:0;
+  background:
+    repeating-linear-gradient(90deg, rgba(58,70,83,.055) 0 1px, rgba(0,0,0,0) 1px 34px),
+    repeating-conic-gradient(from 37deg  at 50% 50%, rgba(255,158,74,.058) 0 25%, rgba(0,0,0,0) 0 50%),
+    repeating-conic-gradient(from 113deg at 50% 50%, rgba(142,240,208,.036) 0 25%, rgba(0,0,0,0) 0 50%),
+    repeating-conic-gradient(from 71deg  at 50% 50%, rgba(200,151,63,.064) 0 25%, rgba(0,0,0,0) 0 50%),
+    radial-gradient(80% 120% at 50% 118%, rgba(200,151,63,.07), rgba(200,151,63,0) 70%),
+    var(--ink-950);
+  background-size:auto, 17px 17px, 23px 23px, 12px 12px, auto, auto;
+  -webkit-mask-image:linear-gradient(to top,#000 0%,#000 30%,transparent 100%);
+          mask-image:linear-gradient(to top,#000 0%,#000 30%,transparent 100%);
+  box-shadow:inset 0 0 200px 60px rgba(5,7,10,.8);
+}
+/* far band — same carpet, tighter weave, dimmer: the recession */
+.floor::before{
+  content:''; position:absolute; left:0; right:0; top:0; height:34%;
+  background:
+    repeating-linear-gradient(90deg, rgba(58,70,83,.055) 0 1px, rgba(0,0,0,0) 1px 12px),
+    repeating-conic-gradient(from 37deg  at 50% 50%, rgba(255,158,74,.045) 0 25%, rgba(0,0,0,0) 0 50%),
+    repeating-conic-gradient(from 113deg at 50% 50%, rgba(142,240,208,.03) 0 25%, rgba(0,0,0,0) 0 50%),
+    repeating-conic-gradient(from 71deg  at 50% 50%, rgba(200,151,63,.05) 0 25%, rgba(0,0,0,0) 0 50%),
+    linear-gradient(180deg,rgba(5,7,10,.78),rgba(5,7,10,.1));
+  background-size:auto, 6px 6px, 8px 8px, 4px 4px, auto;
+}
 
-    .ar-body {
-      display: flex;
-      flex-direction: column;
-      gap: var(--sp-2);
-      flex: 1 1 auto;
-      padding: var(--sp-4);
-    }
-    .ar-cab h2 {
-      font-family: var(--font-display);
-      font-optical-sizing: none;
-      font-size: var(--t-1);
-      font-weight: 540;
-      font-variation-settings: "opsz" 26, "wght" 540;
-      line-height: var(--lh-snug);
-      letter-spacing: var(--track-1);
-      color: var(--fg);
-      text-wrap: balance;
-    }
-    .ar-blurb {
-      font-size: var(--t--1);
-      line-height: 1.5;
-      color: var(--fg-dim);
-      text-wrap: pretty;
-      flex: 1 1 auto;
-    }
-    .ar-actions { margin-block-start: var(--sp-3); }
+/* Two more class names collide with the site stylesheet, same failure mode as
+   `.btn`. `.floor` is also a site LAYOUT class (max-inline-size:34rem +
+   margin-inline:auto), which clamped the carpet to 544px and centred it
+   instead of letting it span -12%..112% of the room. `.plate` is also the
+   site's room-photograph element; its sizing is harmless on the sign today,
+   but `transform:none` would silently veto any future transform here. */
+.arcade .floor{
+  max-inline-size:none; inline-size:auto;
+  margin-inline:0; padding-inline:0; padding-block:0;
+}
+.sign .plate{inline-size:auto; block-size:auto; object-fit:fill}
 
-    /* ── the Play control ───────────────────────────────────────────────── */
-    /* Same object as .po-btn.is-primary next door: solid brass, one per card. */
-    .ar-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--sp-2);
-      min-block-size: 44px;
-      min-inline-size: 44px;
-      padding-inline: var(--sp-5);
-      border-radius: var(--r-xs);
-      color: var(--ink-950);
-      background: linear-gradient(180deg, var(--brass-300), var(--brass));
-      box-shadow: inset 0 1px 0 rgb(255 255 255 / .35), var(--shadow-1);
-      font-family: var(--font-text);
-      font-size: var(--t--2);
-      font-weight: 700;
-      font-stretch: 90%;
-      text-transform: uppercase;
-      letter-spacing: var(--track-caps);
-      line-height: 1;
-      white-space: nowrap;
-      transition: filter var(--dur-2) var(--ease-out);
-    }
-    .ar-btn:hover:not(:disabled) { filter: brightness(1.08); }
-    /* THE HALO, PUT BACK — the same note as .po-btn in the Print Outs station.
-       theme.css §16 gives every focused control a two-tone ring (a dark 3px
-       outline plus a light 6px halo) and lists by name the components whose own
-       box-shadow it has to beat. .ar-btn is new, so it opts in here or its own
-       inset highlight wins the cascade and the keyboard user gets the dark half
-       of the ring on a dark card, i.e. nothing. */
-    .ar-btn:focus-visible { box-shadow: 0 0 0 6px var(--brass-300); }
-    .ar-btn .ar-play {
-      inline-size: 0; block-size: 0;
-      border-block: 5px solid transparent;
-      border-inline-start: 8px solid currentColor;
-      transform: translateX(1px);
-    }
-    .ar-btn:disabled {
-      color: var(--fg-dim);
-      background: color-mix(in oklab, var(--ink-900) 70%, transparent);
-      box-shadow: inset 0 0 0 1px var(--line-soft);
-      cursor: not-allowed;
-      filter: none;
-    }
-    .ar-btn:disabled .ar-play { opacity: .5; }
+/* --- overhead sign --- */
+.sign{
+  position:absolute; left:50%; top:2.5%; transform:translateX(-50%);
+  text-align:center; pointer-events:none; z-index:2;
+}
+.sign .plate{
+  font-weight:800; letter-spacing:.34em; text-indent:.34em;
+  font-size:calc(var(--hero-h) * .046);
+  color:var(--brass);
+  text-shadow:0 1px 0 rgba(5,7,10,.9), 0 0 18px rgba(200,151,63,.28);
+}
+.sign .bulbs{display:flex; gap:calc(var(--hero-h)*.018); justify-content:center; margin-top:.45em}
+.sign .bulbs i{
+  width:calc(var(--hero-h)*.012); height:calc(var(--hero-h)*.012); border-radius:50%;
+  background:radial-gradient(circle at 42% 34%, #fff 0 14%, var(--brass-300) 42%, var(--brass-700) 100%);
+  box-shadow:0 0 6px 1px rgba(235,206,147,.32);
+}
 
-    /* THE STRETCHED LINK. The whole cabinet is the target, not just the
-       button — a 44px pill inside a 300px card is the wrong hit area on an iPad
-       — but there is still exactly ONE focusable element per card and exactly
-       one accessible name ("Play DEEP SIX"). The art and the heading are not
-       separately tabbable, which is what keeps the Tab walk honest. */
-    a.ar-btn::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: var(--r-md);
-    }
+/* --- edge vignette: the row receding into black --- */
+.vig{
+  position:absolute; inset:0; pointer-events:none; z-index:6;
+  background:
+    linear-gradient(90deg, var(--ink-950) 0%, rgba(5,7,10,.72) 7%, rgba(5,7,10,0) 26%,
+                           rgba(5,7,10,0) 74%, rgba(5,7,10,.72) 93%, var(--ink-950) 100%),
+    radial-gradient(112% 88% at 50% 52%, rgba(5,7,10,0) 36%, rgba(5,7,10,.42) 72%, rgba(5,7,10,.88) 94%, var(--ink-950) 100%);
+}
 
-    /* ── the honest states ──────────────────────────────────────────────── */
-    /* Same object as .po-note: a dashed aside with a brass spine. */
-    .ar-note {
-      display: flex;
-      gap: var(--sp-3);
-      margin-block-start: var(--sp-3);
-      padding: var(--sp-3);
-      border-radius: var(--r-xs);
-      border: 1px dashed var(--line-soft);
-      background: color-mix(in oklab, var(--ink-950) 45%, transparent);
-      font-size: var(--t--2);
-      line-height: 1.5;
-      color: var(--fg-muted);
-      text-wrap: pretty;
-    }
-    .ar-note::before {
-      content: "";
-      flex: none;
-      inline-size: 2px;
-      align-self: stretch;
-      border-radius: 1px;
-      background: var(--brass-700);
-    }
-    .ar-note.is-alert { border-style: solid; border-color: color-mix(in oklab, var(--alert) 40%, transparent); }
-    .ar-note.is-alert::before { background: var(--alert); }
-    .ar-note b { color: var(--fg); font-weight: 600; }
-    .ar-note code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: .92em;
-      color: var(--accent-lit);
-      word-break: break-word;
-    }
+/* --- film grain: kills gradient banding on an iPad panel --- */
+.grain{
+  position:fixed; inset:0; width:100%; height:100%;
+  opacity:.045; mix-blend-mode:overlay; pointer-events:none; z-index:9;
+}
 
-    .ar-empty {
-      margin-block-start: var(--sp-6);
-      padding: var(--sp-6);
-      border: 1px dashed var(--line-soft);
-      border-radius: var(--r-md);
-      text-align: center;
-    }
-    .ar-empty h2 { font-family: var(--font-display); font-size: var(--t-2); font-optical-sizing: none; }
-    .ar-empty p { margin-block-start: var(--sp-3); margin-inline: auto; max-inline-size: 52ch; }
+/* ============================================================
+   RACK
+   ============================================================ */
+.rack{
+  position:absolute; left:0; right:0; bottom:var(--baseline);
+  height:var(--hero-h);
+  margin:0; padding:0 calc(50% - var(--cab-w)/2);
+  list-style:none; display:flex; align-items:flex-end;
+  overflow-x:auto; overflow-y:visible;
+  scroll-snap-type:x mandatory;
+  scrollbar-width:none;
+  z-index:3;
+  -webkit-overflow-scrolling:touch;
+}
+.rack::-webkit-scrollbar{display:none}
 
-    .ar-banner {
-      display: flex;
-      gap: var(--sp-3);
-      margin-block-start: var(--sp-5);
-      padding: var(--sp-4);
-      border-radius: var(--r-md);
-      border: 1px solid color-mix(in oklab, var(--alert) 38%, transparent);
-      background: color-mix(in oklab, var(--alert) 8%, transparent);
-      font-size: var(--t--1);
-      line-height: 1.55;
-      color: var(--fg-muted);
-      text-wrap: pretty;
-    }
-    .ar-banner::before {
-      content: ""; flex: none; inline-size: 2px; align-self: stretch;
-      border-radius: 1px; background: var(--alert);
-    }
-    .ar-banner b { color: var(--fg); font-weight: 600; }
+.slot{
+  flex:0 0 var(--cab-w); width:var(--cab-w); height:var(--hero-h);
+  position:relative; scroll-snap-align:center;
+}
+/* nearer cabinets occlude further ones */
+.slot[data-slot="0"]{z-index:30}
+.slot[data-slot="-1"],.slot[data-slot="1"]{z-index:20}
+.slot[data-slot="-2"],.slot[data-slot="2"]{z-index:10}
+.slot[data-slot="-3"],.slot[data-slot="3"]{z-index:5}
 
-    .ar-colophon {
-      margin-block-start: var(--sp-8);
-      padding-block-start: var(--sp-5);
-      border-block-start: 1px solid var(--line-hair);
-    }
+/* ---- light: pools live outside the scroll container so they are not
+        clipped. one element per cabinet, placed by --px / --py. ---- */
+.pools{position:absolute; inset:0; z-index:1; pointer-events:none}
+.pool{position:absolute; left:var(--px,50%); top:var(--py,50%); width:0; height:0}
+.pool::before{ /* (a) marquee -> soft elliptical pool on the ceiling void */
+  content:''; position:absolute; left:50%; top:50%;
+  width:var(--pw,520px); height:var(--ph,300px); transform:translate(-50%,-62%);
+  background:radial-gradient(closest-side,
+    rgba(235,206,147,.15), rgba(235,206,147,.07) 34%, rgba(235,206,147,.015) 66%, rgba(235,206,147,0) 100%);
+  opacity:var(--pa,1);
+}
+.pool::after{ /* (b) screen -> tinted pool forward onto the carpet */
+  content:''; position:absolute; left:50%; top:var(--fy,300px);
+  width:var(--fw,420px); height:var(--fh,120px); transform:translate(-50%,-50%);
+  background:radial-gradient(closest-side ellipse,
+    rgb(var(--tint-rgb) / .14), rgb(var(--tint-rgb) / .04) 52%, rgb(var(--tint-rgb) / 0) 100%);
+  opacity:var(--pa,1);
+}
 
-    /* ── responsive ─────────────────────────────────────────────────────── */
-    @media (min-width: 60rem) {
-      .ar-body { padding: var(--sp-5); }
-    }
-    /* phones: one cabinet at a time, and the Play pill goes full width so the
-       thumb has the whole card foot rather than a pill in the corner */
-    @media (max-width: 33rem) {
-      .ar-list { gap: var(--sp-4); margin-block-start: var(--sp-5); }
-      .ar-btn { inline-size: 100%; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .ar-cab { transition: none; }
-      .ar-cab:hover { transform: none; }
-    }
+.link{
+  display:block; position:absolute; inset:0;
+  text-decoration:none; color:inherit; outline:none;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* entry stagger lives on a wrapper so it never fights the depth transform.
+   fill:backwards, never both — a `both` fill leaves a filling transform
+   animation on every cabinet forever, which permanently promotes all five. */
+.enter{position:absolute; inset:0; animation:enter .62s cubic-bezier(.2,.7,.3,1) backwards; animation-delay:var(--delay,0ms)}
+@keyframes enter{from{opacity:0; transform:translateY(16px)} to{opacity:1; transform:none}}
+
+/* ---- THE depth transform: 2D only ---- */
+.cab{
+  position:absolute; inset:0;
+  transform:translate(var(--dx,0px),var(--dy,0px)) scale(var(--s,1));
+  transform-origin:50% 100%;
+}
+/* the depth values live on the slot so the LOD-2 title tag can share the
+   translate without inheriting the scale (its text must stay real, not mush) */
+.slot[data-slot="0"] {--s:1;         --dx:0px;                 --dy:0px}
+.slot[data-slot="-1"]{--s:var(--s1); --dx:var(--dx1);          --dy:var(--dy1)}
+.slot[data-slot="1"] {--s:var(--s1); --dx:calc(-1*var(--dx1)); --dy:var(--dy1)}
+.slot[data-slot="-2"]{--s:var(--s2); --dx:var(--dx2);          --dy:var(--dy2)}
+.slot[data-slot="2"] {--s:var(--s2); --dx:calc(-1*var(--dx2)); --dy:var(--dy2)}
+.slot[data-slot="-3"]{--s:var(--s3); --dx:var(--dx3);          --dy:var(--dy3)}
+.slot[data-slot="3"] {--s:var(--s3); --dx:calc(-1*var(--dx3)); --dy:var(--dy3)}
+
+/* dimming with depth — an ink veil, never filter() */
+.dim{
+  position:absolute; inset:0; z-index:5; pointer-events:none;
+  background:var(--ink-950); opacity:0; visibility:hidden;
+  transition:opacity .32s ease, visibility 0s linear .32s;
+}
+.slot:not([data-slot="0"]) .dim{visibility:visible; transition:opacity .32s ease, visibility 0s}
+.slot[data-slot="-1"] .dim,.slot[data-slot="1"]  .dim{opacity:.40}
+.slot[data-slot="-2"] .dim,.slot[data-slot="2"]  .dim{opacity:.72}
+.slot[data-slot="-3"] .dim,.slot[data-slot="3"]  .dim{opacity:.88}
+
+/* ============================================================
+   CABINET BODY (SVG geometry, taper baked into the coordinates)
+   ============================================================ */
+.geo{position:absolute; inset:0; width:100%; height:100%; display:none; overflow:visible}
+.slot[data-geo="front"]    .geo-front{display:block}
+.slot[data-geo="tq-left"]  .geo-tql  {display:block}
+.slot[data-geo="tq-right"] .geo-tqr  {display:block}
+
+/* front face rectangle — position differs per geometry */
+.face{
+  position:absolute; top:0; bottom:0; left:0; width:100%;
+  box-shadow:0 0 13px 0 rgba(5,7,10,.8);
+}
+.slot[data-geo="tq-left"]  .face{left:4%;  width:78%; --face-w:calc(var(--cab-w)*.78)}
+.slot[data-geo="tq-right"] .face{left:18%; width:78%; --face-w:calc(var(--cab-w)*.78)}
+
+/* contact shadow on the carpet — elliptical, tight, no blur() */
+.contact{
+  position:absolute; left:50%; bottom:-1.5%; width:140%; height:8%;
+  transform:translateX(-50%); pointer-events:none; z-index:6;
+  background:radial-gradient(closest-side ellipse,
+    rgba(5,7,10,1) 0 34%, rgba(5,7,10,.78) 58%, rgba(5,7,10,.28) 80%, rgba(5,7,10,0) 100%);
+}
+
+/* ---- 1. MARQUEE ------------------------------------------------ */
+.marquee{
+  position:absolute; left:0; right:0; top:0; height:13%;
+  border:2px solid var(--tint);
+  box-shadow:0 0 0 1px var(--brass-700), inset 0 -4px 0 var(--ink-800);
+  background:
+    linear-gradient(90deg, rgba(9,13,19,.34) 0%, rgba(9,13,19,0) 10%,
+                           rgba(9,13,19,0) 90%, rgba(9,13,19,.34) 100%),
+    linear-gradient(180deg,
+      rgba(24,19,12,.34)     0%,
+      rgba(24,19,12,.10)     9%,
+      rgba(255,255,255,.20) 19%,
+      rgba(255,255,255,1)   28%,
+      rgba(255,255,255,.22) 38%,
+      rgba(24,19,12,.11)    50%,
+      rgba(255,255,255,.22) 59%,
+      rgba(255,255,255,1)   68%,
+      rgba(255,255,255,.18) 78%,
+      rgba(24,19,12,.12)    90%,
+      rgba(24,19,12,.38)   100%),
+    var(--bone-2);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  overflow:hidden;
+}
+.mq-title{
+  position:relative; z-index:2;
+  font-weight:800; letter-spacing:.08em; color:var(--ink-950);
+  font-size:calc(var(--face-w) * .098 * var(--mq-fit,1)); line-height:1;
+  text-align:center; padding:0 5%; white-space:nowrap;
+}
+.mq-rule{
+  position:relative; z-index:2;
+  width:46%; height:3px; margin-top:.34em; background:var(--tint);
+}
+/* flicker: rest state is opacity 0 so "still" == "identical" */
+.mq-flick{
+  position:absolute; inset:0 3px; z-index:3; opacity:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.1));
+}
+.slot[data-slot="0"] .mq-flick{animation:flick 7.5s steps(1,end) infinite}
+@keyframes flick{
+  0%,96.0%{opacity:0} 96.3%{opacity:.30} 96.6%{opacity:0}
+  97.2%{opacity:.42} 97.5%{opacity:0} 98.4%{opacity:.18} 98.7%{opacity:0}
+}
+
+/* ---- 1b. UNDERSIDE LIP + speaker holes + light spill ----------- */
+.lip{
+  position:absolute; left:0; right:0; top:13%; height:2.6%;
+  background:var(--ink-800);
+  box-shadow:inset 0 1px 0 rgba(58,70,83,.45);
+}
+.lip::before{
+  content:''; position:absolute; inset:0;
+  background-image:radial-gradient(circle, rgba(5,7,10,.95) 0 30%, rgba(5,7,10,0) 33%);
+  background-size:calc(100% / 11) 100%;
+}
+.lip::after{
+  content:''; position:absolute; left:4%; right:4%; top:100%; height:340%;
+  background:radial-gradient(68% 100% at 50% 0%,
+    rgba(235,206,147,.26), rgba(235,206,147,.05) 55%, rgba(235,206,147,0) 78%);
+  pointer-events:none;
+}
+
+/* ---- 2. BEZEL -------------------------------------------------- */
+.bezel{
+  position:absolute; left:0; right:0; top:15.6%; height:37.4%;
+  border-top:1px solid var(--steel);
+  background:
+    repeating-linear-gradient(45deg, rgba(19,26,36,.30) 0 1px, rgba(0,0,0,0) 1px 2px),
+    radial-gradient(130% 88% at 50% 2%, #0c121b 0%, #080d14 58%, #05080d 100%),
+    var(--ink-850);
+}
+.print{
+  position:absolute; bottom:5%; font-weight:600; font-size:calc(var(--face-w) * .0381);
+  letter-spacing:.22em; color:var(--bone-3); white-space:nowrap;
+}
+.print.l{left:7%} .print.r{right:7%}
+
+/* ---- 3. SCREEN ------------------------------------------------- */
+.screen{
+  position:absolute; left:7%; right:7%; top:7%; bottom:auto; aspect-ratio:4/3;
+  border-radius:14px; overflow:hidden;
+  background:
+    radial-gradient(72% 62% at 50% 42%, rgb(var(--tint-rgb) / .30), rgba(5,7,10,0) 74%),
+    var(--ink-950);
+  box-shadow:
+    inset 0 0 0 1px rgba(38,49,63,.7),
+    inset 0 0 26px 9px rgba(5,7,10,.9),
+    0 0 0 1px rgba(5,7,10,.9);
+}
+.screen-slot{position:absolute; inset:0; z-index:2} /* drop a <canvas> here */
+.still{
+  position:absolute; inset:0; z-index:1; display:flex;
+  flex-direction:column; align-items:center; justify-content:center;
+  background:
+    radial-gradient(56% 42% at 50% 78%, rgb(var(--tint-rgb) / .72), rgba(5,7,10,0) 76%),
+    linear-gradient(180deg, rgb(var(--tint-rgb) / .38) 0%, rgb(var(--tint-rgb) / .10) 38%,
+                            rgba(5,7,10,.38) 62%, rgba(5,7,10,.68) 100%),
+    var(--ink-950);
+}
+.still::before{ /* starfield */
+  content:''; position:absolute; inset:0; opacity:.55;
+  background-image:
+    radial-gradient(circle 1px at 5px 8px,  rgba(244,239,230,.60), rgba(0,0,0,0) 100%),
+    radial-gradient(circle 1px at 19px 3px, rgba(244,239,230,.30), rgba(0,0,0,0) 100%),
+    radial-gradient(circle 1px at 9px 21px, rgba(142,240,208,.34), rgba(0,0,0,0) 100%);
+  background-size:31px 37px, 23px 29px, 17px 41px;
+}
+.still::after{ /* ground line */
+  content:''; position:absolute; left:0; right:0; bottom:24%; height:1px;
+  background:linear-gradient(90deg, rgba(142,240,208,0), rgb(var(--tint-rgb) / .8) 50%, rgba(142,240,208,0));
+}
+.still b{
+  position:relative; z-index:2; font-weight:800;
+  font-size:calc(var(--cab-w) * .072); line-height:1.15;
+  letter-spacing:.14em; color:var(--lcd); text-align:center; padding:0 8%;
+  text-shadow:0 0 12px rgba(142,240,208,.45);
+}
+.still em{
+  position:relative; z-index:2; font-style:normal; margin-top:.5em;
+  font-size:calc(var(--cab-w) * .042); letter-spacing:.2em; color:var(--bone-3);
+}
+.scan{
+  position:absolute; left:0; right:0; top:-12px; height:calc(100% + 24px); z-index:6;
+  background:repeating-linear-gradient(transparent 0 2px, rgba(5,7,10,.40) 2px 3px);
+}
+.slot[data-slot="0"] .scan{animation:drift 9s linear infinite}
+@keyframes drift{from{transform:translateY(0)} to{transform:translateY(9px)}}
+.corner{ /* barrel vignette, 118% */
+  position:absolute; left:-9%; top:-9%; width:118%; height:118%; z-index:3;
+  background:radial-gradient(closest-side ellipse,
+    rgba(5,7,10,0) 38%, rgba(5,7,10,.34) 64%, rgba(5,7,10,.82) 86%, rgba(5,7,10,1) 100%);
+}
+.streak{ /* one diagonal glass streak, 22deg, white 5% */
+  position:absolute; inset:-25%; z-index:4;
+  background:
+    linear-gradient(112deg,
+      rgba(255,255,255,0) 36%, rgba(255,255,255,.05) 43%,
+      rgba(255,255,255,.05) 52%, rgba(255,255,255,0) 59%),
+    linear-gradient(180deg, rgba(255,255,255,.13) 0%, rgba(255,255,255,.025) 11%, rgba(255,255,255,0) 28%),
+    radial-gradient(130% 62% at 50% -16%, rgba(219,232,239,.16), rgba(0,0,0,0) 62%);
+}
+
+/* ---- 4. CONTROL PANEL ------------------------------------------ */
+.panel{
+  position:absolute; left:0; right:0; top:53%; height:14%;
+  clip-path:polygon(4% 0, 96% 0, 100% 100%, 0 100%);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.10) 0 2%, rgba(255,255,255,.02) 12%, rgba(5,7,10,.42) 46%, rgba(5,7,10,.72) 100%),
+    linear-gradient(rgb(var(--tint-rgb) / .18), rgb(var(--tint-rgb) / .18)),
+    var(--ink-800);
+  /* every control is a fraction of the FRONT FACE, which is narrower on the
+     three-quarter geometries than the cabinet box is */
+  --btn-d:   calc(var(--face-w) * .115);
+  --btn-gap: calc(var(--face-w) * .042);
+  --btn-r:   calc(var(--face-w) * .105);
+}
+.panel .edge{position:absolute; left:0; right:0; bottom:0; height:2px; background:var(--brass-700)}
+.stick{position:absolute; left:24%; top:50%; width:17.5%; aspect-ratio:1; transform:translate(-50%,-56%)}
+.stick .skirt{
+  position:absolute; left:50%; bottom:-14%; width:118%; height:44%;
+  transform:translateX(-50%); border-radius:50%;
+  background:radial-gradient(closest-side ellipse, var(--ink-700) 0 58%, rgba(5,7,10,.9) 100%);
+}
+.stick .shaft{
+  position:absolute; left:50%; top:38%; width:22%; height:46%;
+  transform:translateX(-50%);
+  background:linear-gradient(90deg,#2b3541,var(--steel) 45%,#222b35);
+}
+.stick .ball{
+  position:absolute; inset:0 12% 32% 12%; border-radius:50%;
+  background:radial-gradient(circle at 32% 28%,
+    rgba(255,255,255,.98) 0 3%, rgba(255,255,255,.5) 9%, rgba(255,255,255,.12) 16%,
+    var(--alert) 44%, #a83a2b 82%, #6d2418 100%);
+  box-shadow:0 1px 0 rgba(5,7,10,.8);
+}
+.btn{
+  position:absolute; top:50%; border-radius:50%;
+  transform:translateY(-58%);
+  box-shadow:0 0 0 2px var(--ink-800), 0 2px 0 1px rgba(5,7,10,.85);
+}
+.btn.a{background:radial-gradient(circle at 36% 30%, #ffe1a8 0 22%, var(--amber) 62%, #a97426 100%)}
+.btn.b{background:radial-gradient(circle at 36% 30%, #d9fff1 0 22%, var(--lcd) 62%, #3c8d76 100%)}
+
+/* `.btn` is ALSO a global component in the site stylesheet (theme.css): it
+   carries `padding-inline:var(--sp-5)` (1.5rem => 24px a side) and
+   `min-block-size:44px`, which floor this element's border-box at 48x48 and
+   made both buttons a CONSTANT 48px at every geometry and LOD — overlapping
+   even on the hero and clipping off the narrower three-quarter face. The
+   class name is emitted by the cabinet builder, so neutralise the component
+   here, then size and place from --face-w. Its :hover filter and :active
+   scale are dropped too: this room allows neither. */
+.panel .btn{
+  display:block; padding:0; gap:0;
+  min-inline-size:0; min-block-size:0;
+  font-size:0; line-height:0; letter-spacing:normal; text-transform:none;
+  transition:none; aspect-ratio:auto;
+  width:var(--btn-d); height:var(--btn-d);
+}
+.panel .btn:hover,.panel .btn:focus-visible,.panel .btn:active{
+  filter:none; transform:translateY(-58%);
+}
+/* anchored from the face's right edge, so the gap between them and the margin
+   from the moulded edge are guaranteed at every face width */
+.panel .btn.b{left:auto; right:var(--btn-r)}
+.panel .btn.a{left:auto; right:calc(var(--btn-r) + var(--btn-d) + var(--btn-gap))}
+
+/* ---- 5. APRON: FREE PLAY + PRESS START ------------------------- */
+.apron{
+  position:absolute; left:0; right:0; top:67%; height:13%;
+  background:linear-gradient(180deg,#0f151d,var(--ink-850) 55%,#0b1017);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:calc(var(--face-w) * .018); overflow:hidden;
+}
+.freeplay{
+  font-size:calc(var(--face-w) * .0423); letter-spacing:.2em; font-weight:700; color:var(--lcd);
+  line-height:1.2; text-shadow:0 0 8px rgba(142,240,208,.4);
+}
+.slot[data-slot="0"] .freeplay{animation:blink 1.4s steps(1,end) infinite}
+@keyframes blink{0%,54%{opacity:1} 55%,100%{opacity:.12}}
+.start{
+  font-weight:800; font-size:calc(var(--face-w) * .0635); letter-spacing:.16em;
+  line-height:1.2; color:var(--ink-950); background:var(--amber);
+  border:1px solid var(--brass-700);
+  padding:.28em .8em .32em;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55), inset 0 -1px 0 rgba(5,7,10,.28);
+}
+.enterline{
+  font-size:calc(var(--face-w) * .0381); letter-spacing:.22em; font-weight:700; color:var(--lcd);
+  line-height:1.2; opacity:0; transition:opacity .18s ease; margin-top:.1em;
+}
+
+/* ---- 6. COIN DOOR ---------------------------------------------- */
+.coin{
+  position:absolute; left:0; right:0; top:80%; height:9%;
+  background:linear-gradient(180deg,var(--ink-600) 0%,var(--steel) 30%,#2c3742 74%,var(--ink-700) 100%);
+  box-shadow:inset 0 1px 0 rgba(219,232,239,.18), inset 0 -1px 0 rgba(5,7,10,.9);
+  display:flex; align-items:center; gap:5%; padding:0 7%;
+}
+.coin .well{
+  flex:0 0 40%; height:62%;
+  background:linear-gradient(180deg,#141c26,var(--ink-700));
+  box-shadow:inset 0 1px 2px rgba(5,7,10,.95);
+  display:flex; align-items:center; justify-content:center; gap:14%;
+}
+.coin .esc{
+  width:26%; height:72%; background:var(--bone-3);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 1px 0 rgba(5,7,10,.7);
+}
+.coin .esc span{width:20%; height:66%; background:var(--ink-950)}
+.coin .ret{
+  flex:0 0 15%; height:40%;
+  background:linear-gradient(180deg,var(--ice-300),#6d8391);
+  box-shadow:inset 0 -1px 0 rgba(5,7,10,.5);
+}
+.coin .price{
+  margin-left:auto; font-size:calc(var(--face-w) * .0339); letter-spacing:.04em;
+  font-weight:700; color:var(--bone-3); white-space:nowrap;
+}
+
+/* ---- 7. BASE / KICKPLATE --------------------------------------- */
+.base{
+  position:absolute; left:0; right:0; top:89%; height:11%;
+  background:
+    radial-gradient(120% 150% at 50% 128%, rgba(200,151,63,.10), rgba(200,151,63,0) 66%),
+    linear-gradient(180deg,var(--ink-800) 0%,var(--ink-900) 22%,#070a0f 68%,var(--ink-950) 100%);
+  box-shadow:inset 0 1px 0 rgba(58,70,83,.45);
+}
+.base .toe{
+  position:absolute; left:0; right:0; bottom:0; height:32%;
+  background:var(--ink-950); box-shadow:inset 0 1px 0 rgba(5,7,10,1), 0 -1px 0 rgba(38,49,63,.22);
+}
+.base .feet{position:absolute; left:8%; right:8%; bottom:1%; height:11%; display:flex; justify-content:space-between}
+.base .feet i{width:3.5%; height:100%; background:var(--steel); opacity:.55}
+
+/* ---- 9. T-MOLDING ---------------------------------------------- */
+.tmold{
+  position:absolute; top:0; bottom:0; width:3px; z-index:4;
+  background:var(--tint);
+  transition:width .18s ease, background-color .18s ease;
+}
+.tmold::after{
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(90deg, rgba(255,255,255,.42), rgba(5,7,10,.35));
+}
+.tmold.l{left:0} .tmold.r{right:0}
+
+/* ---- focus-visible ---------------------------------------------- */
+.link:focus-visible .face{outline:2px solid var(--lcd); outline-offset:6px}
+.link:focus-visible .tmold{width:4px; background:var(--lcd)}
+.link:focus-visible .enterline{opacity:1}
+.link:focus-visible .dim{opacity:0}
+.link:focus-visible .marquee{box-shadow:0 0 0 1px var(--brass-700), inset 0 -4px 0 var(--ink-800), 0 0 22px 2px rgba(235,206,147,.35)}
+
+/* ============================================================
+   LEVEL OF DETAIL — driven by measured rendered height
+   ============================================================ */
+/* LOD-1: reduced */
+.slot[data-lod="1"] .print,
+.slot[data-lod="1"] .lip::after,
+.slot[data-lod="1"] .base .feet,
+.slot[data-lod="1"] .coin .ret,
+.slot[data-lod="1"] .coin .price,
+.slot[data-lod="1"] .still em,
+.slot[data-lod="1"] .streak{display:none}
+.slot[data-lod="1"] .scan{background:repeating-linear-gradient(transparent 0 3px, rgba(5,7,10,.40) 3px 4px)}
+.slot[data-lod="1"] .screen{border-radius:9px}
+.slot[data-lod="1"] .coin .well{left:16%; right:16%; top:26%; bottom:26%; gap:22%}
+.slot[data-lod="1"] .coin .esc{background:none}
+.slot[data-lod="1"] .coin .esc span{width:26%; height:100%; background:var(--ink-950)}
+.slot[data-lod="1"] .stick .skirt,
+.slot[data-lod="1"] .btn{box-shadow:0 0 0 1px var(--ink-800)}
+.slot[data-lod="1"] .start{font-size:calc(var(--face-w) * .0550); letter-spacing:.1em; padding:.2em .55em}
+.slot[data-lod="1"] .freeplay{font-size:calc(var(--face-w) * .0381)}
+
+/* LOD-2: silhouette + a real text title BELOW the cabinet */
+.slot[data-lod="2"] .lip,
+.slot[data-lod="2"] .apron > *,
+.slot[data-lod="2"] .panel .stick,
+.slot[data-lod="2"] .panel .btn,
+.slot[data-lod="2"] .scan,
+.slot[data-lod="2"] .streak,
+.slot[data-lod="2"] .still b,
+.slot[data-lod="2"] .still em,
+.slot[data-lod="2"] .mq-title,
+.slot[data-lod="2"] .mq-rule,
+.slot[data-lod="2"] .print,
+.slot[data-lod="2"] .base .feet{display:none}
+.slot[data-lod="2"] .marquee{background:linear-gradient(180deg,var(--bone-3),var(--bone-2) 46%,#8e877d); border-width:1px}
+.slot[data-lod="2"] .coin{background:none; height:0; top:80%}
+.slot[data-lod="2"] .coin .well{left:14%; right:14%; top:0; bottom:auto; height:2px; background:var(--steel); box-shadow:none}
+.slot[data-lod="2"] .coin .esc{display:none}
+.slot[data-lod="2"] .screen{border-radius:4px}
+.slot[data-lod="2"] .tmold{width:2px}
+.tag{
+  position:absolute; left:50%; z-index:7;
+  bottom:calc(-1 * var(--dy, 0px) - 26px);
+  transform:translateX(calc(-50% + var(--dx, 0px)));
+  font-size:11px; font-weight:800; letter-spacing:.16em; color:var(--bone-2);
+  white-space:nowrap; display:none; text-shadow:0 1px 3px rgba(5,7,10,.9);
+}
+.slot[data-lod="2"] .tag{display:block}
+
+/* ============================================================
+   BREAKPOINTS on usable width
+   ============================================================ */
+@media (max-width:719.98px){
+  /* one cabinet, 18px of each neighbour peeking past the edge vignette */
+  :root{
+    --cab-w:min(calc(var(--hero-h) * 0.4545), 62vw);
+    /* land the neighbour's inner edge 18px inside the viewport edge */
+    --dx1:calc(18px + var(--cab-w) - 50vw - var(--cab-w) * var(--s1) * .5);
+    --dx2:calc(var(--cab-w) * .505);
+  }
+  .slot[data-slot="-2"],.slot[data-slot="2"],
+  .slot[data-slot="-3"],.slot[data-slot="3"]{visibility:hidden}
+  .sign .plate{font-size:calc(var(--hero-h) * .03); letter-spacing:.26em}
+}
+@media (min-width:720px) and (max-width:1040px){
+  /* three */
+  .slot[data-slot="-2"],.slot[data-slot="2"],
+  .slot[data-slot="-3"],.slot[data-slot="3"]{visibility:hidden}
+}
+
+/* ============================================================
+   REDUCED MOTION — the room is identical when still
+   ============================================================ */
+@media (prefers-reduced-motion:reduce){
+  .enter{animation:none}
+  .slot[data-slot="0"] .scan,
+  .slot[data-slot="0"] .mq-flick,
+  .slot[data-slot="0"] .freeplay{animation:none}
+  .rack{scroll-behavior:auto}
+}
+
+/* ============================================================
+   HARNESS CHROME (not part of the render layer)
+   ============================================================ */
+.hud{
+  display:flex; justify-content:center; flex-wrap:wrap; gap:10px; padding:12px 16px;
+  font-size:10px; letter-spacing:.2em; color:var(--bone-3); pointer-events:none;
+}
+.hud b{color:var(--brass-300); font-weight:700}
+
+/* ⚠ CLASS NAMES IN THIS FILE SHARE A NAMESPACE WITH assets/theme.css.
+      This page loads the site stylesheet for .visually-hidden, .skip-link and
+      the §16 focus ring — which means every bare class name below is exposed
+      to a component of the same name over there. Three collided and are pinned
+      where they are defined:
+        .btn   — theme.css §BUTTONS floors it at 48px via padding-inline and
+                 applies filter:brightness() on hover, INSIDE a room that
+                 forbids filter. It made every cabinet's buttons a constant
+                 48px, so they overlapped on the hero and were clipped off the
+                 face on the three-quarter cabinets.
+        .floor — theme.css makes it a centred 34rem layout column. The arcade
+                 carpet shipped clamped to 544px in the middle of a black floor.
+        .plate — benign today, but its transform:none would silently veto any
+                 transform added here later.
+      BEFORE ADDING A CLASS NAME HERE, grep assets/theme.a73825e539.css for it. A collision
+      does not error, it just quietly renders something else's design.
+   ============================================================ */
+
+/* ============================================================
+   PRODUCTION ADDENDUM
+   Everything above is the render layer. Everything below is what
+   it takes to be a real station inside the tool viewer: the one
+   canvas, the honest failure states, and the chrome the rest of
+   the site expects (skip link, back link, live region).
+   ============================================================ */
+
+/* The viewer gives this page a frame with its own chrome bar, so the room
+   sizes to the frame rather than to the document. --room-h still drives every
+   internal proportion; this just stops a scrollbar appearing when the frame is
+   a few pixels shorter than the room wants to be. */
+body{min-height:100%; display:flex; flex-direction:column}
+.arcade{flex:1 1 auto}
+
+/* ── THE ONE CANVAS ──────────────────────────────────────────────────────
+   Exactly one <canvas> exists in this document, ever. It is moved into the
+   centred cabinet's .screen-slot and mounted there; the previous cabinet
+   reverts to its CSS still. 320x240 backing store at DPR 1, upscaled hard —
+   the chunky pixels are the period, and the layer stays at 0.31MB however
+   large the cabinet is drawn. */
+.crt{
+  position:absolute; inset:0; width:100%; height:100%;
+  display:block; z-index:2;
+  image-rendering:pixelated; image-rendering:crisp-edges;
+  border-radius:inherit;
+}
+/* the still is the fallback picture; hide it only where the canvas is live,
+   so a cabinet the engine has not reached still shows something. */
+.slot.has-crt .still{opacity:0}
+
+/* ── the un-wired cabinet ────────────────────────────────────────────────
+   A game listed in the manifest whose slug is not in the tool registry
+   cannot be launched — `#/tool/<slug>` would resolve to nothing. It still
+   gets a cabinet, because it exists; it just says so, out of order, the way a
+   real arcade machine does. */
+.slot[data-wired="no"] .start{
+  background:var(--ink-700); color:var(--bone-3);
+  border-color:var(--steel); box-shadow:none;
+}
+.slot[data-wired="no"] .freeplay{color:var(--alert); animation:none}
+.slot[data-wired="no"] .cab{filter:none; opacity:.86}
+
+/* ── station chrome ──────────────────────────────────────────────────────
+   Kept deliberately quiet: the viewer already shows a Back control and the
+   title. This is the belt-and-braces copy for a rep who opened the page
+   directly, plus the keyboard legend. */
+.hud{
+  position:relative; z-index:7;
+  display:flex; justify-content:center; align-items:center;
+  flex-wrap:wrap; gap:6px 14px;
+  padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+  font-size:10px; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--bone-3); background:var(--ink-950);
+}
+.hud b{color:var(--brass-300); font-weight:700}
+.hud .sep{opacity:.4}
+.hud a{
+  color:var(--brass-300); text-decoration:none;
+  border-bottom:1px solid rgb(var(--brass700-rgb) / .8);
+  padding-bottom:1px; pointer-events:auto;
+}
+.hud a:hover{color:var(--amber)}
+/* touch has no arrow keys and no Tab; swap the legend rather than lie. */
+@media (hover:none) and (pointer:coarse){ .hud .kb{display:none} }
+@media (hover:hover){ .hud .touch{display:none} }
+
+/* ── failure states ──────────────────────────────────────────────────────
+   Drawn INSIDE the room, on the marquee of a single dark cabinet, because a
+   white error card dropped into a dark arcade is the one thing that would
+   break the illusion for good. */
+.state{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  z-index:7; max-inline-size:44ch; text-align:center; padding:0 var(--sp-4, 1rem);
+}
+.state h2{
+  font-family:var(--font); font-weight:800; font-size:15px;
+  letter-spacing:.22em; text-transform:uppercase; color:var(--amber);
+  margin:0 0 10px;
+}
+.state p{margin:0; font-size:13px; line-height:1.6; color:var(--bone-2)}
+.state code{
+  font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size:12px; color:var(--lcd); background:rgb(var(--ink950-rgb) / .7);
+  padding:1px 5px; border-radius:3px;
+}
+
+/* ── the colophon ────────────────────────────────────────────────────────
+   The two-row rule travels with the code. Off-screen for sighted reps (the
+   room is the point) but read by anyone using the page with a screen reader
+   or looking at source — which is exactly who needs it. */
+.colophon{
+  padding:0 16px 16px; margin:0; text-align:center;
+  font-size:9px; line-height:1.8; letter-spacing:.04em;
+  color:rgb(var(--bone-rgb) / .28);
+  background:var(--ink-950); position:relative; z-index:7;
+}
+.colophon code{color:rgb(var(--lcd-rgb) / .42); font-family:ui-monospace, SFMono-Regular, Menlo, monospace}
+/* The room is the point; this is a footnote for whoever comes to edit the
+   manifest. Anything brighter competes with the cabinets from across a break
+   room, which is the one distance that matters here. */
+@media (max-width: 719px){ .colophon{display:none} }
+
+/* The grain is fixed-position and would sit over the HUD; keep it on the room
+   only. (It is also the cheapest thing on the page to get wrong: mix-blend
+   over text is instantly ugly.) */
+.grain{z-index:5}
   </style>
 </head>
 <body>
-  <a class="skip-link" href="#ar-main">Skip to the games</a>
+  <a class="skip-link" href="#rack">Skip to the games</a>
 
-  <div class="ar-wrap">
-    <header class="ar-head">
-      <span class="kicker">Break Room · The Cabinets</span>
-      <h1 class="t-sub">C³ Arcade</h1>
-      <p class="lede">Every game on the site, in one place. Pick a cabinet and it opens right here — the Back button brings you straight back to this screen.</p>
-      <div class="ar-headline-row">
-        <a class="ar-back" href="../../" target="_top">Back to the Kitchen</a>
-        <span class="ar-count" id="ar-count"></span>
-      </div>
-    </header>
+  <div class="arcade" id="arcade">
+    <div class="wall"></div>
+    <div class="floor"></div>
 
-    <main id="ar-main">
-      <ul class="ar-list" id="ar-list"></ul>
+    <div class="sign" aria-hidden="true">
+      <div class="plate">C³ ARCADE</div>
+      <div class="bulbs"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
 
-      <noscript>
-        <div class="ar-banner">
-          <div>
-            <b>This station needs JavaScript.</b> The games themselves are all listed
-            in the Break Room on the main page, which works without it.
-          </div>
-        </div>
-      </noscript>
+    <div class="pools" id="pools" aria-hidden="true"></div>
 
-      <p class="ar-colophon micro">
-        Cabinets are listed from <code>arcade/manifest.json</code>. Add a row there and a
-        <!-- ⚠ THE <wbr> IN THE PATH BELOW IS LOAD-BEARING; do not tidy it away.
-             build/fingerprint.mjs rewrites every LITERAL occurrence of a hashed
-             asset path in this file, prose included, and the tool list under data/
-             is one of the assets it hashes — so a verbatim spelling here shipped
-             with a ten-hex build hash in the middle of it, and the rep read that
-             hash in a sentence telling him which file to edit. <wbr> renders
-             nothing, breaks the literal, and is the right element for a long path
-             in a 393px column anyway. -->
-        matching row in <code>data/<wbr>tools.json</code> (same <code>slug</code>), and the game
-        shows up here, in the Break Room, in the C³ menu and on the phone — no change to
-        this page.
-      </p>
-    </main>
+    <!-- The rack is a <ul> of real links, one tab stop, roving tabindex. It is
+         built from arcade/manifest.json at runtime and is empty until then. -->
+    <ul class="rack" id="rack" role="list"
+        aria-label="C³ Arcade cabinets — left and right arrow keys to browse"></ul>
+
+    <div class="vig" aria-hidden="true"></div>
   </div>
+
+  <div class="hud">
+    <span class="kb">&larr; &rarr; <b>Select</b></span>
+    <span class="kb sep">&middot;</span>
+    <span class="kb">Enter <b>Play</b></span>
+    <span class="touch">Swipe to browse &middot; tap a cabinet to play</span>
+    <span class="sep">&middot;</span>
+    <a href="../../" target="_top">Back to the Kitchen</a>
+  </div>
+
+  <noscript>
+    <p class="colophon">
+      <b>This station needs JavaScript.</b> Every game is also listed in the Break Room
+      on the main page, which works without it.
+    </p>
+  </noscript>
+
+  <p class="colophon">
+    Cabinets are listed from <code>arcade/manifest.json</code>. Add a row there and a
+    <!-- ⚠ THE <wbr> IN THE PATH BELOW IS LOAD-BEARING; do not tidy it away.
+         build/fingerprint.mjs rewrites every LITERAL occurrence of a hashed
+         asset path in this file, prose included, and the tool list under data/
+         is one of the assets it hashes — so a verbatim spelling here shipped
+         with a ten-hex build hash in the middle of it, and the rep read that
+         hash in a sentence telling him which file to edit. <wbr> renders
+         nothing, breaks the literal, and is the right element for a long path
+         in a 393px column anyway. -->
+    matching row in <code>data/<wbr>tools.json</code> (same <code>slug</code>), and the cabinet
+    appears here, in the Break Room, in the C³ menu and on the phone — with no change to
+    this page.
+  </p>
+
+  <!-- One viewport-sized noise field, rendered once, never animated. This is
+       what stops the big dark gradients banding on an iPad panel — the single
+       cheapest thing on the page and the one that makes it read as photographed
+       rather than as CSS. -->
+  <svg class="grain" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <filter id="c3grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/>
+    </filter>
+    <rect width="100%" height="100%" filter="url(#c3grain)"/>
+  </svg>
 
   <!-- Screen-reader announcements: how many cabinets, and which one launched. -->
   <p class="visually-hidden" role="status" aria-live="polite" id="ar-live"></p>
 
   <script>
-  (function () {
-    'use strict';
+/* ══ the attract engine — procedural, one canvas, 320x240 at 30fps ══ */
+/* ==========================================================================
+   C3 BREAK ROOM ARCADE - procedural attract-mode engine
+   --------------------------------------------------------------------------
+   Draws the looping demo screen for the one selected cabinet. Everything is
+   generated: no images, no webfonts, no ctx.font, no external anything.
 
-    /* ═════════════════════════════════════════════════════════════════════
-       C³ ARCADE · station runtime
-       ─────────────────────────────────────────────────────────────────────
-       Data-driven end to end, exactly like the Print Outs station next door.
-       Nothing about any individual game is written into this file: the list,
-       the titles, the blurbs, the art and the tints all come from
-       arcade/manifest.json.
+   Design constraints that drive the odd-looking decisions below:
+     - 320x240 backing store at DPR 1. The chunky CSS upscale IS the look, and
+       it pins the compositor layer at ~0.31 MB no matter how big the cabinet
+       is drawn on screen.
+     - 30fps. A 1987 board did not run at 60, and half the frames means half
+       the draw budget. One rAF, accumulator-gated.
+     - Zero per-frame allocation. Every array, string and pattern is built at
+       mount. Numbers are drawn digit-by-digit so we never build a string in
+       the loop (see drawNumber).
+     - Deterministic. One PRNG seeded from the slug; it is drained entirely at
+       mount into preallocated buffers. Math.random is never called.
+   ========================================================================== */
 
-       AND NOT ONE GAME URL IS EVER RENDERED OR NAVIGATED TO FROM HERE.
-       The manifest carries `url` as a record, and this file never reads it.
-       Every launch is `#/tool/<slug>` against the site's own address, because
-       the client has asked that reps never see where the tools are hosted —
-       claude/v15-framed-data-and-hidden-repos.md, and the same rule
-       normaliseTriggerLinks() in assets/overlay.js enforces on every other
-       surface. Grep this file for "github": there is one match, and it is in
-       this sentence.
-       ═════════════════════════════════════════════════════════════════════ */
+function createAttractEngine() {
+  /* True singleton: the page may call this from several places (cabinet
+     switcher, still-frame thumbnails) and must get the same loop owner back,
+     otherwise "at most one loop in the document" is unenforceable. */
+  if (createAttractEngine._instance) return createAttractEngine._instance;
 
-    var MANIFEST_URL = '../../arcade/manifest.json';
-    /* ⚠ ASSEMBLED FROM TWO HALVES, AND IT HAS TO STAY THAT WAY.
-       build/fingerprint.mjs rewrites every literal occurrence of a hashed asset
-       path in this file — the prose as well as the code — and the tool list
-       under data/ is one of the assets it hashes. It must be: a tools list served
-       from a stale cache is the same drift the whole fingerprinter exists to kill.
-       Written verbatim, this string came out of the build with a ten-hex hash in
-       it, and the un-wired card below then TOLD THE READER TO EDIT A FILE THAT
-       DOES NOT EXIST. Split, it is invisible to the rewriter — and the unhashed
-       file is the one we actually want here anyway: it is always present and
-       always current, even after a data edit that has not been fingerprinted. */
-    var TOOLS_JSON   = 'data/' + 'tools.json';
-    var ART_BASE     = '../../arcade/art/';
-    var SITE_ROOT    = '../../';
+  /* ---------------------------------------------------------------- config */
 
-    /* A file:// review copy cannot fetch anything — see the long note in
-       <head> for why this page does NOT carry an inline fallback. */
-    var OFFLINE = location.protocol === 'file:';
+  var W = 320, H = 240;
+  var FPS = 30;
+  var FRAME_MS = 1000 / FPS;          // 33.333...
+  var MAX_DT = 250;                   // never replay more than ~7 frames of
+                                      // backlog after a stall; arcade attract
+                                      // loops do not need catch-up fidelity
+  var SLEEP_MS = 60000;               // 60s of no input -> freeze
+  var CYCLE = 360;                    // 12s at 30fps
+  var PHASE_START = [0, 120, 225, 300];
+  var PHASE_LEN   = [120, 105,  75,  60];
+  var WIPE = 6;                       // frames per half of the wipe (0.2s each)
+  var BLINK = 42;                     // 1.4s at 30fps
+  var BLINK_ON = 26;                  // ~62% duty. A symmetric blink reads as a
+                                      // fault light; real PRESS START legends
+                                      // sit lit longer than they sit dark.
+  var STILL_FRAME = 60;               // canonical still: mid title-card hold,
+                                      // 60 % 42 = 18 so PRESS START is lit
+  var NSTARS = 140;                   // fills the tunnel without the cull rate
+                                      // making the field look thin
 
-    var els = {
-      list:  document.getElementById('ar-list'),
-      count: document.getElementById('ar-count'),
-      live:  document.getElementById('ar-live')
+  /* Fixed palette. Nothing else may reach the canvas. */
+  var GROUND  = '#05070a';
+  var GROUND2 = '#090d13';
+  var SHADE1  = '#1b2430';
+  var SHADE2  = '#3a4653';
+  var PHOSPH  = '#8ef0d0';
+  var AMBER   = '#f7b955';
+  var ORANGE  = '#ff9e4a';
+  var RED     = '#ff6f57';
+  // #9fb6c4 (steel) is in the approved list too, but the engine never reaches
+  // for it directly - it only ever arrives as somebody's tint.
+  var PALE    = '#dbe8ef';
+  var WHITE   = '#f4efe6';
+
+  /* ------------------------------------------------------------ 5x7 font */
+
+  /* 53 glyphs, row-major, 5 bits per row encoded as one base32 digit, 7 digits
+     per glyph: 371 chars total. Cheaper to ship and to parse than any nested
+     array literal, and it diffs as one line. Bit 4 is the leftmost column.
+     % and & are past the brief's required set but present because blurbs are
+     written by hand - a missing glyph renders as a hole in the middle of a
+     sentence, and those two are the ones retail copy actually reaches for. */
+  var FONT_KEYS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 .,:'!?-+/()\u00A9\u00B3\u00A2%&";
+  var FONT_BITS =
+    "EHHVHHHUHHUHHUEHGGGHEUHHHHHUVGGUGGVVGGUGGGEHGNHHEHHHVHHHV44444V72222ICHIKOK" +
+    "IHGGGGGGVHRLLHHHHPPLJJHEHHHHHEUHHUGGGEHHHLIDUHHUKIHFGGE11UV444444HHHHHHEHHH" +
+    "HHA4HHHLLRHHHA4AHHHHA4444V1248GVEHJLPHE4C4444EEH1248VV2421HE26AIV22VGU11HE6" +
+    "8GUHHEV124888EHHEHHEEHHF12C000000000000CC0000C480CC0CC044800004444404EH1240" +
+    "4000E000044V44011248GG24888428422248EHMKMHEE262E004E888E4PP248JJCIK8LID";
+
+  var GLYPH = new Int32Array(FONT_KEYS.length * 7);
+  var CHARMAP = new Int16Array(256);   // charCode -> glyph index, -1 = absent
+  (function decodeFont() {
+    var i;
+    for (i = 0; i < 256; i++) CHARMAP[i] = -1;
+    for (i = 0; i < FONT_BITS.length; i++) {
+      var c = FONT_BITS.charCodeAt(i);
+      // base32 digit: '0'-'9' then 'A'-'V'
+      GLYPH[i] = c <= 57 ? c - 48 : c - 55;
+    }
+    for (i = 0; i < FONT_KEYS.length; i++) {
+      // every glyph we ship lives in Latin-1, including (c) (r)3 and (c)ent,
+      // so a flat 256-entry table beats any hash lookup
+      CHARMAP[FONT_KEYS.charCodeAt(i)] = i;
+    }
+  })();
+
+  var POW10 = [1, 10, 100, 1000, 10000, 100000, 1000000, 10000000];
+
+  /* Draw one glyph as horizontal runs rather than per-pixel rects: a 5-wide
+     row is at most 3 runs, so worst case is 21 fillRects per character and
+     typical case is 9. Per-pixel would be 35. */
+  function drawGlyph(ctx, gi, x, y, s) {
+    var base = gi * 7, r, c, bits, run;
+    for (r = 0; r < 7; r++) {
+      bits = GLYPH[base + r];
+      if (bits === 0) continue;
+      run = -1;
+      for (c = 0; c < 5; c++) {
+        if ((bits >> (4 - c)) & 1) {
+          if (run < 0) run = c;
+        } else if (run >= 0) {
+          ctx.fillRect(x + run * s, y + r * s, (c - run) * s, s);
+          run = -1;
+        }
+      }
+      if (run >= 0) ctx.fillRect(x + run * s, y + r * s, (5 - run) * s, s);
+    }
+  }
+
+  function textW(str, s, sp) {
+    if (sp === undefined) sp = 1;
+    return str.length * (5 + sp) * s - sp * s;
+  }
+
+  /* True drawn extent of a line. The title is drawn twice - an offset copy
+     s px down and right, then the face - so its ink is s px wider than textW
+     reports. Fitting or centring on textW alone leaves s px less room than
+     the fit believed and pushes the line s/2 px right of centre. */
+  function inkW(str, s, sp, shadow) {
+    return textW(str, s, sp) + (shadow ? s : 0);
+  }
+
+  /* The font is fixed-advance, so capacity is arithmetic, not measurement:
+     every glyph costs (5+sp)*s and the last one refunds sp*s. */
+  function fitChars(maxW, s, sp) {
+    if (sp === undefined) sp = 1;
+    var n = ((maxW + sp * s) / ((5 + sp) * s)) | 0;
+    return n < 0 ? 0 : n;
+  }
+
+  function widestW(lines, s, sp) {
+    var m = 0, i, w;
+    for (i = 0; i < lines.length; i++) {
+      w = textW(lines[i], s, sp);
+      if (w > m) m = w;
+    }
+    return m;
+  }
+
+  function drawText(ctx, str, x, y, s, color, sp) {
+    if (sp === undefined) sp = 1;
+    ctx.fillStyle = color;
+    var adv = (5 + sp) * s, i, gi, cc;
+    for (i = 0; i < str.length; i++) {
+      cc = str.charCodeAt(i);
+      gi = cc < 256 ? CHARMAP[cc] : -1;
+      // unknown characters still advance, so a stray glyph never shifts a
+      // centred line out from under its own centring maths
+      if (gi >= 0) drawGlyph(ctx, gi, x + i * adv, y, s);
+    }
+  }
+
+  function drawTextC(ctx, str, cx, y, s, color, sp) {
+    drawText(ctx, str, cx - (textW(str, s, sp) >> 1), y, s, color, sp);
+  }
+
+  /* Integer -> glyphs with no intermediate string. This is the single biggest
+     allocation win in the loop: the demo HUD, the depth readout and the score
+     ticker would otherwise mint a fresh string 30 times a second. */
+  function drawNumber(ctx, val, digits, x, y, s, color, sp) {
+    if (sp === undefined) sp = 1;
+    ctx.fillStyle = color;
+    var adv = (5 + sp) * s, i, d;
+    if (val < 0) val = 0;
+    for (i = 0; i < digits; i++) {
+      d = ((val / POW10[digits - 1 - i]) | 0) % 10;
+      drawGlyph(ctx, 26 + d, x + i * adv, y, s);   // 26 = index of '0'
+    }
+  }
+
+  function numW(digits, s, sp) {
+    if (sp === undefined) sp = 1;
+    return digits * (5 + sp) * s - sp * s;
+  }
+
+  /* ------------------------------------------------------ pixel primitives */
+
+  /* Filled disc by horizontal spans. One fillRect per scanline, integer edges,
+     no ctx.arc - an arc would be antialiased and instantly break the illusion
+     at a 4x upscale. */
+  function pixelDisc(ctx, cx, cy, r, color) {
+    ctx.fillStyle = color;
+    var dy, dx;
+    for (dy = -r; dy <= r; dy++) {
+      dx = Math.sqrt(r * r - dy * dy) | 0;
+      ctx.fillRect(cx - dx, cy + dy, dx * 2 + 1, 1);
+    }
+  }
+
+  /* Midpoint circle outline. `step` plots every Nth pixel, which is both a
+     3x cost saving on the big sonar rings and exactly how a real scope's
+     range rings looked - dotted, not solid. */
+  function pixelRing(ctx, cx, cy, r, color, step) {
+    ctx.fillStyle = color;
+    var x = r, y = 0, err = 1 - r, n = 0;
+    while (x >= y) {
+      if (n % step === 0) {
+        ctx.fillRect(cx + x, cy + y, 1, 1); ctx.fillRect(cx + y, cy + x, 1, 1);
+        ctx.fillRect(cx - y, cy + x, 1, 1); ctx.fillRect(cx - x, cy + y, 1, 1);
+        ctx.fillRect(cx - x, cy - y, 1, 1); ctx.fillRect(cx - y, cy - x, 1, 1);
+        ctx.fillRect(cx + y, cy - x, 1, 1); ctx.fillRect(cx + x, cy - y, 1, 1);
+      }
+      n++; y++;
+      if (err < 0) err += 2 * y + 1;
+      else { x--; err += 2 * (y - x) + 1; }
+    }
+  }
+
+  /* Bresenham. `step` again doubles as a cheap radial dither for the sonar
+     wake: a line plotted every 2nd or 3rd pixel reads as a dimmer line on a
+     phosphor screen without needing another colour. */
+  function pixelLine(ctx, x0, y0, x1, y1, color, step) {
+    ctx.fillStyle = color;
+    x0 = x0 | 0; y0 = y0 | 0; x1 = x1 | 0; y1 = y1 | 0;
+    var dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0);
+    var sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
+    var err = dx + dy, e2, n = 0, guard = 0;
+    for (;;) {
+      if (n % step === 0) ctx.fillRect(x0, y0, 1, 1);
+      n++;
+      if ((x0 === x1 && y0 === y1) || ++guard > 700) break;
+      e2 = 2 * err;
+      if (e2 >= dy) { err += dy; x0 += sx; }
+      if (e2 <= dx) { err += dx; y0 += sy; }
+    }
+  }
+
+  /* Dither as a real 4x4 tile of solid pixels, wrapped in a CanvasPattern so a
+     shaded band costs one fillRect instead of a few thousand. The pixels in
+     the tile are opaque and unblended - this is an ordered Bayer fill, not a
+     gradient or an alpha ramp. Built once per mount, never per frame. */
+  function makeDither(ctx, color, level) {
+    var t = document.createElement('canvas');
+    t.width = 4; t.height = 4;
+    var tc = t.getContext('2d');
+    tc.fillStyle = color;
+    var BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+    var thresh = level === 2 ? 8 : level === 3 ? 12 : 4;   // 25% / 50% / 75%
+    for (var i = 0; i < 16; i++) {
+      if (BAYER[i] < thresh) tc.fillRect(i % 4, (i / 4) | 0, 1, 1);
+    }
+    return ctx.createPattern(t, 'repeat');
+  }
+
+  /* -------------------------------------------------------------- colour */
+
+  function clampByte(v) { return v < 0 ? 0 : v > 255 ? 255 : v; }
+
+  function hexOf(r, g, b) {
+    var n = (1 << 24) | (clampByte(r) << 16) | (clampByte(g) << 8) | clampByte(b);
+    return '#' + n.toString(16).slice(1);
+  }
+
+  /* Four-step ramp from the tint by integer division only. No HSL round trip,
+     no color-mix: both are per-call string work and neither is guaranteed to
+     land on the same bytes across browsers, which would break determinism. */
+  function buildRamp(tint) {
+    var h = tint.charAt(0) === '#' ? tint.slice(1) : tint;
+    if (h.length === 3) h = h.charAt(0) + h.charAt(0) + h.charAt(1) + h.charAt(1) + h.charAt(2) + h.charAt(2);
+    var v = parseInt(h, 16);
+    if (isNaN(v)) v = 0x8ef0d0;
+    var r = (v >> 16) & 255, g = (v >> 8) & 255, b = v & 255;
+    return [
+      hexOf(r, g, b),
+      hexOf((r * 3) >> 2, (g * 3) >> 2, (b * 3) >> 2),
+      hexOf(r >> 1, g >> 1, b >> 1),
+      // floor the darkest step so a dim tint never sinks into #05070a and
+      // takes the starfield / range rings with it
+      hexOf((r >> 2) + 12, (g >> 2) + 14, (b >> 2) + 16)
+    ];
+  }
+
+  /* ----------------------------------------------------------------- PRNG */
+
+  function imul32(a, b) {
+    // Math.imul is fine everywhere we ship, but this is mount-time only and
+    // costs nothing, so we keep the file honest about its ES5 baseline.
+    var aHi = (a >>> 16) & 0xffff, aLo = a & 0xffff;
+    var bHi = (b >>> 16) & 0xffff, bLo = b & 0xffff;
+    return ((aLo * bLo) + ((((aHi * bLo + aLo * bHi) << 16) >>> 0))) | 0;
+  }
+
+  function seedFrom(str) {
+    var h = 2166136261;
+    for (var i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = imul32(h, 16777619);
+    }
+    return h >>> 0;
+  }
+
+  function mulberry32(a) {
+    return function () {
+      a = (a + 0x6D2B79F5) | 0;
+      var t = a;
+      t = imul32(t ^ (t >>> 15), t | 1);
+      t ^= t + imul32(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /* ----------------------------------------------------------------- text */
+
+  function sanitize(str) {
+    // the font is uppercase-only; fold once at mount so the loop never calls
+    // toUpperCase (which allocates)
+    return String(str === undefined || str === null ? '' : str).toUpperCase();
+  }
+
+  var ELL = '...';
+
+  /* One wrapper for every caller-supplied string. Word-wraps to a character
+     capacity and reports whether anything was left over, so a caller that
+     must show truncation (the blurb) can and one that need not (HOW TO PLAY)
+     can ignore it. A word too long to fit a line on its own is hard-broken:
+     the old version passed it through whole, which is how a 58-character
+     token came to be drawn from x=-193 to x=513 on a 320px canvas. */
+  function wrapFit(str, cap, maxLines) {
+    var out = { lines: [], over: false }, words, cur = '', i, w;
+    if (cap < 1) { out.over = str.length > 0; return out; }
+    words = str.split(/\s+/);
+    for (i = 0; i < words.length; i++) {
+      w = words[i];
+      if (!w) continue;
+      while (w.length > cap) {                       // hard break
+        if (cur !== '') {
+          if (out.lines.length >= maxLines) { out.over = true; return out; }
+          out.lines.push(cur); cur = '';
+        }
+        if (out.lines.length >= maxLines) { out.over = true; return out; }
+        out.lines.push(w.slice(0, cap));
+        w = w.slice(cap);
+      }
+      if (cur === '') cur = w;
+      else if (cur.length + 1 + w.length <= cap) cur += ' ' + w;
+      else {
+        if (out.lines.length >= maxLines) { out.over = true; return out; }
+        out.lines.push(cur); cur = w;
+      }
+    }
+    if (cur !== '') {
+      if (out.lines.length >= maxLines) { out.over = true; return out; }
+      out.lines.push(cur);
+    }
+    return out;
+  }
+
+  /* Mark truncation on the last line, dropping whole words until the marker
+     fits. Only if a single unbroken word is all there is do we cut mid-word -
+     the marker must never be what pushes the line over. */
+  function ellipsise(lines, cap) {
+    if (lines.length === 0) return lines;
+    var k = lines.length - 1, last = lines[k], sp;
+    while (last.length + ELL.length > cap) {
+      sp = last.lastIndexOf(' ');
+      if (sp < 0) { last = last.slice(0, cap - ELL.length < 0 ? 0 : cap - ELL.length); break; }
+      last = last.slice(0, sp);
+    }
+    lines[k] = last + ELL;
+    return lines;
+  }
+
+  /* Kept for callers that only want the lines. Now hard-breaks. */
+  function wrapText(str, maxChars, maxLines) {
+    return wrapFit(str, maxChars, maxLines).lines;
+  }
+
+  /* Largest integer scale whose ink - letter-spacing and the offset shadow
+     pass included - clears maxW. Tries one line down to TITLE_MIN_SINGLE,
+     then two lines on the same ladder, then two lines at TITLE_MIN_SINGLE
+     with a truncation marker. Wrapping before shrinking is deliberate: a
+     scale-1 title is 7px tall, exactly blurb size, and stops reading as a
+     title at all. The result can never be wider than maxW. */
+  var TITLE_MAX = 5, TITLE_MIN_SINGLE = 2;
+
+  function fitTitle(h, str, maxW) {
+    var s, r, cap;
+    for (s = TITLE_MAX; s >= TITLE_MIN_SINGLE; s--) {
+      if (inkW(str, s, 1, true) <= maxW) {
+        h.titleScale = s; h.titleLines = [str]; return;
+      }
+    }
+    for (s = TITLE_MAX; s >= TITLE_MIN_SINGLE; s--) {
+      cap = fitChars(maxW - s, s, 1);
+      r = wrapFit(str, cap, 2);
+      if (!r.over && r.lines.length > 0 && widestW(r.lines, s, 1) + s <= maxW) {
+        h.titleScale = s; h.titleLines = r.lines; return;
+      }
+    }
+    /* Last resort: two lines at the smallest title scale, marked. Dropping to
+       scale 1 would render the title at exactly blurb size, which stops
+       reading as a title at all; truncating with a visible marker keeps the
+       type big enough to still be one. Only reachable for a title far longer
+       than the manifest's "short, uppercase" contract. */
+    s = TITLE_MIN_SINGLE;
+    cap = fitChars(maxW - s, s, 1);
+    r = wrapFit(str, cap, 2);
+    h.titleScale = s;
+    h.titleLines = r.over ? ellipsise(r.lines, cap) : r.lines;
+    if (h.titleLines.length === 0) h.titleLines = [''];
+  }
+
+  /* ---------------------------------------------------------------- state */
+
+  var handles = [];            // every live handle, for media-query fan-out
+  var activeHandle = null;     // the one handle allowed to hold the rAF
+  var rafId = 0;               // engine-wide: structurally impossible to have two
+  var motionQuery = null;
+
+  function now() {
+    return (window.performance && window.performance.now)
+      ? window.performance.now() : Date.now();
+  }
+
+  function reduced() {
+    return !!(motionQuery && motionQuery.matches);
+  }
+
+  /* ================================================================ scenes */
+
+  /* Scratch vars hoisted to engine scope. Scene functions are declared once,
+     here, and never inside the loop - a closure minted per frame would both
+     allocate and defeat the JIT's inline caches. */
+  var _i, _j, _x, _y, _d, _a, _r, _t, _c;
+
+  function bg(ctx) {
+    ctx.fillStyle = GROUND;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  function blinkOn(f) { return (f % BLINK) < BLINK_ON; }
+
+  /* --- 0..4s : TITLE CARD ------------------------------------------------
+     The card holds. Nothing about the lettering moves; only the frame
+     marches and the legend blinks. Arcade title cards that jitter their type
+     read as a screensaver, not a cabinet. */
+  function sceneTitle(ctx, h, f) {
+    bg(ctx);
+
+    // static inner frame
+    ctx.fillStyle = h.ramp[3];
+    ctx.fillRect(8, 8, W - 16, 1);
+    ctx.fillRect(8, H - 9, W - 16, 1);
+    ctx.fillRect(8, 8, 1, H - 16);
+    ctx.fillRect(W - 9, 8, 1, H - 16);
+
+    // marching dashes: 6 on, 6 off, phase advancing 1px per frame clockwise.
+    // 30px/s is the speed a chase light runs on a real marquee - slower reads
+    // as broken, faster reads as a warning strip.
+    var ph = f % 12;
+    ctx.fillStyle = h.ramp[0];
+    for (_x = 8 - ph; _x < W - 8; _x += 12) {
+      _d = _x < 8 ? 8 : _x;
+      _c = (_x + 6 > W - 8 ? W - 8 : _x + 6) - _d;
+      if (_c > 0) {
+        ctx.fillRect(_d, 6, _c, 1);
+        ctx.fillRect(W - 8 - (_d - 8) - _c, H - 7, _c, 1);   // mirrored: the
+      }                                                       // chase runs as
+    }                                                         // one loop, not
+    for (_y = 8 + ph; _y < H - 8; _y += 12) {                 // four strips
+      _d = _y; _c = (_y + 6 > H - 8 ? H - 8 : _y + 6) - _d;
+      if (_c > 0) {
+        ctx.fillRect(W - 7, _d, 1, _c);
+        ctx.fillRect(6, H - 8 - (_d - 8) - _c, 1, _c);
+      }
+    }
+
+    // corner brackets, static, tint - anchors the frame so the chase has
+    // something to run between
+    ctx.fillStyle = h.ramp[0];
+    var BR = 9;
+    ctx.fillRect(8, 8, BR, 2);          ctx.fillRect(8, 8, 2, BR);
+    ctx.fillRect(W - 8 - BR, 8, BR, 2); ctx.fillRect(W - 10, 8, 2, BR);
+    ctx.fillRect(8, H - 10, BR, 2);     ctx.fillRect(8, H - 8 - BR, 2, BR);
+    ctx.fillRect(W - 8 - BR, H - 10, BR, 2);
+    ctx.fillRect(W - 10, H - 8 - BR, 2, BR);
+
+    drawTextC(ctx, 'C\u00B3 BREAK ROOM ARCADE', 160, 26, 1, h.ramp[2], 2);
+    ctx.fillStyle = h.ramp[3];
+    ctx.fillRect(80, 38, 160, 1);
+
+    /* Title, block-centred on y=88, each line with a 1px-per-scale-unit offset
+       copy underneath. That second pass is an offset duplicate of solid pixels
+       - the cheap 1987 way to get weight - not a ctx.shadow. Each line is
+       centred on its ink extent (textW + ts), not on textW, or the shadow
+       drags the whole title ts/2 px right of centre. */
+    var ts = h.titleScale, tl = h.titleLines, tn = tl.length;
+    var lead = ts > 2 ? 4 : 2, lh = 7 * ts + lead;
+    var ty0 = 88 - (((tn * lh - lead) >> 1));
+    for (_i = 0; _i < tn; _i++) {
+      _x = 160 - ((textW(tl[_i], ts, 1) + ts) >> 1);
+      _y = ty0 + _i * lh;
+      drawText(ctx, tl[_i], _x + ts, _y + ts, ts, h.ramp[2], 1);
+      drawText(ctx, tl[_i], _x, _y, ts, h.ramp[0], 1);
+    }
+
+    // blurb: up to two centred lines, wrapped and marked at mount
+    _t = ty0 + (tn - 1) * lh + 7 * ts + 14;
+    for (_i = 0; _i < h.tagline.length; _i++) {
+      drawTextC(ctx, h.tagline[_i], 160, _t + _i * 11, 1, PALE, 1);
+    }
+
+    if (blinkOn(f)) drawTextC(ctx, 'PRESS START', 160, 168, 2, WHITE, 1);
+
+    drawText(ctx, '\u00A91987 C\u00B3', 16, 212, 1, h.ramp[2], 1);
+    drawText(ctx, '25\u00A2', W - 16 - textW('25\u00A2', 1, 1), 212, 1, AMBER, 1);
+  }
+
+  /* --- 4..7.5s : HIGH SCORE TABLE --------------------------------------- */
+  var RANKS = ['1ST', '2ND', '3RD', '4TH', '5TH'];
+  var INITIALS = ['JEB', 'BFX', 'C3X', 'POP', 'AAA'];
+
+  function sceneScores(ctx, h, f) {
+    bg(ctx);
+    drawTextC(ctx, 'HIGH SCORES', 160, 28, 2, AMBER, 1);
+    ctx.fillStyle = h.ramp[3];
+    ctx.fillRect(48, 50, 224, 1);
+
+    var lit = blinkOn(f);
+    for (_i = 0; _i < 5; _i++) {
+      _y = 74 + _i * 26;
+      if (_i === 0 && !lit) continue;      // rank 1 blinks with everything else
+      _c = _i === 0 ? WHITE : (_i === 1 ? PALE : h.ramp[1]);
+      if (_i === 0) {
+        // chevron marker, three rects - there is no '>' in the font and no
+        // reason to spend a glyph slot on one
+        ctx.fillStyle = AMBER;
+        ctx.fillRect(38, _y + 2, 2, 10);
+        ctx.fillRect(40, _y + 4, 2, 6);
+        ctx.fillRect(42, _y + 6, 2, 2);
+      }
+      drawText(ctx, RANKS[_i], 52, _y, 2, _i === 0 ? AMBER : h.ramp[2], 1);
+      drawText(ctx, INITIALS[_i], 118, _y, 2, _c, 1);
+      drawNumber(ctx, h.scores[_i], 6, 268 - numW(6, 2, 1), _y, 2, _c, 1);
+    }
+
+    drawTextC(ctx, 'INSERT COIN TO ENTER YOUR NAME', 160, 212, 1, h.ramp[2], 1);
+  }
+
+  /* --- 7.5..10s : HOW TO PLAY ------------------------------------------- */
+  function sceneHowTo(ctx, h, f) {
+    bg(ctx);
+    drawTextC(ctx, 'HOW TO PLAY', 160, 24, 2, h.ramp[0], 1);
+    ctx.fillStyle = h.ramp[3];
+    ctx.fillRect(48, 46, 224, 1);
+
+    for (_i = 0; _i < h.howto.length; _i++) {
+      drawTextC(ctx, h.howto[_i], 160, 62 + _i * 20, 2, PALE, 1);
+    }
+
+    /* Control panel. The stick leans on a 48-frame (1.6s) cycle and the two
+       buttons press in turn on the same clock, so the panel reads as one slow
+       demonstration rather than three things twitching independently. The
+       whole group sits on a common baseline (BASE) like a real panel would. */
+    var BASE = 178, lean = (f % 48) < 24 ? -5 : 5;
+    ctx.fillStyle = SHADE1;                            // panel shadow
+    ctx.fillRect(60, BASE, 200, 3);
+    ctx.fillStyle = SHADE2;
+    ctx.fillRect(74, BASE - 8, 44, 8);                 // stick base
+    // 3px shaft in the bright ramp step - a 1px shaft at this size read as a
+    // stray scratch rather than a joystick
+    for (_i = 0; _i < 3; _i++) {
+      pixelLine(ctx, 95 + _i, BASE - 8, 95 + _i + lean, BASE - 34, h.ramp[1], 1);
+    }
+    pixelDisc(ctx, 96 + lean, BASE - 42, 9, h.ramp[0]);
+    pixelRing(ctx, 96 + lean, BASE - 42, 9, WHITE, 3); // dotted specular ring
+
+    for (_i = 0; _i < 2; _i++) {
+      _x = 178 + _i * 44;
+      var down = ((f % 48) < 24) === (_i === 0);
+      _r = down ? 12 : 14;
+      pixelRing(ctx, _x, BASE - 22, 15, SHADE2, 1);    // recessed bezel
+      pixelDisc(ctx, _x, BASE - 22, _r, _i === 0 ? RED : ORANGE);
+      // an unpressed button keeps its highlight; a pressed one loses it and
+      // shrinks - two cues, because one is invisible at this pixel count
+      if (!down) pixelRing(ctx, _x, BASE - 22, _r - 3, WHITE, 5);
+    }
+
+    drawTextC(ctx, 'MOVE', 96, BASE + 8, 1, h.ramp[2], 1);
+    drawTextC(ctx, 'FIRE', 178, BASE + 8, 1, h.ramp[2], 1);
+    drawTextC(ctx, 'JUMP', 222, BASE + 8, 1, h.ramp[2], 1);
+    drawTextC(ctx, '1 PLAYER  -  25\u00A2 PER CREDIT', 160, 216, 1, AMBER, 1);
+  }
+
+  /* --- 10..12s : DEMO ----------------------------------------------------
+     Shared HUD, then a per-slug scene. The dispatch is deliberately a plain
+     object with a fallback: the owner adds a cabinet by editing one JSON row
+     and will never write a scene, so the fallback has to look deliberate. */
+
+  function demoHud(ctx, h, f) {
+    drawText(ctx, '1UP', 12, 10, 1, h.ramp[0], 1);
+    drawNumber(ctx, h.demoBase + f * h.demoStep, 6, 12, 20, 1, WHITE, 1);
+    drawText(ctx, 'HI', W - 12 - numW(6, 1, 1) - 18, 10, 1, AMBER, 1);
+    drawNumber(ctx, h.scores[0], 6, W - 12 - numW(6, 1, 1), 20, 1, WHITE, 1);
+    if (blinkOn(f + 12)) drawTextC(ctx, 'DEMO PLAY', 160, 224, 1, AMBER, 2);
+  }
+
+  function sceneDemo(ctx, h, f) {
+    h.scene(ctx, h, f);
+    demoHud(ctx, h, f);
+  }
+
+  /* fox-run: two-depth parallax runner. */
+  function demoFoxRun(ctx, h, f) {
+    bg(ctx);
+    var GY = 176;                                  // ground line
+
+    // static seeded sky specks - they do not scroll, which is what sells the
+    // two scrolling layers below as "near". stars[] holds direction cosines in
+    // [-1,1], so fold to [0,1] here or half the sky lands off-canvas.
+    ctx.fillStyle = h.ramp[2];
+    for (_i = 0; _i < 26; _i++) {
+      ctx.fillRect(((h.stars[_i * 3] + 1) * 0.5 * W) | 0,
+                   32 + (((h.stars[_i * 3 + 1] + 1) * 0.5 * 96) | 0), 1, 1);
+    }
+
+    /* Far ridge, 0.5 px/frame. Drawn in the neutral dark SHADE1 rather than a
+       ramp step: distance reads as desaturation, and a tinted ridge sat at the
+       same hue as the tinted road one layer nearer, which flattened the two
+       depths into a single brown slab. */
+    var farScroll = (f * 0.5) | 0;
+    ctx.fillStyle = SHADE1;
+    for (_i = 0; _i <= 41; _i++) {
+      _j = (_i + ((farScroll / 8) | 0)) % 64;
+      _d = h.hills[_j] + 4;              // lift the ridge clear of the haze
+      ctx.fillRect(_i * 8 - (farScroll % 8), GY - _d, 8, _d);
+    }
+    // haze band: one fillRect of an ordered 25% tile
+    ctx.fillStyle = h.dith25;
+    ctx.fillRect(0, GY - 6, W, 6);
+
+    // ground plate, 3 px/frame = 6x the ridge
+    var nearScroll = f * 3;
+    ctx.fillStyle = h.ramp[0];
+    ctx.fillRect(0, GY, W, 2);
+    ctx.fillStyle = h.ramp[1];
+    for (_i = -1; _i <= 14; _i++) {
+      ctx.fillRect(_i * 24 - (nearScroll % 24), GY + 5, 18, 2);
+    }
+    /* Road surface runs to the bottom edge; stopping it short left a black
+       band that read as a rendering fault rather than as depth. It uses the
+       darkest ramp step so it stays clearly behind the runner and does not
+       compete with the ridge, which is the same tint one step up. */
+    ctx.fillStyle = h.dithFloor;
+    ctx.fillRect(0, GY + 9, W, H - (GY + 9));
+
+    // obstacles
+    ctx.fillStyle = RED;
+    for (_i = 0; _i < 12; _i++) {
+      _x = h.obstacles[_i] - nearScroll;
+      while (_x < -40) _x += h.obsLoop;             // world wraps, not rebuilt
+      if (_x > -20 && _x < W + 20) ctx.fillRect(_x, GY - 14, 8, 14);
+    }
+
+    // hop: find the obstacle the runner is closest to and arc over it. Pure
+    // function of f, so the same jump happens on every loop - which is what a
+    // canned attract demo does.
+    var FOXX = 64, hop = 0;
+    for (_i = 0; _i < 12; _i++) {
+      _x = h.obstacles[_i] - nearScroll;
+      while (_x < -40) _x += h.obsLoop;
+      _d = _x - FOXX;
+      if (_d > -26 && _d < 34) {
+        _t = (34 - _d) / 60;                        // 0 -> 1 across the jump
+        if (_t > 0 && _t < 1) hop = Math.sin(_t * Math.PI) * 34;
+      }
+    }
+    var fy = GY - (hop | 0);
+
+    /* 2-colour sprite: tint for the mass, ramp[2] for the limbs and brush.
+       The second colour is a ramp step rather than a fixed palette entry - an
+       amber cabinet would otherwise draw an amber fox with an orange tail and
+       lose the whole silhouette. The eye is punched in GROUND so it reads on
+       any tint at all. */
+    ctx.fillStyle = h.ramp[2];
+    ctx.fillRect(FOXX - 7, fy - 15, 8, 4);          // brush
+    if (hop > 0.5) {                                // legs tuck in the air; a
+      ctx.fillRect(FOXX + 2, fy - 6, 3, 4);         // run cycle mid-jump reads
+      ctx.fillRect(FOXX + 10, fy - 6, 3, 3);        // as a bug
+    } else if (((f / 3) | 0) % 2) {
+      ctx.fillRect(FOXX + 1, fy - 5, 3, 5);
+      ctx.fillRect(FOXX + 11, fy - 5, 3, 5);
+    } else {
+      ctx.fillRect(FOXX + 4, fy - 5, 3, 5);
+      ctx.fillRect(FOXX + 8, fy - 5, 3, 5);
+    }
+    ctx.fillStyle = h.ramp[0];
+    ctx.fillRect(FOXX, fy - 14, 15, 9);             // body
+    ctx.fillRect(FOXX + 13, fy - 19, 8, 7);         // head
+    ctx.fillRect(FOXX + 18, fy - 23, 3, 4);         // ear
+    ctx.fillRect(FOXX + 20, fy - 15, 3, 2);         // muzzle
+    ctx.fillStyle = GROUND;
+    ctx.fillRect(FOXX + 17, fy - 17, 1, 2);         // eye
+  }
+
+  /* after-hours: torch cone over shelf silhouettes. */
+  function demoAfterHours(ctx, h, f) {
+    bg(ctx);
+    var AX = 10, AY = 104;                          // torch apex, left wall
+    var FLOOR = 198, CEIL = 38, REACH = 296, BAND = REACH / 4;
+    // slow sweep, ~4s period - a guard's torch, not a searchlight
+    var dir = Math.sin(f * 0.052) * 0.26;
+    var SPREAD = 0.17;                              // half-angle, radians-ish
+
+    // dead-dark floor so the unlit two thirds of the room still has a surface
+    ctx.fillStyle = GROUND2;
+    ctx.fillRect(0, FLOOR, W, H - FLOOR);
+    ctx.fillStyle = SHADE1;
+    ctx.fillRect(0, FLOOR, W, 1);
+
+    /* The cone is vertical spans in four depth bands with one fillStyle change
+       each: two solid ramp steps, then the 25% tile, then the same tile at
+       half the column density. Four fill states instead of a per-pixel falloff
+       is what keeps this scene inside the frame budget - a true radial
+       gradient would be both banned and ~70k pixel ops. Spans are clamped to
+       the room so the light cannot spill over the floor line or into the
+       HUD. */
+    for (_i = 0; _i < 4; _i++) {
+      ctx.fillStyle = _i === 0 ? h.ramp[1] : _i === 1 ? h.ramp[2] : h.dith25;
+      // the outermost band draws every other 2px column, halving the 25% tile
+      // again to an effective ~12% - one more falloff step for free, and it
+      // lets the cone end in a ragged edge instead of a guillotine cut
+      var stride = _i === 3 ? 4 : 2;
+      var x0 = AX + _i * BAND, x1 = x0 + BAND;
+      if (x1 > W) x1 = W;
+      for (_x = x0 | 0; _x < x1; _x += stride) {
+        _d = _x - AX;
+        _y = AY + _d * dir;
+        _r = 5 + _d * SPREAD;
+        _j = (_y - _r) | 0; _t = (_y + _r) | 0;
+        if (_j < CEIL) _j = CEIL;
+        if (_t > FLOOR) _t = FLOOR;
+        if (_t > _j) ctx.fillRect(_x, _j, 2, _t - _j);
+      }
+    }
+    // the torch itself, so the light has a source on screen
+    ctx.fillStyle = SHADE2;
+    ctx.fillRect(AX - 8, (AY + 1 * dir) - 3, 10, 7);
+
+    /* Shelves go on TOP of the light, in near-black. Drawing the occluders
+       last turns them into silhouettes for free - no clipping, no extra
+       compositing - and they simply vanish in the parts of the room the torch
+       is not currently on. */
+    for (_i = 0; _i < 7; _i++) {
+      _x = 34 + _i * 40;
+      _d = h.shelves[_i];
+      ctx.fillStyle = GROUND;
+      ctx.fillRect(_x, FLOOR - _d, 26, _d);
+      ctx.fillStyle = SHADE1;                       // shelf boards catch a rim
+      for (_j = 1; _j * 18 < _d; _j++) ctx.fillRect(_x, FLOOR - _j * 18, 26, 1);
+    }
+
+    /* Something at the edge of the light. It tracks the leading rim of the
+       cone rather than a fixed path, so it is only ever half-revealed and
+       never steps into the bright band. */
+    var rim = AX + REACH * 0.80;
+    var fx = (rim - 10) | 0;
+    var fy = (AY + (rim - AX) * dir + (rim - AX) * SPREAD * 0.8) | 0;
+    if (fy > FLOOR - 4) fy = FLOOR - 4;
+    if (fy < 96) fy = 96;
+    ctx.fillStyle = GROUND;
+    ctx.fillRect(fx, fy - 26, 11, 26);              // body
+    pixelDisc(ctx, fx + 5, fy - 31, 5, GROUND);     // head
+    ctx.fillRect(fx - 4, fy - 22, 5, 3);            // arm
+    if ((f % 60) > 8) {                             // eyeshine, 1px each
+      ctx.fillStyle = RED;
+      ctx.fillRect(fx + 3, fy - 32, 1, 1);
+      ctx.fillRect(fx + 7, fy - 32, 1, 1);
+    }
+
+    drawText(ctx, 'AISLE 7  -  02:14 AM', 12, 210, 1, h.ramp[2], 1);
+  }
+
+  /* deep-six: sonar scope. */
+  function demoDeepSix(ctx, h, f) {
+    bg(ctx);
+    var CX = 122, CY = 124, R = 84;
+    var TAU = Math.PI * 2;
+    var ang = (f % 54) / 54 * TAU - Math.PI / 2;     // one revolution per 1.8s
+
+    // range rings, dotted
+    pixelRing(ctx, CX, CY, R, h.ramp[2], 1);
+    pixelRing(ctx, CX, CY, (R * 2 / 3) | 0, h.ramp[3], 2);
+    pixelRing(ctx, CX, CY, (R / 3) | 0, h.ramp[3], 2);
+    pixelLine(ctx, CX - R, CY, CX + R, CY, h.ramp[3], 3);
+    pixelLine(ctx, CX, CY - R, CX, CY + R, h.ramp[3], 3);
+
+    /* Decay wake: ten trailing lines packed close enough to read as one
+       cooling wedge, each plotted at a coarser step and a darker ramp entry.
+       Dropping pixels IS the fade - a phosphor tail on a vector scope was
+       never a smooth alpha ramp, and stepping the Bresenham walk costs
+       strictly less than drawing it. */
+    for (_i = 10; _i >= 1; _i--) {
+      _a = ang - _i * 0.062;
+      _c = _i <= 3 ? h.ramp[0] : _i <= 6 ? h.ramp[1] : h.ramp[2];
+      pixelLine(ctx, CX, CY, CX + Math.cos(_a) * R, CY + Math.sin(_a) * R,
+                _c, _i <= 3 ? 1 : _i <= 6 ? 2 : 3);
+    }
+    pixelLine(ctx, CX, CY, CX + Math.cos(ang) * R, CY + Math.sin(ang) * R, WHITE, 1);
+
+    /* Blips brighten as the beam crosses them and decay behind it. A fresh
+       contact gets a solid block plus an expanding ring; older ones drop to a
+       cross, then a dot. Size carries the fade as much as colour does - at
+       this resolution a colour-only fade is invisible. */
+    for (_i = 0; _i < 7; _i++) {
+      _a = h.blips[_i * 2];
+      _r = h.blips[_i * 2 + 1] * R;
+      _d = ang - _a;
+      while (_d < 0) _d += TAU;
+      while (_d >= TAU) _d -= TAU;
+      if (_d > 2.4) continue;                       // fully decayed
+      _x = (CX + Math.cos(_a) * _r) | 0;
+      _y = (CY + Math.sin(_a) * _r) | 0;
+      if (_d < 0.3) {
+        ctx.fillStyle = WHITE;
+        ctx.fillRect(_x - 2, _y - 2, 5, 5);
+        pixelRing(ctx, _x, _y, 5 + ((_d * 20) | 0), h.ramp[0], 2);
+      } else if (_d < 1.1) {
+        ctx.fillStyle = h.ramp[0];
+        ctx.fillRect(_x - 2, _y - 1, 5, 3);
+        ctx.fillRect(_x - 1, _y - 2, 3, 5);
+      } else if (_d < 1.8) {
+        ctx.fillStyle = h.ramp[1];
+        ctx.fillRect(_x - 1, _y - 1, 3, 3);
+      } else {
+        ctx.fillStyle = h.ramp[2];
+        ctx.fillRect(_x, _y, 2, 2);
+      }
+    }
+
+    // side panel
+    ctx.fillStyle = h.ramp[3];
+    ctx.fillRect(238, 40, 1, 168);
+    drawText(ctx, 'DEPTH', 250, 46, 1, h.ramp[2], 1);
+    // deterministic tick, ~1 unit per frame with a slow wobble
+    drawNumber(ctx, 3400 + ((f * 7) % 90) + (Math.sin(f * 0.12) * 8 | 0), 4, 250, 58, 2, AMBER, 1);
+    drawText(ctx, 'BRG', 250, 86, 1, h.ramp[2], 1);
+    drawNumber(ctx, ((ang + Math.PI / 2) * 57.3) | 0, 3, 250, 98, 2, h.ramp[0], 1);
+    drawText(ctx, 'PING', 250, 126, 1, h.ramp[2], 1);
+    // signal meter: dithered column, height from the sweep position
+    ctx.fillStyle = h.ramp[3];
+    ctx.fillRect(250, 138, 10, 48);
+    _d = 6 + (Math.abs(Math.sin(f * 0.21)) * 42) | 0;
+    ctx.fillStyle = h.dith50;
+    ctx.fillRect(250, 138 + 48 - _d, 10, _d);
+    ctx.fillStyle = h.ramp[0];
+    ctx.fillRect(250, 138 + 48 - _d, 10, 1);
+    if (blinkOn(f)) drawText(ctx, 'CONTACT', 250, 194, 1, RED, 1);
+  }
+
+  /* fallback: starfield tunnel + wireframe hull.
+     This is the path a brand-new cabinet lands on, so it has to look authored.
+     The hull silhouette, the star distribution and the tunnel spacing are all
+     seeded from the slug, which means "aisle-sweep" and "till-rush" get
+     visibly different scenes without anyone writing a line of code. */
+  var HULLS = [
+    // chevron
+    [0,-10, -12,8, 0,-10, 12,8, -12,8, 0,3, 12,8, 0,3, -6,-1, -6,6, 6,-1, 6,6],
+    // delta
+    [0,-11, -13,9, 0,-11, 13,9, -13,9, 13,9, -5,-2, 5,-2, 0,-11, 0,9],
+    // cross-wing
+    [0,-11, 0,9, -14,2, 14,2, -14,2, -6,-6, 14,2, 6,-6, -9,9, 9,9, -9,9, 0,4, 9,9, 0,4]
+  ];
+
+  /* Hoisted: an inline [6,3,5,2][f%4] would mint a fresh array on every frame,
+     which is exactly the kind of quiet allocation this engine is meant not to
+     have. */
+  var FLAME = [7, 3, 6, 2];
+
+  function demoTunnel(ctx, h, f) {
+    bg(ctx);
+    var i, sx, sy, sz;
+
+    /* Receding wireframe gates give the starfield a scale and a direction.
+       z walks 1.0 (far) down to 0.08 (at the camera) and the half-extents are
+       k/z - the same projection the stars use, so gates and stars share one
+       vanishing point instead of drifting apart. Five gates is enough; more
+       and it reads as a tunnel shooter, which this is not pretending to be. */
+    for (i = 0; i < 5; i++) {
+      _t = 1 - ((f * 0.011 + i * 0.2) % 1) * 0.92;
+      _x = (26 / _t) | 0; _y = (19 / _t) | 0;
+      if (_x > 420) continue;                        // swept past the camera
+      ctx.fillStyle = _t > 0.45 ? h.ramp[3] : h.ramp[2];
+      ctx.fillRect(160 - _x, 120 - _y, _x * 2, 1);
+      ctx.fillRect(160 - _x, 120 + _y, _x * 2, 1);
+      ctx.fillRect(160 - _x, 120 - _y, 1, _y * 2);
+      ctx.fillRect(160 + _x, 120 - _y, 1, _y * 2);
+    }
+
+    /* Stars recycle by adding 1.0 back onto z rather than re-rolling x/y, so
+       the field stays deterministic, the loop allocates nothing, and the PRNG
+       is never touched after mount. */
+    for (i = 0; i < NSTARS; i++) {
+      sz = h.stars[i * 3 + 2] - f * 0.011;
+      while (sz <= 0.08) sz += 1;
+      sx = (160 + h.stars[i * 3] * 130 / sz) | 0;
+      sy = (120 + h.stars[i * 3 + 1] * 95 / sz) | 0;
+      if (sx < 1 || sx >= W - 1 || sy < 28 || sy >= 216) continue;
+      if (sz < 0.22) { ctx.fillStyle = WHITE; ctx.fillRect(sx, sy, 2, 2); }
+      else if (sz < 0.45) { ctx.fillStyle = h.ramp[0]; ctx.fillRect(sx, sy, 2, 1); }
+      else if (sz < 0.72) { ctx.fillStyle = h.ramp[1]; ctx.fillRect(sx, sy, 1, 1); }
+      else { ctx.fillStyle = h.ramp[2]; ctx.fillRect(sx, sy, 1, 1); }
+    }
+
+    // hull, bobbing on a ~2.8s cycle, drawn at 1.6x the stored outline
+    var hull = HULLS[h.hullVariant];
+    var hy = 168 + ((Math.sin(f * 0.075) * 4) | 0);
+    for (i = 0; i < hull.length; i += 4) {
+      pixelLine(ctx, 160 + ((hull[i] * 1.6) | 0), hy + ((hull[i + 1] * 1.6) | 0),
+                     160 + ((hull[i + 2] * 1.6) | 0), hy + ((hull[i + 3] * 1.6) | 0),
+                     h.ramp[0], 1);
+    }
+    ctx.fillStyle = WHITE;
+    ctx.fillRect(159, hy - 6, 3, 3);                // canopy
+    // exhaust: a fixed 4-frame flicker table, so even the flame is seed-free
+    _d = FLAME[f % 4];
+    ctx.fillStyle = _d > 5 ? ORANGE : RED;
+    ctx.fillRect(155, hy + 15, 3, _d);
+    ctx.fillRect(163, hy + 15, 3, _d);
+  }
+
+  var SCENES = {
+    'fox-run': demoFoxRun,
+    'after-hours': demoAfterHours,
+    'deep-six': demoDeepSix
+  };
+
+  var PHASE_FN = [sceneTitle, sceneScores, sceneHowTo, sceneDemo];
+
+  /* ============================================================== compositor */
+
+  /* One horizontal wipe, always left to right, half under the outgoing phase
+     and half under the incoming one. Chosen over a flash because a flash on a
+     4x-upscaled 320x240 panel is a full-screen luminance jump - unpleasant on
+     a wall-mounted break-room screen, and a wipe is what a board with no
+     blitter actually did: walk the CRT beam column by column. */
+  function drawFrame(h, f) {
+    var p = 0;
+    while (p < 3 && f >= PHASE_START[p + 1]) p++;
+    var lf = f - PHASE_START[p], len = PHASE_LEN[p];
+    var ctx = h.ctx;
+
+    PHASE_FN[p](ctx, h, lf);
+
+    if (lf < WIPE) {                       // uncovering, left to right
+      _x = ((lf + 1) / WIPE * W) | 0;
+      ctx.fillStyle = GROUND;
+      ctx.fillRect(_x, 0, W - _x, H);
+      ctx.fillStyle = h.ramp[0];
+      ctx.fillRect(_x, 0, 1, H);
+    } else if (lf >= len - WIPE) {         // covering, left to right
+      _x = ((lf - (len - WIPE) + 1) / WIPE * W) | 0;
+      ctx.fillStyle = GROUND;
+      ctx.fillRect(0, 0, _x, H);
+      ctx.fillStyle = h.ramp[0];
+      if (_x < W) ctx.fillRect(_x - 1, 0, 1, H);
+    }
+  }
+
+  /* ================================================================= config */
+
+  function prepCanvas(canvas) {
+    /* Backing store is fixed. Never multiply by devicePixelRatio: the point is
+       that one source pixel becomes a visible block, and at DPR 3 this layer
+       would cost 2.8 MB instead of 0.31 MB for a strictly worse image. */
+    canvas.width = W;
+    canvas.height = H;
+    var ctx = canvas.getContext('2d', { alpha: false });
+    ctx.imageSmoothingEnabled = false;
+    // belt and braces - the page sets this in CSS, but a canvas that lands in
+    // a context without the stylesheet should still upscale hard
+    canvas.style.imageRendering = 'pixelated';
+    return ctx;
+  }
+
+  function buildConfig(canvas, opts, target) {
+    opts = opts || {};
+    var h = target || {};
+    h.canvas = canvas;
+    h.ctx = prepCanvas(canvas);
+    h.slug = String(opts.slug || 'untitled');
+    h.title = sanitize(opts.title || h.slug);
+    h.ramp = buildRamp(opts.tint || PHOSPH);
+
+    /* Every measurement happens here, once, at mount. The draw loop must never
+       wrap, fit, slice or concatenate - it only reads these arrays. */
+    fitTitle(h, h.title, W - 32);                    // 288px drawable
+
+    var blurb = sanitize(opts.blurb || '');
+    var capBlurb = fitChars(W - 40, 1, 1);           // 280px drawable, scale 1
+    var rb = wrapFit(blurb, capBlurb, 2);
+    h.tagline = rb.over ? ellipsise(rb.lines, capBlurb) : rb.lines;
+
+    var capHow = fitChars(W - 40, 2, 1);             // 280px drawable, scale 2
+    var rh = wrapFit(blurb, capHow, 3);
+    h.howto = rh.over ? ellipsise(rh.lines, capHow) : rh.lines;
+    if (h.howto.length === 0) h.howto = ['USE THE STICK.', 'PRESS BOTH BUTTONS.'];
+
+    h.dith25 = makeDither(h.ctx, h.ramp[2], 1);
+    h.dith50 = makeDither(h.ctx, h.ramp[1], 2);
+    h.dithFloor = makeDither(h.ctx, h.ramp[3], 1);
+
+    /* Drain the PRNG once, here. After this point the engine is pure maths on
+       preallocated buffers and never calls rand() again. */
+    var rand = mulberry32(seedFrom(h.slug));
+
+    h.scores = new Int32Array(5);
+    var sc = 180000 + ((rand() * 620000) | 0);
+    for (var i = 0; i < 5; i++) {
+      h.scores[i] = (sc / 10 | 0) * 10;             // arcade scores end in 0
+      sc -= 12000 + ((rand() * 46000) | 0);
+      if (sc < 1000) sc = 1000;
+    }
+
+    /* Star pool. x,y are direction cosines in [-1,1]; z is depth in (0,1].
+       Biased toward the far end (rand squared) because a uniform z spends most
+       of the pool on stars that are already past the camera and culled. */
+    h.stars = new Float32Array(NSTARS * 3);
+    for (i = 0; i < NSTARS; i++) {
+      h.stars[i * 3]     = rand() * 2 - 1;
+      h.stars[i * 3 + 1] = rand() * 2 - 1;
+      var zr = rand();
+      h.stars[i * 3 + 2] = 0.10 + (1 - zr * zr) * 0.90;
+    }
+
+    /* Ridge profile as a bounded random walk rather than independent samples:
+       white noise gives a comb, a walk gives something that reads as terrain.
+       The range is wide (10..46) because a shallow ridge at this resolution
+       just looks like a misaligned rectangle. */
+    h.hills = new Uint8Array(64);
+    var hv = 20;
+    for (i = 0; i < 64; i++) {
+      hv += ((rand() * 11) | 0) - 5;
+      if (hv < 10) hv = 10;
+      if (hv > 46) hv = 46;
+      h.hills[i] = hv;
+    }
+
+    /* Obstacle field in world space, plus the loop length, so the runner scene
+       can wrap positions with a subtraction instead of regenerating anything
+       mid-demo. */
+    h.obstacles = new Int16Array(12);
+    var ox = 300;
+    for (i = 0; i < 12; i++) {
+      h.obstacles[i] = ox;
+      ox += 62 + ((rand() * 52) | 0);
+    }
+    h.obsLoop = ox - 300 + 62;
+
+    h.shelves = new Uint8Array(7);
+    for (i = 0; i < 7; i++) h.shelves[i] = 46 + ((rand() * 66) | 0);
+
+    h.blips = new Float32Array(7 * 2);
+    for (i = 0; i < 7; i++) {
+      h.blips[i * 2]     = rand() * Math.PI * 2;
+      h.blips[i * 2 + 1] = 0.22 + rand() * 0.72;
+    }
+
+    h.hullVariant = (rand() * HULLS.length) | 0;
+    h.demoBase = ((rand() * 400) | 0) * 10;
+    h.demoStep = 7 + ((rand() * 9) | 0);
+
+    h.scene = SCENES[h.slug] || demoTunnel;
+    return h;
+  }
+
+  /* ================================================================== loop */
+
+  function tick(ts) {
+    rafId = 0;
+    var h = activeHandle;
+    if (!h || !h.running) return;
+
+    if (ts - h.lastInput >= SLEEP_MS) {
+      /* Sleep: freeze on whatever is on screen and stop asking for frames.
+         The document listeners stay attached - they are the only way back. */
+      h.slept = true;
+      h.running = false;
+      return;
+    }
+
+    var dt = ts - h.lastTs;
+    h.lastTs = ts;
+    if (dt > MAX_DT) dt = MAX_DT;
+    h.acc += dt;
+
+    var stepped = false;
+    while (h.acc >= FRAME_MS) { h.acc -= FRAME_MS; h.frame++; stepped = true; }
+    // On a 60Hz display this draws on every other rAF. On 120Hz, every fourth.
+    // The draw itself is never repeated for a frame we already painted.
+    if (stepped) drawFrame(h, h.frame % CYCLE);
+
+    rafId = window.requestAnimationFrame(tick);
+  }
+
+  function wants(h) {
+    return h.alive && h.wanted && !h.slept && !h.paused && !reduced();
+  }
+
+  /* Single place that reconciles "should this handle be looping" with the one
+     engine-wide rAF slot. Every state change funnels through here so there is
+     no path that can leave two loops live. */
+  function sync(h) {
+    if (wants(h)) {
+      if (activeHandle && activeHandle !== h) {
+        var prev = activeHandle;
+        prev.wanted = false;
+        prev.running = false;
+      }
+      if (rafId) { window.cancelAnimationFrame(rafId); rafId = 0; }
+      activeHandle = h;
+      h.running = true;
+      h.lastTs = now();
+      h.acc = 0;              // resume without replaying the hidden interval
+      rafId = window.requestAnimationFrame(tick);
+    } else if (activeHandle === h) {
+      h.running = false;
+      if (rafId) { window.cancelAnimationFrame(rafId); rafId = 0; }
+    }
+  }
+
+  function drawStill(h) {
+    drawFrame(h, STILL_FRAME);
+  }
+
+  /* -------------------------------------------------- media query plumbing */
+
+  function onMotionChange() {
+    for (var i = 0; i < handles.length; i++) {
+      var h = handles[i];
+      if (!h.alive) continue;
+      if (reduced()) {
+        sync(h);              // tears the loop down
+        if (h.wanted) drawStill(h);
+      } else if (h.wanted) {
+        sync(h);              // picks the loop back up mid-cycle
+      }
+    }
+  }
+
+  (function initMotionQuery() {
+    if (!window.matchMedia) return;
+    motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (motionQuery.addEventListener) {
+      motionQuery.addEventListener('change', onMotionChange);
+    } else if (motionQuery.addListener) {
+      motionQuery.addListener(onMotionChange);   // Safari < 14, i.e. the iPads
+    }
+  })();
+
+  /* ================================================================ handle */
+
+  function mount(canvas, opts) {
+    if (!canvas || !canvas.getContext) throw new Error('Attract.mount: need a canvas');
+
+    // One handle per canvas. Remounting (cabinet switch) must not leave the
+    // previous handle's document listeners behind.
+    if (canvas.__c3attract) canvas.__c3attract.destroy();
+
+    var h = buildConfig(canvas, opts, {});
+    h.frame = 0;
+    h.acc = 0;
+    h.lastTs = 0;
+    h.lastInput = now();
+    h.running = false;
+    h.wanted = false;
+    h.slept = false;
+    h.paused = false;
+    h.alive = true;
+
+    /* Handlers are built once per mount, held on the handle, and removed by
+       destroy(). They are never re-created, so removeEventListener always gets
+       the same reference back. */
+    h.onInput = function () {
+      h.lastInput = now();
+      if (h.slept) {
+        h.slept = false;
+        if (h.wanted) sync(h);
+      }
+    };
+    h.onVisibility = function () {
+      h.paused = (document.visibilityState === 'hidden');
+      if (!h.paused) h.lastInput = now();   // returning to the tab counts as
+      sync(h);                              // presence; do not sleep instantly
     };
 
-    /* ── helpers ─────────────────────────────────────────────────────────── */
+    var PASSIVE = { passive: true };
+    document.addEventListener('pointerdown', h.onInput, PASSIVE);
+    document.addEventListener('keydown', h.onInput, PASSIVE);
+    document.addEventListener('scroll', h.onInput, PASSIVE);
+    document.addEventListener('wheel', h.onInput, PASSIVE);
+    document.addEventListener('visibilitychange', h.onVisibility, PASSIVE);
 
-    function el(tag, props, kids) {
-      var node = document.createElement(tag);
-      props = props || {};
-      Object.keys(props).forEach(function (k) {
-        var v = props[k];
-        if (v === null || v === undefined || v === false) return;
-        if (k === 'class') node.className = v;
-        else if (k === 'text') node.textContent = v;
-        else node.setAttribute(k, v === true ? '' : String(v));
-      });
-      [].concat(kids || []).forEach(function (kid) { if (kid) node.append(kid); });
-      return node;
-    }
+    h.start = function () {
+      if (!h.alive) return h;
+      h.wanted = true;
+      h.slept = false;
+      h.paused = (typeof document.visibilityState === 'string') &&
+                 document.visibilityState === 'hidden';
+      h.lastInput = now();
+      /* Under reduce we paint the title card once and return. We still record
+         wanted=true so that flipping the OS setting off starts the loop
+         without the page having to call start() again. */
+      if (reduced()) { drawStill(h); return h; }
+      sync(h);
+      if (!h.running) drawStill(h);   // hidden tab: show something immediately
+      return h;
+    };
 
-    function say(msg) { if (els.live) els.live.textContent = msg; }
+    h.stop = function () {
+      h.wanted = false;
+      sync(h);                        // freezes on the current frame
+      return h;
+    };
 
-    /** The site's own address for a game. The only href this page ever writes. */
-    function internalHref(slug) {
-      return SITE_ROOT + '#/tool/' + encodeURIComponent(slug);
-    }
-
-    /** "DEEP SIX" -> "D6"; "C³ FOX RUN" -> "CF". Two glyphs for the drawn tile. */
-    function initials(title) {
-      var words = String(title || '?').trim().split(/[\s—·]+/).filter(Boolean);
-      var out = '';
-      for (var i = 0; i < words.length && out.length < 2; i++) {
-        var ch = words[i].replace(/[^\p{L}\p{N}]/gu, '').charAt(0);
-        if (ch) out += ch.toUpperCase();
+    h.destroy = function () {
+      h.stop();
+      h.alive = false;
+      document.removeEventListener('pointerdown', h.onInput, PASSIVE);
+      document.removeEventListener('keydown', h.onInput, PASSIVE);
+      document.removeEventListener('scroll', h.onInput, PASSIVE);
+      document.removeEventListener('wheel', h.onInput, PASSIVE);
+      document.removeEventListener('visibilitychange', h.onVisibility, PASSIVE);
+      if (activeHandle === h) activeHandle = null;
+      for (var i = 0; i < handles.length; i++) {
+        if (handles[i] === h) { handles.splice(i, 1); break; }
       }
-      return out || '??';
+      if (canvas.__c3attract === h) canvas.__c3attract = null;
+      // the context is alpha:false, so clearRect leaves opaque black rather
+      // than a transparent hole - which is the correct "off" state for a
+      // cabinet screen anyway
+      h.ctx.clearRect(0, 0, W, H);
+      return h;
+    };
+
+    canvas.__c3attract = h;
+    handles.push(h);
+    drawStill(h);                     // never hand back a blank canvas
+    return h;
+  }
+
+  /* One frame, no loop, no listeners, no state. Used for the cabinet picker
+     thumbnails and as the reduced-motion rendering. */
+  function renderStill(canvas, opts) {
+    var tmp = buildConfig(canvas, opts, {});
+    drawFrame(tmp, STILL_FRAME);
+    return canvas;
+  }
+
+  var API = { mount: mount, renderStill: renderStill };
+  createAttractEngine._instance = API;
+  return API;
+}
+
+/* ══ the cabinet: three baked geometries and one face ══ */
+/* HTML-escape everything that comes out of the manifest before it reaches
+   innerHTML. The manifest is ours, but a cabinet builder that is only safe
+   while the data is trusted is a trap for the next person who points it at
+   something else. */
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function geoFront(id, g){
+  return '<svg class="geo geo-front" viewBox="0 0 100 220" preserveAspectRatio="none" aria-hidden="true">'
+  + '<defs>'
+  +   '<linearGradient id="fb'+id+'" x1="0" y1="0" x2="1" y2="0">'
+  +     '<stop offset="0" stop-color="#0b111a"/><stop offset=".5" stop-color="#111924"/><stop offset="1" stop-color="#090e16"/>'
+  +   '</linearGradient>'
+  + '</defs>'
+  + '<path d="M0,0 L100,0 L100,220 L0,220 Z" fill="url(#fb'+id+')"/>'
+  + '</svg>';
+}
+
+function sideArt(id, g, sun){
+  // side art: tint field + two ink slashes + a bone airbrush glow, clipped
+  return '<g clip-path="url(#cp'+id+')">'
+  +   '<rect x="0" y="-10" width="100" height="240" fill="url(#sa'+id+')"/>'
+  +   '<ellipse cx="'+(sun?92:8)+'" cy="96" rx="26" ry="52" fill="url(#gl'+id+')"/>'
+  +   '<path d="M-20,64 L120,8 L120,32 L-20,88 Z" fill="#05070a" opacity=".86"/>'
+  +   '<path d="M-20,118 L120,56 L120,70 L-20,132 Z" fill="#05070a" opacity=".70"/>'
+  +   (sun ? '<rect x="0" y="-10" width="100" height="240" fill="url(#sf'+id+')"/>' : '')
+  +   '<rect x="0" y="-10" width="100" height="240" fill="url(#sh'+id+')"/>'
+  + '</g>';
+}
+
+/* the marquee / speaker lip / kickplate seen edge-on, tapering with the panel.
+   near edge x=NX, far edge x=FX; far y = 24 + y*0.7909 (top drop 24, bottom rise 22) */
+function sideBands(id, NX, FX){
+  var f = function(y){ return (24 + y * 0.7909).toFixed(1); };
+  var q = function(y0, y1, fill){
+    return '<path d="M'+NX+','+y0+' L'+FX+','+f(y0)+' L'+FX+','+f(y1)+' L'+NX+','+y1+'" fill="'+fill+'"/>';
+  };
+  return q(0, 28.6,      'url(#mb'+id+')')      /* marquee, edge-on   */
+       + q(28.6, 34.3,   '#0a0f16')             /* speaker lip        */
+       + q(195.8, 220,   '#05070a')             /* kickplate          */
+       + '<path d="M'+NX+',0 L'+FX+',24" stroke="#8a6323" stroke-opacity=".5" stroke-width="1" fill="none"/>';
+}
+
+function sideDefs(id, g, sun, dir){
+  // dir = 1 -> panel on the right (tq-left); dir = -1 -> panel on the left (tq-right)
+  var x1 = dir>0 ? 0 : 1, x2 = dir>0 ? 1 : 0;
+  return '<defs>'
+  + '<linearGradient id="sa'+id+'" x1="0" y1="0" x2=".7" y2="1">'
+  +   '<stop offset="0" stop-color="'+g.tint+'" stop-opacity=".40"/>'
+  +   '<stop offset=".5" stop-color="'+g.tint+'" stop-opacity=".17"/>'
+  +   '<stop offset="1" stop-color="#05070a" stop-opacity=".88"/>'
+  + '</linearGradient>'
+  + '<radialGradient id="gl'+id+'">'
+  +   '<stop offset="0" stop-color="#f4efe6" stop-opacity=".24"/>'
+  +   '<stop offset="1" stop-color="#f4efe6" stop-opacity="0"/>'
+  + '</radialGradient>'
+  /* sun-fade: the cabinet that sat by the window for fifteen years */
+  + '<linearGradient id="sf'+id+'" x1="'+x1+'" y1="0" x2="'+x2+'" y2="0">'
+  +   '<stop offset="0" stop-color="#b4aba0" stop-opacity=".30"/>'
+  +   '<stop offset=".55" stop-color="#b4aba0" stop-opacity=".08"/>'
+  +   '<stop offset="1" stop-color="#b4aba0" stop-opacity="0"/>'
+  + '</linearGradient>'
+  /* the side panel turns away from the light as it recedes */
+  + '<linearGradient id="sh'+id+'" x1="'+x1+'" y1="0" x2="'+x2+'" y2="0">'
+  +   '<stop offset="0" stop-color="#05070a" stop-opacity=".10"/>'
+  +   '<stop offset=".55" stop-color="#05070a" stop-opacity=".46"/>'
+  +   '<stop offset="1" stop-color="#05070a" stop-opacity=".80"/>'
+  + '</linearGradient>'
+  + '<linearGradient id="fb'+id+'" x1="0" y1="0" x2="1" y2="0">'
+  +   '<stop offset="0" stop-color="#0b111a"/><stop offset=".5" stop-color="#111924"/><stop offset="1" stop-color="#090e16"/>'
+  + '</linearGradient>'
+  /* the acrylic marquee panel seen edge-on: lit at the near corner, gone by the far one */
+  + '<linearGradient id="mb'+id+'" x1="'+x1+'" y1="0" x2="'+x2+'" y2="0">'
+  +   '<stop offset="0" stop-color="#dcd5c8" stop-opacity=".62"/>'
+  +   '<stop offset=".45" stop-color="#b4aba0" stop-opacity=".22"/>'
+  +   '<stop offset="1" stop-color="#05070a" stop-opacity=".85"/>'
+  + '</linearGradient>'
+  + '</defs>';
+}
+
+/* tq-left: front face 4..82, side panel 82..100, forward lips at 0..4 */
+function geoTQL(id, g){
+  var P = 'M82,0 L100,24 L100,198 L82,220 Z';
+  return '<svg class="geo geo-tql" viewBox="0 0 100 220" preserveAspectRatio="none" aria-hidden="true">'
+  + sideDefs(id+'l', g, true, 1)
+  + '<clipPath id="cp'+id+'l"><path d="'+P+'"/></clipPath>'
+  + '<path d="M4,0 L82,0 L82,220 L4,220 Z" fill="url(#fb'+id+'l)"/>'
+  /* forward lips: marquee overhang + control-panel bump, displaced away from the VP */
+  + '<path d="M4,1 L4,30 L0,31 L0,2 Z" fill="#0a1017"/>'
+  + '<path d="M4,116 L4,148 L0,150 L0,119 Z" fill="#0d131b"/>'
+  + '<path d="'+P+'" fill="#0a0f16"/>'
+  + sideArt(id+'l', g, true)
+  + sideBands(id+'l', 82, 100)
+  + '<path d="M82,0 L82,220" stroke="#05070a" stroke-opacity=".8" stroke-width="1" fill="none"/>'
+  + '<path d="M100,24 L100,198" stroke="#3a4653" stroke-opacity=".5" stroke-width="1" fill="none"/>'
+  + '</svg>';
+}
+
+/* tq-right: front face 18..96, side panel 0..18, forward lips at 96..100 */
+function geoTQR(id, g){
+  var P = 'M18,0 L0,24 L0,198 L18,220 Z';
+  return '<svg class="geo geo-tqr" viewBox="0 0 100 220" preserveAspectRatio="none" aria-hidden="true">'
+  + sideDefs(id+'r', g, false, -1)
+  + '<clipPath id="cp'+id+'r"><path d="'+P+'"/></clipPath>'
+  + '<path d="M18,0 L96,0 L96,220 L18,220 Z" fill="url(#fb'+id+'r)"/>'
+  + '<path d="M96,1 L96,30 L100,31 L100,2 Z" fill="#0a1017"/>'
+  + '<path d="M96,116 L96,148 L100,150 L100,119 Z" fill="#0d131b"/>'
+  + '<path d="'+P+'" fill="#0a0f16"/>'
+  + sideArt(id+'r', g, false)
+  + sideBands(id+'r', 18, 0)
+  + '<path d="M18,0 L18,220" stroke="#05070a" stroke-opacity=".8" stroke-width="1" fill="none"/>'
+  + '<path d="M0,24 L0,198" stroke="#3a4653" stroke-opacity=".5" stroke-width="1" fill="none"/>'
+  + '</svg>';
+}
+
+/* ---------- the front face: one rectangle, all the anatomy ---------- */
+function face(g){
+  return '<div class="face">'
+  + '<div class="tmold l"></div><div class="tmold r"></div>'
+
+  /* 1 marquee */
+  + '<div class="marquee">'
+  +   '<div class="mq-title">'+esc(g.title)+'</div>'
+  +   '<div class="mq-rule"></div>'
+  +   '<div class="mq-flick"></div>'
+  + '</div>'
+  /* 1b underside lip */
+  + '<div class="lip"></div>'
+
+  /* 2 bezel + 3 screen */
+  + '<div class="bezel">'
+  +   '<div class="screen">'
+  +     '<div class="still"><b>'+esc(g.title)+'</b><em>'+esc(g.blurb)+'</em></div>'
+  +     '<div class="screen-slot" id="screen-'+g.slug+'"></div>'
+  +     '<div class="scan"></div><div class="corner"></div><div class="streak"></div>'
+  +   '</div>'
+  +   '<div class="print l">1 OR 2 PLAYERS</div>'
+  +   '<div class="print r">©1987 C³</div>'
+  + '</div>'
+
+  /* 4 control panel */
+  + '<div class="panel">'
+  +   '<div class="stick"><div class="skirt"></div><div class="shaft"></div><div class="ball"></div></div>'
+  +   '<div class="btn a"></div><div class="btn b"></div>'
+  +   '<div class="edge"></div>'
+  + '</div>'
+
+  /* 5 apron */
+  + '<div class="apron">'
+  +   '<div class="freeplay">FREE PLAY</div>'
+  +   '<div class="start">PRESS START</div>'
+  +   '<div class="enterline">PRESS ENTER</div>'
+  + '</div>'
+
+  /* 6 coin door */
+  + '<div class="coin">'
+  +   '<div class="well"><div class="esc"><span></span></div><div class="esc"><span></span></div></div>'
+  +   '<div class="ret"></div>'
+  +   '<div class="price">25¢ 1 PLAY</div>'
+  + '</div>'
+
+  /* 8 base */
+  + '<div class="base"><div class="toe"></div><div class="feet"><i></i><i></i><i></i><i></i></div></div>'
+  + '</div>';
+}
+
+/* ══ the station runtime ══ */
+(function () {
+  'use strict';
+
+  /* ═════════════════════════════════════════════════════════════════════
+     C³ ARCADE · station runtime
+     ─────────────────────────────────────────────────────────────────────
+     Data-driven end to end, exactly like the Print Outs station next door.
+     Nothing about any individual game is written into this file: the list,
+     the titles, the blurbs and the tints all come from arcade/manifest.json,
+     and the cabinet that carries them is DRAWN from the tint and the title.
+     That is what keeps "adding a game is one row" true — no artwork to
+     commission, no asset to forget.
+
+     AND NOT ONE GAME URL IS EVER RENDERED OR NAVIGATED TO FROM HERE.
+     The manifest carries `url` as a record, and this file never reads it.
+     Every launch is `#/tool/<slug>` against the site's own address, because
+     a rep must never be shown a repository hostname. Grep this file for
+     "github": there is one match, and it is in this sentence.
+     ═════════════════════════════════════════════════════════════════════ */
+
+  var MANIFEST_URL = '../../arcade/manifest.json';
+  /* ⚠ ASSEMBLED FROM TWO HALVES, AND IT HAS TO STAY THAT WAY.
+     build/fingerprint.mjs rewrites every literal occurrence of a hashed asset
+     path in this file — the prose as well as the code — and the tool list
+     under data/ is one of the assets it hashes. Written verbatim, this string
+     came out of a build with a ten-hex hash in the middle of it. Split, it is
+     invisible to the rewriter — and the unhashed file is the one we want
+     anyway: always present, always current. */
+  var TOOLS_JSON = 'data/' + 'tools.json';
+  var SITE_ROOT  = '../../';
+
+  /* A file:// review copy cannot fetch anything — see the long note in <head>
+     for why this page carries no inline fallback. */
+  var OFFLINE = location.protocol === 'file:';
+
+  var rack   = document.getElementById('rack');
+  var room   = document.getElementById('arcade');
+  var pools  = document.getElementById('pools');
+  var live   = document.getElementById('ar-live');
+
+  /* ── helpers ─────────────────────────────────────────────────────────── */
+
+  function say(msg) { if (live) live.textContent = msg; }
+
+  /** The site's own address for a game. The only href this page ever writes. */
+  function internalHref(slug) {
+    return SITE_ROOT + '#/tool/' + encodeURIComponent(slug);
+  }
+
+  /** A tint is a palette hex or it is nothing. Anything else falls back to
+      brass, because a malformed value must never reach a style attribute. */
+  function cleanTint(t) {
+    return (typeof t === 'string' && /^#[0-9a-f]{6}$/i.test(t.trim()))
+      ? t.trim().toLowerCase() : '#c8973f';
+  }
+
+  /** "#8ef0d0" -> "142 240 208". The room composites alpha with rgb(… / a)
+      rather than color-mix(), which older iPad Safari does not have. */
+  function rgbTriplet(hex) {
+    var n = parseInt(hex.slice(1), 16);
+    return ((n >> 16) & 255) + ' ' + ((n >> 8) & 255) + ' ' + (n & 255);
+  }
+
+  /* ── who is our parent, and may we talk to it? ───────────────────────
+     The arcade is normally mounted in the site's tool overlay, i.e. inside an
+     iframe on cookcountycooks.com. It is same-origin with that page, so this
+     is a real, checkable answer and not a guess.
+
+     Cross-origin (somebody else framed this page) reads as NOT framed: the
+     property access throws, we catch, and the page falls back to navigating
+     itself. That is the safe direction — worst case a rep gets a normal page
+     load instead of a frame swap. */
+  function hostWindow() {
+    try {
+      if (window.parent === window) return null;
+      if (window.parent.location.origin !== location.origin) return null;
+      return window.parent;
+    } catch (err) { return null; }
+  }
+
+  /* ── the tool registry, so a cabinet can be honest ───────────────────
+     A cabinet can only claim to launch if `#/tool/<slug>` will actually
+     resolve. The authority is the registry the OVERLAY reads, which is
+     window.__CCC_INLINE__.tools on the parent page — not the tool list on
+     disk, which can be a sync-inline-tools.mjs run ahead of it.
+
+     Un-framed, there is no parent to ask, so fall back to fetching the tool
+     list. If BOTH are unavailable we return null, meaning "no opinion", and
+     every cabinet renders playable — an optimistic cabinet that might 404 is
+     better than a dark one on a game that works. */
+  function loadSlugs() {
+    var host = hostWindow();
+    try {
+      if (host && host.__CCC_INLINE__ && host.__CCC_INLINE__.tools) {
+        var list = host.__CCC_INLINE__.tools.tools || [];
+        return Promise.resolve(new Set(list.map(function (t) { return t && t.slug; })));
+      }
+    } catch (err) { /* parent went away mid-read; fall through to the fetch */ }
+    if (OFFLINE) return Promise.resolve(null);
+    return fetch(SITE_ROOT + TOOLS_JSON, { cache: 'no-cache' })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)); })
+      .then(function (d) { return new Set((d.tools || []).map(function (t) { return t && t.slug; })); })
+      .catch(function () { return null; });
+  }
+
+  /* ── launching ───────────────────────────────────────────────────────
+     THE HANDSHAKE, and why it is a postMessage and not a navigation.
+
+     This page is inside the viewer. If a cabinet simply navigated its own
+     frame to the game, the rep would be looking at the game with the viewer's
+     chrome still saying "C³ Arcade", and Back would unwind an iframe
+     navigation rather than closing anything.
+
+     So the arcade ASKS ITS HOST to open the game as a tool in its own right.
+     assets/overlay.js §6b takes the message and calls openTool(slug), which
+     swaps the frame, re-titles the chrome and pushes `#/tool/<slug>` — so Back
+     lands on `#/tool/arcade` and syncFromLocation() puts this room straight
+     back up. Trust is by IDENTITY (event.source) rather than by an origin
+     string.
+
+     THREE WAYS OUT, in order, because a rep pressing a cabinet must never get
+     nothing:
+       1. the host acknowledges (`ccc-arcade-host` / ok) — done;
+       2. no acknowledgement inside ACK_MS, because the parent is an older
+          index.html with no listener: set the parent's hash ourselves.
+          overlay.js has listened for `hashchange` since v3;
+       3. not framed at all: follow the anchor's own href, which is the same
+          `#/tool/<slug>` on the site.
+     The control is a REAL <a href> carrying (3) as its default action, so a
+     middle-click, a long-press "Copy Link" and a screen reader's link list all
+     hand out cookcountycooks.com — never a repository. */
+  var ACK_MS = 500;
+  var pendingAck = null;
+
+  window.addEventListener('message', function (event) {
+    var host = hostWindow();
+    if (!host || event.source !== host) return;      // identity, not origin
+    var d = event.data;
+    if (!d || typeof d !== 'object' || d.source !== 'ccc-arcade-host') return;
+    if (!pendingAck || d.slug !== pendingAck.slug) return;
+    window.clearTimeout(pendingAck.timer);
+    pendingAck = null;
+  });
+
+  function launch(game, ev) {
+    var host = hostWindow();
+    if (!host) return;                                // not framed: let the <a> work
+    ev.preventDefault();
+    say('Opening ' + game.title + '…');
+
+    try {
+      host.postMessage({ source: 'ccc-arcade', action: 'open-tool', slug: game.slug }, location.origin);
+    } catch (err) {
+      try { host.location.hash = '#/tool/' + encodeURIComponent(game.slug); } catch (e2) { /* noop */ }
+      return;
     }
 
-    /* ── who is our parent, and may we talk to it? ───────────────────────
-       The arcade is normally mounted in the site's tool overlay, i.e. inside
-       an iframe on cookcountycooks.com. It is same-origin with that page, so
-       this is a real, checkable answer and not a guess.
-
-       Cross-origin (somebody else framed this page) reads as NOT framed: the
-       property access throws, we catch, and the page falls back to navigating
-       itself. That is the safe direction — worst case a rep gets a normal
-       page load instead of a frame swap. */
-    function hostWindow() {
-      try {
-        if (window.parent === window) return null;               // top level
-        if (window.parent.location.origin !== location.origin) return null;
-        return window.parent;
-      } catch (err) { return null; }
-    }
-
-    /* ── the tool registry, so a card can be honest ──────────────────────
-       A game's card can only claim to launch if `#/tool/<slug>` will actually
-       resolve. The authority on that is the registry the OVERLAY reads, which
-       is window.__CCC_INLINE__.tools on the parent page — not the tool list on
-       disk, which can be a sync-inline-tools.mjs run ahead of it. Asking
-       the parent is therefore both more precise and free.
-
-       Un-framed (opened directly), there is no parent to ask, so fall back to
-       fetching data/tools.json. If BOTH are unavailable we return null, which
-       means "no opinion" and every card renders enabled — an optimistic card
-       that might 404 is better than a disabled card on a game that works. */
-    function loadSlugs() {
-      var host = hostWindow();
-      try {
-        if (host && host.__CCC_INLINE__ && host.__CCC_INLINE__.tools) {
-          var list = host.__CCC_INLINE__.tools.tools || [];
-          return Promise.resolve(new Set(list.map(function (t) { return t && t.slug; })));
-        }
-      } catch (err) { /* parent went away mid-read; fall through to the fetch */ }
-      if (OFFLINE) return Promise.resolve(null);
-      return fetch(SITE_ROOT + TOOLS_JSON, { cache: 'no-cache' })
-        .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)); })
-        .then(function (d) { return new Set((d.tools || []).map(function (t) { return t && t.slug; })); })
-        .catch(function () { return null; });
-    }
-
-    /* ── launching ───────────────────────────────────────────────────────
-       THE HANDSHAKE, and why it is a postMessage and not a navigation.
-
-       This page is inside the viewer. If a cabinet simply navigated its own
-       frame to the game, the rep would be looking at the game with the
-       viewer's chrome still saying "C³ Arcade", the Back button would unwind
-       an iframe navigation rather than closing anything, and the arcade would
-       be gone with no way back short of closing the viewer and starting over.
-
-       So the arcade ASKS ITS HOST to open the game as a tool in its own right.
-       assets/overlay.js §6b takes the message and calls openTool(slug), which
-       swaps the frame, re-titles the chrome and pushes `#/tool/<slug>` — so
-       Back lands on `#/tool/arcade` and syncFromLocation() puts this page
-       straight back up. Same shape as the Daily Sales Report's ready
-       handshake in assets/screens.js: a plain object with a `source` tag, and
-       trust by IDENTITY rather than by an origin string.
-
-       THREE WAYS OUT, in order, because a rep pressing Play must never get
-       nothing:
-         1. the host acknowledges (`ccc-arcade-host` / ok) — done;
-         2. no acknowledgement inside ACK_MS, because the parent is an older
-            index.html from before this build that has no listener: set the
-            parent's hash ourselves. overlay.js has listened for `hashchange`
-            since v3, so this works on every version of the page that has ever
-            shipped;
-         3. not framed at all (opened directly at tools/arcade/): follow the
-            anchor's own href, which is the same `#/tool/<slug>` on the site.
-       The control is a REAL <a href> carrying (3) as its default action, so a
-       middle-click, a long-press "Copy Link" and a screen reader's link list
-       all hand out cookcountycooks.com — never a repository. */
-    var ACK_MS = 500;
-
-    /** Ignore anything that is not our own host answering our own question. */
-    var pendingAck = null;
-    window.addEventListener('message', function (event) {
-      var host = hostWindow();
-      if (!host || event.source !== host) return;      // identity, not origin
-      var d = event.data;
-      if (!d || typeof d !== 'object' || d.source !== 'ccc-arcade-host') return;
-      if (!pendingAck || d.slug !== pendingAck.slug) return;
-      window.clearTimeout(pendingAck.timer);
+    if (pendingAck) window.clearTimeout(pendingAck.timer);
+    pendingAck = { slug: game.slug, timer: window.setTimeout(function () {
       pendingAck = null;
+      try { host.location.hash = '#/tool/' + encodeURIComponent(game.slug); }
+      catch (err) { location.href = internalHref(game.slug); }
+    }, ACK_MS) };
+  }
+
+  /* ── the room, built ─────────────────────────────────────────────────── */
+
+  var GAMES = [], slots = [], links = [], poolEls = [];
+  var centre = 0, heroH = 0;
+  var crt = null, attract = null, crtHandle = null;
+
+  function buildRack(games, knownSlugs) {
+    GAMES = games;
+    var html = '';
+    for (var i = 0; i < games.length; i++) {
+      var g = games[i];
+      var wired = (knownSlugs === null) || knownSlugs.has(g.slug);
+      g.wired = wired;
+      /* A title longer than ~11 characters is shrunk to fit the marquee rather
+         than ellipsised. §07 of theme.css learned this the hard way: `34ch` is
+         not 34 characters of tracked uppercase. */
+      var fit = Math.min(1, 11 / Math.max(1, g.title.length)).toFixed(3);
+      html += '<li class="slot" data-slot="' + (i - centre) + '" data-geo="front" data-lod="0"'
+           +  ' data-wired="' + (wired ? 'yes' : 'no') + '"'
+           +  ' style="--tint:' + g.tint + ';--tint-rgb:' + g.rgb + ';--mq-fit:' + fit + '">'
+           +  '<a class="link" href="' + esc(internalHref(g.slug)) + '" tabindex="-1"'
+           +    ' data-i="' + i + '"' + (wired ? '' : ' aria-disabled="true"') + '>'
+           +    '<span class="enter" style="--delay:' + (i * 70) + 'ms">'
+           +      '<span class="cab">'
+           +        geoFront('g' + i, g) + geoTQL('g' + i, g) + geoTQR('g' + i, g)
+           +        face(g)
+           +        '<span class="contact"></span><span class="dim"></span>'
+           +      '</span>'
+           +    '</span><span class="tag">' + esc(g.title) + '</span>'
+           +  '</a></li>';
+    }
+    rack.innerHTML = html;
+
+    slots = Array.prototype.slice.call(rack.querySelectorAll('.slot'));
+    links = slots.map(function (s) { return s.querySelector('.link'); });
+
+    /* An un-wired cabinet says so on its own apron rather than in a banner. */
+    for (var k = 0; k < games.length; k++) {
+      if (games[k].wired) continue;
+      var ap = slots[k].querySelector('.apron');
+      ap.querySelector('.freeplay').textContent = 'OUT OF ORDER';
+      ap.querySelector('.start').textContent = 'NOT WIRED UP';
+    }
+
+    /* One light pool per cabinet, OUTSIDE the scroll container — a scroller
+       clips both axes, and every ceiling pool was being clipped away. */
+    pools.innerHTML = games.map(function () { return '<div class="pool"></div>'; }).join('');
+    poolEls = Array.prototype.slice.call(pools.children);
+
+    links.forEach(function (a, i) {
+      a.addEventListener('click', function (ev) {
+        if (!GAMES[i].wired) { ev.preventDefault(); say(GAMES[i].title + ' is not wired up yet.'); return; }
+        launch(GAMES[i], ev);
+      });
+    });
+  }
+
+  /* ── level of detail, by rendered height and never by slot index ─────── */
+
+  function lodFor(scale) {
+    var h = heroH * scale;
+    if (h >= 420) return '0';
+    if (h <= 200) return '2';
+    return '1';
+  }
+
+  function apply() {
+    heroH = rack.clientHeight || 420;
+    var S = [1, 0.78, 0.58, 0.36];
+    for (var i = 0; i < slots.length; i++) {
+      var n = i - centre;
+      var cl = Math.max(-3, Math.min(3, n));
+      slots[i].dataset.slot = String(cl);
+      slots[i].dataset.geo  = n === 0 ? 'front' : (n < 0 ? 'tq-left' : 'tq-right');
+      slots[i].dataset.lod  = lodFor(S[Math.abs(cl)]);
+
+      links[i].tabIndex = (i === centre) ? 0 : -1;
+      if (i === centre) links[i].setAttribute('aria-current', 'true');
+      else links[i].removeAttribute('aria-current');
+
+      /* Promotion is transient: the centred cabinet only, never permanent CSS.
+         A filling `fill: both` entry animation once left all five promoted for
+         the life of the page. */
+      var cab = slots[i].querySelector('.cab');
+      cab.style.willChange = (i === centre) ? 'transform' : '';
+    }
+    placePools();
+    mountCrt();
+  }
+
+  /* Light pools are positioned per cabinet by custom properties, measured at
+     snap time — no scroll handler, no per-frame work. */
+  function placePools() {
+    if (!slots.length) return;
+    var box = room.getBoundingClientRect();
+    for (var i = 0; i < slots.length; i++) {
+      var p = poolEls[i], g = GAMES[i];
+      var m = slots[i].querySelector('.marquee').getBoundingClientRect();
+      var b = slots[i].querySelector('.base').getBoundingClientRect();
+      var hidden = getComputedStyle(slots[i]).visibility === 'hidden' || m.width < 2;
+      var n = Math.abs(i - centre);
+      p.style.setProperty('--tint-rgb', g.rgb);
+      p.style.setProperty('--px', (m.left + m.width / 2 - box.left) + 'px');
+      p.style.setProperty('--py', (m.top + m.height / 2 - box.top) + 'px');
+      p.style.setProperty('--pw', (m.width * 3.4) + 'px');
+      p.style.setProperty('--ph', (m.width * 2.9) + 'px');
+      p.style.setProperty('--fy', (b.bottom + b.height * 0.55 - (m.top + m.height / 2)) + 'px');
+      p.style.setProperty('--fw', (m.width * 2.3) + 'px');
+      p.style.setProperty('--fh', (m.width * 0.62) + 'px');
+      p.style.setProperty('--pa', hidden ? '0' : String(Math.max(0, 1 - n * 0.3)));
+    }
+  }
+
+  /* ── the one canvas ──────────────────────────────────────────────────
+     Exactly one <canvas> exists in the document. When the centred cabinet
+     changes, the SAME element moves into the new cabinet's screen slot and is
+     re-mounted; the old cabinet reverts to its CSS still. Two attract loops
+     would double the only per-frame cost on the page, and this is a room a
+     store iPad will sit on for six hours. */
+  function mountCrt() {
+    if (!attract || !slots.length) return;
+    var g = GAMES[centre];
+    if (!g) return;
+    var slot = slots[centre].querySelector('.screen-slot');
+    if (!slot) return;
+
+    if (!crt) {
+      crt = document.createElement('canvas');
+      crt.className = 'crt';
+      crt.setAttribute('aria-hidden', 'true');
+    }
+    if (crt.parentNode === slot && crtHandle && crtHandle.slug === g.slug) return;
+
+    slots.forEach(function (s) { s.classList.remove('has-crt'); });
+    slot.appendChild(crt);
+    slots[centre].classList.add('has-crt');
+
+    crtHandle = attract.mount(crt, {
+      slug: g.slug, title: g.title, blurb: g.blurb, tint: g.tint
+    });
+    crtHandle.slug = g.slug;
+    crtHandle.start();
+  }
+
+  /* ── selection ───────────────────────────────────────────────────────── */
+
+  var io = null;
+  function observeRack() {
+    io = new IntersectionObserver(function (entries) {
+      var best = null;
+      for (var k = 0; k < entries.length; k++) {
+        if (entries[k].isIntersecting &&
+          (!best || entries[k].intersectionRatio > best.intersectionRatio)) best = entries[k];
+      }
+      if (!best) return;
+      var idx = slots.indexOf(best.target);
+      if (idx > -1 && idx !== centre) { centre = idx; apply(); }
+    }, { root: rack, rootMargin: '0px -46% 0px -46%', threshold: [0, .01, .5, 1] });
+    slots.forEach(function (s) { io.observe(s); });
+  }
+
+  function go(i) {
+    i = Math.max(0, Math.min(slots.length - 1, i));
+    if (i === centre) { links[i].focus(); return; }
+    centre = i; apply();
+    slots[i].scrollIntoView({
+      inline: 'center', block: 'nearest',
+      behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+    });
+    links[i].focus();
+    say(GAMES[i].title + '. ' + GAMES[i].blurb);
+  }
+
+  rack.addEventListener('keydown', function (e) {
+    if (!slots.length) return;
+    if (e.key === 'ArrowRight')     { e.preventDefault(); go(centre + 1); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); go(centre - 1); }
+    else if (e.key === 'Home')      { e.preventDefault(); go(0); }
+    else if (e.key === 'End')       { e.preventDefault(); go(slots.length - 1); }
+  });
+
+  var rt;
+  addEventListener('resize', function () {
+    clearTimeout(rt);
+    rt = setTimeout(function () {
+      if (!slots.length) return;
+      apply();
+      slots[centre].scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'auto' });
+      placePools();
+    }, 120);
+  });
+
+  /* ── honest failure ──────────────────────────────────────────────────── */
+
+  function state(title, bodyHtml) {
+    var d = document.createElement('div');
+    d.className = 'state';
+    d.innerHTML = '<h2>' + esc(title) + '</h2><p>' + bodyHtml + '</p>';
+    room.appendChild(d);
+    say(title);
+  }
+
+  function offlineState() {
+    state('The cabinets are dark', 'This is a <code>file://</code> copy, and the cabinet list lives in '
+      + '<code>arcade/manifest.json</code>, which a page opened off a USB stick is not allowed to read. '
+      + 'Serve the folder (<code>python3 -m http.server</code>) and the arcade lights up. '
+      + 'Every game is also reachable from the Break Room on the main page.');
+  }
+
+  /* ── boot ────────────────────────────────────────────────────────────── */
+
+  if (OFFLINE) { offlineState(); return; }
+
+  Promise.all([
+    fetch(MANIFEST_URL, { cache: 'no-cache' })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)); }),
+    loadSlugs()
+  ]).then(function (both) {
+    var data = both[0] || {};
+    var knownSlugs = both[1];
+    var games = (data.games || []).filter(function (g) { return g && g.slug && g.title; })
+      .map(function (g) {
+        var tint = cleanTint(g.tint);
+        return {
+          slug:  String(g.slug),
+          title: String(g.title),
+          blurb: String(g.blurb || ''),
+          tint:  tint,
+          rgb:   rgbTriplet(tint)
+        };
+      });
+
+    if (!games.length) {
+      state('No cabinets on the floor', 'The manifest at <code>arcade/manifest.json</code> parsed, '
+        + 'but it lists no games. Add a row there and one here.');
+      return;
+    }
+
+    centre = Math.floor((games.length - 1) / 2);
+    buildRack(games, knownSlugs);
+    attract = createAttractEngine();
+    apply();
+    observeRack();
+
+    say(games.length + (games.length === 1 ? ' cabinet' : ' cabinets') + ' on the floor. '
+      + GAMES[centre].title + ' is in front of you.');
+
+    requestAnimationFrame(function () {
+      slots[centre].scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'auto' });
+      placePools();
     });
 
-    function launch(game, ev) {
-      var host = hostWindow();
-      if (!host) return;                                // not framed: let the <a> work
-      ev.preventDefault();
-      say('Opening ' + game.title + '…');
-
-      try {
-        host.postMessage({ source: 'ccc-arcade', action: 'open-tool', slug: game.slug }, location.origin);
-      } catch (err) {
-        // postMessage itself failed: go straight to the hash fallback.
-        try { host.location.hash = '#/tool/' + encodeURIComponent(game.slug); } catch (e2) { /* noop */ }
-        return;
-      }
-
-      if (pendingAck) window.clearTimeout(pendingAck.timer);
-      pendingAck = { slug: game.slug, timer: window.setTimeout(function () {
-        pendingAck = null;
-        console.warn('[arcade] the host did not acknowledge; falling back to the hash.');
-        try { host.location.hash = '#/tool/' + encodeURIComponent(game.slug); }
-        catch (err) { location.href = internalHref(game.slug); }
-      }, ACK_MS) };
+    /* The entry stagger displaces the cabinets while it runs, so re-place the
+       pools once the finite animations have settled. Without this the pools sit
+       16px high until the first selection change. */
+    if (document.getAnimations) {
+      var settling = document.getAnimations().filter(function (a) {
+        return a.effect && a.effect.getTiming().iterations !== Infinity;
+      }).map(function (a) { return a.finished.catch(function () {}); });
+      if (settling.length) Promise.all(settling).then(placePools);
     }
-
-    /* ── rendering ───────────────────────────────────────────────────────── */
-
-    function buildArt(game) {
-      var tint = typeof game.tint === 'string' ? game.tint : null;
-      var art  = game.art && typeof game.art === 'object' ? game.art : null;
-
-      if (art && art.file) {
-        var plate = el('span', { class: 'ar-art' });
-        var img = el('img', {
-          src: ART_BASE + encodeURIComponent(art.file),
-          alt: typeof art.alt === 'string' ? art.alt : '',
-          width: '320', height: '200',
-          /* below the fold on a phone, and never the thing a rep is waiting
-             for — the title above it is. decoding=async keeps three SVG
-             rasterisations off the main thread on an iPad. */
-          loading: 'lazy', decoding: 'async'
-        });
-        /* A missing or malformed file must not leave a black rectangle: fall
-           through to the drawn tile, which needs no network at all. */
-        img.addEventListener('error', function () {
-          plate.replaceChildren(el('span', { 'aria-hidden': 'true', text: initials(game.title) }));
-          plate.classList.add('is-drawn');
-        });
-        plate.append(img);
-        return plate;
-      }
-      return el('span', { class: 'ar-art is-drawn' },
-        [el('span', { 'aria-hidden': 'true', text: initials(game.title) })]);
-    }
-
-    function renderCabinet(game, knownSlugs) {
-      // "no opinion" (null) means render it enabled — see loadSlugs().
-      var wired = !knownSlugs || knownSlugs.has(game.slug);
-
-      var card = el('li', { class: 'ar-cab' + (wired ? '' : ' is-unwired') });
-      if (typeof game.tint === 'string' && /^#[0-9a-fA-F]{3,8}$/.test(game.tint)) {
-        card.style.setProperty('--tint', game.tint);
-      }
-
-      card.append(buildArt(game));
-
-      var body = el('div', { class: 'ar-body' }, [
-        el('h2', { text: game.title }),
-        game.blurb ? el('p', { class: 'ar-blurb', text: game.blurb }) : null
-      ]);
-
-      var actions = el('div', { class: 'ar-actions' });
-      if (wired) {
-        /* The accessible name is "Play <title>", not "Play": three identical
-           link names in one list is the classic screen-reader failure, and the
-           stretched ::after makes this one control the whole card's target. */
-        var play = el('a', {
-          class: 'ar-btn',
-          href: internalHref(game.slug),
-          'aria-label': 'Play ' + game.title
-        }, [el('span', { class: 'ar-play', 'aria-hidden': 'true' }), document.createTextNode('Play')]);
-        play.addEventListener('click', function (ev) {
-          // Let a modified click behave like a normal browser click.
-          if (ev.defaultPrevented || ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
-          launch(game, ev);
-        });
-        actions.append(play);
-      } else {
-        /* A real disabled <button>, not a <span> wearing role="link": a span
-           with aria-disabled is still in nobody's tab order AND still claims
-           to be a link, which is the worst of both. Disabled takes it out of
-           the Tab walk, which is right — the .ar-note below says in words why
-           it cannot be played, and that note IS reachable as text. */
-        actions.append(el('button', {
-          type: 'button', class: 'ar-btn', disabled: true,
-          'aria-label': 'Play ' + game.title + ' — not available yet'
-        }, [el('span', { class: 'ar-play', 'aria-hidden': 'true' }), document.createTextNode('Play')]));
-      }
-      body.append(actions);
-
-      if (!wired) {
-        body.append(el('p', { class: 'ar-note is-alert' }, [
-          el('span', {}, [
-            el('b', { text: 'Not wired up yet. ' }),
-            document.createTextNode('This cabinet is in the manifest but there is no '),
-            el('code', { text: game.slug }),
-            document.createTextNode(' row in '),
-            el('code', { text: TOOLS_JSON }),
-            document.createTextNode(', so the site has nothing to open. Add the row (and run '),
-            el('code', { text: 'build/sync-inline-tools.mjs' }),
-            document.createTextNode(') and this card goes live.')
-          ])
-        ]));
-      }
-
-      card.append(body);
-      return card;
-    }
-
-    function render(games, knownSlugs) {
-      var frag = document.createDocumentFragment();
-      games.forEach(function (g) { frag.append(renderCabinet(g, knownSlugs)); });
-      els.list.replaceChildren(frag);
-      els.count.textContent = '';
-      els.count.append(el('b', { text: String(games.length) }),
-                       document.createTextNode(games.length === 1 ? ' game' : ' games'));
-      say(games.length + (games.length === 1 ? ' game listed.' : ' games listed.'));
-    }
-
-    function problemState(title, body) {
-      els.list.replaceChildren();
-      els.list.after(el('div', { class: 'ar-empty' }, [
-        el('h2', { text: title }),
-        el('p', { class: 'prose' }, body)
-      ]));
-      say(title);
-    }
-
-    function offlineState() {
-      problemState('The cabinet list needs the site to be served', [
-        document.createTextNode('This page reads '),
-        el('code', { text: 'arcade/manifest.json' }),
-        document.createTextNode(' at runtime, and a page opened straight off disk ('),
-        el('code', { text: 'file://' }),
-        document.createTextNode(') is not allowed to read it. Run '),
-        el('code', { text: 'python3 -m http.server' }),
-        document.createTextNode(' in the site folder and open it over '),
-        el('code', { text: 'http://localhost:8000' }),
-        document.createTextNode('. Every game is also listed in the Break Room on the main page, which works off disk.')
-      ]);
-    }
-
-    /* ── boot ────────────────────────────────────────────────────────────── */
-
-    if (OFFLINE) { offlineState(); return; }
-
-    Promise.all([
-      /* `no-cache` and not `no-store`: the manifest must never be served from
-         a stale HTTP cache — Jeff adds a game and expects to see it — but the
-         service worker's networkFirst (sw.js) is still allowed to answer for
-         it when the store's wifi drops, which `no-store` would forbid
-         outright (sw.js bails on any request marked no-store). */
-      fetch(MANIFEST_URL, { cache: 'no-cache' })
-        .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)); }),
-      loadSlugs()
-    ]).then(function (both) {
-      var data = both[0];
-      var games = Array.isArray(data) ? data : (data && data.games) || [];
-      games = games.filter(function (g) { return g && g.slug && g.title; });
-      if (!games.length) {
-        problemState('No cabinets listed', [
-          document.createTextNode('The arcade read '),
-          el('code', { text: 'arcade/manifest.json' }),
-          document.createTextNode(' and found no games in it.')
-        ]);
-        return;
-      }
-      render(games, both[1]);
-    }).catch(function (err) {
-      console.error('[arcade] could not read the manifest:', err);
-      problemState('The list didn’t load', [
-        document.createTextNode('This station reads '),
-        el('code', { text: 'arcade/manifest.json' }),
-        document.createTextNode(' and that file couldn’t be read. The games are all still listed in the Break Room on the main page.')
-      ]);
-    });
-  })();
+  }).catch(function (err) {
+    state('The arcade could not open', 'The cabinet list at <code>arcade/manifest.json</code> did not load ('
+      + esc(err && err.message ? err.message : 'unknown error') + '). '
+      + 'Every game is still listed in the Break Room on the main page.');
+  });
+})();
   </script>
 </body>
 </html>

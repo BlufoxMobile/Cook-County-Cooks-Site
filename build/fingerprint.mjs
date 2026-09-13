@@ -153,9 +153,11 @@ const HTML_FILES = ['index.html', ...listDir('tools/printouts', ['.html']),
      names ../../assets/theme.css, and an un-rewritten reference to the stylesheet
      would leave that page un-themed for four hours after every art change (which
      is the whole defect at the top of this file). Its own data — arcade/manifest.json
-     and arcade/art/*.svg — is deliberately NOT fingerprinted, for the same reason
-     printouts/manifest.json is not: the sub-app owns its assets, and adding a game
-     must be one row in that manifest with no build step at all. */
+     — is deliberately NOT fingerprinted, for the same reason printouts/manifest.json
+     is not: the sub-app owns its assets, and adding a game must be one row in that
+     manifest with no build step at all. (arcade/art/*.svg is gone as of the room
+     rebuild: the cabinets are DRAWN from tint and title, so a new game needs no
+     artwork and there is nothing left here to hash.) */
   ...listDir('tools/arcade', ['.html'])];
 
 /* ── the rewriter ─────────────────────────────────────────────────────────── */
