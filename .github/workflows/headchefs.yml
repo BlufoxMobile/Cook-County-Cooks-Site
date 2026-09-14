@@ -142,7 +142,11 @@ jobs:
 
     steps:
       - name: Check out
-        uses: actions/checkout@v4
+        # v5, not v4: v4 runs on Node 20, which GitHub deprecated on the
+        # runners (it was already being force-upgraded to Node 24 and
+        # printing a warning annotation on every single run). Bumped
+        # 2026-09-14 while retuning the thresholds above.
+        uses: actions/checkout@v5
         with:
           # Shallow is fine: this job only ever adds one commit on top of HEAD.
           fetch-depth: 1
@@ -285,7 +289,7 @@ jobs:
           done
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '20'
 

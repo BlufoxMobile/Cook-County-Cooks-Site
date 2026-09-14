@@ -36,6 +36,17 @@
 #     a run that never happened never completes
 #   · on the button
 #
+# WHAT GITHUB ACTUALLY DELIVERS (measured 2026-09-14, and the reason the
+# thresholds below are as loose as they are)
+#   `headchefs.yml` asks for a run every 30 minutes. Over 19 consecutive gaps
+#   GitHub delivered a MEDIAN of 143 minutes and a WORST CASE of 357 — about one
+#   requested run in five, with every single delivered run succeeding. Scheduled
+#   workflows on a free-tier repository are best-effort and GitHub says so. Any
+#   threshold here tighter than about six hours is therefore alarming about
+#   GitHub's normal behaviour, not about this pipeline. That is what happened on
+#   2026-09-14: a red watchdog, an open alarm issue, and a wall that was in fact
+#   perfectly current. Measure before you tighten these.
+#
 # WHAT IT DOES NOT CATCH, HONESTLY
 #   It is itself partly a scheduled workflow, so a GitHub-wide scheduler outage
 #   stops this as well, and a repository that really has been quiet for 60 days
@@ -79,16 +90,49 @@ env:
   # workflows by filename), unlike `workflows:` above which is the display name.
   PULL_WORKFLOW: headchefs.yml
 
-  # Alarm if there has been no SUCCESSFUL pull in this many hours. The baseline
-  # cron is every 30 minutes, so four hours is eight consecutive misses — far
-  # outside GitHub's ordinary scheduler drift, and short enough that a Friday
-  # morning breakage is on his phone before lunch.
-  STALE_HOURS: '4'
+  # Alarm if there has been no SUCCESSFUL pull in this many hours.
+  #
+  # ⚠ THIS NUMBER WAS 4 AND IT CRIED WOLF. Do not put it back without new
+  # measurements. On 2026-09-14 the alarm fired, and the pipeline turned out to
+  # be perfectly healthy: the last 20 runs of `Head chefs` were 20 successes,
+  # nothing had failed, and the workflow was active. What is actually happening
+  # is that GITHUB DOES NOT DELIVER THIS CRON. The schedule asks for every 30
+  # minutes; measured over 19 consecutive gaps, GitHub delivered a median of
+  # **143 minutes** and a worst case of **357 minutes** — roughly one run in
+  # five. That is not drift, it is GitHub's documented right to drop scheduled
+  # runs on a free-tier repository under load, and no amount of YAML fixes it.
+  #
+  # So a 4-hour threshold was below normal behaviour and fired on about one gap
+  # in five — an alarm that goes off when nothing is wrong is one that gets
+  # muted, which is the exact failure this workflow was written to prevent.
+  # Twelve hours is double the worst gap ever observed here, and still catches a
+  # scheduler that has genuinely stopped within half a day.
+  #
+  # This threshold is the SLOW net, and it is allowed to be slow because it is
+  # not the one that matters: the wall only needs re-reading when a deck
+  # changes, and that case is caught by DECK_GRACE_MINUTES below.
+  STALE_HOURS: '12'
 
   # Alarm if a deck was pushed this many minutes ago and no successful pull has
-  # STARTED since. 45 minutes is one baseline cron interval plus slack, so an
-  # ordinary late-running cron never trips it.
-  DECK_GRACE_MINUTES: '45'
+  # STARTED since. THIS is the check that matters — a deck landing and not being
+  # read is the only way the wall is actually wrong.
+  #
+  # ⚠ ALSO RAISED, from 45, for the same measured reason as STALE_HOURS: the
+  # dense Friday cron is subject to exactly the same throttling as the baseline
+  # one, so 45 minutes was alarming about something GitHub's scheduler cannot
+  # promise. Four hours sits above the worst observed gap (357 min) with a
+  # little room, so it fires only when a deck has genuinely gone unread rather
+  # than when the scheduler is merely being itself.
+  #
+  # ⚠⚠ AND THE REAL FIX IS NOT THIS NUMBER. A deck push is supposed to be read
+  # within a minute by the `repository_dispatch` trigger in headchefs.yml, which
+  # the two deck repositories fire from their `tell-the-break-room.yml`. That
+  # path has NEVER ONCE WORKED, because neither deck repository has the
+  # BREAK_ROOM_TOKEN secret it needs — those workflows skip with a green notice
+  # saying so. Wire that secret and a deck is on the wall in about a minute; you
+  # can then put this back to 45 and mean it. Until then the wall follows
+  # GitHub's scheduler, which by measurement is 2 to 6 hours behind.
+  DECK_GRACE_MINUTES: '240'
 
   # The one issue. Found by its exact title, so the alarm still works even if
   # the label below could not be created; the label is there for humans.
@@ -121,7 +165,11 @@ jobs:
 
     steps:
       - name: Check out
-        uses: actions/checkout@v4
+        # v5, not v4: v4 runs on Node 20, which GitHub deprecated on the
+        # runners (it was already being force-upgraded to Node 24 and
+        # printing a warning annotation on every single run). Bumped
+        # 2026-09-14 while retuning the thresholds above.
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
@@ -244,7 +292,7 @@ jobs:
               LAG_MIN=$(( (NOW - PUSH_TS) / 60 ))
               echo "deck $LABEL last pushed $PUSHED (${LAG_MIN}m ago)"
               if [ "$PUSH_TS" -gt "$OK_TS" ] && [ "$LAG_MIN" -ge "$DECK_GRACE_MINUTES" ]; then
-                note "**The $LABEL deck was pushed ${LAG_MIN} minutes ago and nothing has read it since.** Deck pushed \`$PUSHED\`; last successful pull started \`${LAST_OK:-never}\`. If a head chef changed on that deck, the wall is wrong right now."
+                note "**The $LABEL deck was pushed ${LAG_MIN} minutes ago and nothing has read it since.** Deck pushed \`$PUSHED\`; last successful pull started \`${LAST_OK:-never}\`. If a head chef changed on that deck, the wall is wrong right now. Fastest fix: Actions tab → **Head chefs** → **Run workflow**. Permanent fix: give \`$REPO\` a \`BREAK_ROOM_TOKEN\` secret so its push tells this repository directly instead of waiting for a cron GitHub delivers every 2-6 hours."
               fi
             done <<< "$DECKS"
           fi
