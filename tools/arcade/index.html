@@ -69,22 +69,23 @@
   --brass-rgb:200 151 63; --brass300-rgb:235 206 147; --brass700-rgb:138 99 35;
   --ember-rgb:255 158 74; --lcd-rgb:142 240 208; --bone-rgb:244 239 230;
 
-  /* ---- stage metrics: every dimension derives from --hero-h ---- */
-  --hero-h: clamp(420px, 68vh, 640px);
+  /* ---- stage metrics: every dimension derives from --hero-h ----
+     --cab-max is the widest a cabinet may be DRAWN at this breakpoint, and it
+     is applied to --hero-h (x 2.2) rather than to --cab-w. Capping the width
+     alone would squash the artwork: every geometry <svg> below is
+     preserveAspectRatio="none", so the 100 x 220 viewBox takes whatever box it
+     is given. Height is the honest place to cap it. 1 / 0.4545 = 2.2. */
+  --cab-max: 20vw;
+  --hero-h: min(clamp(420px, 68vh, 640px), calc(var(--cab-max) * 2.2));
   --cab-w:  calc(var(--hero-h) * 0.4545);   /* viewBox 100 x 220 */
   --room-h: calc(var(--hero-h) * 1.32);
   --horizon: 62%;                            /* VP y */
   --baseline: 4.5%;                          /* cabinet feet from room bottom */
   --face-w: var(--cab-w);                    /* front-face width, per geometry */
 
-  /* per-slot convergence toward the VP (translate, then scale) */
-  --s1:.78; --s2:.58; --s3:.36;
-  --dx1: calc(var(--cab-w) * .172);
-  --dx2: calc(var(--cab-w) * .468);
-  --dx3: calc(var(--cab-w) * .820);
-  --dy1: calc(var(--hero-h) * -.098);
-  --dy2: calc(var(--hero-h) * -.187);
-  --dy3: calc(var(--hero-h) * -.285);
+  /* There are no per-slot depth values any more. Every cabinet is the same
+     size, at the same distance, and the ring step (centre-to-centre spacing)
+     is measured in JS from the room's real width — see layout(). */
 
   --font:'Archivo','Archivo Black','Helvetica Neue',Helvetica,Arial,'Liberation Sans',system-ui,sans-serif;
   --tint:var(--brass); --tint-rgb:var(--brass-rgb);
@@ -185,13 +186,20 @@ body{
   box-shadow:0 0 6px 1px rgba(235,206,147,.32);
 }
 
-/* --- edge vignette: the row receding into black --- */
+/* --- edge vignette: the room falling away into black ---
+   WIDENED for the flat carousel. The old stops (opaque by 7%, clear only by
+   26%) were cut for a perspective row whose outer cabinets were 58% scale and
+   MEANT to be swallowed. Three full-size cabinets reach much further out, and
+   at those stops the left and right machines lost their outer third to the
+   vignette — same size on paper, visibly darker on screen, which is the one
+   thing this rebuild is for. The hard edge is kept (it is what the ring
+   recycles behind), it is just much narrower now. */
 .vig{
   position:absolute; inset:0; pointer-events:none; z-index:6;
   background:
-    linear-gradient(90deg, var(--ink-950) 0%, rgba(5,7,10,.72) 7%, rgba(5,7,10,0) 26%,
-                           rgba(5,7,10,0) 74%, rgba(5,7,10,.72) 93%, var(--ink-950) 100%),
-    radial-gradient(112% 88% at 50% 52%, rgba(5,7,10,0) 36%, rgba(5,7,10,.42) 72%, rgba(5,7,10,.88) 94%, var(--ink-950) 100%);
+    linear-gradient(90deg, var(--ink-950) 0%, rgba(5,7,10,.66) 2.5%, rgba(5,7,10,0) 9%,
+                           rgba(5,7,10,0) 91%, rgba(5,7,10,.66) 97.5%, var(--ink-950) 100%),
+    radial-gradient(150% 96% at 50% 52%, rgba(5,7,10,0) 46%, rgba(5,7,10,.34) 78%, rgba(5,7,10,.86) 96%, var(--ink-950) 100%);
 }
 
 /* --- film grain: kills gradient banding on an iPad panel --- */
@@ -201,30 +209,43 @@ body{
 }
 
 /* ============================================================
-   RACK
+   RACK — a flat, equal-size, wrap-around carousel
+   ------------------------------------------------------------
+   .rack IS the track. It is a zero-width element pinned to the middle of the
+   room, and ONE transform on it (written once per animation frame) moves the
+   whole ring. The room, .arcade, is already overflow:hidden — that is the
+   window the ring slides behind, and it is why the track does not need to
+   clip anything itself.
+
+   Each .slot carries its own place on the ring as an inline translateX, and
+   that value is rewritten ONLY when the slot recycles round the ring — an
+   event layout() arranges to happen off-stage wherever the geometry allows,
+   and fadeFor() dissolves where it cannot (see the note in paintRing()).
+
+   IT IS DELIBERATELY NOT A SCROLL CONTAINER ANY MORE.
+   A scroller cannot wrap: there is no scrollLeft past the last child, so
+   "right from the last game brings the first one round" is unreachable. It
+   also gave us no way to say which cabinet is SELECTED except to guess from
+   an IntersectionObserver, which is why clicking any cabinet used to launch
+   it. With a real selection, the centre launches and the sides rotate.
    ============================================================ */
 .rack{
-  position:absolute; left:0; right:0; bottom:var(--baseline);
-  height:var(--hero-h);
-  margin:0; padding:0 calc(50% - var(--cab-w)/2);
-  list-style:none; display:flex; align-items:flex-end;
-  overflow-x:auto; overflow-y:visible;
-  scroll-snap-type:x mandatory;
-  scrollbar-width:none;
-  z-index:3;
-  -webkit-overflow-scrolling:touch;
+  position:absolute; left:50%; bottom:var(--baseline);
+  width:0; height:var(--hero-h);
+  margin:0; padding:0; list-style:none;
+  overflow:visible; z-index:3;
+  transform:translateX(0);
 }
-.rack::-webkit-scrollbar{display:none}
 
 .slot{
-  flex:0 0 var(--cab-w); width:var(--cab-w); height:var(--hero-h);
-  position:relative; scroll-snap-align:center;
+  position:absolute; bottom:0; left:calc(var(--cab-w) / -2);
+  width:var(--cab-w); height:var(--hero-h);
+  transform:translateX(0);
+  z-index:20;
 }
-/* nearer cabinets occlude further ones */
+/* the selected cabinet is on top. They no longer overlap, but a cabinet that
+   is mid-recycle passes the others, and the selected one should win. */
 .slot[data-slot="0"]{z-index:30}
-.slot[data-slot="-1"],.slot[data-slot="1"]{z-index:20}
-.slot[data-slot="-2"],.slot[data-slot="2"]{z-index:10}
-.slot[data-slot="-3"],.slot[data-slot="3"]{z-index:5}
 
 /* ---- light: pools live outside the scroll container so they are not
         clipped. one element per cabinet, placed by --px / --py. ---- */
@@ -257,46 +278,47 @@ body{
 .enter{position:absolute; inset:0; animation:enter .62s cubic-bezier(.2,.7,.3,1) backwards; animation-delay:var(--delay,0ms)}
 @keyframes enter{from{opacity:0; transform:translateY(16px)} to{opacity:1; transform:none}}
 
-/* ---- THE depth transform: 2D only ---- */
+/* ---- the cabinet box. NO transform: every cabinet is drawn at 1:1 and the
+        only thing that moves is the track. ---- */
 .cab{
   position:absolute; inset:0;
-  transform:translate(var(--dx,0px),var(--dy,0px)) scale(var(--s,1));
   transform-origin:50% 100%;
 }
-/* the depth values live on the slot so the LOD-2 title tag can share the
-   translate without inheriting the scale (its text must stay real, not mush) */
-.slot[data-slot="0"] {--s:1;         --dx:0px;                 --dy:0px}
-.slot[data-slot="-1"]{--s:var(--s1); --dx:var(--dx1);          --dy:var(--dy1)}
-.slot[data-slot="1"] {--s:var(--s1); --dx:calc(-1*var(--dx1)); --dy:var(--dy1)}
-.slot[data-slot="-2"]{--s:var(--s2); --dx:var(--dx2);          --dy:var(--dy2)}
-.slot[data-slot="2"] {--s:var(--s2); --dx:calc(-1*var(--dx2)); --dy:var(--dy2)}
-.slot[data-slot="-3"]{--s:var(--s3); --dx:var(--dx3);          --dy:var(--dy3)}
-.slot[data-slot="3"] {--s:var(--s3); --dx:calc(-1*var(--dx3)); --dy:var(--dy3)}
 
-/* dimming with depth — an ink veil, never filter() */
+/* SELECTION veil — an ink veil, never filter().
+   This is NOT the old dimming ramp by depth. There is no depth: every
+   cabinet is the same size and the same distance away, so there is nothing
+   to ramp. It is one flat value that means "not the selected machine", and
+   together with the live screen it is what tells a rep which cabinet Enter
+   will start. */
 .dim{
   position:absolute; inset:0; z-index:5; pointer-events:none;
   background:var(--ink-950); opacity:0; visibility:hidden;
   transition:opacity .32s ease, visibility 0s linear .32s;
 }
-.slot:not([data-slot="0"]) .dim{visibility:visible; transition:opacity .32s ease, visibility 0s}
-.slot[data-slot="-1"] .dim,.slot[data-slot="1"]  .dim{opacity:.40}
-.slot[data-slot="-2"] .dim,.slot[data-slot="2"]  .dim{opacity:.72}
-.slot[data-slot="-3"] .dim,.slot[data-slot="3"]  .dim{opacity:.88}
+.slot:not([data-slot="0"]) .dim{
+  visibility:visible; opacity:.34;
+  transition:opacity .32s ease, visibility 0s;
+}
 
 /* ============================================================
    CABINET BODY (SVG geometry, taper baked into the coordinates)
    ============================================================ */
+/* geo-tql / geo-tqr are PARKED, not deleted — see the note above geoTQL() in
+   the script. Nothing builds them any more: every cabinet is data-geo="front",
+   so these two rules never match and no three-quarter markup reaches the DOM. */
 .geo{position:absolute; inset:0; width:100%; height:100%; display:none; overflow:visible}
 .slot[data-geo="front"]    .geo-front{display:block}
-.slot[data-geo="tq-left"]  .geo-tql  {display:block}
-.slot[data-geo="tq-right"] .geo-tqr  {display:block}
+.slot[data-geo="tq-left"]  .geo-tql  {display:block}   /* parked */
+.slot[data-geo="tq-right"] .geo-tqr  {display:block}   /* parked */
 
 /* front face rectangle — position differs per geometry */
 .face{
   position:absolute; top:0; bottom:0; left:0; width:100%;
   box-shadow:0 0 13px 0 rgba(5,7,10,.8);
 }
+/* parked with the geometries above; --face-w is var(--cab-w) for every
+   cabinet on the floor today. */
 .slot[data-geo="tq-left"]  .face{left:4%;  width:78%; --face-w:calc(var(--cab-w)*.78)}
 .slot[data-geo="tq-right"] .face{left:18%; width:78%; --face-w:calc(var(--cab-w)*.78)}
 
@@ -645,8 +667,8 @@ body{
 .slot[data-lod="2"] .tmold{width:2px}
 .tag{
   position:absolute; left:50%; z-index:7;
-  bottom:calc(-1 * var(--dy, 0px) - 26px);
-  transform:translateX(calc(-50% + var(--dx, 0px)));
+  bottom:-26px;
+  transform:translateX(-50%);
   font-size:11px; font-weight:800; letter-spacing:.16em; color:var(--bone-2);
   white-space:nowrap; display:none; text-shadow:0 1px 3px rgba(5,7,10,.9);
 }
@@ -654,23 +676,26 @@ body{
 
 /* ============================================================
    BREAKPOINTS on usable width
+   ------------------------------------------------------------
+   These set only how WIDE a cabinet may be drawn. How far apart the cabinets
+   sit — the ring step — is measured in JS from the room's real width, because
+   it depends on the cabinet width, which depends on the viewport HEIGHT, and
+   no media query can see both. layout() is the one place that decides it, and
+   these are the three bands it implements:
+
+     >= 1040px   three full cabinets, the middle one selected
+      720-1040   one full cabinet, ~55% of each neighbour showing
+      < 720px    one full cabinet, a ~20px sliver of each neighbour
+
+   Nothing is hidden by breakpoint any more. A cabinet is hidden when it is
+   off-stage, which paintRing() works out from the measured geometry — so a
+   narrow window shows fewer cabinets because fewer fit, not because a media
+   query said so.
    ============================================================ */
+@media (max-width:1039.98px){ :root{ --cab-max:34vw } }
 @media (max-width:719.98px){
-  /* one cabinet, 18px of each neighbour peeking past the edge vignette */
-  :root{
-    --cab-w:min(calc(var(--hero-h) * 0.4545), 62vw);
-    /* land the neighbour's inner edge 18px inside the viewport edge */
-    --dx1:calc(18px + var(--cab-w) - 50vw - var(--cab-w) * var(--s1) * .5);
-    --dx2:calc(var(--cab-w) * .505);
-  }
-  .slot[data-slot="-2"],.slot[data-slot="2"],
-  .slot[data-slot="-3"],.slot[data-slot="3"]{visibility:hidden}
+  :root{ --cab-max:62vw }
   .sign .plate{font-size:calc(var(--hero-h) * .03); letter-spacing:.26em}
-}
-@media (min-width:720px) and (max-width:1040px){
-  /* three */
-  .slot[data-slot="-2"],.slot[data-slot="2"],
-  .slot[data-slot="-3"],.slot[data-slot="3"]{visibility:hidden}
 }
 
 /* ============================================================
@@ -681,7 +706,11 @@ body{
   .slot[data-slot="0"] .scan,
   .slot[data-slot="0"] .mq-flick,
   .slot[data-slot="0"] .freeplay{animation:none}
-  .rack{scroll-behavior:auto}
+  /* The rotation itself is made instant in JS (run() skips the tween and
+     lands on the target in one paint). These two are the only transitions
+     the rotation would otherwise start on its way past. */
+  .dim{transition:none}
+  .link:focus-visible .marquee{transition:none}
 }
 
 /* ============================================================
@@ -725,6 +754,14 @@ body{
    a few pixels shorter than the room wants to be. */
 body{min-height:100%; display:flex; flex-direction:column}
 .arcade{flex:1 1 auto}
+
+/* The whole room is the drag surface, not just the cabinets — a rep swiping a
+   dark break-room wall expects the row to move. touch-action:pan-y hands the
+   horizontal axis to our pointer handlers while leaving a vertical flick to
+   the page, so the colophon is still reachable on a short phone. */
+.arcade{cursor:grab; touch-action:pan-y}
+.arcade[data-drag="1"]{cursor:grabbing; user-select:none; -webkit-user-select:none}
+.arcade .link{cursor:pointer}
 
 /* ── THE ONE CANVAS ──────────────────────────────────────────────────────
    Exactly one <canvas> exists in this document, ever. It is moved into the
@@ -818,6 +855,55 @@ body{min-height:100%; display:flex; flex-direction:column}
    only. (It is also the cheapest thing on the page to get wrong: mix-blend
    over text is instantly ugly.) */
 .grain{z-index:5}
+
+/* C3 Arcade entry cinematic - the canvas createArcadeIntro().play() injects.
+   The module also sets these inline as a fallback, so the intro still works
+   if this block is missing; this is the canonical source. */
+.c3-intro-canvas {
+  position: fixed;
+  inset: 0;
+  left: 0; top: 0; right: 0; bottom: 0;   /* inset fallback */
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 999;
+
+  /* the page underneath is still building - never eat its input */
+  pointer-events: none;
+  touch-action: none;
+  user-select: none;
+
+  background: #05070a;
+  opacity: 1;
+  transition: opacity 200ms linear;        /* JS overrides to 180ms on skip */
+  will-change: opacity;
+
+  /* 640x360 backing store stretched to cover: keep the pixels hard */
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;            /* older WebKit/Firefox */
+  object-fit: cover;
+}
+
+/* The skip hint is drawn on the canvas, not in the DOM - no extra elements.
+   If you ever want it as DOM instead, this is the matching treatment. */
+.c3-intro-skip {
+  position: fixed;
+  right: 12px;
+  bottom: 14px;
+  z-index: 1000;
+  pointer-events: none;
+  font: 10px/1.4 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  letter-spacing: 0.14em;
+  text-align: right;
+  text-transform: uppercase;
+  color: #9fb6c4;
+  opacity: 0.38;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* play() bails out before creating the canvas; belt and braces if one exists */
+  .c3-intro-canvas { display: none !important; }
+}
   </style>
 </head>
 <body>
@@ -837,16 +923,16 @@ body{min-height:100%; display:flex; flex-direction:column}
     <!-- The rack is a <ul> of real links, one tab stop, roving tabindex. It is
          built from arcade/manifest.json at runtime and is empty until then. -->
     <ul class="rack" id="rack" role="list"
-        aria-label="C³ Arcade cabinets — left and right arrow keys to browse"></ul>
+        aria-label="C³ Arcade cabinets — left and right arrow keys to turn the rack, Home and End for the first and last game"></ul>
 
     <div class="vig" aria-hidden="true"></div>
   </div>
 
   <div class="hud">
-    <span class="kb">&larr; &rarr; <b>Select</b></span>
+    <span class="kb">&larr; &rarr; <b>Turn</b></span>
     <span class="kb sep">&middot;</span>
     <span class="kb">Enter <b>Play</b></span>
-    <span class="touch">Swipe to browse &middot; tap a cabinet to play</span>
+    <span class="touch">Swipe to turn &middot; tap the centre cabinet to play</span>
     <span class="sep">&middot;</span>
     <a href="../../" target="_top">Back to the Kitchen</a>
   </div>
@@ -2320,6 +2406,902 @@ function face(g){
   + '</div>';
 }
 
+/* ══ the entry cinematic — procedural, 640x360, once per visit ══ */
+/* C3 ARCADE - entry cinematic. Self-contained, ES5, no deps, no media.
+   var Intro = createArcadeIntro();
+   var h = Intro.play(host, { games:[{title:'DEEP SIX', tint:'#8ef0d0'}] });
+   h.skip(); h.done.then(...)                                              */
+function createArcadeIntro() {
+  'use strict';
+
+  /* ---------------------------------------------------------------- consts */
+  var W = 640, H = 360, CX = 320, CY = 180, TAU = 6.283185307179586;
+
+  var T_COIN = 320, T_RUSH = 1050, T_MARQ = 1650, T_DOOR = 2000;
+  /* T_DOOR + FADE_OUT = 2200ms total */
+  var FADE_OUT = 200, FADE_SKIP = 180, HINT_AT = 600;
+
+  var C_BLACK = '#05070a', C_INK = '#090d13', C_PANEL = '#131a24',
+      C_PANEL2 = '#1b2430', C_STEEL = '#3a4653', C_BRASS = '#c8973f',
+      C_BRASS_HI = '#ebce93', C_BRASS_LO = '#8a6323', C_AMBER = '#f7b955',
+      C_ORANGE = '#ff9e4a', C_PHOS = '#8ef0d0', C_RED = '#ff6f57',
+      C_SLATE = '#9fb6c4', C_ICE = '#dbe8ef', C_WHITE = '#f4efe6';
+
+  var PAL_FALLBACK = [C_PHOS, C_AMBER, C_ICE, C_RED, C_ORANGE, C_BRASS_HI];
+  var MAXG = 12;
+
+  var S_WORDMARK = 'C³ ARCADE';
+  var S_COIN     = 'INSERT COIN';
+  var S_PRICE    = '25¢';
+  var S_SKIP1    = 'TAP TO SKIP';
+  var S_SKIP2    = 'PRESS ANY KEY';
+
+  /* ------------------------------------------------------------ 5x7 bitmap */
+  var FONT_KEYS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 .,\'!?-:³¢';
+  var FONT = [
+    /* A */ '.###.', '#...#', '#...#', '#####', '#...#', '#...#', '#...#',
+    /* B */ '####.', '#...#', '#...#', '####.', '#...#', '#...#', '####.',
+    /* C */ '.###.', '#...#', '#....', '#....', '#....', '#...#', '.###.',
+    /* D */ '####.', '#...#', '#...#', '#...#', '#...#', '#...#', '####.',
+    /* E */ '#####', '#....', '#....', '####.', '#....', '#....', '#####',
+    /* F */ '#####', '#....', '#....', '####.', '#....', '#....', '#....',
+    /* G */ '.###.', '#...#', '#....', '#.###', '#...#', '#...#', '.###.',
+    /* H */ '#...#', '#...#', '#...#', '#####', '#...#', '#...#', '#...#',
+    /* I */ '#####', '..#..', '..#..', '..#..', '..#..', '..#..', '#####',
+    /* J */ '..###', '...#.', '...#.', '...#.', '...#.', '#..#.', '.##..',
+    /* K */ '#...#', '#..#.', '#.#..', '##...', '#.#..', '#..#.', '#...#',
+    /* L */ '#....', '#....', '#....', '#....', '#....', '#....', '#####',
+    /* M */ '#...#', '##.##', '#.#.#', '#...#', '#...#', '#...#', '#...#',
+    /* N */ '#...#', '##..#', '#.#.#', '#..##', '#...#', '#...#', '#...#',
+    /* O */ '.###.', '#...#', '#...#', '#...#', '#...#', '#...#', '.###.',
+    /* P */ '####.', '#...#', '#...#', '####.', '#....', '#....', '#....',
+    /* Q */ '.###.', '#...#', '#...#', '#...#', '#.#.#', '#..#.', '.##.#',
+    /* R */ '####.', '#...#', '#...#', '####.', '#.#..', '#..#.', '#...#',
+    /* S */ '.####', '#....', '#....', '.###.', '....#', '....#', '####.',
+    /* T */ '#####', '..#..', '..#..', '..#..', '..#..', '..#..', '..#..',
+    /* U */ '#...#', '#...#', '#...#', '#...#', '#...#', '#...#', '.###.',
+    /* V */ '#...#', '#...#', '#...#', '#...#', '#...#', '.#.#.', '..#..',
+    /* W */ '#...#', '#...#', '#...#', '#.#.#', '#.#.#', '##.##', '#...#',
+    /* X */ '#...#', '#...#', '.#.#.', '..#..', '.#.#.', '#...#', '#...#',
+    /* Y */ '#...#', '#...#', '.#.#.', '..#..', '..#..', '..#..', '..#..',
+    /* Z */ '#####', '....#', '...#.', '..#..', '.#...', '#....', '#####',
+    /* 0 */ '.###.', '#...#', '#..##', '#.#.#', '##..#', '#...#', '.###.',
+    /* 1 */ '..#..', '.##..', '..#..', '..#..', '..#..', '..#..', '.###.',
+    /* 2 */ '.###.', '#...#', '....#', '...#.', '..#..', '.#...', '#####',
+    /* 3 */ '#####', '...#.', '..#..', '...#.', '....#', '#...#', '.###.',
+    /* 4 */ '...#.', '..##.', '.#.#.', '#..#.', '#####', '...#.', '...#.',
+    /* 5 */ '#####', '#....', '####.', '....#', '....#', '#...#', '.###.',
+    /* 6 */ '..##.', '.#...', '#....', '####.', '#...#', '#...#', '.###.',
+    /* 7 */ '#####', '....#', '...#.', '..#..', '.#...', '.#...', '.#...',
+    /* 8 */ '.###.', '#...#', '#...#', '.###.', '#...#', '#...#', '.###.',
+    /* 9 */ '.###.', '#...#', '#...#', '.####', '....#', '...#.', '.##..',
+    /*sp */ '.....', '.....', '.....', '.....', '.....', '.....', '.....',
+    /* . */ '.....', '.....', '.....', '.....', '.....', '.##..', '.##..',
+    /* , */ '.....', '.....', '.....', '.....', '.##..', '.##..', '.#...',
+    /* \'*/ '..#..', '..#..', '.....', '.....', '.....', '.....', '.....',
+    /* ! */ '..#..', '..#..', '..#..', '..#..', '..#..', '.....', '..#..',
+    /* ? */ '.###.', '#...#', '....#', '..##.', '..#..', '.....', '..#..',
+    /* - */ '.....', '.....', '.....', '#####', '.....', '.....', '.....',
+    /* : */ '.....', '.##..', '.##..', '.....', '.##..', '.##..', '.....',
+    /* ³ */ '###..', '...#.', '.##..', '...#.', '###..', '.....', '.....',
+    /* ¢ */ '..#..', '.###.', '#.#..', '#.#..', '#.#..', '.###.', '..#..'
+  ];
+
+  var GLYPH = {};
+  (function buildFont() {
+    var i, r, row, m, c, bits;
+    for (i = 0; i < FONT_KEYS.length; i++) {
+      bits = new Uint8Array(7);
+      for (r = 0; r < 7; r++) {
+        row = FONT[i * 7 + r]; m = 0;
+        for (c = 0; c < 5; c++) { if (row.charAt(c) === '#') m |= (1 << (4 - c)); }
+        bits[r] = m;
+      }
+      GLYPH[FONT_KEYS.charAt(i)] = bits;
+    }
+  })();
+
+  var SPACE = GLYPH[' '];
+
+  function textW(s, sc) { return s.length * 6 * sc - sc; }
+
+  /* one path, one fill -> no per-glyph state churn */
+  function text(ctx, s, x, y, sc, col) {
+    var i, r, c, bits, g, gx;
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    for (i = 0; i < s.length; i++) {
+      g = GLYPH[s.charAt(i)]; if (!g) g = SPACE;
+      gx = x + i * 6 * sc;
+      for (r = 0; r < 7; r++) {
+        bits = g[r]; if (!bits) continue;
+        for (c = 0; c < 5; c++) {
+          if (bits & (1 << (4 - c))) ctx.rect(gx + c * sc, y + r * sc, sc, sc);
+        }
+      }
+    }
+    ctx.fill();
+  }
+  function textC(ctx, s, cx, y, sc, col) {
+    text(ctx, s, (cx - textW(s, sc) * 0.5) | 0, y | 0, sc, col);
+  }
+  /* cheap chromatic fringe: two offset tints under a white core */
+  function textCX(ctx, s, cx, y, sc, a, b, core) {
+    textC(ctx, s, cx - sc, y, sc, a);
+    textC(ctx, s, cx + sc, y, sc, b);
+    textC(ctx, s, cx, y, sc, core);
+  }
+
+  /* ------------------------------------------------------------ colour ops */
+  function hex(h) {
+    var v = parseInt(h.charAt(0) === '#' ? h.slice(1) : h, 16);
+    return [(v >> 16) & 255, (v >> 8) & 255, v & 255];
+  }
+  function mix(a, b, t) {
+    var A = hex(a), B = hex(b);
+    var r = (A[0] + (B[0] - A[0]) * t) | 0,
+        g = (A[1] + (B[1] - A[1]) * t) | 0,
+        bl = (A[2] + (B[2] - A[2]) * t) | 0;
+    return '#' + ((1 << 24) | (r << 16) | (g << 8) | bl).toString(16).slice(1);
+  }
+
+  /* ------------------------------------------------------------------ PRNG */
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /* ------------------------------------------------------------- easing fns */
+  function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+  function easeOut(t) { var u = 1 - t; return 1 - u * u * u; }
+  function easeIn(t) { return t * t * t; }
+  function smooth(t) { return t * t * (3 - 2 * t); }
+
+  /* ===================================================== preallocated state */
+  var NB = 42, NA = 9, NS = 32;
+  var bandZ = new Float32Array(NB), bandY0 = new Float32Array(NB),
+      bandY1 = new Float32Array(NB), bandL = new Float32Array(NB),
+      bandS = new Int8Array(NB), bandT = new Uint8Array(NB);
+  var archZ = new Float32Array(NA);
+  var slA = new Float32Array(NS), slR = new Float32Array(NS), slL = new Float32Array(NS);
+  var tints = new Array(MAXG), tHot = new Array(MAXG), tDim = new Array(MAXG);
+  var titles = new Array(MAXG), titleOn = new Float32Array(MAXG);
+  var tDraw = new Array(MAXG), tX = new Float32Array(MAXG),
+      tY = new Float32Array(MAXG), tWpx = new Float32Array(MAXG);
+  var FALLBACK_TITLES = ['GAME ONE','GAME TWO','GAME THREE','GAME FOUR',
+    'GAME FIVE','GAME SIX','GAME SEVEN','GAME EIGHT','GAME NINE','GAME TEN',
+    'GAME ELEVEN','GAME TWELVE'];
+  var nT = 0, nG = 0;
+
+  var current = null;
+
+  /* ============================================================ the factory */
+  function play(host, opts) {
+    if (current) current._kill();
+
+    var reduce = false;
+    try {
+      reduce = !!(window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    } catch (e) { reduce = false; }
+
+    var resolve, done = new Promise(function (r) { resolve = r; });
+    var st = {
+      canvas: null, ctx: null, raf: 0, timer: 0, t0: -1,
+      frames: 0, dead: false, finishing: false, fadeAt: -1, fadeMs: FADE_OUT,
+      grad: null, vig: null, listeners: 0, host: host || document.body
+    };
+
+    /* ---- 3. reduced motion: draw nothing, resolve next frame ---- */
+    if (reduce) {
+      var rid = requestAnimationFrame(function () { st.dead = true; resolve(); });
+      current = null;
+      return {
+        done: done, frames: function () { return 0; }, reducedMotion: true,
+        skip: function () { cancelAnimationFrame(rid); if (!st.dead) { st.dead = true; resolve(); } },
+        _kill: function () { cancelAnimationFrame(rid); if (!st.dead) { st.dead = true; resolve(); } }
+      };
+    }
+
+    /* ---- games -> tints ---- */
+    var games = (opts && opts.games) || null;
+    nG = games && games.length ? Math.min(games.length, MAXG) : 0;
+    if (!nG) {
+      nG = 3;
+      for (var i = 0; i < 3; i++) {
+        tints[i] = PAL_FALLBACK[i]; titles[i] = FALLBACK_TITLES[i];
+      }
+    } else {
+      for (var i = 0; i < nG; i++) {
+        var g = games[i] || 0;
+        tints[i] = (g && g.tint) || PAL_FALLBACK[i % PAL_FALLBACK.length];
+        titles[i] = String((g && g.title) || '').toUpperCase();
+      }
+    }
+    for (var i = 0; i < nG; i++) {
+      tHot[i] = mix(tints[i], C_WHITE, 0.62);
+      tDim[i] = mix(tints[i], C_INK, 0.55);
+    }
+    nT = nG;
+
+    /* ---- seeded scene layout ---- */
+    var rnd = mulberry32(0x5EED1A + nG * 7717);
+    var DEPTH = 24;
+    for (var i = 0; i < NB; i++) {
+      bandZ[i] = (i / NB) * DEPTH + rnd() * 0.45;
+      bandS[i] = (i & 1) ? 1 : -1;
+      bandT[i] = (i + (rnd() * nG | 0)) % nG;
+      bandY0[i] = rnd();                 /* cabinet height jitter   */
+      bandY1[i] = 0.7 + rnd() * 0.3;     /* screen brightness jitter*/
+      bandL[i] = 0.5 + rnd() * 0.45;     /* cabinet depth           */
+    }
+    for (var i = 0; i < NA; i++) archZ[i] = (i / NA) * DEPTH;
+    for (var i = 0; i < NS; i++) {
+      slA[i] = rnd() * TAU; slR[i] = 0.05 + rnd() * 0.95; slL[i] = 0.4 + rnd() * 1.2;
+    }
+    for (var i = 0; i < nG; i++) titleOn[i] = 1215 + i * (330 / Math.max(1, nG));
+
+    /* title grid resolved once - no string or object work per frame */
+    var tCols = nT <= 6 ? 1 : 2;
+    var tRows = Math.ceil(nT / tCols);
+    var tLH = tRows <= 4 ? 26 : tRows <= 5 ? 23 : 20;
+    var tTop = 210 + (150 - tRows * tLH) * 0.5;
+    var tMax = ((((tCols === 1 ? 420 : 268) - 22) / 12) | 0);
+    for (var i = 0; i < nT; i++) {
+      var s0 = titles[i] || FALLBACK_TITLES[i];
+      if (s0.length > tMax) s0 = s0.slice(0, tMax);
+      tDraw[i] = s0;
+      tWpx[i] = textW(s0, 2);
+      var cc = (i / tRows) | 0;
+      var ccx = tCols === 1 ? CX : (cc === 0 ? CX - 150 : CX + 150);
+      tX[i] = (ccx - tWpx[i] * 0.5) | 0;
+      tY[i] = tTop + (i % tRows) * tLH;
+    }
+
+    /* ---- canvas ---- */
+    var cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    cv.className = 'c3-intro-canvas';
+    cv.setAttribute('aria-hidden', 'true');
+    var s = cv.style;   /* inline fallback so it still works without the CSS */
+    s.position = 'fixed'; s.left = '0'; s.top = '0'; s.right = '0'; s.bottom = '0';
+    s.width = '100%'; s.height = '100%'; s.zIndex = '999';
+    s.pointerEvents = 'none'; s.display = 'block'; s.background = C_BLACK;
+    s.imageRendering = 'pixelated'; s.opacity = '1';
+    s.transitionProperty = 'opacity'; s.transitionDuration = FADE_OUT + 'ms';
+    s.transitionTimingFunction = 'linear';
+    st.host.appendChild(cv);
+    st.canvas = cv;
+    var ctx = cv.getContext('2d', { alpha: false });
+    st.ctx = ctx;
+
+    /* gradients built once (user-space; moved with setTransform) */
+    var gg = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
+    gg.addColorStop(0, 'rgba(244,239,230,0.95)');
+    gg.addColorStop(0.18, 'rgba(247,185,85,0.55)');
+    gg.addColorStop(0.5, 'rgba(200,151,63,0.18)');
+    gg.addColorStop(1, 'rgba(5,7,10,0)');
+    st.grad = gg;
+    var vg = ctx.createRadialGradient(CX, CY, 110, CX, CY, 420);
+    vg.addColorStop(0, 'rgba(5,7,10,0)');
+    vg.addColorStop(0.6, 'rgba(5,7,10,0.35)');
+    vg.addColorStop(1, 'rgba(5,7,10,0.92)');
+    st.vig = vg;
+
+    /* ---- 2. skip listeners ---- */
+    function onSkip() { skip(); }
+    var OPT_P = { passive: true, capture: true };
+    var EVTS = ['pointerdown', 'keydown', 'wheel', 'touchstart'];
+    for (var i = 0; i < EVTS.length; i++) {
+      document.addEventListener(EVTS[i], onSkip, OPT_P); st.listeners++;
+    }
+    function unbind() {
+      if (!st.listeners) return;
+      for (var i = 0; i < EVTS.length; i++) {
+        document.removeEventListener(EVTS[i], onSkip, OPT_P); st.listeners--;
+      }
+    }
+
+    /* ---- lifecycle ---- */
+    function destroy() {
+      if (st.dead) return;
+      st.dead = true;
+      if (st.raf) { cancelAnimationFrame(st.raf); st.raf = 0; }
+      if (st.timer) { clearTimeout(st.timer); st.timer = 0; }
+      unbind();
+      if (cv.parentNode) cv.parentNode.removeChild(cv);
+      if (current === handle) current = null;
+      resolve();
+    }
+    function finish(ms) {
+      if (st.finishing || st.dead) return;
+      st.finishing = true; st.fadeMs = ms; st.fadeAt = -1;
+      cv.style.transitionDuration = ms + 'ms';
+      cv.style.opacity = '0';
+      st.timer = setTimeout(destroy, ms + 40);
+    }
+    function skip() {
+      if (st.finishing || st.dead) return;
+      if (st.t0 >= 0) { draw(T_DOOR - 4); }   /* hard-cut to the near-black end */
+      finish(FADE_SKIP);
+    }
+
+    /* ---- loop ---- */
+    function frame(ts) {
+      st.raf = requestAnimationFrame(frame);
+      if (st.dead) return;
+      if (st.t0 < 0) st.t0 = ts;
+      if (st.finishing) {
+        if (st.fadeAt < 0) st.fadeAt = ts;
+        if (ts - st.fadeAt >= st.fadeMs) destroy();
+        return;
+      }
+      var t = ts - st.t0;
+      if (t >= T_DOOR) { draw(T_DOOR - 1); finish(FADE_OUT); return; }
+      draw(t);
+    }
+    st.raf = requestAnimationFrame(frame);
+
+    /* ================================================================ DRAW */
+    function draw(t) {
+      st.frames++;
+      var c = ctx;
+      c.setTransform(1, 0, 0, 1, 0, 0);
+      c.globalAlpha = 1;
+
+      if (t < T_COIN) sceneCoin(c, t);
+      else if (t < T_RUSH) sceneRush(c, t);
+      else if (t < T_MARQ) sceneMarquee(c, t, 0);
+      else sceneDoors(c, t);
+
+      /* CRT pass over everything */
+      crt(c, t);
+
+      /* skip hint */
+      if (t >= HINT_AT && t < T_MARQ + 140) {
+        var fade = clamp01((t - HINT_AT) / 260);
+        var pulse = 0.30 + 0.16 * Math.sin(t * 0.0045);
+        c.globalAlpha = fade * pulse;
+        text(c, S_SKIP1, W - 12 - textW(S_SKIP1, 1), H - 26, 1, C_SLATE);
+        text(c, S_SKIP2, W - 12 - textW(S_SKIP2, 1), H - 16, 1, C_STEEL);
+        c.globalAlpha = 1;
+      }
+    }
+
+    /* ------------------------------------------------------- CRT / overlay */
+    function crt(c, t) {
+      /* rolling luminance bar */
+      var roll = ((t * 0.16) % 420) - 40;
+      c.globalAlpha = 0.045; c.fillStyle = C_ICE;
+      c.fillRect(0, roll, W, 26);
+      /* scanlines - one path, one fill */
+      c.globalAlpha = 0.24; c.fillStyle = C_BLACK;
+      c.beginPath();
+      for (var y = 0; y < H; y += 2) c.rect(0, y, W, 1);
+      c.fill();
+      /* vignette */
+      c.globalAlpha = 1; c.fillStyle = st.vig; c.fillRect(0, 0, W, H);
+    }
+
+    /* -------------------------------------------------- BEAT 1 : THE COIN */
+    function sceneCoin(c, t) {
+      var i;
+      c.fillStyle = C_BLACK; c.fillRect(0, 0, W, H);
+
+      /* we are standing at a cabinet: header, side bezels, dead screen, ledge */
+      c.fillStyle = C_INK;   c.fillRect(0, 0, W, 58);
+      c.fillStyle = C_PANEL; c.fillRect(0, 54, W, 4);
+      c.globalAlpha = 0.30;
+      textC(c, S_WORDMARK, CX, 14, 4, C_STEEL);
+      c.globalAlpha = 1;
+
+      c.fillStyle = C_INK; c.fillRect(0, 58, 92, 232); c.fillRect(W - 92, 58, 92, 232);
+      var sh = 214 / nG;
+      for (i = 0; i < nG; i++) {
+        c.globalAlpha = 0.45; c.fillStyle = tDim[i];
+        c.fillRect(76, 68 + i * sh, 9, sh - 7);
+        c.fillRect(W - 85, 68 + i * sh, 9, sh - 7);
+        c.globalAlpha = 1;
+      }
+      c.fillStyle = C_PANEL2; c.fillRect(92, 58, 4, 232); c.fillRect(W - 96, 58, 4, 232);
+
+      /* the dark screen we are about to wake up */
+      c.fillStyle = C_BLACK; c.fillRect(96, 58, W - 192, 232);
+      c.globalAlpha = 0.5; c.fillStyle = C_INK;
+      c.fillRect(104, 66, W - 208, 216); c.globalAlpha = 1;
+      for (i = 0; i < nG; i++) {          /* dim attract-mode bars */
+        c.globalAlpha = 0.22; c.fillStyle = tDim[i];
+        c.fillRect(126, 76 + i * (200 / nG), 60 + (i * 53) % 180, 5);
+        c.fillRect(W - 186 - ((i * 37) % 140), 236 - i * 9, 60 + (i * 29) % 120, 4);
+      }
+      c.globalAlpha = 1;
+
+      /* control ledge */
+      c.fillStyle = C_PANEL;  c.fillRect(0, 286, W, 74);
+      c.fillStyle = C_PANEL2; c.fillRect(0, 286, W, 5);
+      c.fillStyle = C_BLACK;  c.fillRect(0, 350, W, 10);
+      c.fillStyle = C_BRASS_LO; c.beginPath();
+      for (i = 0; i < 4; i++) { c.moveTo(468 + i * 33 + 8, 320); c.arc(468 + i * 33, 320, 8, 0, TAU); }
+      c.fill();
+      c.fillStyle = C_AMBER; c.beginPath();
+      for (i = 0; i < 4; i++) { c.moveTo(468 + i * 33 + 8, 317); c.arc(468 + i * 33, 317, 8, 0, TAU); }
+      c.fill();
+      c.fillStyle = C_BRASS_HI; c.beginPath();
+      for (i = 0; i < 4; i++) { c.moveTo(468 + i * 33 - 1, 314); c.arc(468 + i * 33 - 3, 314, 2.4, 0, TAU); }
+      c.fill();
+      c.fillStyle = C_STEEL; c.fillRect(140, 306, 7, 30);
+      c.fillStyle = C_PANEL2; c.fillRect(126, 332, 35, 8);
+      c.fillStyle = C_RED; c.beginPath(); c.moveTo(153, 304); c.arc(143, 304, 10, 0, TAU); c.fill();
+      c.fillStyle = C_BRASS_HI; c.beginPath(); c.moveTo(141, 300); c.arc(138, 300, 3, 0, TAU); c.fill();
+
+      /* INSERT COIN - hard blink, 92 on / 52 off */
+      var ph = t % 144;
+      if (ph < 92) {
+        textCX(c, S_COIN, CX, 150, 4, C_ORANGE, C_BRASS_LO, C_AMBER);
+        c.fillStyle = C_BRASS_LO; c.fillRect(CX - 130, 188, 260, 2);
+      } else if (ph < 108) {
+        c.globalAlpha = 0.3; textC(c, S_COIN, CX, 150, 4, C_BRASS_LO); c.globalAlpha = 1;
+      }
+
+      /* ---- the coin ---- */
+      var ENTER = 0, LAND = 176, SINK = 244, GONE = 300;
+      if (t > ENTER) {
+        var R = 25, yy, vy = 0;
+        var REST = 266;
+        if (t < LAND) {
+          var p = (t - ENTER) / (LAND - ENTER);
+          var q = p * p;                         /* gravity */
+          yy = -46 + (REST + 46) * q;
+          vy = (REST + 46) * 2 * p / (LAND - ENTER);
+        } else if (t < SINK) {
+          yy = REST + Math.sin((t - LAND) * 0.075) * 2.2;  /* settle wobble */
+        } else {
+          yy = REST + (t - SINK) * 0.62;                   /* sinks into the slot */
+        }
+        /* never fully edge-on: it has to stay readable at 640x360 */
+        var spin = 0.22 + 0.78 * Math.abs(Math.cos(t * 0.0275 + 0.4));
+        var rx = 2.6 + R * spin;
+
+        if (t < LAND) {                          /* motion streak along velocity */
+          c.globalAlpha = 0.32; c.fillStyle = C_BRASS_LO;
+          c.beginPath(); c.ellipse(CX, yy - vy * 11, rx, R, 0, 0, TAU); c.fill();
+          c.globalAlpha = 0.15;
+          c.beginPath(); c.ellipse(CX, yy - vy * 24, rx, R, 0, 0, TAU); c.fill();
+          c.globalAlpha = 1;
+        }
+        c.fillStyle = C_BRASS_LO;
+        c.beginPath(); c.ellipse(CX, yy + 3.5, rx, R, 0, 0, TAU); c.fill();
+        c.fillStyle = C_BRASS_HI;
+        c.beginPath(); c.ellipse(CX, yy, rx, R, 0, 0, TAU); c.fill();
+        c.fillStyle = C_BRASS;
+        c.beginPath(); c.ellipse(CX, yy + 1.4, rx * 0.84, R * 0.84, 0, 0, TAU); c.fill();
+        if (rx > 15) {
+          c.globalAlpha = clamp01((rx - 15) / 8);
+          textC(c, S_PRICE, CX, yy - 7, 2, C_BRASS_LO);
+          c.globalAlpha = 1;
+        }
+      }
+
+      /* slot bezel - after the coin, so the coin sinks behind it */
+      c.fillStyle = C_PANEL2; c.fillRect(244, 296, 152, 54);
+      c.fillStyle = C_STEEL;  c.fillRect(244, 296, 152, 2);
+      c.fillStyle = C_BLACK;  c.fillRect(244, 348, 152, 2);
+      c.fillStyle = C_BRASS;  c.fillRect(262, 302, 116, 22);
+      c.fillStyle = C_BRASS_HI; c.fillRect(262, 302, 116, 2);
+      c.fillStyle = C_BRASS_LO; c.fillRect(262, 322, 116, 2);
+      c.fillStyle = C_BLACK;  c.fillRect(300, 308, 40, 8);
+      c.fillStyle = C_BRASS_LO; c.fillRect(300, 316, 40, 2);
+      textC(c, S_PRICE, CX, 330, 2, (t % 288) < 188 ? C_AMBER : C_BRASS_LO);
+
+      /* hard white frame-flash on the drop */
+      if (t >= GONE && t < GONE + 14) { c.fillStyle = C_WHITE; c.fillRect(0, 0, W, H); }
+      else if (t >= GONE + 14) {
+        c.globalAlpha = 0.55; c.fillStyle = C_AMBER; c.fillRect(0, 0, W, H); c.globalAlpha = 1;
+      }
+    }
+
+    /* -------------------------------------------------- BEAT 2 : THE RUSH */
+    /* the camera runs analytically off t, so it is frame-rate independent */
+    function camZ(u) { return 26 * u + 132 * u * u * u; }
+
+    /* one trapezoid on a side wall between two depths - zero allocation */
+    function wallQ(c, x, y0, y1, f0, f1, vX, vY) {
+      var ax = vX + x * f0, bx = vX + x * f1;
+      c.beginPath();
+      c.moveTo(ax, vY + y0 * f0);
+      c.lineTo(bx, vY + y0 * f1);
+      c.lineTo(bx, vY + y1 * f1);
+      c.lineTo(ax, vY + y1 * f0);
+      c.closePath(); c.fill();
+    }
+
+    function sceneRush(c, t) {
+      var u = clamp01((t - T_COIN) / (T_RUSH - T_COIN));
+      var cz = camZ(u);
+      var spd = 0.12 + 1.5 * u * u;
+      var FOV = 318 + 74 * u;
+      var vX = CX + Math.sin(t * 0.021) * 3.4 * u;
+      var vY = CY + Math.cos(t * 0.017) * 2.6 * u;
+      var DL = 24, ZN = 0.34;
+      var i, z, f0, f1, f2, k, near, len, x, top, a;
+
+      c.fillStyle = C_BLACK; c.fillRect(0, 0, W, H);
+
+      /* rails converging on the vanishing point */
+      c.strokeStyle = C_PANEL2; c.lineWidth = 1; c.globalAlpha = 0.9;
+      c.beginPath();
+      for (i = 0; i < 11; i++) {
+        a = -0.5 + i / 10;
+        c.moveTo(vX, vY); c.lineTo(vX + a * 1500, vY + 950);
+        c.moveTo(vX, vY); c.lineTo(vX + a * 1500, vY - 950);
+      }
+      c.stroke();
+
+      /* floor / ceiling depth rungs */
+      c.strokeStyle = C_STEEL; c.globalAlpha = 0.4; c.beginPath();
+      for (i = 0; i < 18; i++) {
+        z = (((i / 18) * DL - cz) % DL + DL) % DL + ZN;
+        f0 = FOV / z;
+        c.moveTo(vX - 1.04 * f0, vY + 0.66 * f0); c.lineTo(vX + 1.04 * f0, vY + 0.66 * f0);
+        c.moveTo(vX - 1.04 * f0, vY - 0.70 * f0); c.lineTo(vX + 1.04 * f0, vY - 0.70 * f0);
+      }
+      c.stroke(); c.globalAlpha = 1;
+
+      /* the corridor furniture, far to near */
+      for (i = NB - 1; i >= 0; i--) {
+        z = ((bandZ[i] - cz) % DL + DL) % DL + ZN;
+        if (z > 20) continue;
+        k = bandT[i];
+        near = clamp01((16 - z) / 16);
+        x = bandS[i];
+
+        if (i % 3 === 0) {
+          /* ceiling neon strip: stretches hard with speed - this is the streak */
+          len = 0.8 + spd * 7.0;
+          f0 = FOV / z; f1 = FOV / (z + len);
+          c.globalAlpha = 0.30 + 0.70 * near; c.fillStyle = tints[k];
+          wallQ(c, x, -0.70, -0.585, f0, f1, vX, vY);
+          c.globalAlpha = 0.45 + 0.55 * near; c.fillStyle = tHot[k];
+          wallQ(c, x, -0.70, -0.662, f0, f1, vX, vY);
+          c.globalAlpha = near * 0.10; c.fillStyle = tDim[k];
+          wallQ(c, -x, -0.70, -0.56, f0, f1, vX, vY);
+          /* the strip's light thrown across the ceiling and down onto the floor */
+          c.globalAlpha = near * 0.07; c.fillStyle = tints[k];
+          c.beginPath();
+          c.moveTo(vX + x * f0, vY - 0.70 * f0); c.lineTo(vX + x * 0.42 * f0, vY - 0.70 * f0);
+          c.lineTo(vX + x * 0.42 * f1, vY - 0.70 * f1); c.lineTo(vX + x * f1, vY - 0.70 * f1);
+          c.closePath(); c.fill();
+          c.globalAlpha = near * 0.10;
+          c.beginPath();
+          c.moveTo(vX + x * f0, vY + 0.66 * f0); c.lineTo(vX + x * 0.42 * f0, vY + 0.66 * f0);
+          c.lineTo(vX + x * 0.42 * f1, vY + 0.66 * f1); c.lineTo(vX + x * f1, vY + 0.66 * f1);
+          c.closePath(); c.fill();
+          c.globalAlpha = 1;
+          continue;
+        }
+
+        /* a cabinet standing against the wall */
+        len = bandL[i];
+        top = -0.60 + bandY0[i] * 0.13;
+        f0 = FOV / z; f1 = FOV / (z + len);
+
+        c.globalAlpha = 1;
+        c.fillStyle = z < 4.5 ? C_PANEL : C_INK;
+        wallQ(c, x, top, 0.66, f0, f1, vX, vY);                    /* body      */
+        c.fillStyle = C_PANEL2;
+        wallQ(c, x, top, top + 0.035, f0, f1, vX, vY);             /* top cap   */
+        c.globalAlpha = (0.5 + 0.5 * near) * bandY1[i];
+        c.fillStyle = tHot[k];
+        wallQ(c, x, top + 0.06, top + 0.19, f0, f1, vX, vY);       /* marquee   */
+        c.globalAlpha = (0.55 + 0.45 * near) * bandY1[i];
+        c.fillStyle = tints[k];
+        wallQ(c, x, top + 0.27, top + 0.60, f0, f1, vX, vY);       /* screen    */
+        c.globalAlpha = 0.9; c.fillStyle = C_BLACK;
+        wallQ(c, x, top + 0.66, top + 0.78, f0, f1, vX, vY);       /* ledge     */
+        c.globalAlpha = 0.45 * near; c.fillStyle = C_STEEL;
+        wallQ(c, x, top + 0.62, top + 0.66, f0, f1, vX, vY);
+
+        /* drawn twice, offset along velocity: the screen smeared backwards */
+        if (near > 0.22) {
+          f2 = FOV / (z + len + spd * 3.4);
+          c.globalAlpha = (near - 0.22) * 0.5; c.fillStyle = tints[k];
+          wallQ(c, x, top + 0.27, top + 0.60, f1, f2, vX, vY);
+          c.globalAlpha = (near - 0.22) * 0.13; c.fillStyle = tDim[k];
+          wallQ(c, -x, top + 0.25, top + 0.72, f0, f1, vX, vY);    /* glow cast */
+          /* and pooled on the floor in front of it */
+          c.globalAlpha = (near - 0.22) * 0.13; c.fillStyle = tints[k];
+          c.beginPath();
+          c.moveTo(vX + x * f0, vY + 0.66 * f0); c.lineTo(vX + x * 0.40 * f0, vY + 0.66 * f0);
+          c.lineTo(vX + x * 0.40 * f1, vY + 0.66 * f1); c.lineTo(vX + x * f1, vY + 0.66 * f1);
+          c.closePath(); c.fill();
+        }
+        c.globalAlpha = 1;
+      }
+
+      /* doorway frames rushing past */
+      for (i = 0; i < NA; i++) {
+        z = ((archZ[i] - cz) % DL + DL) % DL + ZN;
+        if (z > 7) continue;
+        f0 = FOV / z;
+        c.globalAlpha = clamp01((7 - z) / 7) * 0.40;
+        c.strokeStyle = z < 2.5 ? C_STEEL : C_PANEL2;
+        c.lineWidth = z < 2 ? 4 : 2;
+        c.strokeRect(vX - 1.04 * f0, vY - 0.70 * f0, 2.08 * f0, 1.36 * f0);
+      }
+      c.lineWidth = 1; c.globalAlpha = 1;
+
+      /* speed streaks off the vanishing point */
+      c.strokeStyle = C_ICE; c.globalAlpha = 0.07 + 0.48 * u;
+      c.beginPath();
+      for (i = 0; i < NS; i++) {
+        var r0 = (slR[i] * 520 + cz * 28) % 560;
+        var r1 = r0 + slL[i] * (8 + 150 * u * u);
+        var ca = Math.cos(slA[i]), sa = Math.sin(slA[i]);
+        c.moveTo(vX + ca * r0, vY + sa * r0);
+        c.lineTo(vX + ca * r1, vY + sa * r1);
+      }
+      c.stroke(); c.globalAlpha = 1;
+
+      /* the vanishing point, growing */
+      var gr = 14 + 320 * easeIn(u);
+      c.save();
+      c.setTransform(gr, 0, 0, gr, vX, vY);
+      c.fillStyle = st.grad; c.globalAlpha = 0.5 + 0.5 * u;
+      c.fillRect(-1, -1, 2, 2);
+      c.restore(); c.globalAlpha = 1;
+
+      /* single-frame tint strobes as it accelerates */
+      if (u > 0.22 && (t % 118) < 17) {
+        c.globalAlpha = 0.08 + 0.14 * u;
+        c.fillStyle = tHot[((t * 0.009) | 0) % nG];
+        c.fillRect(0, 0, W, H); c.globalAlpha = 1;
+      }
+      /* blow out into the marquee */
+      if (u > 0.93) {
+        c.globalAlpha = smooth((u - 0.93) / 0.07);
+        c.fillStyle = C_WHITE; c.fillRect(0, 0, W, H); c.globalAlpha = 1;
+      }
+    }
+
+    /* ----------------------------------------------- BEAT 3 : THE MARQUEE */
+    function sceneMarquee(c, t, lunge) {
+      var m = clamp01((t - T_RUSH) / 420);
+      /* tiny -> 1.14 overshoot -> settle */
+      var sc = m < 0.72 ? 0.10 + 1.04 * easeOut(m / 0.72)
+                        : 1.14 - 0.14 * smooth((m - 0.72) / 0.28);
+      sc += lunge;
+
+      var i;
+      c.fillStyle = C_INK; c.fillRect(0, 0, W, H);
+
+      /* residual corridor behind the sign so we are still "in" the arcade */
+      c.strokeStyle = C_PANEL; c.lineWidth = 1; c.beginPath();
+      for (i = 0; i < 12; i++) {
+        var a = -0.5 + i / 11;
+        c.moveTo(CX, CY); c.lineTo(CX + a * 1300, CY + 820);
+        c.moveTo(CX, CY); c.lineTo(CX + a * 1300, CY - 820);
+      }
+      c.stroke();
+
+      /* floor + the two cabinets we are standing between */
+      c.fillStyle = C_BLACK; c.fillRect(0, 300, W, 60);
+      c.fillStyle = C_PANEL; c.fillRect(0, 298, W, 3);
+      for (i = 0; i < 2; i++) {
+        var bx2 = i ? W - 46 : 0;
+        c.fillStyle = C_INK;    c.fillRect(bx2, 132, 46, 170);
+        c.fillStyle = C_PANEL2; c.fillRect(bx2, 132, 46, 6);
+        c.globalAlpha = 0.55; c.fillStyle = tHot[i % nG];
+        c.fillRect(bx2 + 6, 146, 34, 9);
+        c.globalAlpha = 0.38; c.fillStyle = tints[i % nG];
+        c.fillRect(bx2 + 6, 166, 34, 30);
+        c.globalAlpha = 1;
+        c.fillStyle = C_BLACK; c.fillRect(bx2 + 4, 206, 38, 10);
+      }
+
+      /* arrival flash - short and hard */
+      if (t - T_RUSH < 20) {
+        c.globalAlpha = 1 - (t - T_RUSH) / 20;
+        c.fillStyle = C_WHITE; c.fillRect(0, 0, W, H); c.globalAlpha = 1;
+      }
+
+      /* ---- the sign, scaled about its own centre ---- */
+      var SY = 118;
+      c.save();
+      c.translate(CX, SY);
+      c.scale(sc, sc);
+      c.translate(-CX, -SY);
+
+      var PX = CX - 232, PY = SY - 58, PW = 464, PH = 116;
+
+      /* glow bed */
+      c.globalAlpha = 0.16; c.fillStyle = C_AMBER;
+      c.fillRect(PX - 14, PY - 12, PW + 28, PH + 24); c.globalAlpha = 1;
+
+      /* motion ghost: the sign drawn again, larger, along its approach */
+      if (m < 0.68) {
+        var gk = (0.68 - m) * 0.5;
+        c.globalAlpha = gk * 0.55; c.fillStyle = C_BRASS_LO;
+        var gw = PW * (1 + gk * 2.6), gh = PH * (1 + gk * 2.6);
+        c.fillRect(CX - gw / 2, SY - gh / 2, gw, gh);
+        c.globalAlpha = gk * 0.5; c.fillStyle = C_INK;
+        c.fillRect(CX - gw / 2 + 6, SY - gh / 2 + 6, gw - 12, gh - 12);
+        c.globalAlpha = 1;
+      }
+
+      c.fillStyle = C_PANEL;  c.fillRect(PX, PY, PW, PH);
+      c.fillStyle = C_BRASS;  c.fillRect(PX, PY, PW, 5);
+      c.fillRect(PX, PY + PH - 5, PW, 5);
+      c.fillRect(PX, PY, 5, PH); c.fillRect(PX + PW - 5, PY, 5, PH);
+      c.fillStyle = C_BRASS_HI; c.fillRect(PX + 2, PY + 2, PW - 4, 1);
+      c.fillStyle = C_BRASS_LO; c.fillRect(PX + 5, PY + PH - 7, PW - 10, 2);
+      c.fillStyle = C_INK; c.fillRect(PX + 12, PY + 12, PW - 24, PH - 24);
+
+      /* chase bulbs */
+      var phase = ((t * 0.024) | 0);
+      var N = 27;
+      c.fillStyle = C_BRASS_LO; c.beginPath();
+      for (i = 0; i < N; i++) {
+        var bx = PX + 16 + i * ((PW - 32) / (N - 1));
+        if ((i + phase) % 3 === 0) continue;
+        c.moveTo(bx + 3.2, PY + 7); c.arc(bx, PY + 7, 3.2, 0, TAU);
+        c.moveTo(bx + 3.2, PY + PH - 7); c.arc(bx, PY + PH - 7, 3.2, 0, TAU);
+      }
+      c.fill();
+      c.fillStyle = C_AMBER; c.beginPath();
+      for (i = 0; i < N; i++) {
+        var bx = PX + 16 + i * ((PW - 32) / (N - 1));
+        if ((i + phase) % 3 !== 0) continue;
+        c.moveTo(bx + 4.4, PY + 7); c.arc(bx, PY + 7, 4.4, 0, TAU);
+        c.moveTo(bx + 4.4, PY + PH - 7); c.arc(bx, PY + PH - 7, 4.4, 0, TAU);
+      }
+      c.fill();
+      c.fillStyle = C_WHITE; c.beginPath();
+      for (i = 0; i < N; i++) {
+        var bx = PX + 16 + i * ((PW - 32) / (N - 1));
+        if ((i + phase) % 3 !== 0) continue;
+        c.moveTo(bx + 1.5, PY + 7); c.arc(bx, PY + 7, 1.5, 0, TAU);
+        c.moveTo(bx + 1.5, PY + PH - 7); c.arc(bx, PY + PH - 7, 1.5, 0, TAU);
+      }
+      c.fill();
+
+      /* wordmark, chromatic fringe, occasional dropout */
+      var glitch = (t % 620) < 26;
+      if (lunge > 0.45) {          /* too magnified for a 1px fringe to read */
+        textC(c, S_WORDMARK, CX, SY - 28, 8, C_WHITE);
+      } else {
+        textCX(c, S_WORDMARK, CX, SY - 28, 8,
+               tints[0], C_RED, glitch ? C_ICE : C_WHITE);
+      }
+      if (glitch) {
+        c.globalAlpha = 0.5; c.fillStyle = C_INK;
+        c.fillRect(PX + 12, SY - 12 + ((t % 60) | 0) * 0.4, PW - 24, 5);
+        c.globalAlpha = 1;
+      }
+
+      /* price + credit line on the sign */
+      text(c, S_PRICE, PX + PW - 24 - textW(S_PRICE, 2), PY + PH - 26, 2, C_BRASS_HI);
+      text(c, S_COIN, PX + 22, PY + PH - 26, 2, (t % 300) < 200 ? C_AMBER : C_BRASS_LO);
+
+      c.restore();
+
+      /* ---- game titles flicker on, one by one, in their own tints ---- */
+      for (i = 0; i < nT; i++) {
+        var age = t - titleOn[i];
+        if (age < 0) continue;
+        /* hard flicker frames, then solid */
+        var on = age > 52 ? 1 : (age < 12 ? 1 : age < 24 ? 0 : age < 34 ? 1 : age < 44 ? 0 : 1);
+        if (!on) continue;
+        var tx = tX[i], yy = tY[i], tw = tWpx[i];
+        if (age < 90) {
+          c.globalAlpha = 0.26 * (1 - age / 90); c.fillStyle = tints[i];
+          c.fillRect(tx - 9, yy - 4, tw + 18, 23); c.globalAlpha = 1;
+        }
+        c.fillStyle = tints[i];
+        c.fillRect(tx - 13, yy + 3, 5, 8);
+        c.fillRect(tx + tw + 8, yy + 3, 5, 8);
+        text(c, tDraw[i], tx + 1, yy + 1, 2, tDim[i]);
+        text(c, tDraw[i], tx, yy, 2, age > 52 ? tints[i] : tHot[i]);
+        c.globalAlpha = 0.5; c.fillStyle = tDim[i];
+        c.fillRect(tx, yy + 17, tw, 1); c.globalAlpha = 1;
+      }
+    }
+
+    /* ------------------------------------------------- BEAT 4 : THE DOORS */
+    function sceneDoors(c, t) {
+      var p = clamp01((t - T_MARQ) / 220);
+      var e = smooth(p);
+
+      /* camera lunges through the sign while the shutters come in */
+      sceneMarquee(c, T_RUSH + 420, 1.0 * easeIn(p) + 0.55 * p);
+      c.globalAlpha = 0.06 + 0.30 * e; c.fillStyle = C_WHITE;
+      c.fillRect(0, 0, W, H); c.globalAlpha = 1;
+
+      var dw = 326, travel = 0.07 + 0.93 * e;
+      door(c, -dw + dw * travel, 1);
+      door(c, W - dw * travel, -1);
+
+      if (p >= 1) {
+        var since = t - (T_MARQ + 220);
+        if (since < 18) { c.fillStyle = C_WHITE; c.fillRect(0, 0, W, H); }
+        else {
+          var q = clamp01((since - 18) / 110);
+          var hgt = (1 - q) * 182;
+          c.globalAlpha = 1 - q; c.fillStyle = C_AMBER;
+          c.fillRect(CX - 3, CY - hgt, 6, hgt * 2);
+          c.globalAlpha = (1 - q) * 0.7; c.fillStyle = C_WHITE;
+          c.fillRect(CX - 1, CY - hgt * 0.66, 2, hgt * 1.32);
+          c.globalAlpha = 1;
+        }
+        /* sink to near-black so the hand-off to the room is invisible */
+        var kk = clamp01((since - 30) / 105);
+        if (kk > 0) {
+          c.globalAlpha = kk; c.fillStyle = C_BLACK;
+          c.fillRect(0, 0, W, H); c.globalAlpha = 1;
+        }
+      }
+    }
+
+    /* one shutter panel; dir = 1 means its leading edge is on the right */
+    function door(c, x, dir) {
+      var lead = dir > 0 ? x + 326 : x, i, cy2;
+      c.fillStyle = C_BLACK; c.fillRect(x, 0, 326, H);
+      /* roll-shutter slats */
+      c.fillStyle = C_PANEL;
+      for (i = 0; i < 26; i++) c.fillRect(x, i * 14, 326, 11);
+      c.fillStyle = C_INK;
+      for (i = 0; i < 26; i++) c.fillRect(x, i * 14 + 9, 326, 3);
+      /* vertical stiffeners */
+      c.fillStyle = C_PANEL2;
+      c.fillRect(lead - dir * (dir > 0 ? 78 : 68), 0, 10, H);
+      c.fillRect(lead - dir * (dir > 0 ? 178 : 168), 0, 10, H);
+      c.fillRect(lead - dir * (dir > 0 ? 278 : 268), 0, 10, H);
+      /* chevrons pointing at the seam */
+      c.fillStyle = C_STEEL;
+      c.beginPath();
+      for (i = 0; i < 5; i++) {
+        cy2 = 44 + i * 70;
+        c.moveTo(lead - dir * 104, cy2 - 21);
+        c.lineTo(lead - dir * 68,  cy2);
+        c.lineTo(lead - dir * 104, cy2 + 21);
+        c.lineTo(lead - dir * 88,  cy2 + 21);
+        c.lineTo(lead - dir * 52,  cy2);
+        c.lineTo(lead - dir * 88,  cy2 - 21);
+        c.closePath();
+      }
+      c.fill();
+      /* rivets */
+      c.fillStyle = C_SLATE;
+      c.beginPath();
+      for (i = 0; i < 9; i++) c.rect(lead - dir * 22 - 1, 16 + i * 39, 3, 3);
+      c.fill();
+      /* lit brass leading edge */
+      c.globalAlpha = 0.30; c.fillStyle = C_AMBER;
+      c.fillRect(dir > 0 ? lead - 30 : lead + 10, 0, 20, H);
+      c.globalAlpha = 1;
+      c.fillStyle = C_BRASS;    c.fillRect(dir > 0 ? lead - 10 : lead, 0, 10, H);
+      c.fillStyle = C_BRASS_HI; c.fillRect(dir > 0 ? lead - 4 : lead, 0, 4, H);
+      c.fillStyle = C_BRASS_LO; c.fillRect(dir > 0 ? lead - 13 : lead + 10, 0, 3, H);
+    }
+
+    /* ---------------------------------------------------------- the handle */
+    var handle = {
+      done: done,
+      skip: skip,
+      frames: function () { return st.frames; },
+      reducedMotion: false,
+      _kill: function () { unbind(); destroy(); }
+    };
+    current = handle;
+    return handle;
+  }
+
+  return { play: play };
+}
+
 /* ══ the station runtime ══ */
 (function () {
   'use strict';
@@ -2492,6 +3474,33 @@ function face(g){
   var centre = 0, heroH = 0;
   var crt = null, attract = null, crtHandle = null;
 
+  /* ── the ring ─────────────────────────────────────────────────────────
+     `pos` is where the carousel is standing, measured in cabinets, and it is
+     allowed to be fractional (a drag) and unbounded (the tenth rotation to the
+     right is pos 10, not pos 1). Everything on screen is derived from it:
+       track transform  = -pos * step
+       slot i transform = (i + win[i] * N) * step
+     so a cabinet's offset from the centre is ((i + win[i]*N) - pos) cabinets,
+     and the two transforms compose to put it there. One write per frame on the
+     track; a slot is only written when it recycles or when the room resizes. */
+  var N = 0;              // cabinets on the ring
+  var WRAP = false;       // does it go round? (three or more — see rotateBy)
+  var pos = 0;            // current ring position, in cabinets
+  var target = 0;         // where it is heading
+  var vel = 0;            // spring velocity, cabinets per tick
+  var step = 0;           // centre-to-centre spacing, px
+  var span = 0;           // half the room's width, px
+  var cabW = 0;           // one cabinet's rendered width, px
+  var win = [], lastTx = [], lastOp = [], lastVis = [];
+  var raf = 0, lastTs = 0, acc = 0;
+  var wantSay = false;    // announce the selection when this move settles
+  var swallowClick = false;
+
+  var rmq = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
+  function noMotion() { return !!(rmq && rmq.matches); }
+
+  function wrapIndex(i) { return N ? (((i % N) + N) % N) : 0; }
+
   function buildRack(games, knownSlugs) {
     GAMES = games;
     var html = '';
@@ -2506,11 +3515,26 @@ function face(g){
       html += '<li class="slot" data-slot="' + (i - centre) + '" data-geo="front" data-lod="0"'
            +  ' data-wired="' + (wired ? 'yes' : 'no') + '"'
            +  ' style="--tint:' + g.tint + ';--tint-rgb:' + g.rgb + ';--mq-fit:' + fit + '">'
-           +  '<a class="link" href="' + esc(internalHref(g.slug)) + '" tabindex="-1"'
+           /* draggable="false" is LOAD-BEARING, not tidiness. Every cabinet is
+              an <a href>, and a browser's own answer to "mouse down on a link
+              and move" is to start a native link drag — which fires
+              pointercancel at our swipe handler halfway through the gesture,
+              so the rack read the abort as a flick and span. The href stays,
+              and with it middle-click and long-press "Copy Link". */
+           +  '<a class="link" draggable="false" href="' + esc(internalHref(g.slug)) + '" tabindex="-1"'
            +    ' data-i="' + i + '"' + (wired ? '' : ' aria-disabled="true"') + '>'
-           +    '<span class="enter" style="--delay:' + (i * 70) + 'ms">'
+           /* The stagger runs OUT FROM THE SELECTED CABINET, not left to
+              right along the roster, and it is capped. In DOM order a twelve
+              game rack took 1.4s to finish lighting up and most of that was
+              spent on cabinets standing off-stage behind the wall. Out from
+              the centre, the machine the rep is looking at lights first. */
+           +    '<span class="enter" style="--delay:' + (Math.min(5, Math.abs(i - centre)) * 70) + 'ms">'
            +      '<span class="cab">'
-           +        geoFront('g' + i, g) + geoTQL('g' + i, g) + geoTQR('g' + i, g)
+           /* Front geometry ONLY. The three-quarter cabinets are parked (see
+              the banner above geoTQL) and no longer reach the DOM at all —
+              leaving two never-rendered <svg>s inside every cabinet would be
+              twenty-four dead subtrees on a twelve-game roster. */
+           +        geoFront('g' + i, g)
            +        face(g)
            +        '<span class="contact"></span><span class="dim"></span>'
            +      '</span>'
@@ -2521,6 +3545,16 @@ function face(g){
 
     slots = Array.prototype.slice.call(rack.querySelectorAll('.slot'));
     links = slots.map(function (s) { return s.querySelector('.link'); });
+
+    /* Ring bookkeeping, one entry per cabinet. `win` is a winding number: the
+       cabinet's place on the ring is (i + win[i] * N), so going round is a
+       single integer change and never a reshuffle of the DOM. The three
+       `last*` arrays exist so paintRing() can write a slot's style only when
+       the value actually changed — the frame loop touches one element. */
+    N    = games.length;
+    WRAP = N >= 3;
+    win = []; lastTx = []; lastOp = []; lastVis = [];
+    for (var w = 0; w < N; w++) { win[w] = 0; lastTx[w] = NaN; lastOp[w] = -1; lastVis[w] = null; }
 
     /* An un-wired cabinet says so on its own apron rather than in a banner. */
     for (var k = 0; k < games.length; k++) {
@@ -2535,8 +3569,19 @@ function face(g){
     pools.innerHTML = games.map(function () { return '<div class="pool"></div>'; }).join('');
     poolEls = Array.prototype.slice.call(pools.children);
 
+    /* THE CLICK MODEL, and it changed in this version.
+       There is a definite selection now, so a cabinet means two things
+       depending on where it is standing:
+         - not centred -> rotate it to the centre. It does NOT launch.
+         - centred     -> launch, through the postMessage handshake below.
+       Both branches keep the anchor a real <a href="#/tool/<slug>">: a side
+       cabinet only preventDefault()s the activation, so middle-click, long
+       press and a screen reader's link list still hand out the site's own
+       address, and no repository hostname exists to leak. */
     links.forEach(function (a, i) {
       a.addEventListener('click', function (ev) {
+        if (swallowClick) { ev.preventDefault(); swallowClick = false; return; }
+        if (i !== centre) { ev.preventDefault(); go(i); return; }
         if (!GAMES[i].wired) { ev.preventDefault(); say(GAMES[i].title + ' is not wired up yet.'); return; }
         launch(GAMES[i], ev);
       });
@@ -2552,32 +3597,135 @@ function face(g){
     return '1';
   }
 
+  /* ── the ring, measured ───────────────────────────────────────────────
+     How far apart the cabinets stand. This is the one place that decides it,
+     because it needs the cabinet's rendered WIDTH (which comes from the
+     viewport's height, through --hero-h) and the room's width at the same
+     time, and no media query can see both.
+
+     `peek` is how much of a neighbour you are meant to see, and the step falls
+     out of it: the neighbour's inner edge lands `peek` px inside the room's
+     edge. Three bands, matching the note above the breakpoints in the CSS. */
+  function layout() {
+    span = (room.clientWidth || document.documentElement.clientWidth || 2) / 2;
+    cabW = slots.length ? slots[0].getBoundingClientRect().width : 0;
+    if (!cabW) cabW = span * 0.4;
+
+    var W = span * 2, peek;
+    if (W >= 1040)     peek = cabW;         // three full cabinets
+    else if (W >= 720) peek = cabW * 0.55;  // one full, over half of each neighbour
+    else               peek = 20;           // one full, a sliver of each neighbour
+
+    step = span + cabW / 2 - peek;
+
+    /* At three-across, the step that shows the neighbours WHOLE also pins them
+       to the walls, where the vignette eats them and the room looks like a
+       shelf. Pull them in — but never closer than 1.06 cabinets, or two
+       machines touch. */
+    if (W >= 1040) step = Math.min(step, cabW * 1.62);
+    step = Math.max(step, cabW * 1.06);
+  }
+
+  /** Slot i's signed offset from the centre, in cabinets, and the one place
+      the ring recycles. The winding is adjusted so the answer always lands in
+      (-N/2, +N/2], which means a cabinet jumps from one end of the ring to the
+      other exactly once per lap, at |offset| = N/2 — the furthest point from
+      the centre, which is where paintRing() has already faded it out. */
+  function offsetOf(i) {
+    var d = (i + win[i] * N) - pos;
+    if (!WRAP) return d;
+    var half = N / 2;
+    while (d >   half) { win[i] -= 1; d -= N; }
+    while (d <= -half) { win[i] += 1; d += N; }
+    return d;
+  }
+
+  /* ── one frame ────────────────────────────────────────────────────────
+     The track gets exactly one transform write. A slot is written only when
+     its winding changed (a recycle), when the room resized, or when it crosses
+     into or out of the fade zone — so a normal rotation is one style write per
+     frame however many games are on the roster.
+
+     THE FADE, and when it is even visible. A recycle is invisible if the
+     cabinet is fully clipped by the room when it jumps, i.e. if N/2 steps is
+     further out than the room's edge plus half a cabinet. layout() gets that
+     for free at four games and up. At exactly THREE games it cannot: three
+     cabinets on a three-cabinet ring means the far side of the ring IS the
+     stage, and there is nowhere off-stage to jump from. So the last fraction
+     of a lap is an opacity dissolve — the machine walks out of the light at
+     one wall and back in at the other, which in a dark break room reads as
+     what it is. Opacity only; nothing here touches filter. */
+  function paintRing() {
+    if (!slots.length || !step) return;
+    var offStage  = (span + cabW / 2) / step;
+    var edge      = WRAP ? N / 2 : Infinity;
+    /* Start the dissolve the moment the cabinet is off-stage, or 0.42 of a
+       cabinet before it recycles, whichever comes FIRST. At four games and up
+       (and at three on a phone) `offStage` wins and the whole fade happens
+       behind the wall, so nothing is ever seen to fade. At exactly three games
+       on a wide screen nothing can win — a three-cabinet ring showing three
+       cabinets has no behind-the-wall — and 0.42 is what is left: long enough
+       to read as a machine walking out of the light, where 0.12 read as a
+       flicker. */
+    var fadeStart = WRAP ? Math.min(offStage, edge - 0.42) : Infinity;
+    var fadeSpan  = edge - fadeStart;
+
+    for (var i = 0; i < slots.length; i++) {
+      var d  = offsetOf(i);
+      var ad = d < 0 ? -d : d;
+
+      var op = 1;
+      if (WRAP && ad > fadeStart && fadeSpan > 0) {
+        op = (edge - ad) / fadeSpan;
+        if (op < 0) op = 0; else if (op > 1) op = 1;
+        op = Math.round(op * 100) / 100;
+      }
+      var vis = (op > 0.005) && (ad <= offStage + 0.02);
+      /* A cabinet the rack has focus on is NEVER hidden. visibility:hidden
+         blurs whatever is inside it, focus falls back to <body>, and the
+         rack's keydown listener — the only thing arrow keys reach — stops
+         firing for the rest of the page's life. Held presses used to push the
+         outgoing cabinet past the wall while it still had focus, and the
+         keyboard went dead on the third press. */
+      if (!vis && slots[i].contains(document.activeElement)) vis = true;
+
+      var tx = (i + win[i] * N) * step;
+      if (tx !== lastTx[i]) { slots[i].style.transform = 'translateX(' + tx + 'px)'; lastTx[i] = tx; }
+      if (op !== lastOp[i]) { slots[i].style.opacity = (op === 1 ? '' : String(op)); lastOp[i] = op; }
+      if (vis !== lastVis[i]) { slots[i].style.visibility = vis ? '' : 'hidden'; lastVis[i] = vis; }
+    }
+    rack.style.transform = 'translateX(' + (-pos * step) + 'px)';
+  }
+
+  /* ── the selection, applied ───────────────────────────────────────────
+     Called ONCE PER SETTLE, never per frame: it reads geometry (placePools)
+     and moves the canvas (mountCrt), and neither belongs in a frame loop. */
   function apply() {
     heroH = rack.clientHeight || 420;
-    var S = [1, 0.78, 0.58, 0.36];
+    centre = wrapIndex(Math.round(pos));
     for (var i = 0; i < slots.length; i++) {
-      var n = i - centre;
-      var cl = Math.max(-3, Math.min(3, n));
+      var cl = Math.round(offsetOf(i));
+      if (cl >  3) cl =  3; else if (cl < -3) cl = -3;
       slots[i].dataset.slot = String(cl);
-      slots[i].dataset.geo  = n === 0 ? 'front' : (n < 0 ? 'tq-left' : 'tq-right');
-      slots[i].dataset.lod  = lodFor(S[Math.abs(cl)]);
+      slots[i].dataset.geo  = 'front';
+      /* Every cabinet is the same size, so every cabinet gets the same level
+         of detail — chosen from the height it is actually drawn at, exactly as
+         before, and never from where it is standing. */
+      slots[i].dataset.lod  = lodFor(1);
 
       links[i].tabIndex = (i === centre) ? 0 : -1;
       if (i === centre) links[i].setAttribute('aria-current', 'true');
       else links[i].removeAttribute('aria-current');
-
-      /* Promotion is transient: the centred cabinet only, never permanent CSS.
-         A filling `fill: both` entry animation once left all five promoted for
-         the life of the page. */
-      var cab = slots[i].querySelector('.cab');
-      cab.style.willChange = (i === centre) ? 'transform' : '';
     }
     placePools();
     mountCrt();
   }
 
-  /* Light pools are positioned per cabinet by custom properties, measured at
-     snap time — no scroll handler, no per-frame work. */
+  /* Light pools are positioned per cabinet by custom properties, measured
+     ONCE PER SETTLE from the real .marquee and .base rects — never from a
+     pointer-move or a frame callback. It reads layout, so a frame loop is the
+     one place it must not be called from; apply() is its only caller and
+     apply() only runs when the ring has stopped. */
   function placePools() {
     if (!slots.length) return;
     var box = room.getBoundingClientRect();
@@ -2586,7 +3734,6 @@ function face(g){
       var m = slots[i].querySelector('.marquee').getBoundingClientRect();
       var b = slots[i].querySelector('.base').getBoundingClientRect();
       var hidden = getComputedStyle(slots[i]).visibility === 'hidden' || m.width < 2;
-      var n = Math.abs(i - centre);
       p.style.setProperty('--tint-rgb', g.rgb);
       p.style.setProperty('--px', (m.left + m.width / 2 - box.left) + 'px');
       p.style.setProperty('--py', (m.top + m.height / 2 - box.top) + 'px');
@@ -2595,7 +3742,16 @@ function face(g){
       p.style.setProperty('--fy', (b.bottom + b.height * 0.55 - (m.top + m.height / 2)) + 'px');
       p.style.setProperty('--fw', (m.width * 2.3) + 'px');
       p.style.setProperty('--fh', (m.width * 0.62) + 'px');
-      p.style.setProperty('--pa', hidden ? '0' : String(Math.max(0, 1 - n * 0.3)));
+      /* No depth ramp: every machine is the same distance away and lit the
+         same. The selected one is a little brighter because its screen is
+         alive, and a cabinet only half in the room only casts half its light —
+         without that last term the 20px slivers at the walls threw two
+         full-width pools across the floor and hazed the whole room grey. */
+      var cover = m.width > 0
+        ? (Math.min(m.right, box.right) - Math.max(m.left, box.left)) / m.width : 0;
+      cover = cover < 0 ? 0 : (cover > 1 ? 1 : cover);
+      p.style.setProperty('--pa', hidden ? '0'
+        : String(((i === centre ? 1 : 0.72) * cover).toFixed(3)));
     }
   }
 
@@ -2630,41 +3786,248 @@ function face(g){
     crtHandle.start();
   }
 
-  /* ── selection ───────────────────────────────────────────────────────── */
+  /* ── rotation ─────────────────────────────────────────────────────────
+     A second-order spring rather than a CSS transition, for two reasons: the
+     ring has to be able to START from whatever velocity a finger let go at,
+     and a transition cannot survive a wrap (the target moves by a whole lap
+     under it). These two put the cabinet on its mark at about 150ms, three per
+     cent past it at 180ms and fully stopped by 370ms — a machine on castors,
+     not a slide. The settle is what stops it reading as a slide, and three per
+     cent is as much of it as a rep should ever have to notice.
 
-  var io = null;
-  function observeRack() {
-    io = new IntersectionObserver(function (entries) {
-      var best = null;
-      for (var k = 0; k < entries.length; k++) {
-        if (entries[k].isIntersecting &&
-          (!best || entries[k].intersectionRatio > best.intersectionRatio)) best = entries[k];
-      }
-      if (!best) return;
-      var idx = slots.indexOf(best.target);
-      if (idx > -1 && idx !== centre) { centre = idx; apply(); }
-    }, { root: rack, rootMargin: '0px -46% 0px -46%', threshold: [0, .01, .5, 1] });
-    slots.forEach(function (s) { io.observe(s); });
+     The integrator runs on a fixed 60Hz tick with the real elapsed time
+     accumulated into it, so a 120Hz panel and a browser that just dropped
+     four frames both land in the same place at the same wall-clock moment. */
+  var SPRING = 0.22, DAMP = 0.55, TICK = 1000 / 60;
+
+  function promote(on) { rack.style.willChange = on ? 'transform' : ''; }
+
+  function frame(ts) {
+    raf = 0;
+    var dt = lastTs ? Math.min(80, ts - lastTs) : TICK;
+    lastTs = ts;
+    acc += dt;
+    var guard = 0;
+    while (acc >= TICK && guard++ < 10) {
+      vel += (target - pos) * SPRING;
+      vel *= DAMP;
+      pos += vel;
+      acc -= TICK;
+    }
+    /* 0.0015 of a cabinet is under a pixel at every step this page uses, so
+       the last hop onto the mark cannot be seen — and not chasing it saves
+       about a tenth of a second before the canvas moves. */
+    if (Math.abs(target - pos) < 0.0015 && Math.abs(vel) < 0.0015) {
+      pos = target; vel = 0; acc = 0; lastTs = 0;
+      paintRing();
+      settle();
+      return;
+    }
+    paintRing();
+    raf = requestAnimationFrame(frame);
   }
 
+  function run() {
+    /* prefers-reduced-motion: land on the target in one paint. No tween, and
+       nothing else is started on the way — the veil and the focus ring have
+       their transitions switched off in the same media query. */
+    if (noMotion()) {
+      if (raf) { cancelAnimationFrame(raf); raf = 0; }
+      pos = target; vel = 0; acc = 0; lastTs = 0;
+      paintRing(); settle();
+      return;
+    }
+    if (!raf) { lastTs = 0; acc = 0; promote(true); raf = requestAnimationFrame(frame); }
+  }
+
+  /** Everything that is only true when the ring has stopped. */
+  function settle() {
+    promote(false);
+    var had = links.indexOf(document.activeElement);
+    var was = centre;
+    apply();
+    /* The tab stop moved with the selection, so the focus has to move with it
+       or a keyboard user is left standing on a cabinet that is no longer the
+       one Enter would start. preventScroll, because the room is a clipped box
+       and letting the browser "scroll" it would shear the whole rack. */
+    if (had > -1 && had !== centre && links[centre]) {
+      try { links[centre].focus({ preventScroll: true }); }
+      catch (err) { links[centre].focus(); }
+    }
+    if (wantSay && GAMES[centre]) {
+      wantSay = false;
+      if (was !== centre || N === 1) say(GAMES[centre].title + '. ' + GAMES[centre].blurb);
+    }
+  }
+
+  function setTarget(t) {
+    if (!WRAP) t = Math.max(0, Math.min(N - 1, t));
+    if (t === target && !raf) { wantSay = false; return; }
+    target = t;
+    /* The focus follows the selection IMMEDIATELY, not at settle. The tab stop
+       proper moves in apply(), but if a rep holds the arrow key down the
+       cabinet the focus is standing on will be halfway to the wall before the
+       ring stops, and it must not be allowed to leave with the focus on it. */
+    keepFocus();
+    run();
+  }
+
+  /** If the rack holds the focus, put it on the cabinet we are heading for. */
+  function keepFocus() {
+    if (links.indexOf(document.activeElement) < 0) return;
+    var a = links[wrapIndex(Math.round(target))];
+    if (!a || a === document.activeElement) return;
+    try { a.focus({ preventScroll: true }); } catch (err) { a.focus(); }
+  }
+
+  /** Rotate by n cabinets. WHY N<3 DOES NOT WRAP: a wrap is only honest if
+      the cabinet that goes round does it off-stage, or far enough out that a
+      dissolve covers it. On a ring of two, the far side of the ring is the
+      seat next to you — the second cabinet is never anywhere else — so any
+      recycle would teleport a machine across the middle of the room. Two
+      games are therefore a short row with hard ends, which is what two arcade
+      machines against a wall actually are. One game has nothing to rotate:
+      the single cabinet stays centred and keeps the focus. */
+  function rotateBy(n) {
+    if (N < 2) { if (links[0]) links[0].focus({ preventScroll: true }); return; }
+    wantSay = true;
+    setTarget(Math.round(target) + n);
+  }
+
+  /** Rotate an absolute cabinet index to the centre, the short way round. */
   function go(i) {
-    i = Math.max(0, Math.min(slots.length - 1, i));
-    if (i === centre) { links[i].focus(); return; }
-    centre = i; apply();
-    slots[i].scrollIntoView({
-      inline: 'center', block: 'nearest',
-      behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
-    });
-    links[i].focus();
-    say(GAMES[i].title + '. ' + GAMES[i].blurb);
+    if (!N) return;
+    i = wrapIndex(i);
+    wantSay = true;
+    if (!WRAP) { setTarget(i); return; }
+    var cur = Math.round(target);
+    var d = i - wrapIndex(cur);
+    if (d >  N / 2) d -= N;
+    if (d < -N / 2) d += N;
+    setTarget(cur + d);
   }
 
+  /* ── ways to rotate it ────────────────────────────────────────────────
+     Drag, wheel and keys all end in the same place: a new integer target and
+     one call to run(). Nothing below writes a transform itself except the
+     drag, which has to track the finger. */
+
+  var drag = null, clickTimer = 0;
+
+  function onDown(e) {
+    if (N < 2 || !step) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    vel = 0; acc = 0; lastTs = 0;
+    promote(true);
+    drag = { id: e.pointerId, x0: e.clientX, x: e.clientX, t: e.timeStamp || Date.now(),
+             lt: 0, pos0: pos, moved: false, v: 0 };
+  }
+
+  function onMove(e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    var dx = e.clientX - drag.x0;
+    if (!drag.moved) {
+      if (Math.abs(dx) < 6) return;          // a tap is not a drag
+      drag.moved = true;
+      room.dataset.drag = '1';
+    }
+    var t = e.timeStamp || Date.now();
+    var dtp = t - (drag.lt || drag.t);
+    if (dtp > 0) drag.v = (e.clientX - drag.x) / dtp;   // px per ms
+    drag.x = e.clientX; drag.lt = t;
+
+    /* 1:1 with the finger. One cabinet of travel is one `step` of movement. */
+    pos = drag.pos0 - dx / step;
+    if (!WRAP) pos = Math.max(-0.4, Math.min(N - 1 + 0.4, pos));   // rubber at the ends
+    paintRing();
+    if (e.cancelable) e.preventDefault();
+  }
+
+  function onUp(e) {
+    if (!drag || (e.pointerId !== undefined && e.pointerId !== drag.id)) return;
+    var moved = drag.moved, v = drag.v;
+    drag = null;
+    room.removeAttribute('data-drag');
+    if (!moved) { promote(false); return; }   // it was a tap: let the click through
+
+    /* A flick carries. 300ms of the release velocity, capped at three
+       cabinets so a violent swipe does not spin the room. */
+    swallowClick = true;
+    clearTimeout(clickTimer);
+    clickTimer = setTimeout(function () { swallowClick = false; }, 400);
+
+    var carry = -v * 300 / step;
+    if (carry >  3) carry =  3; else if (carry < -3) carry = -3;
+    var t = Math.round(pos + carry);
+    if (!WRAP) t = Math.max(0, Math.min(N - 1, t));
+    /* Always run(), even when the target did not change: the finger almost
+       never lets go on a whole cabinet, so there is a fraction to settle back
+       whether or not the selection moved. */
+    wantSay = (t !== target);
+    target = t;
+    run();
+  }
+
+  /* and the same defence one level up, for the inline <svg> inside each
+     cabinet, which is just as draggable as the anchor around it. */
+  room.addEventListener('dragstart', function (e) { e.preventDefault(); });
+
+  room.addEventListener('pointerdown', onDown);
+  addEventListener('pointermove', onMove, { passive: false });
+  addEventListener('pointerup', onUp);
+  addEventListener('pointercancel', onUp);
+
+  /* Wheel and trackpad. A trackpad two-finger swipe arrives as many small
+     deltaX; a mouse wheel as a few large deltaY. Both are accumulated into
+     one notch so they feel the same, and the accumulator forgets itself
+     after a third of a second so two separate nudges are two rotations. */
+  var wheelAcc = 0, wheelAt = 0, wheelLock = 0;
+  room.addEventListener('wheel', function (e) {
+    if (N < 2 || !step) return;
+    var horizontal = Math.abs(e.deltaX) >= Math.abs(e.deltaY);
+    var d = horizontal ? e.deltaX : e.deltaY;
+    if (!d) return;
+    if (e.deltaMode === 1) d *= 16; else if (e.deltaMode === 2) d *= step;
+
+    /* Only swallow the event if we are really consuming it: a vertical wheel
+       over a page that still has somewhere to scroll belongs to the page. */
+    var doc = document.documentElement;
+    var scrollable = doc.scrollHeight > doc.clientHeight + 2;
+    if ((horizontal || !scrollable) && e.cancelable) e.preventDefault();
+    else if (scrollable && !horizontal) return;
+
+    var now = e.timeStamp || Date.now();
+    if (now - wheelAt > 320) wheelAcc = 0;
+    wheelAt = now;
+    wheelAcc += d;
+    if (Math.abs(wheelAcc) >= 56 && now - wheelLock > 90) {
+      wheelLock = now;
+      var n = wheelAcc > 0 ? 1 : -1;
+      wheelAcc = 0;
+      rotateBy(n);
+    }
+  }, { passive: false });
+
+  /* Keys. The rack is one tab stop — the roving tabindex means the only
+     focusable link is the centred one — so this listener sees every key a
+     rep can aim at the rack. Enter is not handled here on purpose: the
+     centred cabinet is a real <a>, and its own activation runs the click
+     handler and the launch handshake. */
   rack.addEventListener('keydown', function (e) {
     if (!slots.length) return;
-    if (e.key === 'ArrowRight')     { e.preventDefault(); go(centre + 1); }
-    else if (e.key === 'ArrowLeft') { e.preventDefault(); go(centre - 1); }
+    if (e.key === 'ArrowRight')     { e.preventDefault(); rotateBy(1); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); rotateBy(-1); }
     else if (e.key === 'Home')      { e.preventDefault(); go(0); }
-    else if (e.key === 'End')       { e.preventDefault(); go(slots.length - 1); }
+    else if (e.key === 'End')       { e.preventDefault(); go(N - 1); }
+  });
+
+  /* The room is a clipped box; if anything ever manages to scroll it (a focus
+     call that slipped past preventScroll, a find-in-page) the whole ring
+     shears sideways and never comes back. Cheapest possible insurance. */
+  room.addEventListener('scroll', function () {
+    if (room.scrollLeft) room.scrollLeft = 0;
+    if (room.scrollTop) room.scrollTop = 0;
   });
 
   var rt;
@@ -2672,9 +4035,10 @@ function face(g){
     clearTimeout(rt);
     rt = setTimeout(function () {
       if (!slots.length) return;
+      layout();
+      for (var i = 0; i < slots.length; i++) lastTx[i] = NaN;   // step changed
+      paintRing();
       apply();
-      slots[centre].scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'auto' });
-      placePools();
     }, 120);
   });
 
@@ -2725,16 +4089,59 @@ function face(g){
     }
 
     centre = Math.floor((games.length - 1) / 2);
-    buildRack(games, knownSlugs);
+    buildRack(games, knownSlugs);          // sets N and WRAP from the roster
     attract = createAttractEngine();
+
+    /* ── the entry cinematic ──────────────────────────────────────────────
+       ONCE PER VISIT, and that is the whole design. A rep on a five-minute
+       break opens the arcade, plays something, comes back, opens it again —
+       four times in one break is normal. A 2.2s intro on every one of those
+       stops being a treat and becomes a toll booth, so it is gated on
+       sessionStorage: spectacular the first time the tab sees the arcade,
+       silent every time after until the browser session ends.
+
+       The gate FAILS OPEN. Safari partitions third-party storage and throws
+       on read in some configurations, and a browser that cannot remember is
+       a browser that shows the good bit — never one that hides it.
+
+       It plays OVER the room, not before it: the rack, the pools and the
+       attract canvas all build underneath while the cinematic runs, so the
+       moment the shutters close the room behind them is already finished and
+       interactive. The cinematic's own last frame is near-black, which is
+       what makes the hand-off invisible.
+
+       Under prefers-reduced-motion play() draws nothing and resolves on the
+       next frame, so this whole block costs one tick. */
+    var INTRO_KEY = 'ccc-arcade-intro-v1';
+    var introSeen = false;
+    try { introSeen = window.sessionStorage.getItem(INTRO_KEY) === '1'; }
+    catch (err) { introSeen = false; }
+
+    if (!introSeen) {
+      try { window.sessionStorage.setItem(INTRO_KEY, '1'); } catch (err) { /* noop */ }
+      try {
+        createArcadeIntro().play(document.body, { games: GAMES });
+      } catch (err) {
+        /* A broken cinematic must never cost a rep the arcade itself. */
+        console.warn('[arcade] the intro did not run:', err);
+      }
+    }
+    pos = target = centre;
+    layout();
+    paintRing();
     apply();
-    observeRack();
 
     say(games.length + (games.length === 1 ? ' cabinet' : ' cabinets') + ' on the floor. '
-      + GAMES[centre].title + ' is in front of you.');
+      + GAMES[centre].title + ' is in front of you'
+      + (N > 1 ? ', left and right arrow keys to turn the rack.' : '.'));
 
+    /* Re-measure after the first paint: --hero-h is a clamp() on the viewport
+       and the cabinet width it gives us is not final until the room has laid
+       out once. */
     requestAnimationFrame(function () {
-      slots[centre].scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'auto' });
+      layout();
+      for (var i = 0; i < slots.length; i++) lastTx[i] = NaN;
+      paintRing();
       placePools();
     });
 
