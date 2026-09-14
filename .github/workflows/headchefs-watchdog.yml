@@ -39,8 +39,11 @@
 # WHAT GITHUB ACTUALLY DELIVERS (measured 2026-09-14, and the reason the
 # thresholds below are as loose as they are)
 #   `headchefs.yml` asks for a run every 30 minutes. Over 19 consecutive gaps
-#   GitHub delivered a MEDIAN of 143 minutes and a WORST CASE of 357 — about one
-#   requested run in five, with every single delivered run succeeding. Scheduled
+#   GitHub delivered a MEDIAN of 143 minutes and a WORST CASE of 416 (6h 56m) —
+#   about one requested run in five, with every delivered run succeeding. That
+#   worst case was measured the same afternoon the alarm fired, and it was worse
+#   than the 357 minutes seen the day before, so treat it as a floor on how bad
+#   the lag gets, not a ceiling. Scheduled
 #   workflows on a free-tier repository are best-effort and GitHub says so. Any
 #   threshold here tighter than about six hours is therefore alarming about
 #   GitHub's normal behaviour, not about this pipeline. That is what happened on
@@ -98,15 +101,17 @@ env:
   # nothing had failed, and the workflow was active. What is actually happening
   # is that GITHUB DOES NOT DELIVER THIS CRON. The schedule asks for every 30
   # minutes; measured over 19 consecutive gaps, GitHub delivered a median of
-  # **143 minutes** and a worst case of **357 minutes** — roughly one run in
-  # five. That is not drift, it is GitHub's documented right to drop scheduled
+  # **143 minutes** and a worst case of **416 minutes** (6h 56m) — roughly one
+  # run in five. That is not drift, it is GitHub's documented right to drop scheduled
   # runs on a free-tier repository under load, and no amount of YAML fixes it.
   #
   # So a 4-hour threshold was below normal behaviour and fired on about one gap
   # in five — an alarm that goes off when nothing is wrong is one that gets
   # muted, which is the exact failure this workflow was written to prevent.
-  # Twelve hours is double the worst gap ever observed here, and still catches a
-  # scheduler that has genuinely stopped within half a day.
+  # Twelve hours is about 1.7x the worst gap observed here (416 minutes) and
+  # still catches a scheduler that has genuinely stopped within half a day. If a
+  # real gap ever approaches 12 hours, raise this rather than muting the alarm —
+  # but measure first, and write the new number down here.
   #
   # This threshold is the SLOW net, and it is allowed to be slow because it is
   # not the one that matters: the wall only needs re-reading when a deck
@@ -120,9 +125,10 @@ env:
   # ⚠ ALSO RAISED, from 45, for the same measured reason as STALE_HOURS: the
   # dense Friday cron is subject to exactly the same throttling as the baseline
   # one, so 45 minutes was alarming about something GitHub's scheduler cannot
-  # promise. Four hours sits above the worst observed gap (357 min) with a
-  # little room, so it fires only when a deck has genuinely gone unread rather
-  # than when the scheduler is merely being itself.
+  # promise. Four hours sits just under the worst observed gap (416 min), which
+  # is the deliberate trade: this check is allowed to fire occasionally on a bad
+  # scheduler day, because a deck that has genuinely gone unread for four hours
+  # is worth a look even if the cause turns out to be GitHub.
   #
   # ⚠⚠ AND THE REAL FIX IS NOT THIS NUMBER. A deck push is supposed to be read
   # within a minute by the `repository_dispatch` trigger in headchefs.yml, which
