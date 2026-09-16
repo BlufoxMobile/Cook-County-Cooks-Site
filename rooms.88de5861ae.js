@@ -40,7 +40,7 @@
    import the order without dragging this file's 24 KB of hotspot geometry
    down the wire with it. Everything that imports ROOM_ORDER from here is
    unchanged; this is a re-export, so the binding is the same one. */
-export { ROOM_ORDER } from './assets/roomorder.3ab9a70ccf.js';
+export { ROOM_ORDER } from './assets/roomorder.564575b388.js';
 
 export const HOTSPOTS = {
   pass: [
@@ -283,7 +283,7 @@ export const HOTSPOTS = {
        ⚠ NO slug AND NO label, ON PURPOSE, AND DO NOT ADD THEM.
        This tool lives behind the walk-in's lock, which means it is not in the
        deployed tree at all — it is AES-256-GCM ciphertext in
-       data/freezer.sealed.17a06d9d9d.json (see build/seal-freezer.mjs and the gate note
+       data/freezer.sealed.6eaa4f60f0.json (see build/seal-freezer.mjs and the gate note
        in app.js §2). Writing its slug, its name or its URL here would put in
        plaintext exactly the three strings the seal exists to remove, and
        build/seal-freezer.mjs's own leak check would fail the next build.

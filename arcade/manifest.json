@@ -29,6 +29,13 @@
    "blurb": "Blufox Fleet Command. Read the sonar, call the shot, and put the other fleet on the bottom.",
    "url": "https://blufoxmobile.github.io/Deep-Six/",
    "tint": "#9fb6c4"
+  },
+  {
+   "slug": "overdrive",
+   "title": "BLUFOX OVERDRIVE",
+   "blurb": "Eight karts, six circuits, one Chicago night. Tilt the phone to steer and hold the racing line.",
+   "url": "https://blufoxmobile.github.io/Blufox-Overdrive/",
+   "tint": "#ff9e4a"
   }
  ]
 }

@@ -91,9 +91,9 @@ function decide() {
  * note in the header. */
 const load = {
   pocket: () =>
-    import('./pocket.c2f45d94ac.js'),
+    import('./pocket.826e19c9aa.js'),
   cinema: () =>
-    import('./cinema.ca47fcef51.js')
+    import('./cinema.bce7467109.js')
 };
 
 /**
