@@ -5,964 +5,417 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
   <title>C³ Arcade | Cook County Cooks</title>
-  <meta name="description" content="The Break Room cabinets — every game on the site, on one screen.">
+  <meta name="description" content="The Break Room cabinet — every game on the site, on one screen.">
   <meta name="theme-color" content="#05070a">
 
-  <!-- FONTS, NON-BLOCKING — copied from tools/printouts/index.html for the same
-       measured reason: a render-blocking stylesheet also blocks script
-       execution, and fonts.googleapis.com HANGS behind a store's captive portal
-       rather than failing. media="print" keeps it off the critical path; onload
-       flips it to `all` the moment it lands. The room below is drawn entirely in
-       CSS and does not need the fonts to look right — only the marquee titles
-       change weight when they land. -->
+  <!-- FONTS, NON-BLOCKING — the same measured reason as every other station:
+       a render-blocking stylesheet also blocks script execution, and
+       fonts.googleapis.com HANGS behind a store's captive portal rather than
+       failing. media="print" keeps it off the critical path. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,300..700;1,62..125,300..700&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&display=swap"
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,300..700;1,62..125,300..700&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&display=swap"
         media="print" onload="this.media='all'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,300..700;1,62..125,300..700&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&display=swap"></noscript>
 
-  <!-- The site's own stylesheet. This page draws its own room, but it still
-       borrows the primitives every other station uses — .visually-hidden,
-       .skip-link, .micro, and the two-tone focus ring in §16 — and it takes its
-       palette from the same §02 tokens rather than inventing one. -->
+  <!-- The site's own stylesheet, for .visually-hidden, .skip-link and the §16
+       focus ring. ⚠ Every bare class name in it applies here too, which is why
+       every class this page defines carries the `ar-` prefix (see
+       claude/v24-arcade-room-rebuild.md: .btn, .floor and .plate all collided). -->
   <link rel="stylesheet" href="../../assets/theme.a73825e539.css">
 
-  <!-- ══════════════════════════════════════════════════════════════════════
-       ⚠ THE MANIFEST IS **NOT** INLINED HERE, AND THAT IS STILL THE DECISION.
-       ══════════════════════════════════════════════════════════════════════
-       tools/printouts/index.html inlines printouts/manifest.json verbatim into
-       its <head> as a file:// fallback, because Jeff and the district managers
-       review builds off a USB stick and fetch() against a file:// URL is
-       CORS-blocked for a null origin. The cost is recorded there and is real:
-       the two copies drift silently, and nothing catches it.
+  <!-- The photograph is the first thing on screen; fetch it before the parser
+       reaches the script. The 2560 cut is the one most iPads and laptops use. -->
+  <link rel="preload" as="image" href="../../arcade/room/cabinet-2560.webp" fetchpriority="high">
 
-       This page does not take that trade, for a reason specific to what this
-       page IS. The whole point of arcade/manifest.json is that Jeff adds a game
-       by adding ONE ROW TO IT. An inline copy makes that a two-file edit for
-       ever, and the one week he forgets the second file is the week the arcade
-       quietly renders yesterday's cabinet list.
+  <!-- ═══════════════════════════════════════════════════════════════════
+       v27 — THE CABINET
+       ═══════════════════════════════════════════════════════════════════
+       One photographed machine in the Break Room, the same light and the same
+       walnut, brass and navy as every other room on the site. The page is a
+       CAMERA over that photograph:
 
-       So: one copy, fetched, always. On file:// this page renders the honest
-       state named in offlineState() — the room still builds, with one dark
-       cabinet saying the station needs the site served.
-       ══════════════════════════════════════════════════════════════════════ -->
+         WIDE   the room, as you walk in
+         MENU   the cabinet's head — marquee, screen, control deck
+         PLAY   the screen alone, filling the view
+
+       The game-select menu is HTML laid out on a fixed 1280-wide canvas (like
+       a real game's resolution) and placed inside the photographed screen.
+       Choosing a game pushes the camera in and loads the game INTO that
+       screen, sized in real CSS pixels so the game lays itself out for the
+       room it actually has.
+
+       Still true from v24/v25, and still the contract:
+         · arcade/manifest.json + a matching slug in the site tool list adds a
+           game. No code, no artwork: the menu row, the preview screen and the
+           light the screen throws onto the cabinet are all keyed from `tint`.
+         · The game's address comes from the SAME registry the site's viewer
+           uses, and it is never printed. Every row is a real
+           <a href="#/tool/<slug>">, so Copy Link hands out cookcountycooks.com.
+         · FULL SCREEN still exists: element fullscreen where the browser has
+           it, and otherwise the v22 postMessage handshake, which opens the game
+           as a tool in the site's own viewer.
+       ═══════════════════════════════════════════════════════════════════ -->
 
   <style>
-/* ============================================================
-   C³ ARCADE — visual render layer
-   Single file. No CDN, no libraries, no images, no 3D context.
-   Geometry is baked into three inline SVG paths; depth past the
-   first neighbour is 2D scale + translate toward the VP + dim.
-   ============================================================ */
-
 :root{
-  /* ---- palette: the only colours allowed ---- */
-  --ink-950:#05070a; --ink-900:#090d13; --ink-850:#0d131b; --ink-800:#131a24;
-  --ink-700:#1b2430; --ink-600:#26313f; --steel:#3a4653;
-  --brass:#c8973f;   --brass-300:#ebce93; --brass-700:#8a6323;
-  --amber:#f7b955;   --ember:#ff9e4a;     --lcd:#8ef0d0;      --alert:#ff6f57;
-  --ice-300:#9fb6c4; --ice-100:#dbe8ef;
-  --bone:#f4efe6;    --bone-2:#dcd5c8;    --bone-3:#b4aba0;
-
-  /* rgb triplets for alpha compositing without color-mix() */
-  --ink950-rgb:5 7 10;  --ink800-rgb:19 26 24; --steel-rgb:58 70 83;
-  --brass-rgb:200 151 63; --brass300-rgb:235 206 147; --brass700-rgb:138 99 35;
-  --ember-rgb:255 158 74; --lcd-rgb:142 240 208; --bone-rgb:244 239 230;
-
-  /* ---- stage metrics: every dimension derives from --hero-h ----
-     --cab-max is the widest a cabinet may be DRAWN at this breakpoint, and it
-     is applied to --hero-h (x 2.2) rather than to --cab-w. Capping the width
-     alone would squash the artwork: every geometry <svg> below is
-     preserveAspectRatio="none", so the 100 x 220 viewBox takes whatever box it
-     is given. Height is the honest place to cap it. 1 / 0.4545 = 2.2. */
-  --cab-max: 20vw;
-  --hero-h: min(clamp(420px, 68vh, 640px), calc(var(--cab-max) * 2.2));
-  --cab-w:  calc(var(--hero-h) * 0.4545);   /* viewBox 100 x 220 */
-  --room-h: calc(var(--hero-h) * 1.32);
-  --horizon: 62%;                            /* VP y */
-  --baseline: 4.5%;                          /* cabinet feet from room bottom */
-  --face-w: var(--cab-w);                    /* front-face width, per geometry */
-
-  /* There are no per-slot depth values any more. Every cabinet is the same
-     size, at the same distance, and the ring step (centre-to-centre spacing)
-     is measured in JS from the room's real width — see layout(). */
-
-  --font:'Archivo','Archivo Black','Helvetica Neue',Helvetica,Arial,'Liberation Sans',system-ui,sans-serif;
-  --tint:var(--brass); --tint-rgb:var(--brass-rgb);
+  --ink-950:#05070a; --ink-900:#090d13; --ink-850:#0d131b; --ink-800:#131a24; --ink-700:#1b2430;
+  --brass-700:#8a6323; --brass:#c8973f; --brass-400:#ddb463; --brass-300:#ebce93;
+  --amber:#f7b955; --lcd:#8ef0d0; --alert:#ff6f57;
+  --bone:#f4efe6; --bone-2:#dcd5c8; --bone-3:#b4aba0;
+  --ar-tint:#c8973f; --ar-tint-rgb:200 151 63;
+  --ar-ease:cubic-bezier(.16,1,.3,1);
+  --ar-cam-ms:1400ms;
+  --ar-grot:"Archivo", "Helvetica Neue", Arial, sans-serif;
+  --ar-didone:"Bodoni Moda", "Didot", "Bodoni 72", Georgia, serif;
 }
+html,body{margin:0;height:100%;background:var(--ink-950);color:var(--bone);overflow:hidden}
+body{font-family:var(--ar-grot);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
 
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0; background:var(--ink-950); color:var(--bone-2);
-  font-family:var(--font);
-  -webkit-font-smoothing:antialiased;
-  overflow-x:hidden;
-}
+/* ── the stage and the camera ─────────────────────────────────────────── */
+.ar-stage{position:fixed;inset:0;overflow:hidden;background:#07090d;contain:strict}
+/* The camera is the photograph at a nominal 1600px width, moved and scaled
+   by ONE transform. will-change is added only while it moves (.is-moving),
+   so a resting cabinet is re-rastered at its real scale and stays sharp. */
+.ar-cam{position:absolute;left:0;top:0;width:1600px;height:907.4px;transform-origin:0 0;
+  transition:transform var(--ar-cam-ms) var(--ar-ease)}
+.ar-cam.is-moving{will-change:transform}
+.ar-cam.is-still{transition:none}
+.ar-photo{position:absolute;inset:0;width:100%;height:100%;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}
 
-/* ============================================================
-   ROOM
-   ============================================================ */
-.arcade{
-  position:relative; width:100%; height:var(--room-h);
-  min-height:var(--room-h); overflow:hidden;
-  background:var(--ink-950);
-  isolation:isolate;
-}
+/* A placed element: its box is set in plate fractions by JS (placeBox). */
+.ar-at{position:absolute}
 
-/* --- back wall: one vertical gradient + the horizon seam --- */
-.wall{
-  position:absolute; inset:0 0 auto 0; height:var(--horizon);
+/* Light the screen throws onto the cabinet, in the chosen game's colour. */
+.ar-spill{pointer-events:none;mix-blend-mode:screen;opacity:0;transition:opacity 900ms ease, background 600ms ease;
+  background:radial-gradient(closest-side, rgb(var(--ar-tint-rgb) / .55), rgb(var(--ar-tint-rgb) / .16) 55%, transparent 100%)}
+.is-on .ar-spill{opacity:.5}
+.is-playing .ar-spill{opacity:.32}
+/* The marquee breathes — a fluorescent tube behind acrylic, never a blink. */
+.ar-marq-glow{pointer-events:none;mix-blend-mode:screen;opacity:.0;
+  background:radial-gradient(60% 70% at 50% 50%, rgb(247 185 85 / .42), transparent 70%)}
+.is-on .ar-marq-glow{animation:ar-breathe 5.5s ease-in-out infinite}
+@keyframes ar-breathe{0%,100%{opacity:.35}50%{opacity:.6}}
+
+/* The whole physical control deck is a START button, and so is the coin door. */
+.ar-deck,.ar-coin{display:block;border-radius:6px;cursor:pointer;background:transparent;border:0;padding:0}
+.ar-deck:focus-visible,.ar-coin:focus-visible{outline:3px solid var(--brass-300);outline-offset:2px}
+
+/* ── the screen ───────────────────────────────────────────────────────── */
+.ar-screen{overflow:hidden;background:#000;border-radius:3px}
+/* The UI canvas: 1280 wide, height set by JS from the screen's aspect, then
+   scaled onto the photographed glass with a 2D transform (no 3D context —
+   the text stays on the subpixel path). */
+.ar-ui{position:absolute;left:0;top:0;width:1280px;transform-origin:0 0;overflow:hidden;
   background:
-    repeating-linear-gradient(90deg, rgba(38,49,63,.07) 0 1px, rgba(0,0,0,0) 1px 96px),
-    linear-gradient(180deg,#070c13 0%,#0b1119 38%,#080d14 76%,var(--ink-950) 100%);
-}
-/* one dead house light, far back */
-.wall::before{
-  content:''; position:absolute; left:50%; bottom:-2%;
-  width:118%; height:92%; transform:translateX(-50%);
-  background:radial-gradient(closest-side,rgba(138,99,35,.06),rgba(138,99,35,.02) 46%,rgba(138,99,35,0) 100%);
-}
-/* the horizon seam. that one line does the work. */
-.wall::after{
-  content:''; position:absolute; left:0; right:0; bottom:0; height:1px;
-  background:rgba(27,36,48,.4);
-}
-
-/* --- floor: one element (+ its far band pseudo). the mask IS the fog --- */
-.floor{
-  position:absolute; left:-12%; right:-12%; top:var(--horizon); bottom:0;
+    radial-gradient(120% 90% at 50% 0%, rgb(var(--ar-tint-rgb) / .10), transparent 60%),
+    radial-gradient(90% 80% at 50% 110%, rgb(200 151 63 / .07), transparent 60%),
+    linear-gradient(180deg,#070b12,#04060a);
+  opacity:0}
+.is-on .ar-ui{opacity:1}
+.ar-ui.is-power{animation:ar-power 620ms cubic-bezier(.2,.8,.2,1) both}
+@keyframes ar-power{
+  0%{opacity:1;transform:var(--ar-ui-t) scale(1,.004);filter:brightness(4)}
+  35%{opacity:1;transform:var(--ar-ui-t) scale(1,.004);filter:brightness(3)}
+  70%{transform:var(--ar-ui-t) scale(1,1.02);filter:brightness(1.4)}
+  100%{opacity:1;transform:var(--ar-ui-t) scale(1,1);filter:none}}
+/* Glass: scanlines, a corner falloff and one soft reflection. Never animated. */
+.ar-glass{position:absolute;inset:0;pointer-events:none;z-index:9;
   background:
-    repeating-linear-gradient(90deg, rgba(58,70,83,.055) 0 1px, rgba(0,0,0,0) 1px 34px),
-    repeating-conic-gradient(from 37deg  at 50% 50%, rgba(255,158,74,.058) 0 25%, rgba(0,0,0,0) 0 50%),
-    repeating-conic-gradient(from 113deg at 50% 50%, rgba(142,240,208,.036) 0 25%, rgba(0,0,0,0) 0 50%),
-    repeating-conic-gradient(from 71deg  at 50% 50%, rgba(200,151,63,.064) 0 25%, rgba(0,0,0,0) 0 50%),
-    radial-gradient(80% 120% at 50% 118%, rgba(200,151,63,.07), rgba(200,151,63,0) 70%),
-    var(--ink-950);
-  background-size:auto, 17px 17px, 23px 23px, 12px 12px, auto, auto;
-  -webkit-mask-image:linear-gradient(to top,#000 0%,#000 30%,transparent 100%);
-          mask-image:linear-gradient(to top,#000 0%,#000 30%,transparent 100%);
-  box-shadow:inset 0 0 200px 60px rgba(5,7,10,.8);
-}
-/* far band — same carpet, tighter weave, dimmer: the recession */
-.floor::before{
-  content:''; position:absolute; left:0; right:0; top:0; height:34%;
-  background:
-    repeating-linear-gradient(90deg, rgba(58,70,83,.055) 0 1px, rgba(0,0,0,0) 1px 12px),
-    repeating-conic-gradient(from 37deg  at 50% 50%, rgba(255,158,74,.045) 0 25%, rgba(0,0,0,0) 0 50%),
-    repeating-conic-gradient(from 113deg at 50% 50%, rgba(142,240,208,.03) 0 25%, rgba(0,0,0,0) 0 50%),
-    repeating-conic-gradient(from 71deg  at 50% 50%, rgba(200,151,63,.05) 0 25%, rgba(0,0,0,0) 0 50%),
-    linear-gradient(180deg,rgba(5,7,10,.78),rgba(5,7,10,.1));
-  background-size:auto, 6px 6px, 8px 8px, 4px 4px, auto;
-}
+    linear-gradient(115deg, rgb(255 255 255 / .06) 0%, rgb(255 255 255 / .015) 22%, transparent 38%),
+    radial-gradient(140% 120% at 50% 50%, transparent 58%, rgb(0 0 0 / .55) 100%),
+    repeating-linear-gradient(180deg, rgb(0 0 0 / .20) 0 2px, transparent 2px 4px)}
 
-/* Two more class names collide with the site stylesheet, same failure mode as
-   `.btn`. `.floor` is also a site LAYOUT class (max-inline-size:34rem +
-   margin-inline:auto), which clamped the carpet to 544px and centred it
-   instead of letting it span -12%..112% of the room. `.plate` is also the
-   site's room-photograph element; its sizing is harmless on the sign today,
-   but `transform:none` would silently veto any future transform here. */
-.arcade .floor{
-  max-inline-size:none; inline-size:auto;
-  margin-inline:0; padding-inline:0; padding-block:0;
-}
-.sign .plate{inline-size:auto; block-size:auto; object-fit:fill}
+/* Menu layout on the 1280 canvas. */
+.ar-menu{position:absolute;inset:0;padding:30px 44px 32px;display:grid;
+  grid-template-columns:600px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);column-gap:40px;row-gap:16px}
+.ar-top{grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgb(200 151 63 / .35);padding-bottom:14px}
+.ar-top-l{display:flex;align-items:baseline;gap:22px}
+.ar-brand{font-family:var(--ar-didone);font-weight:600;font-size:46px;letter-spacing:.06em;color:var(--brass-300);line-height:1}
+.ar-brand sup{font-size:.55em;vertical-align:.55em;margin-left:.02em}
+.ar-sub{font-weight:600;font-stretch:118%;font-size:20px;letter-spacing:.34em;text-transform:uppercase;color:var(--bone-3)}
+.ar-free{font-weight:700;font-stretch:118%;font-size:21px;letter-spacing:.3em;color:var(--lcd);text-shadow:0 0 12px rgb(142 240 208 / .55)}
+.ar-free i{font-style:normal;animation:ar-blink 1.1s steps(1) infinite}
+@keyframes ar-blink{50%{opacity:0}}
 
-/* --- overhead sign --- */
-.sign{
-  position:absolute; left:50%; top:2.5%; transform:translateX(-50%);
-  text-align:center; pointer-events:none; z-index:2;
-}
-.sign .plate{
-  font-weight:800; letter-spacing:.34em; text-indent:.34em;
-  font-size:calc(var(--hero-h) * .046);
-  color:var(--brass);
-  text-shadow:0 1px 0 rgba(5,7,10,.9), 0 0 18px rgba(200,151,63,.28);
-}
-.sign .bulbs{display:flex; gap:calc(var(--hero-h)*.018); justify-content:center; margin-top:.45em}
-.sign .bulbs i{
-  width:calc(var(--hero-h)*.012); height:calc(var(--hero-h)*.012); border-radius:50%;
-  background:radial-gradient(circle at 42% 34%, #fff 0 14%, var(--brass-300) 42%, var(--brass-700) 100%);
-  box-shadow:0 0 6px 1px rgba(235,206,147,.32);
-}
+.ar-listwrap{position:relative;overflow:hidden;min-height:0;
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 18px,#000 calc(100% - 26px),transparent 100%);
+          mask-image:linear-gradient(180deg,transparent 0,#000 18px,#000 calc(100% - 26px),transparent 100%)}
+.ar-list{list-style:none;margin:0;padding:8px 0;transition:transform 420ms var(--ar-ease)}
+.ar-row{margin:0 0 10px}
+.ar-link{position:relative;display:grid;grid-template-columns:70px minmax(0,1fr) 34px;align-items:center;
+  min-height:96px;padding:0 20px 0 22px;border-radius:8px;text-decoration:none;color:var(--bone-3);
+  border:1px solid transparent;outline:none;cursor:pointer;
+  transition:background 260ms ease,border-color 260ms ease,color 200ms ease}
+.ar-link::before{content:"";position:absolute;left:0;top:18px;bottom:18px;width:5px;border-radius:3px;background:var(--row-tint);opacity:.55;transition:opacity 200ms, top 260ms var(--ar-ease), bottom 260ms var(--ar-ease)}
+.ar-num{font-weight:600;font-stretch:112%;font-size:24px;letter-spacing:.14em;color:rgb(180 171 160 / .6);font-variant-numeric:tabular-nums}
+.ar-name{font-weight:700;font-stretch:104%;font-size:40px;letter-spacing:.045em;line-height:1.05;text-transform:uppercase;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ar-chev{justify-self:end;width:0;height:0;border-left:16px solid var(--brass-300);border-top:11px solid transparent;border-bottom:11px solid transparent;opacity:0}
+.ar-link[aria-current="true"]{color:var(--bone);border-color:rgb(221 180 99 / .7);
+  background:linear-gradient(90deg, rgb(var(--row-rgb) / .20), rgb(200 151 63 / .07) 70%, rgb(200 151 63 / .02));
+  box-shadow:inset 0 0 0 1px rgb(0 0 0 / .3), 0 0 26px -6px rgb(var(--row-rgb) / .55)}
+.ar-link[aria-current="true"]::before{opacity:1;top:10px;bottom:10px}
+.ar-link[aria-current="true"] .ar-num{color:var(--brass-300)}
+.ar-link[aria-current="true"] .ar-chev{opacity:1;animation:ar-nudge 1.2s ease-in-out infinite}
+@keyframes ar-nudge{50%{transform:translateX(-6px)}}
+.ar-link.is-off{cursor:default}
+.ar-link.is-off .ar-name::after{content:" · soon";font-size:.55em;letter-spacing:.2em;color:var(--bone-3)}
+/* keyboard focus: the site's two-tone ring, drawn inside the row */
+.ar-link:focus-visible{box-shadow:0 0 0 3px #05070a, 0 0 0 6px var(--brass-300)}
 
-/* --- edge vignette: the room falling away into black ---
-   WIDENED for the flat carousel. The old stops (opaque by 7%, clear only by
-   26%) were cut for a perspective row whose outer cabinets were 58% scale and
-   MEANT to be swallowed. Three full-size cabinets reach much further out, and
-   at those stops the left and right machines lost their outer third to the
-   vignette — same size on paper, visibly darker on screen, which is the one
-   thing this rebuild is for. The hard edge is kept (it is what the ring
-   recycles behind), it is just much narrower now. */
-.vig{
-  position:absolute; inset:0; pointer-events:none; z-index:6;
-  background:
-    linear-gradient(90deg, var(--ink-950) 0%, rgba(5,7,10,.66) 2.5%, rgba(5,7,10,0) 9%,
-                           rgba(5,7,10,0) 91%, rgba(5,7,10,.66) 97.5%, var(--ink-950) 100%),
-    radial-gradient(150% 96% at 50% 52%, rgba(5,7,10,0) 46%, rgba(5,7,10,.34) 78%, rgba(5,7,10,.86) 96%, var(--ink-950) 100%);
-}
+.ar-preview{display:grid;grid-template-rows:minmax(0,1fr) auto auto;min-height:0;gap:16px;padding-top:8px}
+.ar-monitor{position:relative;height:100%;width:auto;max-width:100%;aspect-ratio:4 / 3;justify-self:center;min-height:0;
+  border-radius:10px;overflow:hidden;background:#000;
+  box-shadow:0 0 0 2px rgb(200 151 63 / .55), 0 0 0 7px #0b0f16, 0 0 40px -6px rgb(var(--ar-tint-rgb) / .6)}
+.ar-crt{display:block;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges}
+.ar-monitor::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(180deg, rgb(0 0 0 / .22) 0 3px, transparent 3px 6px),
+             radial-gradient(120% 100% at 50% 50%, transparent 60%, rgb(0 0 0 / .5))}
+.ar-monitor.is-swap .ar-crt{animation:ar-swap 360ms ease-out}
+@keyframes ar-swap{0%{opacity:.1;transform:scaleY(.94)}100%{opacity:1;transform:none}}
+.ar-title{font-family:var(--ar-didone);font-weight:600;font-size:48px;line-height:1.05;letter-spacing:.01em;color:var(--bone);margin:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ar-blurb{margin:6px 0 0;font-size:26px;line-height:1.36;color:var(--bone-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ar-foot{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.ar-hint{font-weight:600;font-stretch:115%;font-size:19px;letter-spacing:.24em;text-transform:uppercase;color:var(--bone-3)}
+.ar-hint b{color:var(--brass-300);font-weight:700}
+.ar-start{appearance:none;border:0;cursor:pointer;font:inherit;font-weight:700;font-stretch:120%;font-size:26px;letter-spacing:.3em;
+  text-transform:uppercase;color:#120c04;padding:16px 34px 16px 40px;border-radius:999px;
+  background:linear-gradient(180deg,var(--brass-300),var(--brass) 55%,var(--brass-700));
+  box-shadow:0 0 0 1px rgb(0 0 0 / .4), 0 8px 30px -8px rgb(247 185 85 / .7), inset 0 1px 0 rgb(255 255 255 / .5);
+  animation:ar-pulse 1.6s ease-in-out infinite}
+.ar-start:disabled{animation:none;opacity:.45;cursor:default}
+.ar-start:focus-visible{outline:3px solid var(--bone);outline-offset:4px}
+@keyframes ar-pulse{50%{box-shadow:0 0 0 1px rgb(0 0 0 / .4), 0 8px 46px -4px rgb(247 185 85 / .95), inset 0 1px 0 rgb(255 255 255 / .5)}}
 
-/* --- film grain: kills gradient banding on an iPad panel --- */
-.grain{
-  position:fixed; inset:0; width:100%; height:100%;
-  opacity:.045; mix-blend-mode:overlay; pointer-events:none; z-index:9;
-}
+/* In-screen states: boot / loading / notice. */
+.ar-card{position:absolute;inset:0;display:grid;place-items:center;text-align:center;z-index:5;
+  background:radial-gradient(80% 80% at 50% 45%, rgb(var(--ar-tint-rgb) / .16), transparent 70%), #04060a;
+  opacity:0;visibility:hidden;transition:opacity 220ms ease, visibility 0s linear 220ms}
+.ar-card.is-shown{opacity:1;visibility:visible;transition:opacity 160ms ease}
+.ar-card-in{max-width:980px;padding:0 40px}
+.ar-kicker{font-weight:700;font-stretch:120%;font-size:22px;letter-spacing:.42em;color:var(--lcd);text-shadow:0 0 14px rgb(142 240 208 / .6);margin:0 0 20px}
+.ar-card h2{font-family:var(--ar-didone);font-weight:600;font-size:84px;line-height:1;margin:0 0 26px;color:var(--bone);letter-spacing:.01em}
+.ar-card p{font-size:26px;line-height:1.45;color:var(--bone-2);margin:0 auto;max-width:860px}
+.ar-card code{font-size:.9em;color:var(--brass-300)}
+.ar-bar{width:520px;height:10px;margin:34px auto 0;border-radius:6px;background:rgb(255 255 255 / .08);overflow:hidden}
+.ar-bar i{display:block;height:100%;width:40%;border-radius:6px;background:linear-gradient(90deg,transparent,var(--ar-tint),transparent);
+  animation:ar-load 1.1s ease-in-out infinite}
+@keyframes ar-load{0%{transform:translateX(-100%)}100%{transform:translateX(260%)}}
+.ar-card-actions{display:flex;gap:18px;justify-content:center;margin-top:34px}
+.ar-card-actions button{appearance:none;font:inherit;font-weight:700;font-stretch:115%;font-size:20px;letter-spacing:.2em;text-transform:uppercase;
+  padding:14px 26px;border-radius:999px;cursor:pointer;border:1px solid rgb(221 180 99 / .7);background:rgb(200 151 63 / .12);color:var(--bone)}
 
-/* ============================================================
-   RACK — a flat, equal-size, wrap-around carousel
-   ------------------------------------------------------------
-   .rack IS the track. It is a zero-width element pinned to the middle of the
-   room, and ONE transform on it (written once per animation frame) moves the
-   whole ring. The room, .arcade, is already overflow:hidden — that is the
-   window the ring slides behind, and it is why the track does not need to
-   clip anything itself.
 
-   Each .slot carries its own place on the ring as an inline translateX, and
-   that value is rewritten ONLY when the slot recycles round the ring — an
-   event layout() arranges to happen off-stage wherever the geometry allows,
-   and fadeFor() dissolves where it cannot (see the note in paintRing()).
+/* ── COMPACT: a phone in portrait ────────────────────────────────────────
+   The glass is only ~390px wide there, so it carries the preview and START
+   at poster size, and the game list moves OUT of the screen onto a dock
+   laid over the lower cabinet — the same <ul>, moved, never duplicated. */
+.is-compact .ar-menu{grid-template-columns:minmax(0,1fr);row-gap:22px;padding:30px 40px 34px}
+.is-compact .ar-sub{display:none}
+.is-compact .ar-brand{font-size:66px}
+.is-compact .ar-free{font-size:34px}
+.is-compact .ar-listwrap{display:none}
+.is-compact .ar-preview{grid-template-columns:auto minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;column-gap:40px;row-gap:0;padding:0}
+.is-compact .ar-monitor{grid-row:1 / span 2}
+.is-compact .ar-preview > div:nth-child(2){align-self:center}
+.is-compact .ar-title{font-size:84px;white-space:normal;line-height:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+.is-compact .ar-blurb,.is-compact .ar-hint{display:none}
+.is-compact .ar-foot{justify-content:flex-start}
+.is-compact .ar-start{font-size:36px;letter-spacing:.16em;white-space:nowrap;padding:22px 34px 22px 40px}
 
-   IT IS DELIBERATELY NOT A SCROLL CONTAINER ANY MORE.
-   A scroller cannot wrap: there is no scrollLeft past the last child, so
-   "right from the last game brings the first one round" is unreachable. It
-   also gave us no way to say which cabinet is SELECTED except to guess from
-   an IntersectionObserver, which is why clicking any cabinet used to launch
-   it. With a real selection, the centre launches and the sides rotate.
-   ============================================================ */
-.rack{
-  position:absolute; left:50%; bottom:var(--baseline);
-  width:0; height:var(--hero-h);
-  margin:0; padding:0; list-style:none;
-  overflow:visible; z-index:3;
-  transform:translateX(0);
-}
+.ar-dock{position:fixed;left:12px;right:12px;z-index:20;display:none;overflow:auto;overscroll-behavior:contain;
+  padding:10px;border-radius:14px;background:rgb(5 7 10 / .72);border:1px solid rgb(200 151 63 / .35);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 18px 40px -16px rgb(0 0 0 / .9)}
+.is-compact .ar-dock{display:block}
+.is-playing .ar-dock,[data-view="wide"] .ar-dock{display:none}
+.ar-dock-h{margin:0 2px 8px;font:600 10px/1 var(--ar-grot);font-stretch:118%;letter-spacing:.26em;text-transform:uppercase;color:var(--bone-3)}
+.ar-dock .ar-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0;transform:none !important}
+.ar-dock .ar-row{margin:0}
+.ar-dock .ar-link{min-height:54px;grid-template-columns:22px minmax(0,1fr);padding:6px 10px 6px 14px;border-radius:10px;
+  background:rgb(19 26 36 / .85);border-color:rgb(200 151 63 / .22)}
+.ar-dock .ar-link::before{top:12px;bottom:12px;width:3px}
+.ar-dock .ar-num{font-size:10px}
+.ar-dock .ar-name{font-size:13px;letter-spacing:.06em;white-space:normal;line-height:1.15;overflow:visible}
+.ar-dock .ar-chev{display:none}
+.ar-dock .ar-link[aria-current="true"]{box-shadow:0 0 18px -6px rgb(var(--row-rgb) / .8)}
+.ar-dock .ar-link:focus-visible{box-shadow:0 0 0 2px #05070a, 0 0 0 4px var(--brass-300)}
 
-.slot{
-  position:absolute; bottom:0; left:calc(var(--cab-w) / -2);
-  width:var(--cab-w); height:var(--hero-h);
-  transform:translateX(0);
-  z-index:20;
-}
-/* the selected cabinet is on top. They no longer overlap, but a cabinet that
-   is mid-recycle passes the others, and the selected one should win. */
-.slot[data-slot="0"]{z-index:30}
+/* ── the live game ────────────────────────────────────────────────────── */
+/* NOT inside the camera: it is positioned in viewport pixels over where the
+   camera will put the screen, so the game lays out at its true size and is
+   never a scaled bitmap. */
+.ar-live{position:fixed;left:0;top:0;width:0;height:0;border:0;background:#000;z-index:30;
+  opacity:0;visibility:hidden;transition:opacity 380ms ease, visibility 0s linear 380ms}
+.ar-live.is-shown{opacity:1;visibility:visible;transition:opacity 380ms ease}
+.ar-scrim{position:fixed;inset:0;background:#05070a;z-index:29;opacity:0;pointer-events:none;transition:opacity 500ms ease}
+.is-expanded .ar-scrim{opacity:.94}
+.ar-vig{position:absolute;inset:0;pointer-events:none;z-index:2;opacity:.9;transition:opacity 900ms ease;
+  background:radial-gradient(120% 95% at 50% 42%, transparent 52%, rgb(3 5 9 / .72) 100%)}
+.is-playing .ar-vig{opacity:1;background:radial-gradient(90% 85% at 50% 50%, transparent 55%, rgb(3 5 9 / .9) 100%)}
 
-/* ---- light: pools live outside the scroll container so they are not
-        clipped. one element per cabinet, placed by --px / --py. ---- */
-.pools{position:absolute; inset:0; z-index:1; pointer-events:none}
-.pool{position:absolute; left:var(--px,50%); top:var(--py,50%); width:0; height:0}
-.pool::before{ /* (a) marquee -> soft elliptical pool on the ceiling void */
-  content:''; position:absolute; left:50%; top:50%;
-  width:var(--pw,520px); height:var(--ph,300px); transform:translate(-50%,-62%);
-  background:radial-gradient(closest-side,
-    rgba(235,206,147,.15), rgba(235,206,147,.07) 34%, rgba(235,206,147,.015) 66%, rgba(235,206,147,0) 100%);
-  opacity:var(--pa,1);
+/* ── HUD (viewport chrome) ───────────────────────────────────────────── */
+.ar-hud{position:fixed;left:0;right:0;z-index:40;display:flex;align-items:center;justify-content:center;gap:12px;
+  padding:0 16px;pointer-events:none}
+.ar-hud > *{pointer-events:auto}
+.ar-hud-top{top:max(10px, env(safe-area-inset-top));justify-content:space-between;opacity:0;visibility:hidden;
+  transform:translateY(-8px);transition:opacity 300ms ease, transform 300ms ease, visibility 0s linear 300ms}
+.is-playing .ar-hud-top{opacity:1;visibility:visible;transform:none;transition:opacity 300ms ease 500ms, transform 300ms ease 500ms}
+.ar-hud-bot{bottom:max(10px, env(safe-area-inset-bottom));transition:opacity 300ms ease}
+.is-playing .ar-hud-bot{opacity:0;pointer-events:none}
+.is-playing .ar-hud-bot > *{pointer-events:none}
+.ar-pill{appearance:none;display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 16px;border-radius:999px;
+  font:600 12px/1 var(--ar-grot);font-stretch:118%;letter-spacing:.2em;text-transform:uppercase;text-decoration:none;cursor:pointer;
+  color:var(--bone);background:rgb(9 13 19 / .78);border:1px solid rgb(200 151 63 / .55);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 6px 18px -6px rgb(0 0 0 / .7)}
+.ar-pill:hover{border-color:var(--brass-300);color:#fff}
+.ar-pill:focus-visible{outline:3px solid var(--brass-300);outline-offset:2px}
+.ar-pill svg{width:14px;height:14px;flex:none}
+.ar-pill-name{color:var(--brass-300)}
+.ar-hud-group{display:flex;gap:8px}
+.ar-tips{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;
+  font:600 11px/1.3 var(--ar-grot);font-stretch:115%;letter-spacing:.2em;text-transform:uppercase;color:var(--bone-3);
+  padding:8px 14px;border-radius:999px;background:rgb(5 7 10 / .55)}
+.ar-tips b{color:var(--brass-300);font-weight:700}
+.ar-tips a{color:var(--brass-300);text-decoration:none;border-bottom:1px solid rgb(200 151 63 / .5)}
+.ar-tips .ar-touch{display:none}
+@media (hover:none) and (pointer:coarse){ .ar-tips .ar-kb{display:none} .ar-tips .ar-touch{display:inline} }
+@media (max-width:520px){ .ar-pill-long{display:none} }
+@media (max-height:520px) and (orientation:landscape){
+  .ar-pill{min-height:32px;padding:0 12px}
+  .ar-hud-top{top:max(6px, env(safe-area-inset-top))}
+  .ar-hud-bot{bottom:max(4px, env(safe-area-inset-bottom))}
+  .ar-tips{padding:5px 12px}
 }
-.pool::after{ /* (b) screen -> tinted pool forward onto the carpet */
-  content:''; position:absolute; left:50%; top:var(--fy,300px);
-  width:var(--fw,420px); height:var(--fh,120px); transform:translate(-50%,-50%);
-  background:radial-gradient(closest-side ellipse,
-    rgb(var(--tint-rgb) / .14), rgb(var(--tint-rgb) / .04) 52%, rgb(var(--tint-rgb) / 0) 100%);
-  opacity:var(--pa,1);
-}
+.ar-mute[aria-pressed="true"] .ar-snd-on,.ar-mute[aria-pressed="false"] .ar-snd-off{display:none}
 
-.link{
-  display:block; position:absolute; inset:0;
-  text-decoration:none; color:inherit; outline:none;
-  -webkit-tap-highlight-color:transparent;
-}
+.grain{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;opacity:.05;mix-blend-mode:overlay;z-index:3}
 
-/* entry stagger lives on a wrapper so it never fights the depth transform.
-   fill:backwards, never both — a `both` fill leaves a filling transform
-   animation on every cabinet forever, which permanently promotes all five. */
-.enter{position:absolute; inset:0; animation:enter .62s cubic-bezier(.2,.7,.3,1) backwards; animation-delay:var(--delay,0ms)}
-@keyframes enter{from{opacity:0; transform:translateY(16px)} to{opacity:1; transform:none}}
+/* ── intro canvas (createArcadeIntro) — unchanged from v25 ───────────── */
+.c3-intro-canvas{position:fixed;inset:0;left:0;top:0;right:0;bottom:0;width:100%;height:100%;display:block;z-index:999;
+  pointer-events:none;touch-action:none;user-select:none;background:#05070a;opacity:1;transition:opacity 200ms linear;will-change:opacity;
+  image-rendering:pixelated;image-rendering:crisp-edges;object-fit:cover}
 
-/* ---- the cabinet box. NO transform: every cabinet is drawn at 1:1 and the
-        only thing that moves is the track. ---- */
-.cab{
-  position:absolute; inset:0;
-  transform-origin:50% 100%;
+@media (prefers-reduced-motion: reduce){
+  .ar-cam,.ar-list,.ar-spill{transition:none !important}
+  .ar-ui.is-power,.ar-monitor.is-swap .ar-crt{animation:none !important}
+  .is-on .ar-marq-glow{animation:none;opacity:.45}
+  .ar-link[aria-current="true"] .ar-chev,.ar-start,.ar-free i,.ar-bar i{animation:none !important}
+  .c3-intro-canvas{display:none !important}
 }
-
-/* SELECTION veil — an ink veil, never filter().
-   This is NOT the old dimming ramp by depth. There is no depth: every
-   cabinet is the same size and the same distance away, so there is nothing
-   to ramp. It is one flat value that means "not the selected machine", and
-   together with the live screen it is what tells a rep which cabinet Enter
-   will start. */
-.dim{
-  position:absolute; inset:0; z-index:5; pointer-events:none;
-  background:var(--ink-950); opacity:0; visibility:hidden;
-  transition:opacity .32s ease, visibility 0s linear .32s;
-}
-.slot:not([data-slot="0"]) .dim{
-  visibility:visible; opacity:.34;
-  transition:opacity .32s ease, visibility 0s;
-}
-
-/* ============================================================
-   CABINET BODY (SVG geometry, taper baked into the coordinates)
-   ============================================================ */
-/* geo-tql / geo-tqr are PARKED, not deleted — see the note above geoTQL() in
-   the script. Nothing builds them any more: every cabinet is data-geo="front",
-   so these two rules never match and no three-quarter markup reaches the DOM. */
-.geo{position:absolute; inset:0; width:100%; height:100%; display:none; overflow:visible}
-.slot[data-geo="front"]    .geo-front{display:block}
-.slot[data-geo="tq-left"]  .geo-tql  {display:block}   /* parked */
-.slot[data-geo="tq-right"] .geo-tqr  {display:block}   /* parked */
-
-/* front face rectangle — position differs per geometry */
-.face{
-  position:absolute; top:0; bottom:0; left:0; width:100%;
-  box-shadow:0 0 13px 0 rgba(5,7,10,.8);
-}
-/* parked with the geometries above; --face-w is var(--cab-w) for every
-   cabinet on the floor today. */
-.slot[data-geo="tq-left"]  .face{left:4%;  width:78%; --face-w:calc(var(--cab-w)*.78)}
-.slot[data-geo="tq-right"] .face{left:18%; width:78%; --face-w:calc(var(--cab-w)*.78)}
-
-/* contact shadow on the carpet — elliptical, tight, no blur() */
-.contact{
-  position:absolute; left:50%; bottom:-1.5%; width:140%; height:8%;
-  transform:translateX(-50%); pointer-events:none; z-index:6;
-  background:radial-gradient(closest-side ellipse,
-    rgba(5,7,10,1) 0 34%, rgba(5,7,10,.78) 58%, rgba(5,7,10,.28) 80%, rgba(5,7,10,0) 100%);
-}
-
-/* ---- 1. MARQUEE ------------------------------------------------ */
-.marquee{
-  position:absolute; left:0; right:0; top:0; height:13%;
-  border:2px solid var(--tint);
-  box-shadow:0 0 0 1px var(--brass-700), inset 0 -4px 0 var(--ink-800);
-  background:
-    linear-gradient(90deg, rgba(9,13,19,.34) 0%, rgba(9,13,19,0) 10%,
-                           rgba(9,13,19,0) 90%, rgba(9,13,19,.34) 100%),
-    linear-gradient(180deg,
-      rgba(24,19,12,.34)     0%,
-      rgba(24,19,12,.10)     9%,
-      rgba(255,255,255,.20) 19%,
-      rgba(255,255,255,1)   28%,
-      rgba(255,255,255,.22) 38%,
-      rgba(24,19,12,.11)    50%,
-      rgba(255,255,255,.22) 59%,
-      rgba(255,255,255,1)   68%,
-      rgba(255,255,255,.18) 78%,
-      rgba(24,19,12,.12)    90%,
-      rgba(24,19,12,.38)   100%),
-    var(--bone-2);
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  overflow:hidden;
-}
-.mq-title{
-  position:relative; z-index:2;
-  font-weight:800; letter-spacing:.08em; color:var(--ink-950);
-  font-size:calc(var(--face-w) * .098 * var(--mq-fit,1)); line-height:1;
-  text-align:center; padding:0 5%; white-space:nowrap;
-}
-.mq-rule{
-  position:relative; z-index:2;
-  width:46%; height:3px; margin-top:.34em; background:var(--tint);
-}
-/* flicker: rest state is opacity 0 so "still" == "identical" */
-.mq-flick{
-  position:absolute; inset:0 3px; z-index:3; opacity:0;
-  background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.1));
-}
-.slot[data-slot="0"] .mq-flick{animation:flick 7.5s steps(1,end) infinite}
-@keyframes flick{
-  0%,96.0%{opacity:0} 96.3%{opacity:.30} 96.6%{opacity:0}
-  97.2%{opacity:.42} 97.5%{opacity:0} 98.4%{opacity:.18} 98.7%{opacity:0}
-}
-
-/* ---- 1b. UNDERSIDE LIP + speaker holes + light spill ----------- */
-.lip{
-  position:absolute; left:0; right:0; top:13%; height:2.6%;
-  background:var(--ink-800);
-  box-shadow:inset 0 1px 0 rgba(58,70,83,.45);
-}
-.lip::before{
-  content:''; position:absolute; inset:0;
-  background-image:radial-gradient(circle, rgba(5,7,10,.95) 0 30%, rgba(5,7,10,0) 33%);
-  background-size:calc(100% / 11) 100%;
-}
-.lip::after{
-  content:''; position:absolute; left:4%; right:4%; top:100%; height:340%;
-  background:radial-gradient(68% 100% at 50% 0%,
-    rgba(235,206,147,.26), rgba(235,206,147,.05) 55%, rgba(235,206,147,0) 78%);
-  pointer-events:none;
-}
-
-/* ---- 2. BEZEL -------------------------------------------------- */
-.bezel{
-  position:absolute; left:0; right:0; top:15.6%; height:37.4%;
-  border-top:1px solid var(--steel);
-  background:
-    repeating-linear-gradient(45deg, rgba(19,26,36,.30) 0 1px, rgba(0,0,0,0) 1px 2px),
-    radial-gradient(130% 88% at 50% 2%, #0c121b 0%, #080d14 58%, #05080d 100%),
-    var(--ink-850);
-}
-.print{
-  position:absolute; bottom:5%; font-weight:600; font-size:calc(var(--face-w) * .0381);
-  letter-spacing:.22em; color:var(--bone-3); white-space:nowrap;
-}
-.print.l{left:7%} .print.r{right:7%}
-
-/* ---- 3. SCREEN ------------------------------------------------- */
-.screen{
-  position:absolute; left:7%; right:7%; top:7%; bottom:auto; aspect-ratio:4/3;
-  border-radius:14px; overflow:hidden;
-  background:
-    radial-gradient(72% 62% at 50% 42%, rgb(var(--tint-rgb) / .30), rgba(5,7,10,0) 74%),
-    var(--ink-950);
-  box-shadow:
-    inset 0 0 0 1px rgba(38,49,63,.7),
-    inset 0 0 26px 9px rgba(5,7,10,.9),
-    0 0 0 1px rgba(5,7,10,.9);
-}
-.screen-slot{position:absolute; inset:0; z-index:2} /* drop a <canvas> here */
-.still{
-  position:absolute; inset:0; z-index:1; display:flex;
-  flex-direction:column; align-items:center; justify-content:center;
-  background:
-    radial-gradient(56% 42% at 50% 78%, rgb(var(--tint-rgb) / .72), rgba(5,7,10,0) 76%),
-    linear-gradient(180deg, rgb(var(--tint-rgb) / .38) 0%, rgb(var(--tint-rgb) / .10) 38%,
-                            rgba(5,7,10,.38) 62%, rgba(5,7,10,.68) 100%),
-    var(--ink-950);
-}
-.still::before{ /* starfield */
-  content:''; position:absolute; inset:0; opacity:.55;
-  background-image:
-    radial-gradient(circle 1px at 5px 8px,  rgba(244,239,230,.60), rgba(0,0,0,0) 100%),
-    radial-gradient(circle 1px at 19px 3px, rgba(244,239,230,.30), rgba(0,0,0,0) 100%),
-    radial-gradient(circle 1px at 9px 21px, rgba(142,240,208,.34), rgba(0,0,0,0) 100%);
-  background-size:31px 37px, 23px 29px, 17px 41px;
-}
-.still::after{ /* ground line */
-  content:''; position:absolute; left:0; right:0; bottom:24%; height:1px;
-  background:linear-gradient(90deg, rgba(142,240,208,0), rgb(var(--tint-rgb) / .8) 50%, rgba(142,240,208,0));
-}
-.still b{
-  position:relative; z-index:2; font-weight:800;
-  font-size:calc(var(--cab-w) * .072); line-height:1.15;
-  letter-spacing:.14em; color:var(--lcd); text-align:center; padding:0 8%;
-  text-shadow:0 0 12px rgba(142,240,208,.45);
-}
-.still em{
-  position:relative; z-index:2; font-style:normal; margin-top:.5em;
-  font-size:calc(var(--cab-w) * .042); letter-spacing:.2em; color:var(--bone-3);
-}
-.scan{
-  position:absolute; left:0; right:0; top:-12px; height:calc(100% + 24px); z-index:6;
-  background:repeating-linear-gradient(transparent 0 2px, rgba(5,7,10,.40) 2px 3px);
-}
-.slot[data-slot="0"] .scan{animation:drift 9s linear infinite}
-@keyframes drift{from{transform:translateY(0)} to{transform:translateY(9px)}}
-.corner{ /* barrel vignette, 118% */
-  position:absolute; left:-9%; top:-9%; width:118%; height:118%; z-index:3;
-  background:radial-gradient(closest-side ellipse,
-    rgba(5,7,10,0) 38%, rgba(5,7,10,.34) 64%, rgba(5,7,10,.82) 86%, rgba(5,7,10,1) 100%);
-}
-.streak{ /* one diagonal glass streak, 22deg, white 5% */
-  position:absolute; inset:-25%; z-index:4;
-  background:
-    linear-gradient(112deg,
-      rgba(255,255,255,0) 36%, rgba(255,255,255,.05) 43%,
-      rgba(255,255,255,.05) 52%, rgba(255,255,255,0) 59%),
-    linear-gradient(180deg, rgba(255,255,255,.13) 0%, rgba(255,255,255,.025) 11%, rgba(255,255,255,0) 28%),
-    radial-gradient(130% 62% at 50% -16%, rgba(219,232,239,.16), rgba(0,0,0,0) 62%);
-}
-
-/* ---- 4. CONTROL PANEL ------------------------------------------ */
-.panel{
-  position:absolute; left:0; right:0; top:53%; height:14%;
-  clip-path:polygon(4% 0, 96% 0, 100% 100%, 0 100%);
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.10) 0 2%, rgba(255,255,255,.02) 12%, rgba(5,7,10,.42) 46%, rgba(5,7,10,.72) 100%),
-    linear-gradient(rgb(var(--tint-rgb) / .18), rgb(var(--tint-rgb) / .18)),
-    var(--ink-800);
-  /* every control is a fraction of the FRONT FACE, which is narrower on the
-     three-quarter geometries than the cabinet box is */
-  --btn-d:   calc(var(--face-w) * .115);
-  --btn-gap: calc(var(--face-w) * .042);
-  --btn-r:   calc(var(--face-w) * .105);
-}
-.panel .edge{position:absolute; left:0; right:0; bottom:0; height:2px; background:var(--brass-700)}
-.stick{position:absolute; left:24%; top:50%; width:17.5%; aspect-ratio:1; transform:translate(-50%,-56%)}
-.stick .skirt{
-  position:absolute; left:50%; bottom:-14%; width:118%; height:44%;
-  transform:translateX(-50%); border-radius:50%;
-  background:radial-gradient(closest-side ellipse, var(--ink-700) 0 58%, rgba(5,7,10,.9) 100%);
-}
-.stick .shaft{
-  position:absolute; left:50%; top:38%; width:22%; height:46%;
-  transform:translateX(-50%);
-  background:linear-gradient(90deg,#2b3541,var(--steel) 45%,#222b35);
-}
-.stick .ball{
-  position:absolute; inset:0 12% 32% 12%; border-radius:50%;
-  background:radial-gradient(circle at 32% 28%,
-    rgba(255,255,255,.98) 0 3%, rgba(255,255,255,.5) 9%, rgba(255,255,255,.12) 16%,
-    var(--alert) 44%, #a83a2b 82%, #6d2418 100%);
-  box-shadow:0 1px 0 rgba(5,7,10,.8);
-}
-.btn{
-  position:absolute; top:50%; border-radius:50%;
-  transform:translateY(-58%);
-  box-shadow:0 0 0 2px var(--ink-800), 0 2px 0 1px rgba(5,7,10,.85);
-}
-.btn.a{background:radial-gradient(circle at 36% 30%, #ffe1a8 0 22%, var(--amber) 62%, #a97426 100%)}
-.btn.b{background:radial-gradient(circle at 36% 30%, #d9fff1 0 22%, var(--lcd) 62%, #3c8d76 100%)}
-
-/* `.btn` is ALSO a global component in the site stylesheet (theme.css): it
-   carries `padding-inline:var(--sp-5)` (1.5rem => 24px a side) and
-   `min-block-size:44px`, which floor this element's border-box at 48x48 and
-   made both buttons a CONSTANT 48px at every geometry and LOD — overlapping
-   even on the hero and clipping off the narrower three-quarter face. The
-   class name is emitted by the cabinet builder, so neutralise the component
-   here, then size and place from --face-w. Its :hover filter and :active
-   scale are dropped too: this room allows neither. */
-.panel .btn{
-  display:block; padding:0; gap:0;
-  min-inline-size:0; min-block-size:0;
-  font-size:0; line-height:0; letter-spacing:normal; text-transform:none;
-  transition:none; aspect-ratio:auto;
-  width:var(--btn-d); height:var(--btn-d);
-}
-.panel .btn:hover,.panel .btn:focus-visible,.panel .btn:active{
-  filter:none; transform:translateY(-58%);
-}
-/* anchored from the face's right edge, so the gap between them and the margin
-   from the moulded edge are guaranteed at every face width */
-.panel .btn.b{left:auto; right:var(--btn-r)}
-.panel .btn.a{left:auto; right:calc(var(--btn-r) + var(--btn-d) + var(--btn-gap))}
-
-/* ---- 5. APRON: FREE PLAY + PRESS START ------------------------- */
-.apron{
-  position:absolute; left:0; right:0; top:67%; height:13%;
-  background:linear-gradient(180deg,#0f151d,var(--ink-850) 55%,#0b1017);
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:calc(var(--face-w) * .018); overflow:hidden;
-}
-.freeplay{
-  font-size:calc(var(--face-w) * .0423); letter-spacing:.2em; font-weight:700; color:var(--lcd);
-  line-height:1.2; text-shadow:0 0 8px rgba(142,240,208,.4);
-}
-.slot[data-slot="0"] .freeplay{animation:blink 1.4s steps(1,end) infinite}
-@keyframes blink{0%,54%{opacity:1} 55%,100%{opacity:.12}}
-.start{
-  font-weight:800; font-size:calc(var(--face-w) * .0635); letter-spacing:.16em;
-  line-height:1.2; color:var(--ink-950); background:var(--amber);
-  border:1px solid var(--brass-700);
-  padding:.28em .8em .32em;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.55), inset 0 -1px 0 rgba(5,7,10,.28);
-}
-.enterline{
-  font-size:calc(var(--face-w) * .0381); letter-spacing:.22em; font-weight:700; color:var(--lcd);
-  line-height:1.2; opacity:0; transition:opacity .18s ease; margin-top:.1em;
-}
-
-/* ---- 6. COIN DOOR ---------------------------------------------- */
-.coin{
-  position:absolute; left:0; right:0; top:80%; height:9%;
-  background:linear-gradient(180deg,var(--ink-600) 0%,var(--steel) 30%,#2c3742 74%,var(--ink-700) 100%);
-  box-shadow:inset 0 1px 0 rgba(219,232,239,.18), inset 0 -1px 0 rgba(5,7,10,.9);
-  display:flex; align-items:center; gap:5%; padding:0 7%;
-}
-.coin .well{
-  flex:0 0 40%; height:62%;
-  background:linear-gradient(180deg,#141c26,var(--ink-700));
-  box-shadow:inset 0 1px 2px rgba(5,7,10,.95);
-  display:flex; align-items:center; justify-content:center; gap:14%;
-}
-.coin .esc{
-  width:26%; height:72%; background:var(--bone-3);
-  display:flex; align-items:center; justify-content:center;
-  box-shadow:0 1px 0 rgba(5,7,10,.7);
-}
-.coin .esc span{width:20%; height:66%; background:var(--ink-950)}
-.coin .ret{
-  flex:0 0 15%; height:40%;
-  background:linear-gradient(180deg,var(--ice-300),#6d8391);
-  box-shadow:inset 0 -1px 0 rgba(5,7,10,.5);
-}
-.coin .price{
-  margin-left:auto; font-size:calc(var(--face-w) * .0339); letter-spacing:.04em;
-  font-weight:700; color:var(--bone-3); white-space:nowrap;
-}
-
-/* ---- 7. BASE / KICKPLATE --------------------------------------- */
-.base{
-  position:absolute; left:0; right:0; top:89%; height:11%;
-  background:
-    radial-gradient(120% 150% at 50% 128%, rgba(200,151,63,.10), rgba(200,151,63,0) 66%),
-    linear-gradient(180deg,var(--ink-800) 0%,var(--ink-900) 22%,#070a0f 68%,var(--ink-950) 100%);
-  box-shadow:inset 0 1px 0 rgba(58,70,83,.45);
-}
-.base .toe{
-  position:absolute; left:0; right:0; bottom:0; height:32%;
-  background:var(--ink-950); box-shadow:inset 0 1px 0 rgba(5,7,10,1), 0 -1px 0 rgba(38,49,63,.22);
-}
-.base .feet{position:absolute; left:8%; right:8%; bottom:1%; height:11%; display:flex; justify-content:space-between}
-.base .feet i{width:3.5%; height:100%; background:var(--steel); opacity:.55}
-
-/* ---- 9. T-MOLDING ---------------------------------------------- */
-.tmold{
-  position:absolute; top:0; bottom:0; width:3px; z-index:4;
-  background:var(--tint);
-  transition:width .18s ease, background-color .18s ease;
-}
-.tmold::after{
-  content:''; position:absolute; inset:0;
-  background:linear-gradient(90deg, rgba(255,255,255,.42), rgba(5,7,10,.35));
-}
-.tmold.l{left:0} .tmold.r{right:0}
-
-/* ---- focus-visible ---------------------------------------------- */
-.link:focus-visible .face{outline:2px solid var(--lcd); outline-offset:6px}
-.link:focus-visible .tmold{width:4px; background:var(--lcd)}
-.link:focus-visible .enterline{opacity:1}
-.link:focus-visible .dim{opacity:0}
-.link:focus-visible .marquee{box-shadow:0 0 0 1px var(--brass-700), inset 0 -4px 0 var(--ink-800), 0 0 22px 2px rgba(235,206,147,.35)}
-
-/* ============================================================
-   LEVEL OF DETAIL — driven by measured rendered height
-   ============================================================ */
-/* LOD-1: reduced */
-.slot[data-lod="1"] .print,
-.slot[data-lod="1"] .lip::after,
-.slot[data-lod="1"] .base .feet,
-.slot[data-lod="1"] .coin .ret,
-.slot[data-lod="1"] .coin .price,
-.slot[data-lod="1"] .still em,
-.slot[data-lod="1"] .streak{display:none}
-.slot[data-lod="1"] .scan{background:repeating-linear-gradient(transparent 0 3px, rgba(5,7,10,.40) 3px 4px)}
-.slot[data-lod="1"] .screen{border-radius:9px}
-.slot[data-lod="1"] .coin .well{left:16%; right:16%; top:26%; bottom:26%; gap:22%}
-.slot[data-lod="1"] .coin .esc{background:none}
-.slot[data-lod="1"] .coin .esc span{width:26%; height:100%; background:var(--ink-950)}
-.slot[data-lod="1"] .stick .skirt,
-.slot[data-lod="1"] .btn{box-shadow:0 0 0 1px var(--ink-800)}
-.slot[data-lod="1"] .start{font-size:calc(var(--face-w) * .0550); letter-spacing:.1em; padding:.2em .55em}
-.slot[data-lod="1"] .freeplay{font-size:calc(var(--face-w) * .0381)}
-
-/* LOD-2: silhouette + a real text title BELOW the cabinet */
-.slot[data-lod="2"] .lip,
-.slot[data-lod="2"] .apron > *,
-.slot[data-lod="2"] .panel .stick,
-.slot[data-lod="2"] .panel .btn,
-.slot[data-lod="2"] .scan,
-.slot[data-lod="2"] .streak,
-.slot[data-lod="2"] .still b,
-.slot[data-lod="2"] .still em,
-.slot[data-lod="2"] .mq-title,
-.slot[data-lod="2"] .mq-rule,
-.slot[data-lod="2"] .print,
-.slot[data-lod="2"] .base .feet{display:none}
-.slot[data-lod="2"] .marquee{background:linear-gradient(180deg,var(--bone-3),var(--bone-2) 46%,#8e877d); border-width:1px}
-.slot[data-lod="2"] .coin{background:none; height:0; top:80%}
-.slot[data-lod="2"] .coin .well{left:14%; right:14%; top:0; bottom:auto; height:2px; background:var(--steel); box-shadow:none}
-.slot[data-lod="2"] .coin .esc{display:none}
-.slot[data-lod="2"] .screen{border-radius:4px}
-.slot[data-lod="2"] .tmold{width:2px}
-.tag{
-  position:absolute; left:50%; z-index:7;
-  bottom:-26px;
-  transform:translateX(-50%);
-  font-size:11px; font-weight:800; letter-spacing:.16em; color:var(--bone-2);
-  white-space:nowrap; display:none; text-shadow:0 1px 3px rgba(5,7,10,.9);
-}
-.slot[data-lod="2"] .tag{display:block}
-
-/* ============================================================
-   BREAKPOINTS on usable width
-   ------------------------------------------------------------
-   These set only how WIDE a cabinet may be drawn. How far apart the cabinets
-   sit — the ring step — is measured in JS from the room's real width, because
-   it depends on the cabinet width, which depends on the viewport HEIGHT, and
-   no media query can see both. layout() is the one place that decides it, and
-   these are the three bands it implements:
-
-     >= 1040px   three full cabinets, the middle one selected
-      720-1040   one full cabinet, ~55% of each neighbour showing
-      < 720px    one full cabinet, a ~20px sliver of each neighbour
-
-   Nothing is hidden by breakpoint any more. A cabinet is hidden when it is
-   off-stage, which paintRing() works out from the measured geometry — so a
-   narrow window shows fewer cabinets because fewer fit, not because a media
-   query said so.
-   ============================================================ */
-@media (max-width:1039.98px){ :root{ --cab-max:34vw } }
-@media (max-width:719.98px){
-  :root{ --cab-max:62vw }
-  .sign .plate{font-size:calc(var(--hero-h) * .03); letter-spacing:.26em}
-}
-
-/* ============================================================
-   REDUCED MOTION — the room is identical when still
-   ============================================================ */
-@media (prefers-reduced-motion:reduce){
-  .enter{animation:none}
-  .slot[data-slot="0"] .scan,
-  .slot[data-slot="0"] .mq-flick,
-  .slot[data-slot="0"] .freeplay{animation:none}
-  /* The rotation itself is made instant in JS (run() skips the tween and
-     lands on the target in one paint). These two are the only transitions
-     the rotation would otherwise start on its way past. */
-  .dim{transition:none}
-  .link:focus-visible .marquee{transition:none}
-}
-
-/* ============================================================
-   HARNESS CHROME (not part of the render layer)
-   ============================================================ */
-.hud{
-  display:flex; justify-content:center; flex-wrap:wrap; gap:10px; padding:12px 16px;
-  font-size:10px; letter-spacing:.2em; color:var(--bone-3); pointer-events:none;
-}
-.hud b{color:var(--brass-300); font-weight:700}
-
-/* ⚠ CLASS NAMES IN THIS FILE SHARE A NAMESPACE WITH assets/theme.css.
-      This page loads the site stylesheet for .visually-hidden, .skip-link and
-      the §16 focus ring — which means every bare class name below is exposed
-      to a component of the same name over there. Three collided and are pinned
-      where they are defined:
-        .btn   — theme.css §BUTTONS floors it at 48px via padding-inline and
-                 applies filter:brightness() on hover, INSIDE a room that
-                 forbids filter. It made every cabinet's buttons a constant
-                 48px, so they overlapped on the hero and were clipped off the
-                 face on the three-quarter cabinets.
-        .floor — theme.css makes it a centred 34rem layout column. The arcade
-                 carpet shipped clamped to 544px in the middle of a black floor.
-        .plate — benign today, but its transform:none would silently veto any
-                 transform added here later.
-      BEFORE ADDING A CLASS NAME HERE, grep assets/theme.a73825e539.css for it. A collision
-      does not error, it just quietly renders something else's design.
-   ============================================================ */
-
-/* ============================================================
-   PRODUCTION ADDENDUM
-   Everything above is the render layer. Everything below is what
-   it takes to be a real station inside the tool viewer: the one
-   canvas, the honest failure states, and the chrome the rest of
-   the site expects (skip link, back link, live region).
-   ============================================================ */
-
-/* The viewer gives this page a frame with its own chrome bar, so the room
-   sizes to the frame rather than to the document. --room-h still drives every
-   internal proportion; this just stops a scrollbar appearing when the frame is
-   a few pixels shorter than the room wants to be. */
-body{min-height:100%; display:flex; flex-direction:column}
-.arcade{flex:1 1 auto}
-
-/* The whole room is the drag surface, not just the cabinets — a rep swiping a
-   dark break-room wall expects the row to move. touch-action:pan-y hands the
-   horizontal axis to our pointer handlers while leaving a vertical flick to
-   the page, so the colophon is still reachable on a short phone. */
-.arcade{cursor:grab; touch-action:pan-y}
-.arcade[data-drag="1"]{cursor:grabbing; user-select:none; -webkit-user-select:none}
-.arcade .link{cursor:pointer}
-
-/* ── THE ONE CANVAS ──────────────────────────────────────────────────────
-   Exactly one <canvas> exists in this document, ever. It is moved into the
-   centred cabinet's .screen-slot and mounted there; the previous cabinet
-   reverts to its CSS still. 320x240 backing store at DPR 1, upscaled hard —
-   the chunky pixels are the period, and the layer stays at 0.31MB however
-   large the cabinet is drawn. */
-.crt{
-  position:absolute; inset:0; width:100%; height:100%;
-  display:block; z-index:2;
-  image-rendering:pixelated; image-rendering:crisp-edges;
-  border-radius:inherit;
-}
-/* the still is the fallback picture; hide it only where the canvas is live,
-   so a cabinet the engine has not reached still shows something. */
-.slot.has-crt .still{opacity:0}
-
-/* ── the un-wired cabinet ────────────────────────────────────────────────
-   A game listed in the manifest whose slug is not in the tool registry
-   cannot be launched — `#/tool/<slug>` would resolve to nothing. It still
-   gets a cabinet, because it exists; it just says so, out of order, the way a
-   real arcade machine does. */
-.slot[data-wired="no"] .start{
-  background:var(--ink-700); color:var(--bone-3);
-  border-color:var(--steel); box-shadow:none;
-}
-.slot[data-wired="no"] .freeplay{color:var(--alert); animation:none}
-.slot[data-wired="no"] .cab{filter:none; opacity:.86}
-
-/* ── station chrome ──────────────────────────────────────────────────────
-   Kept deliberately quiet: the viewer already shows a Back control and the
-   title. This is the belt-and-braces copy for a rep who opened the page
-   directly, plus the keyboard legend. */
-.hud{
-  position:relative; z-index:7;
-  display:flex; justify-content:center; align-items:center;
-  flex-wrap:wrap; gap:6px 14px;
-  padding:10px 16px calc(10px + env(safe-area-inset-bottom));
-  font-size:10px; letter-spacing:.2em; text-transform:uppercase;
-  color:var(--bone-3); background:var(--ink-950);
-}
-.hud b{color:var(--brass-300); font-weight:700}
-.hud .sep{opacity:.4}
-.hud a{
-  color:var(--brass-300); text-decoration:none;
-  border-bottom:1px solid rgb(var(--brass700-rgb) / .8);
-  padding-bottom:1px; pointer-events:auto;
-}
-.hud a:hover{color:var(--amber)}
-/* touch has no arrow keys and no Tab; swap the legend rather than lie. */
-@media (hover:none) and (pointer:coarse){ .hud .kb{display:none} }
-@media (hover:hover){ .hud .touch{display:none} }
-
-/* ── failure states ──────────────────────────────────────────────────────
-   Drawn INSIDE the room, on the marquee of a single dark cabinet, because a
-   white error card dropped into a dark arcade is the one thing that would
-   break the illusion for good. */
-.state{
-  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-  z-index:7; max-inline-size:44ch; text-align:center; padding:0 var(--sp-4, 1rem);
-}
-.state h2{
-  font-family:var(--font); font-weight:800; font-size:15px;
-  letter-spacing:.22em; text-transform:uppercase; color:var(--amber);
-  margin:0 0 10px;
-}
-.state p{margin:0; font-size:13px; line-height:1.6; color:var(--bone-2)}
-.state code{
-  font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size:12px; color:var(--lcd); background:rgb(var(--ink950-rgb) / .7);
-  padding:1px 5px; border-radius:3px;
-}
-
-/* ── the colophon ────────────────────────────────────────────────────────
-   The two-row rule travels with the code. Off-screen for sighted reps (the
-   room is the point) but read by anyone using the page with a screen reader
-   or looking at source — which is exactly who needs it. */
-.colophon{
-  padding:0 16px 16px; margin:0; text-align:center;
-  font-size:9px; line-height:1.8; letter-spacing:.04em;
-  color:rgb(var(--bone-rgb) / .28);
-  background:var(--ink-950); position:relative; z-index:7;
-}
-.colophon code{color:rgb(var(--lcd-rgb) / .42); font-family:ui-monospace, SFMono-Regular, Menlo, monospace}
-/* The room is the point; this is a footnote for whoever comes to edit the
-   manifest. Anything brighter competes with the cabinets from across a break
-   room, which is the one distance that matters here. */
-@media (max-width: 719px){ .colophon{display:none} }
-
-/* The grain is fixed-position and would sit over the HUD; keep it on the room
-   only. (It is also the cheapest thing on the page to get wrong: mix-blend
-   over text is instantly ugly.) */
-.grain{z-index:5}
-
-/* C3 Arcade entry cinematic - the canvas createArcadeIntro().play() injects.
-   The module also sets these inline as a fallback, so the intro still works
-   if this block is missing; this is the canonical source. */
-.c3-intro-canvas {
-  position: fixed;
-  inset: 0;
-  left: 0; top: 0; right: 0; bottom: 0;   /* inset fallback */
-  width: 100%;
-  height: 100%;
-  display: block;
-  z-index: 999;
-
-  /* the page underneath is still building - never eat its input */
-  pointer-events: none;
-  touch-action: none;
-  user-select: none;
-
-  background: #05070a;
-  opacity: 1;
-  transition: opacity 200ms linear;        /* JS overrides to 180ms on skip */
-  will-change: opacity;
-
-  /* 640x360 backing store stretched to cover: keep the pixels hard */
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;            /* older WebKit/Firefox */
-  object-fit: cover;
-}
-
-/* The skip hint is drawn on the canvas, not in the DOM - no extra elements.
-   If you ever want it as DOM instead, this is the matching treatment. */
-.c3-intro-skip {
-  position: fixed;
-  right: 12px;
-  bottom: 14px;
-  z-index: 1000;
-  pointer-events: none;
-  font: 10px/1.4 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-  letter-spacing: 0.14em;
-  text-align: right;
-  text-transform: uppercase;
-  color: #9fb6c4;
-  opacity: 0.38;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  /* play() bails out before creating the canvas; belt and braces if one exists */
-  .c3-intro-canvas { display: none !important; }
+@media (forced-colors: active){
+  .ar-link[aria-current="true"]{border-color:Highlight}
 }
   </style>
 </head>
 <body>
-  <a class="skip-link" href="#rack">Skip to the games</a>
+  <a class="skip-link" href="#ar-list">Skip to the games</a>
 
-  <div class="arcade" id="arcade">
-    <div class="wall"></div>
-    <div class="floor"></div>
+  <main class="ar-stage" id="ar-stage" aria-label="C³ Arcade">
+    <div class="ar-cam is-still" id="ar-cam">
+      <img class="ar-photo" id="ar-photo" alt="" decoding="async"
+           src="../../arcade/room/cabinet-2560.webp"
+           srcset="../../arcade/room/cabinet-1600.webp 1600w, ../../arcade/room/cabinet-2560.webp 2560w, ../../arcade/room/cabinet-4096.webp 4096w"
+           sizes="1600px">
+      <div class="ar-at ar-marq-glow" data-box="marquee" aria-hidden="true"></div>
+      <div class="ar-at ar-spill" data-box="spill" aria-hidden="true"></div>
 
-    <div class="sign" aria-hidden="true">
-      <div class="plate">C³ ARCADE</div>
-      <div class="bulbs"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="ar-at ar-screen" data-box="screen" id="ar-screen">
+        <div class="ar-ui" id="ar-ui">
+          <div class="ar-menu" id="ar-menu">
+            <div class="ar-top">
+              <div class="ar-top-l">
+                <span class="ar-brand">C<sup>3</sup> Arcade</span>
+                <span class="ar-sub">Select a game</span>
+              </div>
+              <span class="ar-free"><i>Free play</i></span>
+            </div>
+
+            <div class="ar-listwrap">
+              <!-- A list of real links. One tab stop (roving tabindex); arrow
+                   keys move the selection. Built from arcade/manifest.json. -->
+              <ul class="ar-list" id="ar-list" role="list"
+                  aria-label="Games — up and down arrow keys to choose, Enter to play"></ul>
+            </div>
+
+            <div class="ar-preview">
+              <div class="ar-monitor" id="ar-monitor" aria-hidden="true"><canvas class="ar-crt" id="ar-crt" width="320" height="240"></canvas></div>
+              <div aria-hidden="true">
+                <p class="ar-title" id="ar-title">&nbsp;</p>
+                <p class="ar-blurb" id="ar-blurb">&nbsp;</p>
+              </div>
+              <div class="ar-foot">
+                <span class="ar-hint" aria-hidden="true"><b>1P</b> Free play</span>
+                <button class="ar-start" id="ar-start" type="button" tabindex="-1">Press start</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="ar-card" id="ar-card" role="presentation">
+            <div class="ar-card-in">
+              <p class="ar-kicker" id="ar-card-kicker">Player 1</p>
+              <h2 id="ar-card-title">Loading</h2>
+              <p id="ar-card-body"></p>
+              <div class="ar-bar" id="ar-card-bar"><i></i></div>
+              <div class="ar-card-actions" id="ar-card-actions"></div>
+            </div>
+          </div>
+
+          <div class="ar-glass" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      <button class="ar-at ar-deck" data-box="deck" id="ar-deck" type="button" tabindex="-1" aria-label="Press start"></button>
+      <button class="ar-at ar-coin" data-box="coin" id="ar-coin" type="button" tabindex="-1" aria-label="Insert coin"></button>
     </div>
+    <div class="ar-vig" aria-hidden="true"></div>
+  </main>
 
-    <div class="pools" id="pools" aria-hidden="true"></div>
+  <div class="ar-dock" id="ar-dock"><p class="ar-dock-h" aria-hidden="true">Choose a game</p></div>
+  <div class="ar-scrim" aria-hidden="true"></div>
+  <div id="ar-live-host"></div>
 
-    <!-- The rack is a <ul> of real links, one tab stop, roving tabindex. It is
-         built from arcade/manifest.json at runtime and is empty until then. -->
-    <ul class="rack" id="rack" role="list"
-        aria-label="C³ Arcade cabinets — left and right arrow keys to turn the rack, Home and End for the first and last game"></ul>
-
-    <div class="vig" aria-hidden="true"></div>
+  <div class="ar-hud ar-hud-top" id="ar-hud-top">
+    <button class="ar-pill" id="ar-back" type="button">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+      <span>Games</span>
+    </button>
+    <span class="ar-pill ar-pill-long" aria-hidden="true" style="pointer-events:none;border-color:transparent;background:rgb(9 13 19 / .5)">Now playing&nbsp;<span class="ar-pill-name" id="ar-now"></span></span>
+    <div class="ar-hud-group">
+      <button class="ar-pill" id="ar-reload" type="button" aria-label="Restart the game">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.6-3.7M13 2.5v3h-3" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        <span class="ar-pill-long">Restart</span>
+      </button>
+      <button class="ar-pill" id="ar-full" type="button">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        <span class="ar-pill-long">Full screen</span>
+      </button>
+    </div>
   </div>
 
-  <div class="hud">
-    <span class="kb">&larr; &rarr; <b>Turn</b></span>
-    <span class="kb sep">&middot;</span>
-    <span class="kb">Enter <b>Play</b></span>
-    <span class="touch">Swipe to turn &middot; tap the centre cabinet to play</span>
-    <span class="sep">&middot;</span>
-    <a href="../../" target="_top">Back to the Kitchen</a>
+  <div class="ar-hud ar-hud-bot" id="ar-hud-bot">
+    <div class="ar-tips">
+      <span class="ar-kb"><b>▲ ▼</b> Choose &nbsp;·&nbsp; <b>Enter</b> Play &nbsp;·&nbsp; <b>Esc</b> Back to games</span>
+      <span class="ar-touch">Tap a game, then <b>Press start</b></span>
+      <span aria-hidden="true">·</span>
+      <button class="ar-pill ar-mute" id="ar-mute" type="button" aria-pressed="false" style="min-height:28px;padding:0 10px" aria-label="Sound effects">
+        <svg class="ar-snd-on" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6h3l4-3v10L5 10H2z" fill="currentColor"/><path d="M11.5 5.5a3.5 3.5 0 0 1 0 5" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+        <svg class="ar-snd-off" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6h3l4-3v10L5 10H2z" fill="currentColor"/><path d="M11 6l4 4m0-4-4 4" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+      </button>
+      <span aria-hidden="true">·</span>
+      <a href="../../" target="_top">Back to the kitchen</a>
+    </div>
   </div>
 
   <noscript>
-    <p class="colophon">
-      <b>This station needs JavaScript.</b> Every game is also listed in the Break Room
-      on the main page, which works without it.
+    <p style="position:fixed;inset:auto 0 40% 0;text-align:center;color:#dcd5c8;z-index:50">
+      <b>The arcade needs JavaScript.</b> Every game is also listed in the Break Room on the main page.
     </p>
   </noscript>
 
-  <p class="colophon">
-    Cabinets are listed from <code>arcade/manifest.json</code>. Add a row there and a
-    <!-- ⚠ THE <wbr> IN THE PATH BELOW IS LOAD-BEARING; do not tidy it away.
-         build/fingerprint.mjs rewrites every LITERAL occurrence of a hashed
-         asset path in this file, prose included, and the tool list under data/
-         is one of the assets it hashes — so a verbatim spelling here shipped
-         with a ten-hex build hash in the middle of it, and the rep read that
-         hash in a sentence telling him which file to edit. <wbr> renders
-         nothing, breaks the literal, and is the right element for a long path
-         in a 393px column anyway. -->
-    matching row in <code>data/<wbr>tools.json</code> (same <code>slug</code>), and the cabinet
-    appears here, in the Break Room, in the C³ menu and on the phone — with no change to
-    this page.
-  </p>
-
-  <!-- One viewport-sized noise field, rendered once, never animated. This is
-       what stops the big dark gradients banding on an iPad panel — the single
-       cheapest thing on the page and the one that makes it read as photographed
-       rather than as CSS. -->
+  <!-- One viewport-sized noise field, rendered once, never animated — it is
+       what stops the dark gradients banding on an iPad panel. -->
   <svg class="grain" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
     <filter id="c3grain" x="0" y="0" width="100%" height="100%">
       <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/>
@@ -970,7 +423,6 @@ body{min-height:100%; display:flex; flex-direction:column}
     <rect width="100%" height="100%" filter="url(#c3grain)"/>
   </svg>
 
-  <!-- Screen-reader announcements: how many cabinets, and which one launched. -->
   <p class="visually-hidden" role="status" aria-live="polite" id="ar-live"></p>
 
   <script>
@@ -2237,7 +1689,6 @@ function createAttractEngine() {
   return API;
 }
 
-/* ══ the cabinet: three baked geometries and one face ══ */
 /* HTML-escape everything that comes out of the manifest before it reaches
    innerHTML. The manifest is ours, but a cabinet builder that is only safe
    while the data is trusted is a trap for the next person who points it at
@@ -2246,164 +1697,6 @@ function esc(s) {
   return String(s == null ? '' : s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
-function geoFront(id, g){
-  return '<svg class="geo geo-front" viewBox="0 0 100 220" preserveAspectRatio="none" aria-hidden="true">'
-  + '<defs>'
-  +   '<linearGradient id="fb'+id+'" x1="0" y1="0" x2="1" y2="0">'
-  +     '<stop offset="0" stop-color="#0b111a"/><stop offset=".5" stop-color="#111924"/><stop offset="1" stop-color="#090e16"/>'
-  +   '</linearGradient>'
-  + '</defs>'
-  + '<path d="M0,0 L100,0 L100,220 L0,220 Z" fill="url(#fb'+id+')"/>'
-  + '</svg>';
-}
-
-function sideArt(id, g, sun){
-  // side art: tint field + two ink slashes + a bone airbrush glow, clipped
-  return '<g clip-path="url(#cp'+id+')">'
-  +   '<rect x="0" y="-10" width="100" height="240" fill="url(#sa'+id+')"/>'
-  +   '<ellipse cx="'+(sun?92:8)+'" cy="96" rx="26" ry="52" fill="url(#gl'+id+')"/>'
-  +   '<path d="M-20,64 L120,8 L120,32 L-20,88 Z" fill="#05070a" opacity=".86"/>'
-  +   '<path d="M-20,118 L120,56 L120,70 L-20,132 Z" fill="#05070a" opacity=".70"/>'
-  +   (sun ? '<rect x="0" y="-10" width="100" height="240" fill="url(#sf'+id+')"/>' : '')
-  +   '<rect x="0" y="-10" width="100" height="240" fill="url(#sh'+id+')"/>'
-  + '</g>';
-}
-
-/* the marquee / speaker lip / kickplate seen edge-on, tapering with the panel.
-   near edge x=NX, far edge x=FX; far y = 24 + y*0.7909 (top drop 24, bottom rise 22) */
-function sideBands(id, NX, FX){
-  var f = function(y){ return (24 + y * 0.7909).toFixed(1); };
-  var q = function(y0, y1, fill){
-    return '<path d="M'+NX+','+y0+' L'+FX+','+f(y0)+' L'+FX+','+f(y1)+' L'+NX+','+y1+'" fill="'+fill+'"/>';
-  };
-  return q(0, 28.6,      'url(#mb'+id+')')      /* marquee, edge-on   */
-       + q(28.6, 34.3,   '#0a0f16')             /* speaker lip        */
-       + q(195.8, 220,   '#05070a')             /* kickplate          */
-       + '<path d="M'+NX+',0 L'+FX+',24" stroke="#8a6323" stroke-opacity=".5" stroke-width="1" fill="none"/>';
-}
-
-function sideDefs(id, g, sun, dir){
-  // dir = 1 -> panel on the right (tq-left); dir = -1 -> panel on the left (tq-right)
-  var x1 = dir>0 ? 0 : 1, x2 = dir>0 ? 1 : 0;
-  return '<defs>'
-  + '<linearGradient id="sa'+id+'" x1="0" y1="0" x2=".7" y2="1">'
-  +   '<stop offset="0" stop-color="'+g.tint+'" stop-opacity=".40"/>'
-  +   '<stop offset=".5" stop-color="'+g.tint+'" stop-opacity=".17"/>'
-  +   '<stop offset="1" stop-color="#05070a" stop-opacity=".88"/>'
-  + '</linearGradient>'
-  + '<radialGradient id="gl'+id+'">'
-  +   '<stop offset="0" stop-color="#f4efe6" stop-opacity=".24"/>'
-  +   '<stop offset="1" stop-color="#f4efe6" stop-opacity="0"/>'
-  + '</radialGradient>'
-  /* sun-fade: the cabinet that sat by the window for fifteen years */
-  + '<linearGradient id="sf'+id+'" x1="'+x1+'" y1="0" x2="'+x2+'" y2="0">'
-  +   '<stop offset="0" stop-color="#b4aba0" stop-opacity=".30"/>'
-  +   '<stop offset=".55" stop-color="#b4aba0" stop-opacity=".08"/>'
-  +   '<stop offset="1" stop-color="#b4aba0" stop-opacity="0"/>'
-  + '</linearGradient>'
-  /* the side panel turns away from the light as it recedes */
-  + '<linearGradient id="sh'+id+'" x1="'+x1+'" y1="0" x2="'+x2+'" y2="0">'
-  +   '<stop offset="0" stop-color="#05070a" stop-opacity=".10"/>'
-  +   '<stop offset=".55" stop-color="#05070a" stop-opacity=".46"/>'
-  +   '<stop offset="1" stop-color="#05070a" stop-opacity=".80"/>'
-  + '</linearGradient>'
-  + '<linearGradient id="fb'+id+'" x1="0" y1="0" x2="1" y2="0">'
-  +   '<stop offset="0" stop-color="#0b111a"/><stop offset=".5" stop-color="#111924"/><stop offset="1" stop-color="#090e16"/>'
-  + '</linearGradient>'
-  /* the acrylic marquee panel seen edge-on: lit at the near corner, gone by the far one */
-  + '<linearGradient id="mb'+id+'" x1="'+x1+'" y1="0" x2="'+x2+'" y2="0">'
-  +   '<stop offset="0" stop-color="#dcd5c8" stop-opacity=".62"/>'
-  +   '<stop offset=".45" stop-color="#b4aba0" stop-opacity=".22"/>'
-  +   '<stop offset="1" stop-color="#05070a" stop-opacity=".85"/>'
-  + '</linearGradient>'
-  + '</defs>';
-}
-
-/* tq-left: front face 4..82, side panel 82..100, forward lips at 0..4 */
-function geoTQL(id, g){
-  var P = 'M82,0 L100,24 L100,198 L82,220 Z';
-  return '<svg class="geo geo-tql" viewBox="0 0 100 220" preserveAspectRatio="none" aria-hidden="true">'
-  + sideDefs(id+'l', g, true, 1)
-  + '<clipPath id="cp'+id+'l"><path d="'+P+'"/></clipPath>'
-  + '<path d="M4,0 L82,0 L82,220 L4,220 Z" fill="url(#fb'+id+'l)"/>'
-  /* forward lips: marquee overhang + control-panel bump, displaced away from the VP */
-  + '<path d="M4,1 L4,30 L0,31 L0,2 Z" fill="#0a1017"/>'
-  + '<path d="M4,116 L4,148 L0,150 L0,119 Z" fill="#0d131b"/>'
-  + '<path d="'+P+'" fill="#0a0f16"/>'
-  + sideArt(id+'l', g, true)
-  + sideBands(id+'l', 82, 100)
-  + '<path d="M82,0 L82,220" stroke="#05070a" stroke-opacity=".8" stroke-width="1" fill="none"/>'
-  + '<path d="M100,24 L100,198" stroke="#3a4653" stroke-opacity=".5" stroke-width="1" fill="none"/>'
-  + '</svg>';
-}
-
-/* tq-right: front face 18..96, side panel 0..18, forward lips at 96..100 */
-function geoTQR(id, g){
-  var P = 'M18,0 L0,24 L0,198 L18,220 Z';
-  return '<svg class="geo geo-tqr" viewBox="0 0 100 220" preserveAspectRatio="none" aria-hidden="true">'
-  + sideDefs(id+'r', g, false, -1)
-  + '<clipPath id="cp'+id+'r"><path d="'+P+'"/></clipPath>'
-  + '<path d="M18,0 L96,0 L96,220 L18,220 Z" fill="url(#fb'+id+'r)"/>'
-  + '<path d="M96,1 L96,30 L100,31 L100,2 Z" fill="#0a1017"/>'
-  + '<path d="M96,116 L96,148 L100,150 L100,119 Z" fill="#0d131b"/>'
-  + '<path d="'+P+'" fill="#0a0f16"/>'
-  + sideArt(id+'r', g, false)
-  + sideBands(id+'r', 18, 0)
-  + '<path d="M18,0 L18,220" stroke="#05070a" stroke-opacity=".8" stroke-width="1" fill="none"/>'
-  + '<path d="M0,24 L0,198" stroke="#3a4653" stroke-opacity=".5" stroke-width="1" fill="none"/>'
-  + '</svg>';
-}
-
-/* ---------- the front face: one rectangle, all the anatomy ---------- */
-function face(g){
-  return '<div class="face">'
-  + '<div class="tmold l"></div><div class="tmold r"></div>'
-
-  /* 1 marquee */
-  + '<div class="marquee">'
-  +   '<div class="mq-title">'+esc(g.title)+'</div>'
-  +   '<div class="mq-rule"></div>'
-  +   '<div class="mq-flick"></div>'
-  + '</div>'
-  /* 1b underside lip */
-  + '<div class="lip"></div>'
-
-  /* 2 bezel + 3 screen */
-  + '<div class="bezel">'
-  +   '<div class="screen">'
-  +     '<div class="still"><b>'+esc(g.title)+'</b><em>'+esc(g.blurb)+'</em></div>'
-  +     '<div class="screen-slot" id="screen-'+g.slug+'"></div>'
-  +     '<div class="scan"></div><div class="corner"></div><div class="streak"></div>'
-  +   '</div>'
-  +   '<div class="print l">1 OR 2 PLAYERS</div>'
-  +   '<div class="print r">©1987 C³</div>'
-  + '</div>'
-
-  /* 4 control panel */
-  + '<div class="panel">'
-  +   '<div class="stick"><div class="skirt"></div><div class="shaft"></div><div class="ball"></div></div>'
-  +   '<div class="btn a"></div><div class="btn b"></div>'
-  +   '<div class="edge"></div>'
-  + '</div>'
-
-  /* 5 apron */
-  + '<div class="apron">'
-  +   '<div class="freeplay">FREE PLAY</div>'
-  +   '<div class="start">PRESS START</div>'
-  +   '<div class="enterline">PRESS ENTER</div>'
-  + '</div>'
-
-  /* 6 coin door */
-  + '<div class="coin">'
-  +   '<div class="well"><div class="esc"><span></span></div><div class="esc"><span></span></div></div>'
-  +   '<div class="ret"></div>'
-  +   '<div class="price">25¢ 1 PLAY</div>'
-  + '</div>'
-
-  /* 8 base */
-  + '<div class="base"><div class="toe"></div><div class="feet"><i></i><i></i><i></i><i></i></div></div>'
-  + '</div>';
 }
 
 /* ══ the entry cinematic — procedural, 640x360, once per visit ══ */
@@ -3302,79 +2595,81 @@ function createArcadeIntro() {
   return { play: play };
 }
 
-/* ══ the station runtime ══ */
+/* ══ the station runtime — v27, the cabinet ══ */
 (function () {
   'use strict';
 
   /* ═════════════════════════════════════════════════════════════════════
      C³ ARCADE · station runtime
      ─────────────────────────────────────────────────────────────────────
-     Data-driven end to end, exactly like the Print Outs station next door.
-     Nothing about any individual game is written into this file: the list,
-     the titles, the blurbs and the tints all come from arcade/manifest.json,
-     and the cabinet that carries them is DRAWN from the tint and the title.
-     That is what keeps "adding a game is one row" true — no artwork to
-     commission, no asset to forget.
-
-     AND NOT ONE GAME URL IS EVER RENDERED OR NAVIGATED TO FROM HERE.
-     The manifest carries `url` as a record, and this file never reads it.
-     Every launch is `#/tool/<slug>` against the site's own address, because
-     a rep must never be shown a repository hostname. Grep this file for
-     "github": there is one match, and it is in this sentence.
+     Data-driven end to end. Nothing about any individual game is written
+     into this file: the list, titles, blurbs and tints come from
+     arcade/manifest.json, and the address a game loads from comes from the
+     SAME tool registry the site's viewer resolves #/tool/<slug> against.
+     A game's address is loaded into the screen, never printed.
      ═════════════════════════════════════════════════════════════════════ */
 
   var MANIFEST_URL = '../../arcade/manifest.json';
-  /* ⚠ ASSEMBLED FROM TWO HALVES, AND IT HAS TO STAY THAT WAY.
-     build/fingerprint.mjs rewrites every literal occurrence of a hashed asset
-     path in this file — the prose as well as the code — and the tool list
-     under data/ is one of the assets it hashes. Written verbatim, this string
-     came out of a build with a ten-hex hash in the middle of it. Split, it is
-     invisible to the rewriter — and the unhashed file is the one we want
-     anyway: always present, always current. */
+  /* ⚠ ASSEMBLED FROM TWO HALVES — build/fingerprint.mjs rewrites every
+     literal occurrence of a hashed asset path in this file, and the tool list
+     under data/ is one of them. Split, it is invisible to the rewriter. */
   var TOOLS_JSON = 'data/' + 'tools.json';
   var SITE_ROOT  = '../../';
-
-  /* A file:// review copy cannot fetch anything — see the long note in <head>
-     for why this page carries no inline fallback. */
   var OFFLINE = location.protocol === 'file:';
 
-  var rack   = document.getElementById('rack');
-  var room   = document.getElementById('arcade');
-  var pools  = document.getElementById('pools');
-  var live   = document.getElementById('ar-live');
+  /* ── THE PHOTOGRAPH ───────────────────────────────────────────────────
+     Every box is a fraction of the plate (arcade/room/cabinet-*.webp,
+     4096×2323). `screen` is the largest axis-aligned rectangle inside the
+     photographed glass — measured by fitting the four edges of its silver
+     frame on the 4K plate (residual < 1.1px); the glass itself is tilted back
+     a touch, so the bottom corners have ~0.3% of black to spare, which is the
+     bezel doing its job. If the plate is ever regenerated, re-measure these. */
+  var PLATE = { w: 4096, h: 2323 };
+  var BOX = {
+    screen:  { x: 1556 / 4096, y: 462 / 2323, w: (2523 - 1556) / 4096, h: (995 - 462) / 2323 },
+    marquee: { x: 0.360, y: 0.050, w: 0.280, h: 0.120 },
+    spill:   { x: 0.300, y: 0.090, w: 0.400, h: 0.440 },
+    deck:    { x: 0.365, y: 0.455, w: 0.268, h: 0.068 },
+    coin:    { x: 0.468, y: 0.597, w: 0.061, h: 0.132 },
+    /* camera targets */
+    wide:    { x: 0.150, y: 0.000, w: 0.700, h: 1.000 },
+    menu:    { x: 0.352, y: 0.040, w: 0.296, h: 0.505 }
+  };
+  var NOMINAL_W = 1600;
+  var NOMINAL_H = NOMINAL_W * PLATE.h / PLATE.w;
+  var UI_W = 1280;
+  var UI_H = Math.round(UI_W * (BOX.screen.h * PLATE.h) / (BOX.screen.w * PLATE.w));
 
-  /* ── helpers ─────────────────────────────────────────────────────────── */
+  /* A game is only played INSIDE the cabinet when the screen, zoomed, is at
+     least this big. Below it (a phone) the game takes the whole view instead,
+     and the zoom is the transition into it. */
+  var MIN_PLAY_W = 620, MIN_PLAY_H = 360;
 
+  var $ = function (id) { return document.getElementById(id); };
+  var stage = $('ar-stage'), cam = $('ar-cam'), photo = $('ar-photo');
+  var screenEl = $('ar-screen'), ui = $('ar-ui');
+  var list = $('ar-list'), crt = $('ar-crt'), monitor = $('ar-monitor');
+  var titleEl = $('ar-title'), blurbEl = $('ar-blurb'), startBtn = $('ar-start');
+  var card = $('ar-card'), cardKicker = $('ar-card-kicker'), cardTitle = $('ar-card-title'),
+      cardBody = $('ar-card-body'), cardBar = $('ar-card-bar'), cardActions = $('ar-card-actions');
+  var liveHost = $('ar-live-host'), live = $('ar-live');
+  var nowEl = $('ar-now');
+  var root = document.documentElement;
+
+  var rmq = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
+  function noMotion() { return !!(rmq && rmq.matches); }
   function say(msg) { if (live) live.textContent = msg; }
 
-  /** The site's own address for a game. The only href this page ever writes. */
-  function internalHref(slug) {
-    return SITE_ROOT + '#/tool/' + encodeURIComponent(slug);
-  }
-
-  /** A tint is a palette hex or it is nothing. Anything else falls back to
-      brass, because a malformed value must never reach a style attribute. */
+  function internalHref(slug) { return SITE_ROOT + '#/tool/' + encodeURIComponent(slug); }
   function cleanTint(t) {
-    return (typeof t === 'string' && /^#[0-9a-f]{6}$/i.test(t.trim()))
-      ? t.trim().toLowerCase() : '#c8973f';
+    return (typeof t === 'string' && /^#[0-9a-f]{6}$/i.test(t.trim())) ? t.trim().toLowerCase() : '#c8973f';
   }
-
-  /** "#8ef0d0" -> "142 240 208". The room composites alpha with rgb(… / a)
-      rather than color-mix(), which older iPad Safari does not have. */
   function rgbTriplet(hex) {
     var n = parseInt(hex.slice(1), 16);
     return ((n >> 16) & 255) + ' ' + ((n >> 8) & 255) + ' ' + (n & 255);
   }
 
-  /* ── who is our parent, and may we talk to it? ───────────────────────
-     The arcade is normally mounted in the site's tool overlay, i.e. inside an
-     iframe on cookcountycooks.com. It is same-origin with that page, so this
-     is a real, checkable answer and not a guess.
-
-     Cross-origin (somebody else framed this page) reads as NOT framed: the
-     property access throws, we catch, and the page falls back to navigating
-     itself. That is the safe direction — worst case a rep gets a normal page
-     load instead of a frame swap. */
+  /* ── who is our parent? (unchanged from v24) ─────────────────────────── */
   function hostWindow() {
     try {
       if (window.parent === window) return null;
@@ -3383,83 +2678,60 @@ function createArcadeIntro() {
     } catch (err) { return null; }
   }
 
-  /* ── the tool registry, so a cabinet can be honest ───────────────────
-     A cabinet can only claim to launch if `#/tool/<slug>` will actually
-     resolve. The authority is the registry the OVERLAY reads, which is
-     window.__CCC_INLINE__.tools on the parent page — not the tool list on
-     disk, which can be a sync-inline-tools.mjs run ahead of it.
-
-     Un-framed, there is no parent to ask, so fall back to fetching the tool
-     list. If BOTH are unavailable we return null, meaning "no opinion", and
-     every cabinet renders playable — an optimistic cabinet that might 404 is
-     better than a dark one on a game that works. */
-  function loadSlugs() {
+  /* ── the registry: slug → address ────────────────────────────────────
+     The viewer's own registry first (window.__CCC_INLINE__ on the parent),
+     then the tool list on disk. null means "no opinion": every row is then
+     playable through the handshake, which resolves it for itself. */
+  function loadRegistry() {
+    function toMap(tools) {
+      var m = new Map();
+      (tools || []).forEach(function (t) { if (t && t.slug) m.set(t.slug, t.url || ''); });
+      return m;
+    }
     var host = hostWindow();
     try {
       if (host && host.__CCC_INLINE__ && host.__CCC_INLINE__.tools) {
-        var list = host.__CCC_INLINE__.tools.tools || [];
-        return Promise.resolve(new Set(list.map(function (t) { return t && t.slug; })));
+        return Promise.resolve(toMap(host.__CCC_INLINE__.tools.tools));
       }
-    } catch (err) { /* parent went away mid-read; fall through to the fetch */ }
+    } catch (err) { /* fall through */ }
     if (OFFLINE) return Promise.resolve(null);
     return fetch(SITE_ROOT + TOOLS_JSON, { cache: 'no-cache' })
       .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)); })
-      .then(function (d) { return new Set((d.tools || []).map(function (t) { return t && t.slug; })); })
+      .then(function (d) { return toMap(d.tools); })
       .catch(function () { return null; });
   }
 
-  /* ── launching ───────────────────────────────────────────────────────
-     THE HANDSHAKE, and why it is a postMessage and not a navigation.
+  function resolveUrl(raw) {
+    if (!raw || typeof raw !== 'string') return null;
+    try {
+      var base = new URL(SITE_ROOT, location.href);
+      var u = new URL(raw, base);
+      if (u.protocol !== 'https:' && u.protocol !== 'http:') return null;
+      return u.href;
+    } catch (err) { return null; }
+  }
 
-     This page is inside the viewer. If a cabinet simply navigated its own
-     frame to the game, the rep would be looking at the game with the viewer's
-     chrome still saying "C³ Arcade", and Back would unwind an iframe
-     navigation rather than closing anything.
-
-     So the arcade ASKS ITS HOST to open the game as a tool in its own right.
-     assets/overlay.js §6b takes the message and calls openTool(slug), which
-     swaps the frame, re-titles the chrome and pushes `#/tool/<slug>` — so Back
-     lands on `#/tool/arcade` and syncFromLocation() puts this room straight
-     back up. Trust is by IDENTITY (event.source) rather than by an origin
-     string.
-
-     THREE WAYS OUT, in order, because a rep pressing a cabinet must never get
-     nothing:
-       1. the host acknowledges (`ccc-arcade-host` / ok) — done;
-       2. no acknowledgement inside ACK_MS, because the parent is an older
-          index.html with no listener: set the parent's hash ourselves.
-          overlay.js has listened for `hashchange` since v3;
-       3. not framed at all: follow the anchor's own href, which is the same
-          `#/tool/<slug>` on the site.
-     The control is a REAL <a href> carrying (3) as its default action, so a
-     middle-click, a long-press "Copy Link" and a screen reader's link list all
-     hand out cookcountycooks.com — never a repository. */
-  var ACK_MS = 500;
-  var pendingAck = null;
-
+  /* ── the handshake (v22): open a game as a tool in the site's viewer ── */
+  var ACK_MS = 500, pendingAck = null;
   window.addEventListener('message', function (event) {
     var host = hostWindow();
-    if (!host || event.source !== host) return;      // identity, not origin
+    if (!host || event.source !== host) return;
     var d = event.data;
     if (!d || typeof d !== 'object' || d.source !== 'ccc-arcade-host') return;
     if (!pendingAck || d.slug !== pendingAck.slug) return;
     window.clearTimeout(pendingAck.timer);
     pendingAck = null;
   });
-
-  function launch(game, ev) {
+  function handOff(game) {
     var host = hostWindow();
-    if (!host) return;                                // not framed: let the <a> work
-    ev.preventDefault();
-    say('Opening ' + game.title + '…');
-
+    if (!host) { location.href = internalHref(game.slug); return; }
+    say('Opening ' + game.title + ' full size…');
     try {
       host.postMessage({ source: 'ccc-arcade', action: 'open-tool', slug: game.slug }, location.origin);
     } catch (err) {
       try { host.location.hash = '#/tool/' + encodeURIComponent(game.slug); } catch (e2) { /* noop */ }
       return;
     }
-
     if (pendingAck) window.clearTimeout(pendingAck.timer);
     pendingAck = { slug: game.slug, timer: window.setTimeout(function () {
       pendingAck = null;
@@ -3468,695 +2740,608 @@ function createArcadeIntro() {
     }, ACK_MS) };
   }
 
-  /* ── the room, built ─────────────────────────────────────────────────── */
+  /* ── sound: three tiny synthesised cues, off until a gesture ─────────── */
+  var SND_KEY = 'ccc-arcade-muted';
+  var muted = false;
+  try { muted = window.localStorage.getItem(SND_KEY) === '1'; } catch (err) { muted = false; }
+  var actx = null;
+  function audio() {
+    if (muted) return null;
+    try {
+      if (!actx) { var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; actx = new AC(); }
+      if (actx.state === 'suspended') actx.resume();
+      return actx;
+    } catch (err) { return null; }
+  }
+  function blip(freq, dur, type, gain, slideTo, delay) {
+    var a = audio(); if (!a) return;
+    var t = a.currentTime + (delay || 0);
+    var o = a.createOscillator(), g = a.createGain();
+    o.type = type || 'square';
+    o.frequency.setValueAtTime(freq, t);
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(gain || 0.04, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(a.destination);
+    o.start(t); o.stop(t + dur + 0.02);
+    o.onended = function () { o.disconnect(); g.disconnect(); };
+  }
+  var sfx = {
+    move:  function () { blip(660, 0.05, 'square', 0.025); },
+    start: function () { blip(523, 0.09, 'square', 0.04); blip(784, 0.09, 'square', 0.04, 0, 0.09); blip(1047, 0.22, 'square', 0.045, 0, 0.18); },
+    coin:  function () { blip(1318, 0.07, 'triangle', 0.06); blip(1976, 0.34, 'triangle', 0.05, 0, 0.07); },
+    back:  function () { blip(440, 0.12, 'square', 0.03, 220); }
+  };
+  var muteBtn = $('ar-mute');
+  function paintMute() { muteBtn.setAttribute('aria-pressed', muted ? 'true' : 'false'); muteBtn.title = muted ? 'Sound off' : 'Sound on'; }
+  paintMute();
+  muteBtn.addEventListener('click', function () {
+    muted = !muted;
+    try { window.localStorage.setItem(SND_KEY, muted ? '1' : '0'); } catch (err) { /* noop */ }
+    paintMute();
+    if (!muted) sfx.move();
+  });
 
-  var GAMES = [], slots = [], links = [], poolEls = [];
-  var centre = 0, heroH = 0;
-  var crt = null, attract = null, crtHandle = null;
+  /* ── THE CAMERA ───────────────────────────────────────────────────────
+     view = 'wide' | 'menu' | 'play'. frame() returns the transform that puts
+     a plate box in the middle of the viewport; for the room views it never
+     lets the photograph uncover the page (cover-clamped), for play it may. */
+  var view = 'wide';
+  var camNow = { s: 1, x: 0, y: 0 };
+  var vw = 0, vh = 0;
 
-  /* ── the ring ─────────────────────────────────────────────────────────
-     `pos` is where the carousel is standing, measured in cabinets, and it is
-     allowed to be fractional (a drag) and unbounded (the tenth rotation to the
-     right is pos 10, not pos 1). Everything on screen is derived from it:
-       track transform  = -pos * step
-       slot i transform = (i + win[i] * N) * step
-     so a cabinet's offset from the centre is ((i + win[i]*N) - pos) cabinets,
-     and the two transforms compose to put it there. One write per frame on the
-     track; a slot is only written when it recycles or when the room resizes. */
-  var N = 0;              // cabinets on the ring
-  var WRAP = false;       // does it go round? (three or more — see rotateBy)
-  var pos = 0;            // current ring position, in cabinets
-  var target = 0;         // where it is heading
-  var vel = 0;            // spring velocity, cabinets per tick
-  var step = 0;           // centre-to-centre spacing, px
-  var span = 0;           // half the room's width, px
-  var cabW = 0;           // one cabinet's rendered width, px
-  var win = [], lastTx = [], lastOp = [], lastVis = [];
-  var raf = 0, lastTs = 0, acc = 0;
-  var wantSay = false;    // announce the selection when this move settles
-  var swallowClick = false;
+  function measureViewport() {
+    vw = stage.clientWidth || window.innerWidth;
+    vh = stage.clientHeight || window.innerHeight;
+  }
+  function short() { return vh < 520 && vw > vh; }
+  function hudTop() { return short() ? 46 : (vw < 560 ? 58 : 64); }
 
-  var rmq = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
-  function noMotion() { return !!(rmq && rmq.matches); }
-
-  function wrapIndex(i) { return N ? (((i % N) + N) % N) : 0; }
-
-  function buildRack(games, knownSlugs) {
-    GAMES = games;
-    var html = '';
-    for (var i = 0; i < games.length; i++) {
-      var g = games[i];
-      var wired = (knownSlugs === null) || knownSlugs.has(g.slug);
-      g.wired = wired;
-      /* A title longer than ~11 characters is shrunk to fit the marquee rather
-         than ellipsised. §07 of theme.css learned this the hard way: `34ch` is
-         not 34 characters of tracked uppercase. */
-      var fit = Math.min(1, 11 / Math.max(1, g.title.length)).toFixed(3);
-      html += '<li class="slot" data-slot="' + (i - centre) + '" data-geo="front" data-lod="0"'
-           +  ' data-wired="' + (wired ? 'yes' : 'no') + '"'
-           +  ' style="--tint:' + g.tint + ';--tint-rgb:' + g.rgb + ';--mq-fit:' + fit + '">'
-           /* draggable="false" is LOAD-BEARING, not tidiness. Every cabinet is
-              an <a href>, and a browser's own answer to "mouse down on a link
-              and move" is to start a native link drag — which fires
-              pointercancel at our swipe handler halfway through the gesture,
-              so the rack read the abort as a flick and span. The href stays,
-              and with it middle-click and long-press "Copy Link". */
-           +  '<a class="link" draggable="false" href="' + esc(internalHref(g.slug)) + '" tabindex="-1"'
-           +    ' data-i="' + i + '"' + (wired ? '' : ' aria-disabled="true"') + '>'
-           /* The stagger runs OUT FROM THE SELECTED CABINET, not left to
-              right along the roster, and it is capped. In DOM order a twelve
-              game rack took 1.4s to finish lighting up and most of that was
-              spent on cabinets standing off-stage behind the wall. Out from
-              the centre, the machine the rep is looking at lights first. */
-           +    '<span class="enter" style="--delay:' + (Math.min(5, Math.abs(i - centre)) * 70) + 'ms">'
-           +      '<span class="cab">'
-           /* Front geometry ONLY. The three-quarter cabinets are parked (see
-              the banner above geoTQL) and no longer reach the DOM at all —
-              leaving two never-rendered <svg>s inside every cabinet would be
-              twenty-four dead subtrees on a twelve-game roster. */
-           +        geoFront('g' + i, g)
-           +        face(g)
-           +        '<span class="contact"></span><span class="dim"></span>'
-           +      '</span>'
-           +    '</span><span class="tag">' + esc(g.title) + '</span>'
-           +  '</a></li>';
+  function frame(name) {
+    /* a phone on its side: the menu is the screen, edge to edge */
+    var b = BOX[(name === 'play' || (name === 'menu' && short())) ? 'screen' : name];
+    var W = NOMINAL_W, H = NOMINAL_H;
+    var bx = b.x * W, by = b.y * H, bw = b.w * W, bh = b.h * H;
+    var mt, mb, ml, mr, s;
+    if (name === 'play') {
+      mt = hudTop(); mb = 14; ml = mr = 14;
+      s = Math.min((vw - ml - mr) / bw, (vh - mt - mb) / bh);
+    } else if (name === 'menu' && short()) {
+      mt = 8; mb = 44; ml = mr = 8;
+      s = Math.min((vw - ml - mr) / bw, (vh - mt - mb) / bh);
+    } else if (name === 'menu') {
+      mt = 14; mb = vw < 560 ? 64 : 56; ml = mr = 10;
+      s = Math.min((vw - ml - mr) / bw, (vh - mt - mb) / bh);
+      /* a phone in portrait: let the brass sides crop so the screen is as
+         wide as the glass allows */
+      if (vw / vh < 0.8) s = Math.max(s, (vw * 0.985) / (BOX.screen.w * W));
+    } else {
+      mt = mb = ml = mr = 0;
+      s = Math.min(vw / bw, vh / bh);
     }
-    rack.innerHTML = html;
-
-    slots = Array.prototype.slice.call(rack.querySelectorAll('.slot'));
-    links = slots.map(function (s) { return s.querySelector('.link'); });
-
-    /* Ring bookkeeping, one entry per cabinet. `win` is a winding number: the
-       cabinet's place on the ring is (i + win[i] * N), so going round is a
-       single integer change and never a reshuffle of the DOM. The three
-       `last*` arrays exist so paintRing() can write a slot's style only when
-       the value actually changed — the frame loop touches one element. */
-    N    = games.length;
-    WRAP = N >= 3;
-    win = []; lastTx = []; lastOp = []; lastVis = [];
-    for (var w = 0; w < N; w++) { win[w] = 0; lastTx[w] = NaN; lastOp[w] = -1; lastVis[w] = null; }
-
-    /* An un-wired cabinet says so on its own apron rather than in a banner. */
-    for (var k = 0; k < games.length; k++) {
-      if (games[k].wired) continue;
-      var ap = slots[k].querySelector('.apron');
-      ap.querySelector('.freeplay').textContent = 'OUT OF ORDER';
-      ap.querySelector('.start').textContent = 'NOT WIRED UP';
+    var cover = Math.max(vw / W, vh / H);
+    if (name !== 'play') s = Math.max(s, cover);
+    var cx = ml + (vw - ml - mr) / 2, cy = mt + (vh - mt - mb) / 2;
+    var x = cx - (bx + bw / 2) * s;
+    var y = cy - (by + bh / 2) * s;
+    if (name !== 'play') {
+      x = Math.min(0, Math.max(vw - W * s, x));
+      y = Math.min(0, Math.max(vh - H * s, y));
     }
+    return { s: s, x: x, y: y };
+  }
 
-    /* One light pool per cabinet, OUTSIDE the scroll container — a scroller
-       clips both axes, and every ceiling pool was being clipped away. */
-    pools.innerHTML = games.map(function () { return '<div class="pool"></div>'; }).join('');
-    poolEls = Array.prototype.slice.call(pools.children);
+  function setCam(name, animate, ms) {
+    view = name;
+    root.setAttribute('data-view', name);
+    var f = frame(name);
+    camNow = f;
+    var moving = animate && !noMotion();
+    cam.classList.toggle('is-still', !moving);
+    if (moving) {
+      cam.style.setProperty('--ar-cam-ms', (ms || 1400) + 'ms');
+      cam.classList.add('is-moving');
+      clearTimeout(setCam.t);
+      setCam.t = setTimeout(function () { cam.classList.remove('is-moving'); }, (ms || 1400) + 80);
+    }
+    cam.style.transform = 'translate3d(' + f.x.toFixed(2) + 'px,' + f.y.toFixed(2) + 'px,0) scale(' + f.s.toFixed(5) + ')';
+    pickPhoto(f.s);
+    if (name !== 'play') updateCompact();
+    return f;
+  }
 
-    /* THE CLICK MODEL, and it changed in this version.
-       There is a definite selection now, so a cabinet means two things
-       depending on where it is standing:
-         - not centred -> rotate it to the centre. It does NOT launch.
-         - centred     -> launch, through the postMessage handshake below.
-       Both branches keep the anchor a real <a href="#/tool/<slug>">: a side
-       cabinet only preventDefault()s the activation, so middle-click, long
-       press and a screen reader's link list still hand out the site's own
-       address, and no repository hostname exists to leak. */
-    links.forEach(function (a, i) {
-      a.addEventListener('click', function (ev) {
-        if (swallowClick) { ev.preventDefault(); swallowClick = false; return; }
-        if (i !== centre) { ev.preventDefault(); go(i); return; }
-        if (!GAMES[i].wired) { ev.preventDefault(); say(GAMES[i].title + ' is not wired up yet.'); return; }
-        launch(GAMES[i], ev);
+  /* The screen's rectangle in viewport pixels under a given camera. */
+  function screenRect(f) {
+    var b = BOX.screen;
+    return {
+      left: f.x + b.x * NOMINAL_W * f.s, top: f.y + b.y * NOMINAL_H * f.s,
+      width: b.w * NOMINAL_W * f.s, height: b.h * NOMINAL_H * f.s
+    };
+  }
+
+  /* Pick the photograph cut for the largest scale we will show it at in the
+     room views. `sizes` is the honest answer to "how wide is this image on
+     screen", which the transform hides from the browser. */
+  var sizedFor = 0;
+  function pickPhoto(s) {
+    var menuS = frame('menu').s;
+    var want = Math.round(NOMINAL_W * Math.max(s < 4 ? s : 0, menuS));
+    if (Math.abs(want - sizedFor) < 64) return;
+    sizedFor = want;
+    photo.sizes = want + 'px';
+  }
+
+  /* ── compact (phone portrait): move the list onto the dock ──────────── */
+  var dock = $('ar-dock'), listWrap = null, compact = false;
+  function updateCompact() {
+    var fm = frame('menu');
+    var rw = BOX.screen.w * NOMINAL_W * fm.s;
+    var want = rw < 520;
+    if (!listWrap) listWrap = list.parentNode;
+    if (want !== compact) {
+      compact = want;
+      root.classList.toggle('is-compact', compact);
+      var hadFocus = list.contains(document.activeElement);
+      var focused = document.activeElement;
+      (compact ? dock : listWrap).appendChild(list);
+      if (hadFocus && focused && focused.focus) focused.focus({ preventScroll: true });
+    }
+    if (compact) {
+      var s = fm.s;
+      var screenBottom = fm.y + (BOX.screen.y + BOX.screen.h) * NOMINAL_H * s;
+      var deckBottom = fm.y + (BOX.deck.y + BOX.deck.h) * NOMINAL_H * s;
+      var hud = document.getElementById('ar-hud-bot');
+      var bottomReserve = (hud ? hud.offsetHeight : 60) + 18;
+      var top = deckBottom + 8;
+      var need = Math.min(dock.scrollHeight || 200, 240);
+      if (vh - bottomReserve - top < Math.min(need, 150)) top = screenBottom + 10;
+      dock.style.top = Math.round(top) + 'px';
+      dock.style.maxHeight = Math.max(110, Math.round(vh - bottomReserve - top)) + 'px';
+      dock.style.bottom = 'auto';
+    }
+  }
+
+  /* ── placing things on the plate ─────────────────────────────────────── */
+  function placeAll() {
+    cam.style.width = NOMINAL_W + 'px';
+    cam.style.height = NOMINAL_H + 'px';
+    Array.prototype.forEach.call(document.querySelectorAll('[data-box]'), function (el) {
+      var b = BOX[el.getAttribute('data-box')];
+      el.style.left = (b.x * NOMINAL_W) + 'px';
+      el.style.top = (b.y * NOMINAL_H) + 'px';
+      el.style.width = (b.w * NOMINAL_W) + 'px';
+      el.style.height = (b.h * NOMINAL_H) + 'px';
+    });
+    var k = (BOX.screen.w * NOMINAL_W) / UI_W;
+    var t = 'scale(' + k.toFixed(6) + ')';
+    ui.style.height = UI_H + 'px';
+    ui.style.transform = t;
+    ui.style.setProperty('--ar-ui-t', t);
+  }
+
+  /* ── the menu ─────────────────────────────────────────────────────────── */
+  var GAMES = [], rows = [], sel = 0, attract = null, crtHandle = null;
+  var ROW_H = 106;
+
+  function applyTint(g) {
+    root.style.setProperty('--ar-tint', g.tint);
+    root.style.setProperty('--ar-tint-rgb', g.rgb);
+  }
+
+  function buildList(games) {
+    list.innerHTML = games.map(function (g, i) {
+      var n = (i + 1 < 10 ? '0' : '') + (i + 1);
+      return '<li class="ar-row" role="listitem">'
+        + '<a class="ar-link' + (g.playable ? '' : ' is-off') + '" draggable="false" href="' + esc(internalHref(g.slug)) + '"'
+        + ' tabindex="-1" data-i="' + i + '" style="--row-tint:' + g.tint + ';--row-rgb:' + g.rgb + '"'
+        + (g.playable ? '' : ' aria-disabled="true"')
+        + ' aria-label="' + esc(g.title + (g.playable ? '' : ' — not available yet')) + '">'
+        + '<span class="ar-num" aria-hidden="true">' + n + '</span>'
+        + '<span class="ar-name">' + esc(g.title) + '</span>'
+        + '<span class="ar-chev" aria-hidden="true"></span>'
+        + '</a></li>';
+    }).join('');
+    rows = Array.prototype.slice.call(list.querySelectorAll('.ar-link'));
+    rows.forEach(function (a) {
+      var i = +a.getAttribute('data-i');
+      a.addEventListener('dragstart', function (e) { e.preventDefault(); });
+      a.addEventListener('pointerenter', function (e) {
+        if (e.pointerType === 'mouse' && view === 'menu' && !busy) select(i, { quiet: true });
+      });
+      a.addEventListener('click', function (e) {
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; // let the real link work
+        e.preventDefault();
+        if (busy || view !== 'menu') return;
+        if (i !== sel) { select(i); return; }
+        play(GAMES[i]);
       });
     });
   }
 
-  /* ── level of detail, by rendered height and never by slot index ─────── */
-
-  function lodFor(scale) {
-    var h = heroH * scale;
-    if (h >= 420) return '0';
-    if (h <= 200) return '2';
-    return '1';
-  }
-
-  /* ── the ring, measured ───────────────────────────────────────────────
-     How far apart the cabinets stand. This is the one place that decides it,
-     because it needs the cabinet's rendered WIDTH (which comes from the
-     viewport's height, through --hero-h) and the room's width at the same
-     time, and no media query can see both.
-
-     `peek` is how much of a neighbour you are meant to see, and the step falls
-     out of it: the neighbour's inner edge lands `peek` px inside the room's
-     edge. Three bands, matching the note above the breakpoints in the CSS. */
-  function layout() {
-    span = (room.clientWidth || document.documentElement.clientWidth || 2) / 2;
-    cabW = slots.length ? slots[0].getBoundingClientRect().width : 0;
-    if (!cabW) cabW = span * 0.4;
-
-    var W = span * 2, peek;
-    if (W >= 1040)     peek = cabW;         // three full cabinets
-    else if (W >= 720) peek = cabW * 0.55;  // one full, over half of each neighbour
-    else               peek = 20;           // one full, a sliver of each neighbour
-
-    step = span + cabW / 2 - peek;
-
-    /* At three-across, the step that shows the neighbours WHOLE also pins them
-       to the walls, where the vignette eats them and the room looks like a
-       shelf. Pull them in — but never closer than 1.06 cabinets, or two
-       machines touch. */
-    if (W >= 1040) step = Math.min(step, cabW * 1.62);
-    step = Math.max(step, cabW * 1.06);
-  }
-
-  /** Slot i's signed offset from the centre, in cabinets, and the one place
-      the ring recycles. The winding is adjusted so the answer always lands in
-      (-N/2, +N/2], which means a cabinet jumps from one end of the ring to the
-      other exactly once per lap, at |offset| = N/2 — the furthest point from
-      the centre, which is where paintRing() has already faded it out. */
-  function offsetOf(i) {
-    var d = (i + win[i] * N) - pos;
-    if (!WRAP) return d;
-    var half = N / 2;
-    while (d >   half) { win[i] -= 1; d -= N; }
-    while (d <= -half) { win[i] += 1; d += N; }
-    return d;
-  }
-
-  /* ── one frame ────────────────────────────────────────────────────────
-     The track gets exactly one transform write. A slot is written only when
-     its winding changed (a recycle), when the room resized, or when it crosses
-     into or out of the fade zone — so a normal rotation is one style write per
-     frame however many games are on the roster.
-
-     THE FADE, and when it is even visible. A recycle is invisible if the
-     cabinet is fully clipped by the room when it jumps, i.e. if N/2 steps is
-     further out than the room's edge plus half a cabinet. layout() gets that
-     for free at four games and up. At exactly THREE games it cannot: three
-     cabinets on a three-cabinet ring means the far side of the ring IS the
-     stage, and there is nowhere off-stage to jump from. So the last fraction
-     of a lap is an opacity dissolve — the machine walks out of the light at
-     one wall and back in at the other, which in a dark break room reads as
-     what it is. Opacity only; nothing here touches filter. */
-  function paintRing() {
-    if (!slots.length || !step) return;
-    var offStage  = (span + cabW / 2) / step;
-    var edge      = WRAP ? N / 2 : Infinity;
-    /* Start the dissolve the moment the cabinet is off-stage, or 0.42 of a
-       cabinet before it recycles, whichever comes FIRST. At four games and up
-       (and at three on a phone) `offStage` wins and the whole fade happens
-       behind the wall, so nothing is ever seen to fade. At exactly three games
-       on a wide screen nothing can win — a three-cabinet ring showing three
-       cabinets has no behind-the-wall — and 0.42 is what is left: long enough
-       to read as a machine walking out of the light, where 0.12 read as a
-       flicker. */
-    var fadeStart = WRAP ? Math.min(offStage, edge - 0.42) : Infinity;
-    var fadeSpan  = edge - fadeStart;
-
-    for (var i = 0; i < slots.length; i++) {
-      var d  = offsetOf(i);
-      var ad = d < 0 ? -d : d;
-
-      var op = 1;
-      if (WRAP && ad > fadeStart && fadeSpan > 0) {
-        op = (edge - ad) / fadeSpan;
-        if (op < 0) op = 0; else if (op > 1) op = 1;
-        op = Math.round(op * 100) / 100;
-      }
-      var vis = (op > 0.005) && (ad <= offStage + 0.02);
-      /* A cabinet the rack has focus on is NEVER hidden. visibility:hidden
-         blurs whatever is inside it, focus falls back to <body>, and the
-         rack's keydown listener — the only thing arrow keys reach — stops
-         firing for the rest of the page's life. Held presses used to push the
-         outgoing cabinet past the wall while it still had focus, and the
-         keyboard went dead on the third press. */
-      if (!vis && slots[i].contains(document.activeElement)) vis = true;
-
-      var tx = (i + win[i] * N) * step;
-      if (tx !== lastTx[i]) { slots[i].style.transform = 'translateX(' + tx + 'px)'; lastTx[i] = tx; }
-      if (op !== lastOp[i]) { slots[i].style.opacity = (op === 1 ? '' : String(op)); lastOp[i] = op; }
-      if (vis !== lastVis[i]) { slots[i].style.visibility = vis ? '' : 'hidden'; lastVis[i] = vis; }
-    }
-    rack.style.transform = 'translateX(' + (-pos * step) + 'px)';
-  }
-
-  /* ── the selection, applied ───────────────────────────────────────────
-     Called ONCE PER SETTLE, never per frame: it reads geometry (placePools)
-     and moves the canvas (mountCrt), and neither belongs in a frame loop. */
-  function apply() {
-    heroH = rack.clientHeight || 420;
-    centre = wrapIndex(Math.round(pos));
-    for (var i = 0; i < slots.length; i++) {
-      var cl = Math.round(offsetOf(i));
-      if (cl >  3) cl =  3; else if (cl < -3) cl = -3;
-      slots[i].dataset.slot = String(cl);
-      slots[i].dataset.geo  = 'front';
-      /* Every cabinet is the same size, so every cabinet gets the same level
-         of detail — chosen from the height it is actually drawn at, exactly as
-         before, and never from where it is standing. */
-      slots[i].dataset.lod  = lodFor(1);
-
-      links[i].tabIndex = (i === centre) ? 0 : -1;
-      if (i === centre) links[i].setAttribute('aria-current', 'true');
-      else links[i].removeAttribute('aria-current');
-    }
-    placePools();
-    mountCrt();
-  }
-
-  /* Light pools are positioned per cabinet by custom properties, measured
-     ONCE PER SETTLE from the real .marquee and .base rects — never from a
-     pointer-move or a frame callback. It reads layout, so a frame loop is the
-     one place it must not be called from; apply() is its only caller and
-     apply() only runs when the ring has stopped. */
-  function placePools() {
-    if (!slots.length) return;
-    var box = room.getBoundingClientRect();
-    for (var i = 0; i < slots.length; i++) {
-      var p = poolEls[i], g = GAMES[i];
-      var m = slots[i].querySelector('.marquee').getBoundingClientRect();
-      var b = slots[i].querySelector('.base').getBoundingClientRect();
-      var hidden = getComputedStyle(slots[i]).visibility === 'hidden' || m.width < 2;
-      p.style.setProperty('--tint-rgb', g.rgb);
-      p.style.setProperty('--px', (m.left + m.width / 2 - box.left) + 'px');
-      p.style.setProperty('--py', (m.top + m.height / 2 - box.top) + 'px');
-      p.style.setProperty('--pw', (m.width * 3.4) + 'px');
-      p.style.setProperty('--ph', (m.width * 2.9) + 'px');
-      p.style.setProperty('--fy', (b.bottom + b.height * 0.55 - (m.top + m.height / 2)) + 'px');
-      p.style.setProperty('--fw', (m.width * 2.3) + 'px');
-      p.style.setProperty('--fh', (m.width * 0.62) + 'px');
-      /* No depth ramp: every machine is the same distance away and lit the
-         same. The selected one is a little brighter because its screen is
-         alive, and a cabinet only half in the room only casts half its light —
-         without that last term the 20px slivers at the walls threw two
-         full-width pools across the floor and hazed the whole room grey. */
-      var cover = m.width > 0
-        ? (Math.min(m.right, box.right) - Math.max(m.left, box.left)) / m.width : 0;
-      cover = cover < 0 ? 0 : (cover > 1 ? 1 : cover);
-      p.style.setProperty('--pa', hidden ? '0'
-        : String(((i === centre ? 1 : 0.72) * cover).toFixed(3)));
-    }
-  }
-
-  /* ── the one canvas ──────────────────────────────────────────────────
-     Exactly one <canvas> exists in the document. When the centred cabinet
-     changes, the SAME element moves into the new cabinet's screen slot and is
-     re-mounted; the old cabinet reverts to its CSS still. Two attract loops
-     would double the only per-frame cost on the page, and this is a room a
-     store iPad will sit on for six hours. */
-  function mountCrt() {
-    if (!attract || !slots.length) return;
-    var g = GAMES[centre];
-    if (!g) return;
-    var slot = slots[centre].querySelector('.screen-slot');
-    if (!slot) return;
-
-    if (!crt) {
-      crt = document.createElement('canvas');
-      crt.className = 'crt';
-      crt.setAttribute('aria-hidden', 'true');
-    }
-    if (crt.parentNode === slot && crtHandle && crtHandle.slug === g.slug) return;
-
-    slots.forEach(function (s) { s.classList.remove('has-crt'); });
-    slot.appendChild(crt);
-    slots[centre].classList.add('has-crt');
-
-    crtHandle = attract.mount(crt, {
-      slug: g.slug, title: g.title, blurb: g.blurb, tint: g.tint
+  function select(i, opts) {
+    opts = opts || {};
+    if (!GAMES.length) return;
+    i = Math.max(0, Math.min(GAMES.length - 1, i));
+    var changed = i !== sel || !crtHandle;
+    var hadFocus = rows[sel] && document.activeElement === rows[sel];
+    sel = i;
+    rows.forEach(function (a, k) {
+      a.setAttribute('aria-current', k === i ? 'true' : 'false');
+      a.tabIndex = k === i ? 0 : -1;
     });
-    crtHandle.slug = g.slug;
-    crtHandle.start();
+    if (hadFocus || opts.focus) rows[i].focus({ preventScroll: true });
+    var g = GAMES[i];
+    applyTint(g);
+    titleEl.textContent = g.title;
+    blurbEl.textContent = g.blurb;
+    startBtn.disabled = !g.playable;
+    startBtn.textContent = g.playable ? 'Press start' : 'Coming soon';
+    scrollList();
+    if (changed) {
+      if (!opts.quiet || !crtHandle) { /* fallthrough: always remount */ }
+      mountCrt(g);
+      if (!opts.silent) sfx.move();
+      if (!opts.silent) say(g.title + (g.playable ? '' : ', not available yet') + '. ' + (i + 1) + ' of ' + GAMES.length + '.');
+    }
   }
 
-  /* ── rotation ─────────────────────────────────────────────────────────
-     A second-order spring rather than a CSS transition, for two reasons: the
-     ring has to be able to START from whatever velocity a finger let go at,
-     and a transition cannot survive a wrap (the target moves by a whole lap
-     under it). These two put the cabinet on its mark at about 150ms, three per
-     cent past it at 180ms and fully stopped by 370ms — a machine on castors,
-     not a slide. The settle is what stops it reading as a slide, and three per
-     cent is as much of it as a rep should ever have to notice.
-
-     The integrator runs on a fixed 60Hz tick with the real elapsed time
-     accumulated into it, so a 120Hz panel and a browser that just dropped
-     four frames both land in the same place at the same wall-clock moment. */
-  var SPRING = 0.22, DAMP = 0.55, TICK = 1000 / 60;
-
-  function promote(on) { rack.style.willChange = on ? 'transform' : ''; }
-
-  function frame(ts) {
-    raf = 0;
-    var dt = lastTs ? Math.min(80, ts - lastTs) : TICK;
-    lastTs = ts;
-    acc += dt;
-    var guard = 0;
-    while (acc >= TICK && guard++ < 10) {
-      vel += (target - pos) * SPRING;
-      vel *= DAMP;
-      pos += vel;
-      acc -= TICK;
-    }
-    /* 0.0015 of a cabinet is under a pixel at every step this page uses, so
-       the last hop onto the mark cannot be seen — and not chasing it saves
-       about a tenth of a second before the canvas moves. */
-    if (Math.abs(target - pos) < 0.0015 && Math.abs(vel) < 0.0015) {
-      pos = target; vel = 0; acc = 0; lastTs = 0;
-      paintRing();
-      settle();
+  function scrollList() {
+    if (compact) {
+      list.style.transform = '';
+      var r = rows[sel];
+      if (r && dock) {
+        var rt = r.offsetTop, rb = rt + r.offsetHeight;
+        if (rt < dock.scrollTop) dock.scrollTop = rt - 30;
+        else if (rb > dock.scrollTop + dock.clientHeight) dock.scrollTop = rb - dock.clientHeight + 10;
+      }
       return;
     }
-    paintRing();
-    raf = requestAnimationFrame(frame);
+    var wrap = list.parentNode;
+    var visible = wrap.clientHeight || 520;
+    var total = GAMES.length * ROW_H + 24;
+    var off = 0;
+    if (total > visible) {
+      off = sel * ROW_H + ROW_H / 2 - visible / 2;
+      off = Math.max(0, Math.min(total - visible, off));
+    }
+    list.style.transform = 'translateY(' + (-off) + 'px)';
   }
 
-  function run() {
-    /* prefers-reduced-motion: land on the target in one paint. No tween, and
-       nothing else is started on the way — the veil and the focus ring have
-       their transitions switched off in the same media query. */
-    if (noMotion()) {
-      if (raf) { cancelAnimationFrame(raf); raf = 0; }
-      pos = target; vel = 0; acc = 0; lastTs = 0;
-      paintRing(); settle();
+  function mountCrt(g) {
+    if (!attract) return;
+    try {
+      crtHandle = attract.mount(crt, { slug: g.slug, title: g.title, blurb: g.blurb, tint: g.tint });
+      if (view !== 'play') crtHandle.start();
+    } catch (err) { console.warn('[arcade] attract screen failed:', err); }
+    if (!noMotion()) {
+      monitor.classList.remove('is-swap');
+      void monitor.offsetWidth;
+      monitor.classList.add('is-swap');
+    }
+  }
+
+  /* ── the in-screen card: loading, notices ───────────────────────────── */
+  function showCard(o) {
+    cardKicker.textContent = o.kicker || '';
+    cardTitle.textContent = o.title || '';
+    cardBody.innerHTML = o.html || '';
+    cardBar.style.display = o.bar ? '' : 'none';
+    cardActions.innerHTML = '';
+    (o.actions || []).forEach(function (a) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.textContent = a.label;
+      b.addEventListener('click', a.run);
+      cardActions.appendChild(b);
+    });
+    card.classList.add('is-shown');
+  }
+  function hideCard() { card.classList.remove('is-shown'); }
+
+  /* ── PLAY ─────────────────────────────────────────────────────────────
+     1. START: sound, PLAYER 1 card in the tint, the attract loop stops.
+     2. The camera pushes in to the screen. The iframe is created at once and
+        placed where the screen WILL be, invisible, so the game is loading
+        during the move rather than after it.
+     3. Revealed when both the camera has arrived and the frame has loaded
+        (or after a patient timeout, with a way out). */
+  var busy = false, playing = null, frameEl = null, revealT = 0, slowT = 0, playSeq = 0;
+
+  function playTarget() {
+    var f = frame('play');
+    var r = screenRect(f);
+    var expanded = r.width < MIN_PLAY_W || r.height < MIN_PLAY_H;
+    if (expanded) {
+      var top = hudTop();
+      r = { left: 0, top: top, width: vw, height: vh - top };
+    }
+    return { f: f, r: r, expanded: expanded };
+  }
+
+  function placeFrame(t) {
+    if (!frameEl) return;
+    var r = t.r;
+    frameEl.style.left = Math.round(r.left) + 'px';
+    frameEl.style.top = Math.round(r.top) + 'px';
+    frameEl.style.width = Math.round(r.width) + 'px';
+    frameEl.style.height = Math.round(r.height) + 'px';
+    root.classList.toggle('is-expanded', t.expanded);
+  }
+
+  function play(g) {
+    if (!g || busy || playing) return;
+    if (!g.playable) { sfx.back(); say(g.title + ' is not available yet.'); return; }
+    if (!g.src) { handOff(g); return; }            // no registry: the viewer resolves it
+    busy = true;
+    var seq = ++playSeq;
+    playing = g;
+    sfx.start();
+    say('Starting ' + g.title + '.');
+    nowEl.textContent = g.title;
+    if (crtHandle) crtHandle.stop();
+    showCard({ kicker: 'Player 1 · Start', title: g.title, html: esc(g.blurb), bar: true });
+
+    root.classList.add('is-playing');
+    var t = playTarget();
+    var push = noMotion() ? 0 : 1100;
+    setTimeout(function () {
+      if (seq !== playSeq) return;
+      setCam('play', true, push);
+    }, noMotion() ? 0 : 260);
+
+    frameEl = document.createElement('iframe');
+    frameEl.className = 'ar-live';
+    frameEl.title = g.title;
+    frameEl.setAttribute('allow', 'autoplay; fullscreen; gamepad; accelerometer; gyroscope; clipboard-write');
+    frameEl.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+    placeFrame(t);
+    var loaded = false, arrived = false;
+    function reveal() {
+      if (seq !== playSeq || !frameEl) return;
+      if (!loaded || !arrived) return;
+      frameEl.classList.add('is-shown');
+      busy = false;
+      clearTimeout(slowT);
+      setTimeout(function () {
+        if (seq !== playSeq || !frameEl) return;
+        try { frameEl.focus(); if (frameEl.contentWindow) frameEl.contentWindow.focus(); } catch (err) { /* cross-origin focus is best effort */ }
+      }, 60);
+      say(g.title + ' is running. Use the Games button to come back to the menu.');
+    }
+    frameEl.addEventListener('load', function () {
+      if (frameEl && frameEl.getAttribute('src')) { loaded = true; reveal(); }
+    });
+    liveHost.appendChild(frameEl);
+    frameEl.src = g.src;                            // after insertion's about:blank, before any history
+    revealT = setTimeout(function () { arrived = true; reveal(); }, (noMotion() ? 0 : 260 + push) + 240);
+    slowT = setTimeout(function () {
+      if (seq !== playSeq || loaded) return;
+      busy = false;
+      showCard({
+        kicker: 'Still loading', title: g.title,
+        html: 'This one is taking a while — a slow connection, most likely.',
+        bar: true,
+        actions: [
+          { label: 'Keep waiting', run: function () { hideCardActions(); } },
+          { label: 'Back to games', run: function () { exitGame(); } }
+        ]
+      });
+    }, 20000);
+  }
+  function hideCardActions() { cardActions.innerHTML = ''; }
+
+  function exitGame(opts) {
+    opts = opts || {};
+    if (!playing) return;
+    var g = playing;
+    playSeq++;
+    clearTimeout(revealT); clearTimeout(slowT);
+    if (document.fullscreenElement) { try { document.exitFullscreen(); } catch (err) { /* noop */ } }
+    if (frameEl) {
+      var old = frameEl; frameEl = null;
+      old.classList.remove('is-shown');
+      setTimeout(function () { if (old.parentNode) old.parentNode.removeChild(old); }, noMotion() ? 0 : 380);
+    }
+    playing = null;
+    busy = false;
+    root.classList.remove('is-playing', 'is-expanded');
+    if (!opts.silent) sfx.back();
+    setCam('menu', !opts.instant, 1000);
+    showCard({ kicker: 'Game over', title: 'Thanks for playing', html: '', bar: false });
+    setTimeout(function () {
+      hideCard();
+      if (!noMotion()) { ui.classList.remove('is-power'); void ui.offsetWidth; ui.classList.add('is-power'); }
+      if (crtHandle) crtHandle.start();
+    }, noMotion() ? 0 : 700);
+    rows[sel] && rows[sel].focus({ preventScroll: true });
+    say('Back at the game menu. ' + g.title + ' is selected.');
+  }
+
+  $('ar-back').addEventListener('click', function () { exitGame(); });
+  $('ar-reload').addEventListener('click', function () {
+    if (!frameEl || !playing) return;
+    sfx.coin();
+    var src = playing.src;
+    var fresh = frameEl.cloneNode(false);
+    fresh.classList.remove('is-shown');
+    var old = frameEl;
+    frameEl = fresh;
+    fresh.addEventListener('load', function () { if (frameEl === fresh) fresh.classList.add('is-shown'); try { fresh.focus(); } catch (e) {} });
+    old.parentNode.replaceChild(fresh, old);
+    fresh.src = src;
+    say('Restarting ' + playing.title + '.');
+  });
+  $('ar-full').addEventListener('click', function () {
+    if (!playing) return;
+    var el = frameEl;
+    var canFs = el && document.fullscreenEnabled && el.requestFullscreen;
+    if (canFs) {
+      el.requestFullscreen().catch(function () { var g = playing; exitGame({ silent: true, instant: true }); handOff(g); });
+    } else {
+      var g = playing;
+      exitGame({ silent: true, instant: true });
+      handOff(g);
+    }
+  });
+
+  startBtn.addEventListener('click', function () { if (view === 'menu') play(GAMES[sel]); });
+  $('ar-deck').addEventListener('click', function () { if (view === 'menu') play(GAMES[sel]); });
+  $('ar-coin').addEventListener('click', function () {
+    sfx.coin();
+    if (view === 'menu' && !busy) {
+      var free = document.querySelector('.ar-free i');
+      if (free) { free.textContent = 'Credit 1 · free play'; setTimeout(function () { free.textContent = 'Free play'; }, 1800); }
+    }
+  });
+
+  /* Tapping the screen from the wide view walks you up to it. */
+  screenEl.addEventListener('click', function (e) {
+    if (view === 'wide') { e.preventDefault(); e.stopPropagation(); walkUp(700); }
+  }, true);
+
+  /* ── keys ─────────────────────────────────────────────────────────────── */
+  document.addEventListener('keydown', function (e) {
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (playing) {
+      if (e.key === 'Escape') { e.preventDefault(); exitGame(); }
       return;
     }
-    if (!raf) { lastTs = 0; acc = 0; promote(true); raf = requestAnimationFrame(frame); }
-  }
-
-  /** Everything that is only true when the ring has stopped. */
-  function settle() {
-    promote(false);
-    var had = links.indexOf(document.activeElement);
-    var was = centre;
-    apply();
-    /* The tab stop moved with the selection, so the focus has to move with it
-       or a keyboard user is left standing on a cabinet that is no longer the
-       one Enter would start. preventScroll, because the room is a clipped box
-       and letting the browser "scroll" it would shear the whole rack. */
-    if (had > -1 && had !== centre && links[centre]) {
-      try { links[centre].focus({ preventScroll: true }); }
-      catch (err) { links[centre].focus(); }
+    if (!GAMES.length) return;
+    if (view === 'wide') {
+      if (/^(Enter| |ArrowUp|ArrowDown|ArrowLeft|ArrowRight)$/.test(e.key)) { e.preventDefault(); walkUp(700); }
+      return;
     }
-    if (wantSay && GAMES[centre]) {
-      wantSay = false;
-      if (was !== centre || N === 1) say(GAMES[centre].title + '. ' + GAMES[centre].blurb);
+    var t = e.target;
+    if (t && t.closest && t.closest('.ar-hud')) return;        // let HUD buttons be buttons
+    switch (e.key) {
+      case 'ArrowUp': case 'ArrowLeft': e.preventDefault(); select((sel - 1 + GAMES.length) % GAMES.length, { focus: true }); break;
+      case 'ArrowDown': case 'ArrowRight': e.preventDefault(); select((sel + 1) % GAMES.length, { focus: true }); break;
+      case 'Home': e.preventDefault(); select(0, { focus: true }); break;
+      case 'End': e.preventDefault(); select(GAMES.length - 1, { focus: true }); break;
+      case 'Enter': case ' ':
+        if (t && t.tagName === 'A' && e.key === 'Enter') { e.preventDefault(); play(GAMES[sel]); break; }
+        if (t && (t.tagName === 'BUTTON')) break;
+        e.preventDefault(); play(GAMES[sel]); break;
     }
-  }
-
-  function setTarget(t) {
-    if (!WRAP) t = Math.max(0, Math.min(N - 1, t));
-    if (t === target && !raf) { wantSay = false; return; }
-    target = t;
-    /* The focus follows the selection IMMEDIATELY, not at settle. The tab stop
-       proper moves in apply(), but if a rep holds the arrow key down the
-       cabinet the focus is standing on will be halfway to the wall before the
-       ring stops, and it must not be allowed to leave with the focus on it. */
-    keepFocus();
-    run();
-  }
-
-  /** If the rack holds the focus, put it on the cabinet we are heading for. */
-  function keepFocus() {
-    if (links.indexOf(document.activeElement) < 0) return;
-    var a = links[wrapIndex(Math.round(target))];
-    if (!a || a === document.activeElement) return;
-    try { a.focus({ preventScroll: true }); } catch (err) { a.focus(); }
-  }
-
-  /** Rotate by n cabinets. WHY N<3 DOES NOT WRAP: a wrap is only honest if
-      the cabinet that goes round does it off-stage, or far enough out that a
-      dissolve covers it. On a ring of two, the far side of the ring is the
-      seat next to you — the second cabinet is never anywhere else — so any
-      recycle would teleport a machine across the middle of the room. Two
-      games are therefore a short row with hard ends, which is what two arcade
-      machines against a wall actually are. One game has nothing to rotate:
-      the single cabinet stays centred and keeps the focus. */
-  function rotateBy(n) {
-    if (N < 2) { if (links[0]) links[0].focus({ preventScroll: true }); return; }
-    wantSay = true;
-    setTarget(Math.round(target) + n);
-  }
-
-  /** Rotate an absolute cabinet index to the centre, the short way round. */
-  function go(i) {
-    if (!N) return;
-    i = wrapIndex(i);
-    wantSay = true;
-    if (!WRAP) { setTarget(i); return; }
-    var cur = Math.round(target);
-    var d = i - wrapIndex(cur);
-    if (d >  N / 2) d -= N;
-    if (d < -N / 2) d += N;
-    setTarget(cur + d);
-  }
-
-  /* ── ways to rotate it ────────────────────────────────────────────────
-     Drag, wheel and keys all end in the same place: a new integer target and
-     one call to run(). Nothing below writes a transform itself except the
-     drag, which has to track the finger. */
-
-  var drag = null, clickTimer = 0;
-
-  function onDown(e) {
-    if (N < 2 || !step) return;
-    if (e.pointerType === 'mouse' && e.button !== 0) return;
-    if (raf) { cancelAnimationFrame(raf); raf = 0; }
-    vel = 0; acc = 0; lastTs = 0;
-    promote(true);
-    drag = { id: e.pointerId, x0: e.clientX, x: e.clientX, t: e.timeStamp || Date.now(),
-             lt: 0, pos0: pos, moved: false, v: 0 };
-  }
-
-  function onMove(e) {
-    if (!drag || e.pointerId !== drag.id) return;
-    var dx = e.clientX - drag.x0;
-    if (!drag.moved) {
-      if (Math.abs(dx) < 6) return;          // a tap is not a drag
-      drag.moved = true;
-      room.dataset.drag = '1';
-    }
-    var t = e.timeStamp || Date.now();
-    var dtp = t - (drag.lt || drag.t);
-    if (dtp > 0) drag.v = (e.clientX - drag.x) / dtp;   // px per ms
-    drag.x = e.clientX; drag.lt = t;
-
-    /* 1:1 with the finger. One cabinet of travel is one `step` of movement. */
-    pos = drag.pos0 - dx / step;
-    if (!WRAP) pos = Math.max(-0.4, Math.min(N - 1 + 0.4, pos));   // rubber at the ends
-    paintRing();
-    if (e.cancelable) e.preventDefault();
-  }
-
-  function onUp(e) {
-    if (!drag || (e.pointerId !== undefined && e.pointerId !== drag.id)) return;
-    var moved = drag.moved, v = drag.v;
-    drag = null;
-    room.removeAttribute('data-drag');
-    if (!moved) { promote(false); return; }   // it was a tap: let the click through
-
-    /* A flick carries. 300ms of the release velocity, capped at three
-       cabinets so a violent swipe does not spin the room. */
-    swallowClick = true;
-    clearTimeout(clickTimer);
-    clickTimer = setTimeout(function () { swallowClick = false; }, 400);
-
-    var carry = -v * 300 / step;
-    if (carry >  3) carry =  3; else if (carry < -3) carry = -3;
-    var t = Math.round(pos + carry);
-    if (!WRAP) t = Math.max(0, Math.min(N - 1, t));
-    /* Always run(), even when the target did not change: the finger almost
-       never lets go on a whole cabinet, so there is a fraction to settle back
-       whether or not the selection moved. */
-    wantSay = (t !== target);
-    target = t;
-    run();
-  }
-
-  /* and the same defence one level up, for the inline <svg> inside each
-     cabinet, which is just as draggable as the anchor around it. */
-  room.addEventListener('dragstart', function (e) { e.preventDefault(); });
-
-  room.addEventListener('pointerdown', onDown);
-  addEventListener('pointermove', onMove, { passive: false });
-  addEventListener('pointerup', onUp);
-  addEventListener('pointercancel', onUp);
-
-  /* Wheel and trackpad. A trackpad two-finger swipe arrives as many small
-     deltaX; a mouse wheel as a few large deltaY. Both are accumulated into
-     one notch so they feel the same, and the accumulator forgets itself
-     after a third of a second so two separate nudges are two rotations. */
-  var wheelAcc = 0, wheelAt = 0, wheelLock = 0;
-  room.addEventListener('wheel', function (e) {
-    if (N < 2 || !step) return;
-    var horizontal = Math.abs(e.deltaX) >= Math.abs(e.deltaY);
-    var d = horizontal ? e.deltaX : e.deltaY;
-    if (!d) return;
-    if (e.deltaMode === 1) d *= 16; else if (e.deltaMode === 2) d *= step;
-
-    /* Only swallow the event if we are really consuming it: a vertical wheel
-       over a page that still has somewhere to scroll belongs to the page. */
-    var doc = document.documentElement;
-    var scrollable = doc.scrollHeight > doc.clientHeight + 2;
-    if ((horizontal || !scrollable) && e.cancelable) e.preventDefault();
-    else if (scrollable && !horizontal) return;
-
-    var now = e.timeStamp || Date.now();
-    if (now - wheelAt > 320) wheelAcc = 0;
-    wheelAt = now;
-    wheelAcc += d;
-    if (Math.abs(wheelAcc) >= 56 && now - wheelLock > 90) {
-      wheelLock = now;
-      var n = wheelAcc > 0 ? 1 : -1;
-      wheelAcc = 0;
-      rotateBy(n);
-    }
-  }, { passive: false });
-
-  /* Keys. The rack is one tab stop — the roving tabindex means the only
-     focusable link is the centred one — so this listener sees every key a
-     rep can aim at the rack. Enter is not handled here on purpose: the
-     centred cabinet is a real <a>, and its own activation runs the click
-     handler and the launch handshake. */
-  rack.addEventListener('keydown', function (e) {
-    if (!slots.length) return;
-    if (e.key === 'ArrowRight')     { e.preventDefault(); rotateBy(1); }
-    else if (e.key === 'ArrowLeft') { e.preventDefault(); rotateBy(-1); }
-    else if (e.key === 'Home')      { e.preventDefault(); go(0); }
-    else if (e.key === 'End')       { e.preventDefault(); go(N - 1); }
   });
 
-  /* The room is a clipped box; if anything ever manages to scroll it (a focus
-     call that slipped past preventScroll, a find-in-page) the whole ring
-     shears sideways and never comes back. Cheapest possible insurance. */
-  room.addEventListener('scroll', function () {
-    if (room.scrollLeft) room.scrollLeft = 0;
-    if (room.scrollTop) room.scrollTop = 0;
-  });
+  /* ── resize: re-aim the camera and the live frame, never animated ──── */
+  var rsT = 0;
+  function onResize() {
+    measureViewport();
+    setCam(view, false);
+    if (playing && frameEl) placeFrame(playTarget());
+    scrollList();
+  }
+  window.addEventListener('resize', function () { cancelAnimationFrame(rsT); rsT = requestAnimationFrame(onResize); });
+  document.addEventListener('fullscreenchange', function () { if (!document.fullscreenElement) onResize(); });
 
-  var rt;
-  addEventListener('resize', function () {
-    clearTimeout(rt);
-    rt = setTimeout(function () {
-      if (!slots.length) return;
-      layout();
-      for (var i = 0; i < slots.length; i++) lastTx[i] = NaN;   // step changed
-      paintRing();
-      apply();
-    }, 120);
-  });
-
-  /* ── honest failure ──────────────────────────────────────────────────── */
-
-  function state(title, bodyHtml) {
-    var d = document.createElement('div');
-    d.className = 'state';
-    d.innerHTML = '<h2>' + esc(title) + '</h2><p>' + bodyHtml + '</p>';
-    room.appendChild(d);
-    say(title);
+  /* ── walking up to the machine ───────────────────────────────────────── */
+  var walked = false;
+  function powerOn() {
+    root.classList.add('is-on');
+    if (!noMotion()) { ui.classList.remove('is-power'); void ui.offsetWidth; ui.classList.add('is-power'); }
+  }
+  function walkUp(ms) {
+    if (walked) return;
+    walked = true;
+    setCam('menu', true, ms);
+    setTimeout(function () {
+      powerOn();
+      if (crtHandle) crtHandle.start();
+      if (rows[sel] && document.activeElement === document.body) rows[sel].focus({ preventScroll: true });
+    }, noMotion() ? 0 : Math.round(ms * 0.45));
   }
 
-  function offlineState() {
-    state('The cabinets are dark', 'This is a <code>file://</code> copy, and the cabinet list lives in '
-      + '<code>arcade/manifest.json</code>, which a page opened off a USB stick is not allowed to read. '
-      + 'Serve the folder (<code>python3 -m http.server</code>) and the arcade lights up. '
-      + 'Every game is also reachable from the Break Room on the main page.');
+  /* ── boot ─────────────────────────────────────────────────────────────── */
+  measureViewport();
+  placeAll();
+  setCam('wide', false);
+
+  function notice(kicker, title, html) {
+    powerOn();
+    root.classList.add('is-on');
+    showCard({ kicker: kicker, title: title, html: html, bar: false });
   }
 
-  /* ── boot ────────────────────────────────────────────────────────────── */
-
-  if (OFFLINE) { offlineState(); return; }
+  if (OFFLINE) {
+    walkUp(10);
+    notice('Out of order', 'This cabinet needs the site',
+      'Open the arcade from cookcountycooks.com. A saved copy cannot read <code>arcade/manifest.json</code>.');
+    return;
+  }
 
   Promise.all([
-    fetch(MANIFEST_URL, { cache: 'no-cache' })
-      .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)); }),
-    loadSlugs()
-  ]).then(function (both) {
-    var data = both[0] || {};
-    var knownSlugs = both[1];
-    var games = (data.games || []).filter(function (g) { return g && g.slug && g.title; })
+    fetch(MANIFEST_URL, { cache: 'no-cache' }).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }),
+    loadRegistry()
+  ]).then(function (res) {
+    var manifest = res[0], registry = res[1];
+    var games = (manifest && Array.isArray(manifest.games) ? manifest.games : [])
+      .filter(function (g) { return g && typeof g.slug === 'string' && g.slug && typeof g.title === 'string'; })
       .map(function (g) {
         var tint = cleanTint(g.tint);
+        var known = !registry || registry.has(g.slug);
         return {
-          slug:  String(g.slug),
-          title: String(g.title),
-          blurb: String(g.blurb || ''),
-          tint:  tint,
-          rgb:   rgbTriplet(tint)
+          slug: g.slug,
+          title: g.title.trim(),
+          blurb: typeof g.blurb === 'string' ? g.blurb.trim() : '',
+          tint: tint, rgb: rgbTriplet(tint),
+          playable: known,
+          src: registry && known ? resolveUrl(registry.get(g.slug)) : null
         };
       });
+    GAMES = games;
 
     if (!games.length) {
-      state('No cabinets on the floor', 'The manifest at <code>arcade/manifest.json</code> parsed, '
-        + 'but it lists no games. Add a row there and one here.');
+      walkUp(900);
+      notice('Out of order', 'No games loaded', 'The list at <code>arcade/manifest.json</code> is empty.');
       return;
     }
 
-    centre = Math.floor((games.length - 1) / 2);
-    buildRack(games, knownSlugs);          // sets N and WRAP from the roster
     attract = createAttractEngine();
+    buildList(games);
+    select(Math.max(0, games.findIndex(function (g) { return g.playable; })), { silent: true });
+    if (crtHandle) crtHandle.stop();
 
-    /* ── the entry cinematic ──────────────────────────────────────────────
-       ONCE PER VISIT, and that is the whole design. A rep on a five-minute
-       break opens the arcade, plays something, comes back, opens it again —
-       four times in one break is normal. A 2.2s intro on every one of those
-       stops being a treat and becomes a toll booth, so it is gated on
-       sessionStorage: spectacular the first time the tab sees the arcade,
-       silent every time after until the browser session ends.
+    say(games.length + (games.length === 1 ? ' game' : ' games') + ' on the cabinet. '
+      + GAMES[sel].title + ' is selected. Up and down arrow keys to choose, Enter to play.');
 
-       The gate FAILS OPEN. Safari partitions third-party storage and throws
-       on read in some configurations, and a browser that cannot remember is
-       a browser that shows the good bit — never one that hides it.
-
-       It plays OVER the room, not before it: the rack, the pools and the
-       attract canvas all build underneath while the cinematic runs, so the
-       moment the shutters close the room behind them is already finished and
-       interactive. The cinematic's own last frame is near-black, which is
-       what makes the hand-off invisible.
-
-       Under prefers-reduced-motion play() draws nothing and resolves on the
-       next frame, so this whole block costs one tick. */
+    /* The v25 cinematic, once per visit, failing open. It plays OVER the
+       room; when it ends the camera walks up to the machine. */
     var INTRO_KEY = 'ccc-arcade-intro-v1';
     var introSeen = false;
-    try { introSeen = window.sessionStorage.getItem(INTRO_KEY) === '1'; }
-    catch (err) { introSeen = false; }
+    try { introSeen = window.sessionStorage.getItem(INTRO_KEY) === '1'; } catch (err) { introSeen = false; }
+    var go = function (ms) { requestAnimationFrame(function () { walkUp(ms); }); };
 
-    if (!introSeen) {
-      try { window.sessionStorage.setItem(INTRO_KEY, '1'); } catch (err) { /* noop */ }
-      try {
-        createArcadeIntro().play(document.body, { games: GAMES });
-      } catch (err) {
-        /* A broken cinematic must never cost a rep the arcade itself. */
-        console.warn('[arcade] the intro did not run:', err);
-      }
+    function whenPhoto(fn) {
+      if (photo.complete && photo.naturalWidth) { fn(); return; }
+      var done = false;
+      var once = function () { if (!done) { done = true; fn(); } };
+      photo.addEventListener('load', once);
+      photo.addEventListener('error', once);
+      setTimeout(once, 2500);
     }
-    pos = target = centre;
-    layout();
-    paintRing();
-    apply();
 
-    say(games.length + (games.length === 1 ? ' cabinet' : ' cabinets') + ' on the floor. '
-      + GAMES[centre].title + ' is in front of you'
-      + (N > 1 ? ', left and right arrow keys to turn the rack.' : '.'));
-
-    /* Re-measure after the first paint: --hero-h is a clamp() on the viewport
-       and the cabinet width it gives us is not final until the room has laid
-       out once. */
-    requestAnimationFrame(function () {
-      layout();
-      for (var i = 0; i < slots.length; i++) lastTx[i] = NaN;
-      paintRing();
-      placePools();
-    });
-
-    /* The entry stagger displaces the cabinets while it runs, so re-place the
-       pools once the finite animations have settled. Without this the pools sit
-       16px high until the first selection change. */
-    if (document.getAnimations) {
-      var settling = document.getAnimations().filter(function (a) {
-        return a.effect && a.effect.getTiming().iterations !== Infinity;
-      }).map(function (a) { return a.finished.catch(function () {}); });
-      if (settling.length) Promise.all(settling).then(placePools);
+    if (!introSeen && !noMotion()) {
+      try { window.sessionStorage.setItem(INTRO_KEY, '1'); } catch (err) { /* noop */ }
+      var h = null;
+      try { h = createArcadeIntro().play(document.body, { games: GAMES }); }
+      catch (err) { console.warn('[arcade] the intro did not run:', err); }
+      if (h && h.done) {
+        h.done.then(function () { whenPhoto(function () { setTimeout(function () { go(1900); }, 250); }); });
+      } else {
+        whenPhoto(function () { go(1900); });
+      }
+    } else {
+      whenPhoto(function () { setTimeout(function () { go(1300); }, 350); });
     }
   }).catch(function (err) {
-    state('The arcade could not open', 'The cabinet list at <code>arcade/manifest.json</code> did not load ('
-      + esc(err && err.message ? err.message : 'unknown error') + '). '
+    walkUp(900);
+    notice('Out of order', 'The arcade could not open',
+      'The game list did not load (' + esc(err && err.message ? err.message : 'unknown error') + '). '
       + 'Every game is still listed in the Break Room on the main page.');
   });
 })();
