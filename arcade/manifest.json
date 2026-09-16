@@ -36,6 +36,13 @@
    "blurb": "Eight karts, six circuits, one Chicago night. Tilt the phone to steer and hold the racing line.",
    "url": "https://blufoxmobile.github.io/Blufox-Overdrive/",
    "tint": "#ff9e4a"
+  },
+  {
+   "slug": "casino",
+   "title": "BLUFOX CASINO",
+   "blurb": "Hold'em, blackjack, roulette and the gateway slots, dealt by a fox in a tuxedo. Play chips only.",
+   "url": "tools/casino/",
+   "tint": "#8ef0d0"
   }
  ]
 }

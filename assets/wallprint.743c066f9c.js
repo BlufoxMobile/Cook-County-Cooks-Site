@@ -2137,7 +2137,7 @@ function buildSheet(doc, spot, sheet, title) {
  *
  * ── HOW A SHEET FINDS ITS TOOL, AND WHY THERE ARE TWO WAYS ─────────────────
  * The Back Office sheet names its tool with a SLUG, because that tool ships in
- * data/tools.8a96955e82.json in plaintext and always has. Resolution for it is a Map read
+ * data/tools.1b9013b491.json in plaintext and always has. Resolution for it is a Map read
  * and it is unchanged, down to the label fallback order.
  *
  * The walk-in's note cannot do that. Its tool is one of the fourteen behind the

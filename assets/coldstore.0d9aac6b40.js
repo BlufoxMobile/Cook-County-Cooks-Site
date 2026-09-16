@@ -10,7 +10,7 @@
  *
  * WHAT THAT DOES AND DOES NOT BUY YOU — read this before you promise anything.
  *   IT DOES stop a sales rep reading the manager links out of View Source, out
- *     of data/tools.8a96955e82.json, out of the network tab or out of the DOM. There is no
+ *     of data/tools.1b9013b491.json, out of the network tab or out of the DOM. There is no
  *     list to find and no hash to compare against — without the password the
  *     blob is indistinguishable from noise, and a wrong password fails GCM's
  *     authentication tag and yields nothing at all.

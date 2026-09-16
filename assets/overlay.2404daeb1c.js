@@ -36,7 +36,7 @@ export { freshUrl };
  * build that can tell a tool that loaded from a tool that 404'd — the iframe
  * cannot, and §6 below carries the twelve-shape measurement that proves it.
  * Its own file because screens.js needs it too and must not import this one. */
-import { preflight, preflightCopy } from './preflight.de727ecb0b.js';
+import { preflight, preflightCopy } from './preflight.8a6e597fbb.js';
 export { preflight };
 
 
@@ -1086,7 +1086,7 @@ function showFrame(tool, { force = false } = {}) {
 
   // Known refusers: skip the spinner entirely and go straight to the card.
   // Nothing routes here today except SharePoint/Microsoft hosts — none of which
-  // are in data/tools.8a96955e82.json — but the list stays as cheap insurance for whatever
+  // are in data/tools.1b9013b491.json — but the list stays as cheap insurance for whatever
   // gets added next. It is NOT the failure detection; preflight() is.
   if (!force && isKnownUnframeable(tool.url)) {
     showFallback(
@@ -1645,10 +1645,10 @@ function onDocumentKeydown(ev) {
  * Boot the tool viewer.
  *
  * @param {object}  [options]
- * @param {Array}   [options.tools]     tools array (as in data/tools.8a96955e82.json). If
+ * @param {Array}   [options.tools]     tools array (as in data/tools.1b9013b491.json). If
  *                                      omitted we look at window.CCC_TOOLS /
  *                                      window.CCC?.tools, then fetch toolsUrl.
- * @param {string}  [options.toolsUrl]  default 'data/tools.8a96955e82.json'
+ * @param {string}  [options.toolsUrl]  default 'data/tools.1b9013b491.json'
  * @param {boolean} [options.deepLink]  honour #/tool/<slug> on load (default true)
  *
  * @param {(slug:string, tool:object) => boolean} [options.canOpen]
@@ -1680,7 +1680,7 @@ function onDocumentKeydown(ev) {
 export function initOverlay(options = {}) {
   const {
     tools = null,
-    toolsUrl = 'data/tools.8a96955e82.json',
+    toolsUrl = 'data/tools.1b9013b491.json',
     deepLink = true,
     canOpen = null,
     onRefused = null
@@ -1723,7 +1723,7 @@ export function initOverlay(options = {}) {
      always written `window.__CCC_INLINE__ = { tools, freezer, headchefs }`, and
      nothing in this build has ever set either of the other two. The branch was
      dead, so a caller that did not pass `tools` fell straight through to a
-     fetch of data/tools.8a96955e82.json — which is the one thing the inline payload exists
+     fetch of data/tools.1b9013b491.json — which is the one thing the inline payload exists
      to avoid (fetch() against a file:// URL is refused outright, and Jeff
      reviews builds off a USB stick). The real global is read first now; the
      two old spellings are kept behind it in case something out there sets one,

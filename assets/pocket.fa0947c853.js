@@ -20,7 +20,7 @@
  * a tool, a URL or a room: this module reads the same inline __CCC_INLINE__
  * bootstrap the cinema reads, through the same fallback fetch of the same file,
  * groups by the same ROOM_ORDER, and opens the same sealed envelope through the
- * same coldgate.js. Adding a tool to data/tools.8a96955e82.json and rebuilding puts it on
+ * same coldgate.js. Adding a tool to data/tools.1b9013b491.json and rebuilding puts it on
  * the phone with no other edit. If you find yourself typing a tool's name into
  * this file, stop — you are about to build the thing we decided not to build.
  *
@@ -78,12 +78,12 @@
  * ========================================================================== */
 
 import { el, fill, $ } from './dom.a199da796c.js';
-import { initOverlay } from './overlay.38c3f33d81.js';
-import { ROOM_ORDER } from './roomorder.3ab9a70ccf.js';
+import { initOverlay } from './overlay.2404daeb1c.js';
+import { ROOM_ORDER } from './roomorder.15b8f2c082.js';
 import {
   initColdGate, setAdopt, coldTools, isFreezerUnlocked, sealedCount,
   onFreezerUnlock, openKeypad
-} from './coldgate.e59aad52c5.js';
+} from './coldgate.e3ded34f06.js';
 
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -99,7 +99,7 @@ import {
 async function loadTools() {
   const inline = window.__CCC_INLINE__;
   if (inline && inline.tools) return inline.tools;
-  const res = await fetch('data/tools.8a96955e82.json');
+  const res = await fetch('data/tools.1b9013b491.json');
   return res.json();
 }
 
@@ -108,7 +108,7 @@ async function loadTools() {
  *
  * ROOM_ORDER is the spine because it is the order of the restaurant and the
  * order every other surface on this site uses. But it is NOT the room registry
- * — data/tools.8a96955e82.json is — so any room that appears there and not in ROOM_ORDER
+ * — data/tools.1b9013b491.json is — so any room that appears there and not in ROOM_ORDER
  * is appended in file order rather than dropped. That matters for the one rule
  * above: a new room added to tools.json must reach the phone without a second
  * edit, even before anyone updates the walk-through's geometry.

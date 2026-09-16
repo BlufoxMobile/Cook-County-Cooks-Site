@@ -40,7 +40,7 @@
    import the order without dragging this file's 24 KB of hotspot geometry
    down the wire with it. Everything that imports ROOM_ORDER from here is
    unchanged; this is a re-export, so the binding is the same one. */
-export { ROOM_ORDER } from './assets/roomorder.3ab9a70ccf.js';
+export { ROOM_ORDER } from './assets/roomorder.15b8f2c082.js';
 
 export const HOTSPOTS = {
   pass: [

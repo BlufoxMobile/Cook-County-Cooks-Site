@@ -47,11 +47,11 @@
  * ========================================================================== */
 
 import { initEngine, scrollToRoom, onRoomChange } from './engine.cccb8d066e.js';
-import { initOverlay, openTool } from './overlay.38c3f33d81.js';
-import { mountRoomScreens } from './screens.963d10301f.js';
+import { initOverlay, openTool } from './overlay.2404daeb1c.js';
+import { mountRoomScreens } from './screens.4626e3532f.js';
 import { initChefWall } from './chefwall.2e2da0a5e6.js';
-import { initLabels } from './labels.2602a5f71b.js';
-import { buildWallPrint, revealWallPrints } from './wallprint.ad07258c1e.js';
+import { initLabels } from './labels.d881f413f8.js';
+import { buildWallPrint, revealWallPrints } from './wallprint.743c066f9c.js';
 import { initFreezer } from './freezer.39bd7199fd.js';
 /* The lock is shared with the pocket list — see coldgate.js. It owns the
    sealed envelope, the session restore, the keypad and every path to
@@ -59,9 +59,9 @@ import { initFreezer } from './freezer.39bd7199fd.js';
 import {
   initColdGate, setAdopt, coldTools, isFreezerUnlocked, sealedCount,
   onFreezerUnlock, openKeypad
-} from './coldgate.e59aad52c5.js';
+} from './coldgate.e3ded34f06.js';
 import { el, fill, $ } from './dom.a199da796c.js';
-import { ROOM_ORDER, HOTSPOTS, CHEF_FRAMES, FREEZER_DOOR } from '../rooms.1928cc25e1.js';
+import { ROOM_ORDER, HOTSPOTS, CHEF_FRAMES, FREEZER_DOOR } from '../rooms.77595ae61c.js';
 
 
 /* §0 · TINY DOM HELPERS — el(), fill() and $() now live in dom.js, because the
@@ -145,7 +145,7 @@ async function loadData() {
 
   // Fallback for a served deployment where the inline block was removed.
   const [tools, headchefs] = await Promise.all([
-    fetch('data/tools.8a96955e82.json').then((r) => r.json()),
+    fetch('data/tools.1b9013b491.json').then((r) => r.json()),
     fetch('headchefs/headchefs.json').then((r) => r.json())
   ]);
   return { tools, headchefs };
@@ -653,7 +653,7 @@ function buildRail(roomId, index, data) {
  *                 v3 for the tools whose objects are not in the shot
  *                 (`discount-close`, `rep-hourly-rate`).
  *   'no-chip'     THE CONVERSE, and new here: no chip in the rail, and no
- *                 hotspot either. The tool is still in data/tools.8a96955e82.json and so
+ *                 hotspot either. The tool is still in data/tools.1b9013b491.json and so
  *                 is still in the C³ menu, the footer index, the phone list's
  *                 search, the <noscript> floor and `#/tool/<slug>` — it is only
  *                 absent from the RAIL.
@@ -669,7 +669,7 @@ function buildRail(roomId, index, data) {
  * on a phone, and the C³ menu still lists all three under Break Room.
  *
  * The test is on the tool, not on a slug list, so the next game Jeff adds is
- * one `"object": "no-chip"` in data/tools.8a96955e82.json and no code change at all.
+ * one `"object": "no-chip"` in data/tools.1b9013b491.json and no code change at all.
  */
 function showsChip(tool) {
   return !tool || tool.object !== 'no-chip';
@@ -700,7 +700,7 @@ function buildChip(tool, staged, i) {
       : null
   });
   chip.append(tool.label);
-  /* THE MARQUEE. A tool carrying `marquee` in data/tools.8a96955e82.json gets the bulb
+  /* THE MARQUEE. A tool carrying `marquee` in data/tools.1b9013b491.json gets the bulb
      treatment in theme.css §08b and a live count appended to its label. Exactly
      one tool has it today (`arcade`), and this function still does not know
      that — the slug is nowhere in this file. See armArcadeChips(). */
