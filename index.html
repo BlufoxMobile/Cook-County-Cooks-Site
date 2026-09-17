@@ -41,7 +41,7 @@
        weekly and two codebases would silently drift, so the answer is this —
        one URL, one tool list, two front ends, chosen here.
 
-       WHY THIS RUNS HERE AND NOT IN A MODULE. assets/app.3eb006febc.js is type="module",
+       WHY THIS RUNS HERE AND NOT IN A MODULE. assets/app.60e027b99e.js is type="module",
        which is deferred by definition: it cannot run until the document has
        parsed, by which point the page has painted. A decision made there would
        show the wrong site first and swap it — a flash of the whole cinema on a
@@ -282,7 +282,7 @@
            next build has already pruned.
 
        REGISTERED HERE, NOT IN A MODULE, AND AFTER `load`.
-       In the <head> because it must not depend on assets/app.3eb006febc.js — the deploy
+       In the <head> because it must not depend on assets/app.60e027b99e.js — the deploy
        window where a hashed module 404s is one of the cases this is meant to
        survive. After `load` because registration competes for the same
        connection as the hero plate, and the offline floor is for the NEXT
@@ -416,10 +416,10 @@
   <!-- ═══════════════════════════════════════════════════════════════════════
        THE ENTRY POINT, AND WHAT HAPPENS WHEN THE ENTRY POINT ITSELF IS GONE
        ═══════════════════════════════════════════════════════════════════════
-       assets/app.3eb006febc.js wraps its own boot in a try/catch and draws a flat list of
+       assets/app.60e027b99e.js wraps its own boot in a try/catch and draws a flat list of
        every tool if any module it imports fails — but it cannot draw anything
        if IT is the file that 404'd, and that is not hypothetical: on
-       2026-08-31 assets/app.3eb006febc.js was live-404ing on
+       2026-08-31 assets/app.60e027b99e.js was live-404ing on
        cookcountycooks.com while index.html, served with cache-control:
        max-age=600, was still naming it. build/fingerprint.mjs had emitted the
        next build's hashed names and pruned the previous build's; for up to ten
@@ -519,6 +519,6 @@
       } catch (e) { /* a floor that throws is not a floor; fail silent */ }
     };
   </script>
-  <script type="module" src="assets/app.3eb006febc.js" onerror="window.__cccFloor()"></script>
+  <script type="module" src="assets/app.60e027b99e.js" onerror="window.__cccFloor()"></script>
 </body>
 </html>

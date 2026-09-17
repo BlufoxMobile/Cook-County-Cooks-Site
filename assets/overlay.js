@@ -381,9 +381,22 @@ body.ccc-locked {
 }
 .ccc-ov.is-in .ccc-ov__panel { transform: none; opacity: 1; }
 
-@media (max-width: 720px) {
+@media (max-width: 720px), (max-height: 500px) and (orientation: landscape) {
   .ccc-ov__panel { width: 100vw; height: 100svh; border-radius: 0; }
 }
+
+/* IMMERSIVE — the arcade asks for this while a game is running (§6b). The
+   chrome bar goes and the panel takes the whole viewport edge to edge, so the
+   game gets every pixel; the arcade draws its own ✕ to come back. dvh (with
+   svh as the floor) so a phone's collapsing toolbar gives its space to the
+   game too. Cleared on every frame swap and on close. */
+.ccc-ov.is-immersive .ccc-ov__panel {
+  width: 100vw; height: 100svh; height: 100dvh;
+  border-radius: 0; box-shadow: none;
+  grid-template-rows: 0 1fr;
+}
+.ccc-ov.is-immersive .ccc-ov__bar { display: none; }
+.ccc-ov.is-immersive .ccc-ov__stage { background: #000; }
 
 /* --- chrome bar ------------------------------------------------------------ */
 .ccc-ov__bar {
@@ -438,6 +451,21 @@ body.ccc-locked {
 }
 .ccc-ov__btn--primary:hover { background: var(--ccc-accent-hi, #f2c778); }
 .ccc-ov__btn--icon { width: 40px; padding: 0; font-size: 15px; }
+
+/* THE SLIM BAR (v28, at the client's request: "reduce the size of the header
+   by half … so it doesn't take up much real estate"). ~33px instead of ~66px:
+   one line — title, then the blurb run in after it and truncated — and a
+   28px close button whose hit area is widened invisibly, so it stays easy to
+   tap even though it draws small. Scoped to the bar: the fallback card's
+   buttons keep their full size. */
+.ccc-ov__bar { padding: 2px 6px 2px clamp(10px, 1.6vw, 16px); gap: 10px; min-height: 32px; }
+.ccc-ov__id { display: flex; align-items: baseline; gap: 10px; }
+.ccc-ov__title { flex: 0 1 auto; font-size: 13.5px; line-height: 1.15; }
+.ccc-ov__blurb { flex: 1 1 0; min-width: 0; margin: 0; font-size: 11.5px; line-height: 1.15; }
+.ccc-ov__bar .ccc-ov__btn { min-height: 28px; position: relative; }
+.ccc-ov__bar .ccc-ov__btn--icon { width: 28px; font-size: 11px; }
+.ccc-ov__bar .ccc-ov__btn--icon::after { content: ""; position: absolute; inset: -8px -6px; }
+.ccc-ov__bar .ccc-ov__btn:focus-visible { outline-offset: 0; }
 
 /* --- stage (frame / skeleton / fallback share one box) --------------------- */
 .ccc-ov__stage { position: relative; background: var(--ccc-ov-stage, #f7f5f1); overflow: hidden; }
@@ -809,7 +837,13 @@ function makeStageFrame() {
  *
  * @returns {HTMLIFrameElement} the frame that is now in the DOM
  */
+/** The arcade's full-screen request (§6b). Any new frame starts un-immersed. */
+function setImmersive(on) {
+  if (state.ui) state.ui.root.classList.toggle('is-immersive', !!on);
+}
+
 function navigateStageFrame(ui, url) {
+  setImmersive(false);
   const fresh = makeStageFrame();
   ui.frame.replaceWith(fresh);          // keeps its slot/order inside the stage
   ui.frame = fresh;
@@ -826,6 +860,7 @@ function navigateStageFrame(ui, url) {
 function blankStageFrame(ui) {
   if (!ui || !ui.frame) return;
   ui.frame.onload = ui.frame.onerror = null;
+  setImmersive(false);
   const fresh = makeStageFrame();
   ui.frame.replaceWith(fresh);
   ui.frame = fresh;
@@ -883,6 +918,16 @@ function onFrameMessage(event) {
 
   const d = event.data;
   if (!d || typeof d !== 'object') return;
+
+  // IMMERSIVE (v28): a game is running inside the arcade and wants the whole
+  // screen. Same identity check as above; the only effect is a class on this
+  // viewer, which setImmersive(false) undoes on any frame swap or close, so a
+  // frame that dies mid-game cannot leave the chrome hidden.
+  if (d.source === 'ccc-arcade' && d.action === 'immersive') {
+    setImmersive(d.on === true);
+    return;
+  }
+
   if (d.source !== 'ccc-arcade' || d.action !== 'open-tool') return;
 
   const slug = typeof d.slug === 'string' ? d.slug : '';
@@ -1480,7 +1525,7 @@ function teardown() {
 
   if (!ui) return;
 
-  ui.root.classList.remove('is-in');
+  ui.root.classList.remove('is-in', 'is-immersive');
   ui.frame.onload = ui.frame.onerror = null;
   ui.frame.classList.remove('is-shown');
   ui.status.textContent = '';

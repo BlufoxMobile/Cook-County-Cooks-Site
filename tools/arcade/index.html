@@ -51,9 +51,10 @@
          · The game's address comes from the SAME registry the site's viewer
            uses, and it is never printed. Every row is a real
            <a href="#/tool/<slug>">, so Copy Link hands out cookcountycooks.com.
-         · FULL SCREEN still exists: element fullscreen where the browser has
-           it, and otherwise the v22 postMessage handshake, which opens the game
-           as a tool in the site's own viewer.
+         · v28: EVERY GAME PLAYS FULL SCREEN. The viewer drops its title bar
+           (postMessage `immersive`), the browser goes full screen where it
+           can, and the game covers the page; one ✕ in the top-right corner
+           comes back to the arcade.
        ═══════════════════════════════════════════════════════════════════ -->
 
   <style>
@@ -250,7 +251,7 @@ body{font-family:var(--ar-grot);-webkit-font-smoothing:antialiased;-webkit-tap-h
   opacity:0;visibility:hidden;transition:opacity 380ms ease, visibility 0s linear 380ms}
 .ar-live.is-shown{opacity:1;visibility:visible;transition:opacity 380ms ease}
 .ar-scrim{position:fixed;inset:0;background:#05070a;z-index:29;opacity:0;pointer-events:none;transition:opacity 500ms ease}
-.is-expanded .ar-scrim{opacity:.94}
+.is-expanded .ar-scrim{opacity:1}
 .ar-vig{position:absolute;inset:0;pointer-events:none;z-index:2;opacity:.9;transition:opacity 900ms ease;
   background:radial-gradient(120% 95% at 50% 42%, transparent 52%, rgb(3 5 9 / .72) 100%)}
 .is-playing .ar-vig{opacity:1;background:radial-gradient(90% 85% at 50% 50%, transparent 55%, rgb(3 5 9 / .9) 100%)}
@@ -259,9 +260,23 @@ body{font-family:var(--ar-grot);-webkit-font-smoothing:antialiased;-webkit-tap-h
 .ar-hud{position:fixed;left:0;right:0;z-index:40;display:flex;align-items:center;justify-content:center;gap:12px;
   padding:0 16px;pointer-events:none}
 .ar-hud > *{pointer-events:auto}
-.ar-hud-top{top:max(10px, env(safe-area-inset-top));justify-content:space-between;opacity:0;visibility:hidden;
-  transform:translateY(-8px);transition:opacity 300ms ease, transform 300ms ease, visibility 0s linear 300ms}
-.is-playing .ar-hud-top{opacity:1;visibility:visible;transform:none;transition:opacity 300ms ease 500ms, transform 300ms ease 500ms}
+/* v28: while a game runs, the only chrome is one ✕ in the top-right corner. */
+.ar-exit{position:fixed;z-index:45;top:max(10px, env(safe-area-inset-top));right:max(10px, env(safe-area-inset-right));
+  width:44px;height:44px;border-radius:999px;display:grid;place-items:center;cursor:pointer;padding:0;
+  color:var(--bone);background:rgb(9 13 19 / .72);border:1px solid rgb(200 151 63 / .6);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 6px 18px -6px rgb(0 0 0 / .8);
+  opacity:0;visibility:hidden;transform:scale(.8);
+  transition:opacity 260ms ease, transform 260ms var(--ar-ease), visibility 0s linear 260ms,
+             top 260ms var(--ar-ease), right 260ms var(--ar-ease), width 260ms var(--ar-ease), height 260ms var(--ar-ease)}
+.ar-exit svg{width:16px;height:16px;transition:width 260ms, height 260ms}
+.ar-exit:hover{border-color:var(--brass-300);background:rgb(9 13 19 / .9)}
+.ar-exit:focus-visible{outline:3px solid var(--brass-300);outline-offset:2px}
+.is-playing .ar-exit{opacity:1;visibility:visible;transform:none;transition-delay:0s}
+/* tucked: a small tab in the very corner, out of the way of a game's own buttons */
+.is-playing.is-tucked .ar-exit{top:max(2px, env(safe-area-inset-top));right:max(2px, env(safe-area-inset-right));
+  width:28px;height:28px;opacity:.55;box-shadow:none}
+.is-playing.is-tucked .ar-exit svg{width:11px;height:11px}
+.is-playing.is-tucked .ar-exit:hover,.is-playing.is-tucked .ar-exit:focus-visible{opacity:1;width:44px;height:44px}
 .ar-hud-bot{bottom:max(10px, env(safe-area-inset-bottom));transition:opacity 300ms ease}
 .is-playing .ar-hud-bot{opacity:0;pointer-events:none}
 .is-playing .ar-hud-bot > *{pointer-events:none}
@@ -284,7 +299,6 @@ body{font-family:var(--ar-grot);-webkit-font-smoothing:antialiased;-webkit-tap-h
 @media (max-width:520px){ .ar-pill-long{display:none} }
 @media (max-height:520px) and (orientation:landscape){
   .ar-pill{min-height:32px;padding:0 12px}
-  .ar-hud-top{top:max(6px, env(safe-area-inset-top))}
   .ar-hud-bot{bottom:max(4px, env(safe-area-inset-bottom))}
   .ar-tips{padding:5px 12px}
 }
@@ -376,23 +390,9 @@ body{font-family:var(--ar-grot);-webkit-font-smoothing:antialiased;-webkit-tap-h
   <div class="ar-scrim" aria-hidden="true"></div>
   <div id="ar-live-host"></div>
 
-  <div class="ar-hud ar-hud-top" id="ar-hud-top">
-    <button class="ar-pill" id="ar-back" type="button">
-      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
-      <span>Games</span>
-    </button>
-    <span class="ar-pill ar-pill-long" aria-hidden="true" style="pointer-events:none;border-color:transparent;background:rgb(9 13 19 / .5)">Now playing&nbsp;<span class="ar-pill-name" id="ar-now"></span></span>
-    <div class="ar-hud-group">
-      <button class="ar-pill" id="ar-reload" type="button" aria-label="Restart the game">
-        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.6-3.7M13 2.5v3h-3" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
-        <span class="ar-pill-long">Restart</span>
-      </button>
-      <button class="ar-pill" id="ar-full" type="button">
-        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
-        <span class="ar-pill-long">Full screen</span>
-      </button>
-    </div>
-  </div>
+  <button class="ar-exit" id="ar-exit" type="button" aria-label="Exit the game and go back to the arcade" title="Back to the arcade">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 3.5l9 9m0-9-9 9" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+  </button>
 
   <div class="ar-hud ar-hud-bot" id="ar-hud-bot">
     <div class="ar-tips">
@@ -2633,17 +2633,16 @@ function createArcadeIntro() {
     coin:    { x: 0.468, y: 0.597, w: 0.061, h: 0.132 },
     /* camera targets */
     wide:    { x: 0.150, y: 0.000, w: 0.700, h: 1.000 },
-    menu:    { x: 0.352, y: 0.040, w: 0.296, h: 0.505 }
+    menu:    { x: 0.352, y: 0.040, w: 0.296, h: 0.505 },
+    /* a landscape view too short for the whole head: the glass, the lower
+       half of the marquee and the top of the deck */
+    tight:   { x: 0.366, y: 0.150, w: 0.268, h: 0.318 }
   };
   var NOMINAL_W = 1600;
   var NOMINAL_H = NOMINAL_W * PLATE.h / PLATE.w;
   var UI_W = 1280;
   var UI_H = Math.round(UI_W * (BOX.screen.h * PLATE.h) / (BOX.screen.w * PLATE.w));
 
-  /* A game is only played INSIDE the cabinet when the screen, zoomed, is at
-     least this big. Below it (a phone) the game takes the whole view instead,
-     and the zoom is the transition into it. */
-  var MIN_PLAY_W = 620, MIN_PLAY_H = 360;
 
   var $ = function (id) { return document.getElementById(id); };
   var stage = $('ar-stage'), cam = $('ar-cam'), photo = $('ar-photo');
@@ -2653,7 +2652,7 @@ function createArcadeIntro() {
   var card = $('ar-card'), cardKicker = $('ar-card-kicker'), cardTitle = $('ar-card-title'),
       cardBody = $('ar-card-body'), cardBar = $('ar-card-bar'), cardActions = $('ar-card-actions');
   var liveHost = $('ar-live-host'), live = $('ar-live');
-  var nowEl = $('ar-now');
+  var exitBtn = $('ar-exit');
   var root = document.documentElement;
 
   var rmq = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -2796,19 +2795,32 @@ function createArcadeIntro() {
     vh = stage.clientHeight || window.innerHeight;
   }
   function short() { return vh < 520 && vw > vh; }
-  function hudTop() { return short() ? 46 : (vw < 560 ? 58 : 64); }
+  function hudTop() { return 10; }
+
+  /* How wide the glass renders under the standard menu framing. */
+  function menuScreenW() {
+    var b = BOX.menu, bw = b.w * NOMINAL_W, bh = b.h * NOMINAL_H;
+    var s = Math.min((vw - 20) / bw, (vh - 14 - (vw < 560 ? 64 : 56)) / bh);
+    s = Math.max(s, Math.max(vw / NOMINAL_W, vh / NOMINAL_H));
+    return BOX.screen.w * NOMINAL_W * s;
+  }
 
   function frame(name) {
     /* a phone on its side: the menu is the screen, edge to edge */
-    var b = BOX[(name === 'play' || (name === 'menu' && short())) ? 'screen' : name];
+    var key = name === 'play' ? 'screen' : name;
+    if (name === 'menu' && vw >= vh) {
+      if (short()) key = 'screen';
+      else if (menuScreenW() < 600) key = 'tight';
+    }
+    var b = BOX[key];
     var W = NOMINAL_W, H = NOMINAL_H;
     var bx = b.x * W, by = b.y * H, bw = b.w * W, bh = b.h * H;
     var mt, mb, ml, mr, s;
     if (name === 'play') {
       mt = hudTop(); mb = 14; ml = mr = 14;
       s = Math.min((vw - ml - mr) / bw, (vh - mt - mb) / bh);
-    } else if (name === 'menu' && short()) {
-      mt = 8; mb = 44; ml = mr = 8;
+    } else if (name === 'menu' && key !== 'menu') {
+      mt = 8; mb = key === 'screen' ? 44 : 50; ml = mr = 8;
       s = Math.min((vw - ml - mr) / bw, (vh - mt - mb) / bh);
     } else if (name === 'menu') {
       mt = 14; mb = vw < 560 ? 64 : 56; ml = mr = 10;
@@ -2877,7 +2889,7 @@ function createArcadeIntro() {
   function updateCompact() {
     var fm = frame('menu');
     var rw = BOX.screen.w * NOMINAL_W * fm.s;
-    var want = rw < 520;
+    var want = rw < 520 && vw < vh * 1.05;
     if (!listWrap) listWrap = list.parentNode;
     if (want !== compact) {
       compact = want;
@@ -3047,15 +3059,53 @@ function createArcadeIntro() {
         (or after a patient timeout, with a way out). */
   var busy = false, playing = null, frameEl = null, revealT = 0, slowT = 0, playSeq = 0;
 
+  /* v28: every game plays FULL SCREEN. The push-in to the glass is the
+     transition; the game itself always takes the whole view, and the viewer
+     around this page is asked to drop its chrome (immersive) so "the whole
+     view" really is the whole screen. */
   function playTarget() {
-    var f = frame('play');
-    var r = screenRect(f);
-    var expanded = r.width < MIN_PLAY_W || r.height < MIN_PLAY_H;
-    if (expanded) {
-      var top = hudTop();
-      r = { left: 0, top: top, width: vw, height: vh - top };
-    }
-    return { f: f, r: r, expanded: expanded };
+    return { f: frame('play'), r: { left: 0, top: 0, width: vw, height: vh }, expanded: true };
+  }
+
+  /* ── full screen, three layers deep ──────────────────────────────────
+     1. the viewer hides its title bar (postMessage, overlay.js §6b);
+     2. the browser's own full screen where it exists (desktop, Android,
+        iPad) — requested inside the START gesture, never later;
+     3. the game frame covers this page edge to edge.
+     An older viewer ignores (1) and the game still fills the frame. */
+  function tellHost(on) {
+    var host = hostWindow();
+    if (!host) return;
+    try { host.postMessage({ source: 'ccc-arcade', action: 'immersive', on: !!on }, location.origin); }
+    catch (err) { /* the viewer is gone; nothing to un-hide */ }
+  }
+  function fsElement() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
+  function enterFullscreen() {
+    var de = document.documentElement;
+    var req = de.requestFullscreen || de.webkitRequestFullscreen;
+    var enabled = document.fullscreenEnabled || document.webkitFullscreenEnabled;
+    if (!req || !enabled || fsElement()) return;
+    try {
+      var r = req.call(de, { navigationUI: 'hide' });
+      if (r && r.catch) r.catch(function () { /* refused: the immersive view is still full size */ });
+    } catch (err) { /* same */ }
+  }
+  function leaveFullscreen() {
+    if (!fsElement()) return;
+    var ex = document.exitFullscreen || document.webkitExitFullscreen;
+    try { var r = ex && ex.call(document); if (r && r.catch) r.catch(function () {}); } catch (err) { /* noop */ }
+  }
+  window.addEventListener('pagehide', function () { if (playing) tellHost(false); });
+
+  /* The ✕ sits in the top-right corner. After a few seconds it tucks into a
+     small corner tab so it covers as little of a game's own top-right
+     controls (pause, sound, settings) as possible; it wakes up again on a
+     resize, on rotation and on mouse movement near it. */
+  var tuckT = 0;
+  function wakeExit(ms) {
+    root.classList.remove('is-tucked');
+    clearTimeout(tuckT);
+    tuckT = setTimeout(function () { if (playing) root.classList.add('is-tucked'); }, ms || 3200);
   }
 
   function placeFrame(t) {
@@ -3077,7 +3127,10 @@ function createArcadeIntro() {
     playing = g;
     sfx.start();
     say('Starting ' + g.title + '.');
-    nowEl.textContent = g.title;
+    exitBtn.setAttribute('aria-label', 'Exit ' + g.title + ' and go back to the arcade');
+    tellHost(true);
+    enterFullscreen();
+    wakeExit(4200);
     if (crtHandle) crtHandle.stop();
     showCard({ kicker: 'Player 1 · Start', title: g.title, html: esc(g.blurb), bar: true });
 
@@ -3106,7 +3159,8 @@ function createArcadeIntro() {
         if (seq !== playSeq || !frameEl) return;
         try { frameEl.focus(); if (frameEl.contentWindow) frameEl.contentWindow.focus(); } catch (err) { /* cross-origin focus is best effort */ }
       }, 60);
-      say(g.title + ' is running. Use the Games button to come back to the menu.');
+      wakeExit(4500);
+      say(g.title + ' is running full screen. The close button in the top right corner goes back to the arcade.');
     }
     frameEl.addEventListener('load', function () {
       if (frameEl && frameEl.getAttribute('src')) { loaded = true; reveal(); }
@@ -3136,7 +3190,10 @@ function createArcadeIntro() {
     var g = playing;
     playSeq++;
     clearTimeout(revealT); clearTimeout(slowT);
-    if (document.fullscreenElement) { try { document.exitFullscreen(); } catch (err) { /* noop */ } }
+    tellHost(false);
+    leaveFullscreen();
+    clearTimeout(tuckT);
+    root.classList.remove('is-tucked');
     if (frameEl) {
       var old = frameEl; frameEl = null;
       old.classList.remove('is-shown');
@@ -3157,32 +3214,10 @@ function createArcadeIntro() {
     say('Back at the game menu. ' + g.title + ' is selected.');
   }
 
-  $('ar-back').addEventListener('click', function () { exitGame(); });
-  $('ar-reload').addEventListener('click', function () {
-    if (!frameEl || !playing) return;
-    sfx.coin();
-    var src = playing.src;
-    var fresh = frameEl.cloneNode(false);
-    fresh.classList.remove('is-shown');
-    var old = frameEl;
-    frameEl = fresh;
-    fresh.addEventListener('load', function () { if (frameEl === fresh) fresh.classList.add('is-shown'); try { fresh.focus(); } catch (e) {} });
-    old.parentNode.replaceChild(fresh, old);
-    fresh.src = src;
-    say('Restarting ' + playing.title + '.');
-  });
-  $('ar-full').addEventListener('click', function () {
-    if (!playing) return;
-    var el = frameEl;
-    var canFs = el && document.fullscreenEnabled && el.requestFullscreen;
-    if (canFs) {
-      el.requestFullscreen().catch(function () { var g = playing; exitGame({ silent: true, instant: true }); handOff(g); });
-    } else {
-      var g = playing;
-      exitGame({ silent: true, instant: true });
-      handOff(g);
-    }
-  });
+  exitBtn.addEventListener('click', function () { exitGame(); });
+  exitBtn.addEventListener('pointerenter', function () { if (playing) wakeExit(2500); });
+  document.addEventListener('fullscreenchange', function () { if (playing) wakeExit(3200); });
+  document.addEventListener('webkitfullscreenchange', function () { if (playing) wakeExit(3200); });
 
   startBtn.addEventListener('click', function () { if (view === 'menu') play(GAMES[sel]); });
   $('ar-deck').addEventListener('click', function () { if (view === 'menu') play(GAMES[sel]); });
@@ -3230,7 +3265,7 @@ function createArcadeIntro() {
   function onResize() {
     measureViewport();
     setCam(view, false);
-    if (playing && frameEl) placeFrame(playTarget());
+    if (playing && frameEl) { placeFrame(playTarget()); if (frameEl.classList.contains('is-shown')) wakeExit(3000); }
     scrollList();
   }
   window.addEventListener('resize', function () { cancelAnimationFrame(rsT); rsT = requestAnimationFrame(onResize); });

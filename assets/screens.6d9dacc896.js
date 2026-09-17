@@ -73,11 +73,11 @@
  * -------------------------------------------------------------------------- */
 
 /** The two public, CORS-open data files behind the Host Stand and Back Office. */
-import { freshUrl } from './overlay.b0ac36a5b6.js';
+import { freshUrl } from './overlay.eb440488ec.js';
 /* Same reason as overlay.js §6: an iframe's `load` fires for a 404, a 500, an
    error page and a refused frame alike, so a live board that 404s was being
    revealed as the board. preflight.js carries the twelve-shape measurement. */
-import { preflight, preflightCopy } from './preflight.b10841a986.js';   // shared fresh-load cache buster
+import { preflight, preflightCopy } from './preflight.8a6e597fbb.js';   // shared fresh-load cache buster
 
 export const PROMO_CARD_URL =
   'https://raw.githubusercontent.com/BlufoxMobile/Daily-Sales-Report/main/data/promo-card.jpg';
