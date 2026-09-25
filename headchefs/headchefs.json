@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-25T13:39:44.961Z",
+  "generated_at": "2026-09-25T15:11:31.813Z",
   "generator": "build/pull-headchefs.mjs",
   "note": "GENERATED FILE — do not hand-edit. Rebuilt from the Win-The-Weekend decks by .github/workflows/headchefs.yml every 30 minutes.",
   "policy": {
@@ -31,7 +31,7 @@
       "label": "Big South",
       "page": "https://blufoxmobile.github.io/Win-The-Weekend---Big-South/",
       "raw": "https://raw.githubusercontent.com/BlufoxMobile/Win-The-Weekend---Big-South/main/index.html",
-      "fetched_at": "2026-09-25T13:39:45.933Z",
+      "fetched_at": "2026-09-25T15:11:32.840Z",
       "bytes": 5607314,
       "head_chef_slides": 1,
       "districts": [
@@ -43,8 +43,8 @@
       "label": "Chicago",
       "page": "https://blufoxmobile.github.io/Win-The-Weekend---Chicago/",
       "raw": "https://raw.githubusercontent.com/BlufoxMobile/Win-The-Weekend---Chicago/main/index.html",
-      "fetched_at": "2026-09-25T13:39:46.851Z",
-      "bytes": 2502684,
+      "fetched_at": "2026-09-25T15:11:34.602Z",
+      "bytes": 17949247,
       "head_chef_slides": 5,
       "districts": [
         "North Side",
@@ -64,7 +64,7 @@
       "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-09-25T13:39:44.961Z",
+      "last_confirmed": "2026-09-25T15:11:31.813Z",
       "last_changed": "2026-09-25T13:39:44.961Z",
       "days_since_confirmed": 0
     },
@@ -73,11 +73,11 @@
       "district_short": "West Side",
       "source_deck": "chicago",
       "source_url": "https://blufoxmobile.github.io/Win-The-Weekend---Chicago/",
-      "slide_title": "Head Chef Of The Week — West Side",
+      "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-09-25T13:39:44.961Z",
-      "last_changed": "2026-09-11T15:34:36.946Z",
+      "last_confirmed": "2026-09-25T15:11:31.813Z",
+      "last_changed": "2026-09-25T15:11:31.813Z",
       "days_since_confirmed": 0
     },
     "east-side": {
@@ -85,11 +85,11 @@
       "district_short": "East Side",
       "source_deck": "chicago",
       "source_url": "https://blufoxmobile.github.io/Win-The-Weekend---Chicago/",
-      "slide_title": "Head Chef Of The Week — Outlawz",
+      "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-09-25T13:39:44.961Z",
-      "last_changed": "2026-09-11T15:34:36.946Z",
+      "last_confirmed": "2026-09-25T15:11:31.813Z",
+      "last_changed": "2026-09-25T15:11:31.813Z",
       "days_since_confirmed": 0
     },
     "north-side": {
@@ -97,11 +97,11 @@
       "district_short": "North Side",
       "source_deck": "chicago",
       "source_url": "https://blufoxmobile.github.io/Win-The-Weekend---Chicago/",
-      "slide_title": "Head Chef Of The Week — North Side",
+      "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-09-25T13:39:44.961Z",
-      "last_changed": "2026-09-11T15:34:36.946Z",
+      "last_confirmed": "2026-09-25T15:11:31.813Z",
+      "last_changed": "2026-09-25T15:11:31.813Z",
       "days_since_confirmed": 0
     },
     "south-side": {
@@ -109,11 +109,11 @@
       "district_short": "South Side",
       "source_deck": "chicago",
       "source_url": "https://blufoxmobile.github.io/Win-The-Weekend---Chicago/",
-      "slide_title": "Head Chef Of The Week — The South Side",
+      "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-09-25T13:39:44.961Z",
-      "last_changed": "2026-09-11T15:34:36.946Z",
+      "last_confirmed": "2026-09-25T15:11:31.813Z",
+      "last_changed": "2026-09-25T15:11:31.813Z",
       "days_since_confirmed": 0
     },
     "xfinity": {
@@ -124,8 +124,8 @@
       "slide_title": "⭐ Xfinity Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-26T04:16:23.645Z",
-      "last_confirmed": "2026-09-25T13:39:44.961Z",
-      "last_changed": "2026-09-11T15:34:36.946Z",
+      "last_confirmed": "2026-09-25T15:11:31.813Z",
+      "last_changed": "2026-09-25T15:11:31.813Z",
       "days_since_confirmed": 0
     }
   },
@@ -169,7 +169,7 @@
       "photo_sha": "b250dbb84af4fcb7f1b71b977fdff19c8823057a6c6e62ff9f9a33c1918eddbe",
       "photo_file_sha": "7273524596df3ae0b0e13db489ff8508c3dfddffad3923600a827959caa75ea1",
       "photo_low_quality": false,
-      "last_confirmed": "2026-09-25T13:39:44.961Z",
+      "last_confirmed": "2026-09-25T15:11:31.813Z",
       "last_changed": "2026-09-25T13:39:44.961Z",
       "days_since_confirmed": 0,
       "stale": false
@@ -179,17 +179,17 @@
       "district_key": "west-side",
       "district_short": "West Side",
       "region_deck": "Chicago",
-      "slide_title": "Head Chef Of The Week — West Side",
+      "slide_title": "Head Chef Of The Week",
       "slide_index": 3,
-      "name": "Linda Weeks",
-      "store_role": "Glenview • Assistant Manager",
+      "name": "Nevaeh Patton",
+      "store_role": "Dekalb • Sales Associate",
       "stats": [
         {
-          "value": "$7,948",
+          "value": "$11,462",
           "label": "GP $"
         },
         {
-          "value": "85%",
+          "value": "90%",
           "label": "Plus"
         },
         {
@@ -197,24 +197,24 @@
           "label": "GIG Attach"
         },
         {
-          "value": "$0.70",
+          "value": "$22.30",
           "label": "Accy $/Box"
         }
       ],
-      "writeup": "• 7.3K GP\n• 6 NETS ALL GIG\n• 31 TOTAL LINES\n• 85% PLUS\n\n•• Always looking for opportunities with every customer",
+      "writeup": "• $11k GP\n• 100% GIG\n• 23 Watches and 19 tabs mtd\n• 90% Plus Attach\n• $70 Accy per box\n• Leading DeKalb with a great attitude",
       "is_xfinity": false,
       "is_store": false,
       "vacant": false,
-      "has_photo": false,
-      "photo_file": null,
-      "photo_w": 0,
-      "photo_h": 0,
-      "photo_bytes": 0,
-      "photo_sha": null,
-      "photo_file_sha": null,
+      "has_photo": true,
+      "photo_file": "photos/west-side.webp",
+      "photo_w": 384,
+      "photo_h": 461,
+      "photo_bytes": 20596,
+      "photo_sha": "83227863192307461dcc555dc622997b3f3a7ad41789834a1e5a90f09d26581b",
+      "photo_file_sha": "45db48db9ca1417e73c900c3f106193d82c599b815e11029b4a79ba3955a66ce",
       "photo_low_quality": false,
-      "last_confirmed": "2026-09-25T13:39:44.961Z",
-      "last_changed": "2026-09-11T15:34:36.946Z",
+      "last_confirmed": "2026-09-25T15:11:31.813Z",
+      "last_changed": "2026-09-25T15:11:31.813Z",
       "days_since_confirmed": 0,
       "stale": false
     },
@@ -223,42 +223,42 @@
       "district_key": "east-side",
       "district_short": "East Side",
       "region_deck": "Chicago",
-      "slide_title": "Head Chef Of The Week — Outlawz",
+      "slide_title": "Head Chef Of The Week",
       "slide_index": 1,
-      "name": "April Vasquez",
-      "store_role": "Schererville • Assistant Manager",
+      "name": "Dalton Hogan",
+      "store_role": "Michigan City • Sales Representative",
       "stats": [
         {
-          "value": "$5,415",
+          "value": "$9,170",
           "label": "GP $"
         },
         {
-          "value": "94%",
+          "value": "56%",
           "label": "Plus"
         },
         {
-          "value": "20%",
+          "value": "67%",
           "label": "GIG Attach"
         },
         {
-          "value": "$25.23",
+          "value": "$29.99",
           "label": "Accy $/Box"
         }
       ],
-      "writeup": "Ranked 111th nationally\nMaintains performance when manager is off\nDevelops those around her\nConsistent top region performer",
+      "writeup": "Absolute superstar. Dalton always has a positive attitude. Dalton delivers on both sales and customer service and is currently ranked at the top of Michigan City! Keep winning, Dalton!",
       "is_xfinity": false,
       "is_store": false,
       "vacant": false,
       "has_photo": true,
       "photo_file": "photos/east-side.webp",
       "photo_w": 384,
-      "photo_h": 365,
-      "photo_bytes": 17144,
-      "photo_sha": "5abcd71ae7e515c5973445fa01fc9cb4a8a094c67728ca823cc6df4371a37678",
-      "photo_file_sha": "004aa7d561174172d28594b52fe6f81e18fa9ca44b01811ddd33c4f3f9ab8189",
-      "photo_low_quality": true,
-      "last_confirmed": "2026-09-25T13:39:44.961Z",
-      "last_changed": "2026-09-11T15:34:36.946Z",
+      "photo_h": 522,
+      "photo_bytes": 47066,
+      "photo_sha": "73946701cdeeaa105202a5897187d99c997539fb5cf1adbbc8cb8a9d9a0c114c",
+      "photo_file_sha": "79f187fac341a69562d82b5de18c32b0bcbebdf6fd5e7e28a6447bedd83498d3",
+      "photo_low_quality": false,
+      "last_confirmed": "2026-09-25T15:11:31.813Z",
+      "last_changed": "2026-09-25T15:11:31.813Z",
       "days_since_confirmed": 0,
       "stale": false
     },
@@ -267,25 +267,42 @@
       "district_key": "north-side",
       "district_short": "North Side",
       "region_deck": "Chicago",
-      "slide_title": "Head Chef Of The Week — North Side",
+      "slide_title": "Head Chef Of The Week",
       "slide_index": 0,
-      "name": "Mobi",
-      "store_role": "Head Chef Nominee",
-      "stats": [],
-      "writeup": "$1000+ in Commission\nGreat customer service\nAlways looking for a sale\nImpact maker",
+      "name": "Kenisha Banks",
+      "store_role": "Uptown • Sales Representative",
+      "stats": [
+        {
+          "value": "$9,585",
+          "label": "GP $"
+        },
+        {
+          "value": "57%",
+          "label": "Plus"
+        },
+        {
+          "value": "70%",
+          "label": "GIG Attach"
+        },
+        {
+          "value": "$4.44",
+          "label": "Accy $/Box"
+        }
+      ],
+      "writeup": "Always giving the best customer service\nGreat NPS\nGreat google reviews\nT charting on top\nBundling Watches and Tablets",
       "is_xfinity": false,
       "is_store": false,
       "vacant": false,
       "has_photo": true,
       "photo_file": "photos/north-side.webp",
       "photo_w": 384,
-      "photo_h": 382,
-      "photo_bytes": 8550,
-      "photo_sha": "91ac8dad26fb0b04bd7ddc60cfd2f64653c5b7ac180eda7507e894c6e2f9047b",
-      "photo_file_sha": "1cac867117eb8f3666cb8343753dc0410dd517d8bcbcc15d0c9b5ffd7d0cc888",
-      "photo_low_quality": true,
-      "last_confirmed": "2026-09-25T13:39:44.961Z",
-      "last_changed": "2026-09-11T15:34:36.946Z",
+      "photo_h": 384,
+      "photo_bytes": 8570,
+      "photo_sha": "5c5ce4374efe62e65b0bea615e704aa7b045444531524f4f3999fc2e8d9b3030",
+      "photo_file_sha": "99a7b1d4873726acbbed1d5997110be85279fd63f29044c36f343ec836bf6557",
+      "photo_low_quality": false,
+      "last_confirmed": "2026-09-25T15:11:31.813Z",
+      "last_changed": "2026-09-25T15:11:31.813Z",
       "days_since_confirmed": 0,
       "stale": false
     },
@@ -294,42 +311,25 @@
       "district_key": "south-side",
       "district_short": "South Side",
       "region_deck": "Chicago",
-      "slide_title": "Head Chef Of The Week — The South Side",
+      "slide_title": "Head Chef Of The Week",
       "slide_index": 2,
-      "name": "Alicia Valdez",
-      "store_role": "Evergreen Park • Assistant Manager",
-      "stats": [
-        {
-          "value": "$6,396",
-          "label": "GP $"
-        },
-        {
-          "value": "65%",
-          "label": "Plus"
-        },
-        {
-          "value": "78%",
-          "label": "GIG Attach"
-        },
-        {
-          "value": "$4.91",
-          "label": "Accy $/Box"
-        }
-      ],
-      "writeup": "Currently leading the southside in the ranker coming in at number 76. Alicia is a shark day in and day out. It doesn't matter if it's a remote swap or phone issue she's going into the account and looking for the opportunities. Thank you for all the work you put in.",
+      "name": "Jamil Soto",
+      "store_role": "Head Chef Nominee",
+      "stats": [],
+      "writeup": "• leads the district in overall Tsheets\n• Did over 120 Tsheets himself, leading by example\n• 100% NPS\n• 76% plus attach\n• Team player, always willing to help anybody in the district.\n• A pleasure to be around, always high energy, on the sales floor and coaching on the spot.",
       "is_xfinity": false,
       "is_store": false,
       "vacant": false,
       "has_photo": true,
       "photo_file": "photos/south-side.webp",
-      "photo_w": 384,
-      "photo_h": 378,
-      "photo_bytes": 4402,
-      "photo_sha": "cf2e12e4925e6189f1af7173a429bfbdbd13f0fc798a448330804e0a8b38399e",
-      "photo_file_sha": "c7d0f0332ffe9d7cbfef8e40d1d3052563d9ff483f73c83c614f700b27578c07",
-      "photo_low_quality": true,
-      "last_confirmed": "2026-09-25T13:39:44.961Z",
-      "last_changed": "2026-09-11T15:34:36.946Z",
+      "photo_w": 269,
+      "photo_h": 576,
+      "photo_bytes": 17106,
+      "photo_sha": "07cd52b52e52e23b2d60a12361ce93f0574c51b2e5b591beb5dfa6775257931f",
+      "photo_file_sha": "f704ffff45e072ea504420faab2152057e7ca91f0f02b0447477ae4113ba01f5",
+      "photo_low_quality": false,
+      "last_confirmed": "2026-09-25T15:11:31.813Z",
+      "last_changed": "2026-09-25T15:11:31.813Z",
       "days_since_confirmed": 0,
       "stale": false
     },
@@ -340,23 +340,40 @@
       "region_deck": "Chicago",
       "slide_title": "⭐ Xfinity Head Chef Of The Week",
       "slide_index": 4,
-      "name": "Uptown, Evanston, Cal City, and Cicero",
-      "store_role": "Xfinity Head Chef • Greater Chicago",
-      "stats": [],
-      "writeup": "Congratulations to these stores for delivering an outstanding customer experience and leading the region in NPS performance!\n🥇 55009 - Uptown, Chicago | 89.4 SMS NPS (47 surveys)\n🥈 55008 - Evanston | 87.3 SMS NPS (55 surveys)\n🥉 51041 - Calumet City | 82.2 SMS NPS (45 surveys)\n🏅 55011 - Cicero | 81.7 SMS NPS (60 surveys)\nYour commitment to creating exceptional customer experiences is showing through every interaction. These results don't happen by accident. They come from consistent execution, strong engagement, and a relentless focus on taking care of our customers.\nKeep raising the bar and setting the standard for the market. Great work, teams! 👏🔥",
+      "name": "Noah Cleveland",
+      "store_role": "Evergreen Park • Retail Sales Associate",
+      "stats": [
+        {
+          "value": "$12,711",
+          "label": "GP $"
+        },
+        {
+          "value": "92%",
+          "label": "Plus"
+        },
+        {
+          "value": "31%",
+          "label": "GIG Attach"
+        },
+        {
+          "value": "$5.98",
+          "label": "Accy $/Box"
+        }
+      ],
+      "writeup": "",
       "is_xfinity": true,
       "is_store": false,
       "vacant": false,
-      "has_photo": false,
-      "photo_file": null,
-      "photo_w": 0,
-      "photo_h": 0,
-      "photo_bytes": 0,
-      "photo_sha": null,
-      "photo_file_sha": null,
+      "has_photo": true,
+      "photo_file": "photos/xfinity.webp",
+      "photo_w": 384,
+      "photo_h": 389,
+      "photo_bytes": 11166,
+      "photo_sha": "300bc7ebfd8c215eb3e3c9542fae9b91e52496fb0b5af80dcacba0a293f683e0",
+      "photo_file_sha": "40bfb34e4982a52406cda305c4bf3665c881f391319fbeca4f1f2eac49859227",
       "photo_low_quality": false,
-      "last_confirmed": "2026-09-25T13:39:44.961Z",
-      "last_changed": "2026-09-11T15:34:36.946Z",
+      "last_confirmed": "2026-09-25T15:11:31.813Z",
+      "last_changed": "2026-09-25T15:11:31.813Z",
       "days_since_confirmed": 0,
       "stale": false
     }
