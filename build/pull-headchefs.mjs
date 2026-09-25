@@ -582,11 +582,22 @@ function firstTagInner(html, tag) {
  *   "Head Chef Of The Week — Big South"      -> Big South
  *   "Head Chef Of The Week — Outlawz (East)" -> East Side   (ALIASES)
  *   "⭐ Xfinity Head Chef Of The Week"        -> Xfinity Head Chef of the Week
- *   "Head Chef Of The Week"                  -> the deck's own label
+ *   "Head Chef Of The Week" + kicker "West Side"      -> West Side
+ *   "Head Chef Of The Week" + kicker "Outlawz"        -> East Side   (ALIASES)
+ *   "Head Chef Of The Week", no kicker       -> the deck's own label
+ *
+ * THE KICKER (2026-09-25). The 9/25 decks moved the district OUT of the title
+ * and into the small eyebrow above it — <div class="kick"><span>North Side</span>
+ * — leaving every <h2> as the bare "Head Chef Of The Week". Reading the title
+ * alone then gave all four Chicago slides the deck label "Chicago": one new
+ * seventh district, the frame-capacity guard failed the run (correctly), and the
+ * Chicago frames held the 9/11 chefs. So: a district in the title still wins (the
+ * old shape), then the kicker, then the deck label (a one-slide deck like Big
+ * South, whose kicker happens to say "Big South" anyway).
  *
  * @returns {{key:string, district:string, short:string}}
  */
-function districtFromTitle(title, deck, isXfinity) {
+function districtFromTitle(title, deck, isXfinity, kicker = '') {
   const clean = String(title || '')
     .replace(/^[^\p{L}\p{N}]+/u, '')       // leading ⭐, emoji, bullets
     .replace(/\s+/g, ' ')
@@ -602,6 +613,12 @@ function districtFromTitle(title, deck, isXfinity) {
 
   // A trailing fragment that is just the award name again is not a district.
   if (!raw || /head\s+chef/i.test(raw)) raw = '';
+
+  // No district in the title: the slide's kicker (the 9/25 deck shape).
+  if (!raw) {
+    const k = String(kicker || '').replace(/^[^\p{L}\p{N}]+/u, '').replace(/\s+/g, ' ').trim();
+    if (k && !/head\s+chef/i.test(k)) raw = k;
+  }
   if (!raw) raw = deck.label;
 
   const rawSlug = slug(raw);
@@ -650,6 +667,9 @@ function extractSlides(html, deck, history) {
     const hd = findByClass(slide, 'hd');
     const titleHtml = firstTagInner(hd ? hd.inner : slide, 'h2');
     const title = toText(titleHtml, false);
+    // The eyebrow above the title. Since 9/25 it carries the district.
+    const kickEl = findByClass(hd ? hd.inner : slide, 'kick');
+    const kicker = kickEl ? toText(kickEl.inner, false) : '';
     if (!title) {
       fail(`${deck.key}: head-chef slide ${out.length} has no <h2> title — deck shape changed. ` +
            `Cannot derive its district, so nothing is written.`);
@@ -724,7 +744,8 @@ function extractSlides(html, deck, history) {
       writeup,
       photo,
       photoError,
-      district: districtFromTitle(title, deck, isXfinity)
+      slideKicker: kicker,
+      district: districtFromTitle(title, deck, isXfinity, kicker)
     });
   }
 
@@ -1301,7 +1322,7 @@ async function run() {
       }
       found.set(s.district.key, s);
       if (VERBOSE) {
-        console.log(`    title="${s.slideTitle}" district="${s.district.district}" ` +
+        console.log(`    title="${s.slideTitle}" kicker="${s.slideKicker || ""}" district="${s.district.district}" ` +
                     `name="${s.name}" role="${s.storeRole}" stats=${s.stats.length} ` +
                     `writeup=${s.writeup.length}ch photo=${s.photo ? s.photo.buf.length + 'B' : 'none'}`);
       }
