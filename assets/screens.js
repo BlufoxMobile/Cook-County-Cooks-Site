@@ -18,30 +18,34 @@
  *          shimmer and a CRT power-on that rides the engine.
  *
  *   image  the Host Stand TV. The daily promo card straight out of the Daily
- *          Sales Report's own data directory, cache-busted in the same 10-minute
- *          buckets the source app uses. Held frozen — no rotation. Fitted with a
- *          blurred same-image backdrop so a 1.40 card in a 1.52 screen goes edge
- *          to edge instead of sitting in two black bars.
+ *          Sales Report's own data directory, on its plain URL: the HTTP cache
+ *          (max-age=300 + ETag) decides freshness, so a repeat visit is a 304,
+ *          not 390 KB. Held frozen — no rotation. Fitted with a tiny, pre-darkened
+ *          thumbnail of the same card as its backdrop (one full decode, not two)
+ *          so a 1.40 card in a 1.52 screen goes edge to edge instead of sitting
+ *          in two black bars.
  *
  *   feed   the Back Office monitor. `nps-detractor-streaks.json`, rendered as a
  *          rotating board, ONE DISTRICT PER SLIDE, big numerals, 30-day goal
  *          meters, and real celebration for a met goal or a new personal record.
  *
- *   live   the two Dining boards. Real iframes of the Win the Weekend decks,
- *          rendered into a virtual viewport and scaled down. The decks are
+ *   live   the two Dining boards and the Break Room TV. Real iframes of the Win
+ *          the Weekend decks and of the Daily Sales Report, rendered into a
+ *          virtual viewport and scaled down — and only ever alive while their
+ *          own room owns the page, the scroll has settled and no tool is open
+ *          (§9, "THE LIVE BOARDS: WHEN A WHOLE DOCUMENT IS ALLOWED"). The decks are
  *          FLUID, so the number that decides everything is that viewport's
  *          HEIGHT: tall enough for the deck's tallest slide or the slide is
  *          cut off, no taller than that or the scale factor — and with it
  *          every glyph on the glass — is smaller than it needs to be. Each
  *          board runs at its own measured floor. See LIVE_MIN_VIRTUAL_H.
  *
- *   report the Break Room television. The Daily Sales Report's own numbers,
- *          composed natively for a 297px screen and cycled like a TV. It
- *          exists because that panel CANNOT iframe the deck: the deck is a
- *          fixed 1920x1080 canvas that scales itself, so its type lands at
- *          panelWidth/1920 whatever viewport it is handed — 4.3px store names
- *          on an 18.4%-of-plate television. See the MODE: report block in §3
- *          for the whole measurement.
+ *   report the Daily Sales Report's own numbers, composed natively for a small
+ *          screen and cycled like a TV. Built for the Break Room television;
+ *          the client then chose the REAL deck there (2026-08-28, rooms.js), so
+ *          nothing in the building uses this mode today. It stays because it
+ *          costs nothing until a host asks for it. See the MODE: report block
+ *          in §3 for the measurement behind it.
  *
  * NARROW VIEWPORTS. Below `(max-width: 900px), (max-aspect-ratio: 8/7)` a 16:9
  * plate cover-cropped into a 3:4 viewport throws away a third of the frame, and
@@ -55,7 +59,8 @@
  *   · Plain ES module, no dependencies, no build step.
  *   · No second rAF loop. Every power-on, glow and dissolve is composed in CSS
  *     from the engine's own `--enter` / `--bloom` / `--p`.
- *   · Only transform / opacity / filter animate.
+ *   · Only transform / opacity animate (v29: the last blur filters are gone —
+ *     glows are pre-painted gradients, the glass dims with an opacity overlay).
  *   · Never blocks first paint; both feeds fail soft to a branded holding card.
  *   · prefers-reduced-motion: no shimmer, no scanline travel, no slide
  *     animation — the feed still advances, plainly.
@@ -88,8 +93,57 @@ export const STREAKS_URL =
 export const EXCEL_URL =
   'https://raw.githubusercontent.com/BlufoxMobile/Daily-Sales-Report/main/data/Sales%20Report.xlsx';
 
-/** Ten-minute buckets — exactly what the source app does. */
+/** Ten-minute buckets — exactly what the source app does. Used by the streak
+ *  feed and the workbook; NOT by the promo card any more (see PROMO_CHECK_MS). */
 const BUCKET_MS = 600000;
+
+/** How often an on-screen promo card asks whether today's card has changed.
+ *
+ *  v29 (load audit fix #8). The card used to ride a `?t=<10-minute bucket>`
+ *  stamp, so every ten minutes — and on every repeat visit — the Host Stand
+ *  re-downloaded 381 KB whether or not a single pixel had changed.
+ *  raw.githubusercontent.com already answers with `max-age=300` and an ETag, so
+ *  the plain URL is exactly as fresh as we need (Jeff replaces the card once a
+ *  day; five minutes of staleness is nothing) and a repeat visit is a 304.
+ *
+ *  A check is a `fetch()` through the HTTP cache: inside max-age it never
+ *  leaves the device, after it the browser revalidates with If-None-Match and
+ *  gets a ~0.3 KB 304 back. The bytes are hashed and the <img> is only touched
+ *  when they differ, so an unchanged card is never decoded twice. (An <img>
+ *  cannot do this on its own: Blink validates a URL once per document, so
+ *  re-assigning the same src — even with a new #fragment — never revalidates;
+ *  measured.) */
+const PROMO_CHECK_MS = 10 * 60 * 1000;
+
+/** THE LIVE BOARDS' CLOCKS — see §9, "THE LIVE BOARDS: WHEN A WHOLE DOCUMENT IS
+ *  ALLOWED", for the policy these serve.
+ *
+ *  SETTLE_MS          how long the page must go without a scroll event before
+ *                     a board may mount. Mounting parses a 2.5 MB deck or a whole
+ *                     report app on (in Safari) the page's own main thread; that
+ *                     never happens under a finger.
+ *  RESUME_MS          O-5: after the tool viewer closes, nothing is re-mounted or
+ *                     woken for this long, so the close's own restyle and scroll
+ *                     restore finish before a deck starts parsing.
+ *  IDLE_TIMEOUT_MS    the ceiling on an idle callback's wait. */
+const SETTLE_MS = 180;
+const RESUME_MS = 1500;
+const IDLE_TIMEOUT_MS = 1000;
+
+/** THE LAZY GATE, PER MODE (v29, load audit fix #1). How far outside the
+ *  viewport a panel counts as "near". It used to be 150% for everything, and a
+ *  panel lives in a STICKY stage, so it read as near for its whole runway plus
+ *  a viewport and a half either side: the Dining boards (room 3) armed while
+ *  the rep was still in The Pass (room 1) and 3.6 MB of decks competed with the
+ *  quote sheet he had just tapped — 12.5 s to show it on bad Wi-Fi, 5.9 s with
+ *  this gate. Title cards are a few DOM nodes and keep the wide margin. */
+const IO_MARGIN = {
+  title: '150% 0px 150% 0px',
+  live: '40% 0px 40% 0px',
+  image: '50% 0px 50% 0px',
+  feed: '50% 0px 50% 0px',
+  report: '50% 0px 50% 0px'
+};
 
 /** Floor for the virtual desktop WIDTH a `live` iframe renders at before it is
  *  scaled down. rooms.js may raise it per panel with `width`; nothing lowers
@@ -347,9 +401,46 @@ function el(tag, props = {}, children = []) {
 
 const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : null);
 
+let reduceMQ = null;
 function reduceMotion() {
-  try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
-  catch { return false; }
+  try {
+    if (!reduceMQ) reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+    return reduceMQ.matches;
+  } catch { return false; }
+}
+
+/** C5: the motion tier, `full | lite | off`. motion.js (phase 2) writes it on
+ *  <html>; until it exists it is absent and means `full` — and the OS setting
+ *  still wins, whatever the attribute says. */
+function motionTier() {
+  if (reduceMotion()) return 'off';
+  const t = document.documentElement.getAttribute('data-motion');
+  return t === 'lite' || t === 'off' ? t : 'full';
+}
+
+/** True between overlay.js's `ccc:viewer-open` and `ccc:viewer-close`. */
+let viewerOpen = false;
+
+/** Is a tool up over the page? C1: the event flag, OR `html.is-viewing` (S1
+ *  sets it for the whole time the viewer is up), OR the scroll lock itself —
+ *  any one of the three is enough, so a missing event never lets a board
+ *  mount under the viewer. */
+function pageViewing() {
+  if (viewerOpen) return true;
+  const root = document.documentElement;
+  if (root.classList.contains('is-viewing') || root.classList.contains('ccc-locked')) return true;
+  return !!(document.body && document.body.classList.contains('ccc-locked'));
+}
+
+/** requestIdleCallback where it exists (not Safari), a short timeout where it
+ *  does not. Returns a cancel function. */
+function onIdle(fn, timeout = IDLE_TIMEOUT_MS) {
+  if (typeof window.requestIdleCallback === 'function') {
+    const id = window.requestIdleCallback(fn, { timeout });
+    return () => window.cancelIdleCallback(id);
+  }
+  const id = window.setTimeout(fn, 32);
+  return () => window.clearTimeout(id);
 }
 
 /** 'YYYY-MM-DD' -> 'Aug 26'. Parsed by hand: `new Date('2026-08-26')` is UTC
@@ -366,20 +457,10 @@ function shortDate(iso) {
   return month ? `${month} ${Number(m[3])}` : '';
 }
 
-/**
- * Current cache-busted promo URL.
- *
- * `?t=` is the source app's own ten-minute bucket and nothing may change it —
- * inside one bucket the URL is byte-identical, which is the whole point.
- * `retry` is appended ONLY on a recovery attempt after a failed load, because
- * assigning an <img> the src string it already has is a no-op in every engine:
- * without a distinct URL a card that failed once could never be re-requested
- * until the bucket rolled, up to ten minutes later.
- */
-function promoSrc(retry = 0) {
-  const base = `${PROMO_CARD_URL}?t=${Math.floor(Date.now() / BUCKET_MS)}`;
-  return retry > 0 ? `${base}&r=${retry}` : base;
-}
+/* promoSrc() and its `?t=` ten-minute bucket are gone (v29) — see
+ * PROMO_CHECK_MS. The card is requested on its plain URL and the HTTP cache
+ * decides; a recovery after a failure asks with `cache: 'no-cache'` instead of
+ * inventing a new URL. */
 
 /* -----------------------------------------------------------------------------
  * 2 · Tool registry
@@ -437,7 +518,51 @@ const STYLES = `
      alive rather than acquiring them a viewport later. */
   --scr-on: clamp(0, calc((var(--enter, 1) - 0.42) * 5.2), 1);
   --scr-ar: 1.7778;
+
+  /* M2's power-on scales about the middle of the GLASS, not of the host box —
+     a quad screen's host is the whole plate. applyGeometry() writes both. */
+  transform-origin: var(--scr-ox, 50%) var(--scr-oy, 50%);
 }
+
+/* ── M2 · THE POWER-ON, KEYED TO OWNERSHIP (v29) ─────────────────────────
+   A screen whose room does not own the page yet is OFF; the moment the room
+   becomes owned (C2: .room.is-owned) it comes up — opacity 0 -> 1 and a
+   scaleY(.985 -> 1) settle, 240 ms, 200 ms behind the room's own arrival.
+   Time-based on a BINARY state, never on a per-frame custom property (G3),
+   and only transform/opacity move.
+
+   FAIL-OPEN. data-power is written by JS and ONLY once the ownership
+   contract has actually spoken (see onOwnership() in §9). No attribute — no
+   engine, no C2, reduced motion, motion tier 'off' — means no pre-state at
+   all: the screen is simply on, exactly as before v29.
+
+   A screen is NOT switched off when its room loses the page. It stays on and
+   leaves with its photograph (M3: the stage's --dissolve carries it out), and
+   it is only reset to OFF, instantly and unseen, once the owner is two or more
+   rooms away — so walking back into a room you just left does not replay it. */
+.ccc-scr[data-power] {
+  /* With the ownership power-on in charge, the scroll-driven ramp above stands
+     down: theme.css derives --enter in 0.1 steps since v29, so --scr-on off
+     --enter stepped the glass through ~4 visible levels while the room came
+     in. The panel is at opacity 0 until its room is owned anyway. */
+  --scr-on: 1;
+  transition:
+    opacity   var(--m-t-3, 240ms) var(--m-ease-out, cubic-bezier(.22,.61,.24,1)) 200ms,
+    transform var(--m-t-3, 240ms) var(--m-ease-cine, cubic-bezier(.16,1,.3,1)) 200ms;
+}
+.ccc-scr[data-power="off"] {
+  opacity: 0;
+  transform: scaleY(.985);
+  transition: none;                  /* going OFF is always instant, and unseen */
+}
+/* lite: opacity only. off / reduced motion never gets a data-power at all, and
+   this is the belt to that pair of braces. */
+:root[data-motion="lite"] .ccc-scr[data-power] { transition-property: opacity; }
+:root[data-motion="lite"] .ccc-scr[data-power="off"] { transform: none; }
+:root[data-motion="off"] .ccc-scr[data-power] { opacity: 1; transform: none; transition: none; }
+/* off: no scroll-driven ramp either (it steps on the quantised --enter) —
+   the screen is simply on, as under reduced motion below. */
+:root[data-motion="off"] .ccc-scr { --scr-on: 1; }
 
 .ccc-scr__plane {
   position: absolute; inset: 0;
@@ -448,27 +573,48 @@ const STYLES = `
 /* Perspective mode: JS writes width/height in px and a matrix3d here. */
 .ccc-scr--quad .ccc-scr__plane { inset: auto; top: 0; left: 0; }
 
-/* the halo the panel throws onto the wall behind it */
+/* the halo the panel throws onto the wall behind it.
+   PRE-PAINTED (v29). It was this gradient under a filter: blur(12px), i.e. an
+   offscreen render pass per screen, re-rastered every frame its --scr-on or
+   --bloom moved. The blur only ever did one thing — soften the gradient's
+   last stops and the 40% corner radius — so the softening is now IN the
+   gradient: the old two stops, plus an eased tail that reaches transparent
+   inside the box (80% of a 58% radius is 46% < the box's 50% half-width), so
+   no corner radius is needed to hide an edge. Opacity is still the only thing
+   that moves. */
 .ccc-scr__glow {
   position: absolute; inset: -18%;
   z-index: 0; pointer-events: none;
-  border-radius: 40%;
   background: radial-gradient(58% 58% at 50% 50%,
-    rgba(154,196,255,.46), rgba(120,158,255,.16) 46%, rgba(0,0,0,0) 72%);
-  filter: blur(12px);
+    rgba(154,196,255,.42) 0%,
+    rgba(140,180,255,.29) 22%,
+    rgba(120,158,255,.16) 44%,
+    rgba(120,158,255,.08) 57%,
+    rgba(120,158,255,.03) 68%,
+    rgba(120,158,255,0) 80%);
   opacity: calc(var(--scr-on) * (0.30 + 0.55 * var(--bloom, 0)));
 }
 
-/* the black glass itself */
+/* the black glass itself.
+   v29: no translateZ(0) — it promoted every glass to its own layer for the
+   whole session, on every breakpoint but the phone (the phone had already
+   dropped it; that rule is now the rule). And no filter: the power-on dim was
+   brightness()/saturate() on the glass, a filter pass per screen that moved
+   every frame of an arrival. It is now the ::after below — a black sheet
+   whose OPACITY is 0.84 x (1 - --scr-on), which is what brightness(0.16 ->
+   1) was, drawn without a render pass. Identical at rest (--scr-on 1: the
+   sheet is fully transparent). */
 .ccc-scr__glass {
   position: absolute; inset: 0;
   z-index: 1; overflow: hidden;
   pointer-events: none;
   background: linear-gradient(163deg, #0b0e14 0%, #04060a 55%, #080a10 100%);
-  transform: translateZ(0);
-  filter:
-    brightness(calc(0.16 + 0.84 * var(--scr-on)))
-    saturate(calc(0.30 + 0.70 * var(--scr-on)));
+}
+.ccc-scr__glass::after {
+  content: ""; position: absolute; inset: 0;
+  pointer-events: none;
+  background: #000;
+  opacity: calc(0.84 * (1 - var(--scr-on)));
 }
 
 .ccc-scr__content {
@@ -497,12 +643,26 @@ const STYLES = `
   background: repeating-linear-gradient(0deg,
     rgba(0,0,0,.20) 0 1px, rgba(0,0,0,0) 1px 3px);
 }
+/* The slow refresh bar. M6 (v29): it runs ONLY on the screens of the room
+   that owns the page (.ccc-scr--owned, written by §9 from C2 or, without
+   it, from the settled scroll), and never under the tool viewer. Everywhere
+   else it is display:none — no layer, no loop. It used to run on all eight
+   screens for the whole session, 7,000 px from the reader and under an open
+   tool alike. */
 .ccc-scr__scan::after {
   content: ""; position: absolute; inset: -60% 0;
+  display: none;
   background: linear-gradient(180deg,
     rgba(0,0,0,0) 0%, rgba(178,214,255,.13) 47%, rgba(0,0,0,0) 100%);
+}
+.ccc-scr--owned .ccc-scr__scan::after {
+  display: block;
   animation: ccc-scr-refresh 7.5s linear infinite;
 }
+:root.is-viewing .ccc-scr__scan::after,
+:root.ccc-locked .ccc-scr__scan::after,
+:root[data-motion="lite"] .ccc-scr__scan::after,
+:root[data-motion="off"] .ccc-scr__scan::after { display: none; animation: none; }
 @keyframes ccc-scr-refresh {
   from { transform: translate3d(0, -34%, 0); }
   to   { transform: translate3d(0,  68%, 0); }
@@ -532,8 +692,6 @@ const STYLES = `
   min-block-size: 44px;
   background: rgba(0,0,0,0); color: inherit;
   cursor: pointer;
-  transition: box-shadow .25s var(--ccc-ov-ease, cubic-bezier(.22,.61,.36,1)),
-              background-color .25s ease;
   pointer-events: auto;
 
   /* THE OWNERSHIP GATE. theme.css §05 declares --cut-clip on .stage: it is
@@ -551,10 +709,26 @@ const STYLES = `
      as it was. */
   clip-path: inset(var(--cut-clip, -24px));
 }
-.ccc-scr__hit:hover {
+/* HOVER IS A PRE-PAINTED GLOW, FADED (v29 fix round, G3 m-11). It used to
+   ease box-shadow and background-color over 250 ms — paint properties, and a
+   cool blue glow at 42% that barely read — on the site's primary CTAs, while
+   every other object fades a brass bloom in on opacity. The same bloom is
+   painted here once, on ::before, and only its opacity moves (--m-t-2).
+   Pointer-only, like the hotspots: a tap on an iPad leaves no stuck hover. */
+.ccc-scr__hit::before {
+  content: ""; position: absolute; inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
   background: rgba(255,255,255,.045);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.20),
-              0 0 34px -6px rgba(180,210,255,.42);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--ccc-accent-hi, #ebce93) 62%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--ccc-accent, #c8973f) 30%, transparent),
+    0 0 22px 2px color-mix(in oklab, var(--ccc-accent, #c8973f) 46%, transparent);
+  opacity: 0;
+  transition: opacity var(--m-t-2, 160ms) var(--m-ease-out, cubic-bezier(.22,.61,.24,1));
+}
+@media (hover: hover) {
+  .ccc-scr__hit:hover::before { opacity: 1; }
 }
 .ccc-scr__hit:focus-visible {
   outline: 2px solid var(--ccc-focus, #ebce93);
@@ -669,19 +843,16 @@ const STYLES = `
   color: var(--ccc-accent-hi, #ebce93);
   white-space: nowrap;
 }
-/* the connection light. Opacity only — the perf contract allows no other
-   property to animate, and a pulsing dot is the cheapest "this is running"
-   signal a still photograph can carry. */
+/* the connection light. HELD LIT (v29, M6). It used to blink on a 3.4 s
+   infinite loop on all three tablets — three more compositor animations that
+   ran whether or not anyone was in The Pass. The owned room's refresh sweep
+   already says "this screen is running"; a second loop saying it again was
+   redundant, so the pip is simply on. */
 .ccc-scr-title__pip {
   inline-size: .62em; block-size: .62em;
   border-radius: 50%;
   background: var(--ccc-accent-hi, #ebce93);
   box-shadow: 0 0 .5em color-mix(in oklab, var(--ccc-accent-hi, #ebce93) 70%, transparent);
-  animation: ccc-scr-pip 3.4s ease-in-out infinite;
-}
-@keyframes ccc-scr-pip {
-  0%, 62%, 100% { opacity: 1; }
-  76%           { opacity: .28; }
 }
 
 /* ── 2 · the subject ─────────────────────────────────────────────────────── */
@@ -757,13 +928,91 @@ const STYLES = `
    not press — the panel's own :hover / :focus-visible states are untouched and
    the focus ring is unaffected. Transform + filter only, per the perf contract. */
 .ccc-scr-title__key {
-  transition: filter .22s var(--ccc-ov-ease, cubic-bezier(.22,.61,.36,1)),
-              transform .22s var(--ccc-ov-ease, cubic-bezier(.22,.61,.36,1));
+  transition: transform .22s var(--ccc-ov-ease, cubic-bezier(.22,.61,.36,1));
 }
 .ccc-scr--title:has(.ccc-scr__hit:is(:hover, :focus-visible)) .ccc-scr-title__key {
-  filter: brightness(1.09);
-  transform: translate3d(0, 1px, 0);
+  transform: translate(0, 1px);
 }
+/* The key brightens under the finger by a pre-painted plate faded on opacity
+   (was filter: brightness(1.09) eased over 220 ms — a paint property, G3
+   m-11). The label and chevron sit above the plate (position: relative), so
+   the ink type is not washed. */
+.ccc-scr-title__key::before {
+  content: ""; position: absolute; inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.06));
+  opacity: 0;
+  transition: opacity var(--m-t-2, 160ms) var(--m-ease-out, cubic-bezier(.22,.61,.24,1));
+}
+.ccc-scr-title__cta, .ccc-scr-title__chev { position: relative; }
+.ccc-scr--title:has(.ccc-scr__hit:focus-visible) .ccc-scr-title__key::before { opacity: 1; }
+@media (hover: hover) {
+  .ccc-scr--title:has(.ccc-scr__hit:hover) .ccc-scr-title__key::before { opacity: 1; }
+}
+/* v29 · S6 · the shared press (theme.css §16): the key goes down under a
+   finger, .98 in 90 ms, and comes back on the press ease. */
+.ccc-scr--title:has(.ccc-scr__hit:active) .ccc-scr-title__key {
+  transform: translate(0, 1px) scale(var(--m-press, .98));
+  transition-duration: var(--m-t-1, 90ms);
+}
+
+/* v29 · S6 · M6 — THE KEY CATCHES THE LIGHT.
+   A bar of light crosses each "Tap to open" key, and because the three
+   terminals start 300 ms apart (data-station, written from the station
+   number in makeTitle) it travels across the Pass left to right: ~300 ms on
+   each key, then stillness, on a 7 s cycle. It is a transform + opacity
+   on one pre-painted pseudo-element per key — compositor work — and it runs
+   only on the terminals of the room that owns the page, in the full tier,
+   with no tool open. Everywhere else it is display:none: no layer, no loop.
+   Lite, off, reduced motion and the phone band never draw it.
+
+   NO CLIP (v29 fix round, G1 D3). The bar used to start and end OUTSIDE the
+   key, hidden by overflow:hidden on the rounded key — and a rounded clip
+   around an animated composited layer costs the compositor a mask pass per
+   key: 8.1-8.9 render passes per frame at The Pass, 2.0-2.2 without the clip,
+   on every frame a rep stands there. Now the bar never leaves the key: its
+   lit band is the middle 28% of a key-sized box, travelling from -36% to
+   +36% so the band runs from the key's left edge to its right edge, and it
+   fades in over the first sixth of the run and out over the last. The same
+   bar crossing the same key at the same pace, with nothing to clip. */
+.ccc-scr-title__key { position: relative; }
+.ccc-scr-title__key::after {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  display: none;
+  background: linear-gradient(105deg,
+    rgba(255,255,255,0) 36%, rgba(255,255,255,.46) 48%,
+    rgba(255,250,236,.16) 55%, rgba(255,255,255,0) 64%);
+  opacity: 0;
+  transform: translate(-36%, 0);
+}
+:root[data-motion="full"] .ccc-scr--owned .ccc-scr-title__key::after {
+  display: block;
+  animation: ccc-scr-key-sheen 7s var(--m-ease-inout, cubic-bezier(.65,0,.35,1)) infinite;
+}
+/* an attribute, not a custom property: a custom property declared on the key
+   would be re-created whenever the key is restyled and drag its subtree along
+   (theme.css §09b's note on the stagger) */
+.ccc-scr-title__key[data-station="2"]::after { animation-delay: 300ms; }
+.ccc-scr-title__key[data-station="3"]::after { animation-delay: 600ms; }
+.ccc-scr-title__key[data-station="4"]::after { animation-delay: 900ms; }
+:root.is-viewing .ccc-scr-title__key::after,
+:root.ccc-locked .ccc-scr-title__key::after { display: none; animation: none; }
+/* 315 ms on the key (4.5% of 7 s): the old bar spent 900 ms travelling but
+   was over the key for only ~200 ms of it, so this keeps its tempo. */
+@keyframes ccc-scr-key-sheen {
+  0%         { transform: translate(-36%, 0); opacity: 0; }
+  0.7%       { opacity: 1; }
+  3.8%       { opacity: 1; }
+  4.5%, 100% { transform: translate(36%, 0); opacity: 0; }
+}
+/* One "this screen is live" signal per terminal: on the Pass it is the key's
+   sheen, so the slow refresh bar stands down on the title panels (the TVs in
+   the other rooms keep theirs). Three fewer loops in the room with the most. */
+.ccc-scr--title .ccc-scr__scan::after,
+.ccc-scr--owned.ccc-scr--title .ccc-scr__scan::after { display: none; animation: none; }
 
 /* ── the panel chrome, re-weighted for a screen that is ON ────────────────
    Everything below overrides a shared rule further up this sheet. Each one is
@@ -772,16 +1021,25 @@ const STYLES = `
 
 /* THE SPILL. 'inset' is asymmetric: more room below the glass than above it,
    because the counter is below and that is where the light actually lands.
-   The blur is static — nothing animates it, per the perf contract. */
+   Pre-painted like the shared glow above (v29): the blur(15px) that softened
+   these two gradients is now an eased tail on each of them, so the spill
+   costs no render pass. The lower one's 76% x 64% ellipse centred at 64%
+   meets the box's bottom edge at 56% of its radius — the blur and the 46%
+   corner radius used to hide that edge — so it now reaches transparent by 54%
+   and never draws one. */
 .ccc-scr--title .ccc-scr__glow {
   inset: -24% -19% -38% -19%;
-  border-radius: 46%;
   background:
     radial-gradient(48% 42% at 50% 40%,
-      rgba(206,230,255,.50), rgba(206,230,255,0) 72%),
+      rgba(206,230,255,.46) 0%,
+      rgba(206,230,255,.24) 30%,
+      rgba(206,230,255,.08) 54%,
+      rgba(206,230,255,0) 74%),
     radial-gradient(76% 64% at 50% 64%,
-      rgba(146,186,255,.26), rgba(120,158,255,0) 76%);
-  filter: blur(15px);
+      rgba(146,186,255,.26) 0%,
+      rgba(146,186,255,.14) 24%,
+      rgba(120,158,255,.05) 40%,
+      rgba(120,158,255,0) 54%);
   opacity: calc(var(--scr-on) * (0.40 + 0.46 * var(--bloom, 0)));
 }
 
@@ -843,11 +1101,18 @@ const STYLES = `
 
 /* ══ MODE: image ═════════════════════════════════════════════════════════ */
 .ccc-scr-art { position: absolute; inset: 0; overflow: hidden; }
+/* THE BACKDROP IS A 24 x 17 THUMBNAIL, NOT A SECOND COPY OF THE CARD (v29).
+   It was a second <img> of the same 2000 x 1429 JPEG at 116% under
+   filter: blur(22px) saturate(1.15) brightness(.62): a second decode (at
+   1000 x 715 on an iPad, measured, beside the card's own 500 x 358) and a
+   blur pass, to paint two slivers of ambient colour either side of the card.
+   makeImage() now decodes the card's bytes off the main thread straight to
+   24 x 17, once per new card, pre-darkened, and the browser's own bilinear
+   upscale does the blurring. No filter, no second bitmap. */
 .ccc-scr-art__bg {
   position: absolute; inset: -8%;
   inline-size: 116%; block-size: 116%;
   object-fit: cover;
-  filter: blur(22px) saturate(1.15) brightness(.62);
   opacity: .85;
 }
 .ccc-scr-art__fg {
@@ -869,6 +1134,23 @@ const STYLES = `
   pointer-events: none;
 }
 .ccc-scr.is-live .ccc-scr__frame { opacity: 1; }
+/* OUT OF RENDERING, STILL MOUNTED (v29). While a tool is up, or once the
+   board's room has handed the page on, an arrived board's frame is
+   display:none until it is woken or unmounted. MEASURED in Chromium with the
+   frames in-process (the iPad model), 5 s windows, the board's own rAF count
+   and the renderer main thread:
+                           Win the Weekend          Daily Sales Report
+     on screen             14 rAF/s   18 ms/s       81 rAF/s  102 ms/s
+     under an opaque cover 16         20            75        101
+     opacity: 0            71         82            72        106
+     visibility: hidden    68         38            71         69
+     display: none          0          0.1           0          4.6
+     parent content-visibility:hidden   0 / 0.1       0 / 1.5
+   Covering it (the viewer's scrim) saves nothing, and neither does opacity or
+   visibility. display:none stops it outright, keeps the document, fires no
+   resize at it (its viewport stays 1561x880 / 1920x1080) and works in every
+   engine this site supports; content-visibility would too but is Safari 18+. */
+.ccc-scr-live.is-suspended .ccc-scr__frame { display: none; }
 
 /* ── THE HOLDING CARD AS A LID, NOT AS AN ALTERNATIVE ─────────────────────
    THE DEFECT. On a 393x852 phone the Break Room's Daily Sales Report panel
@@ -922,7 +1204,9 @@ const STYLES = `
   padding: .85em 1em .7em;
   min-block-size: 0;
   opacity: 0;
-  transform: translate3d(0, .45em, 0);
+  /* 2D, on every breakpoint (v29) — see the phone block at the foot of this
+     sheet for the measurement that first moved it off translate3d. */
+  transform: translate(0, .45em);
   transition: opacity .62s var(--ccc-ov-ease, cubic-bezier(.22,.61,.36,1)),
               transform .62s var(--ccc-ov-ease, cubic-bezier(.22,.61,.36,1));
   pointer-events: none;
@@ -1058,7 +1342,8 @@ const STYLES = `
   letter-spacing: .09em; text-transform: uppercase;
   color: #857d72;
 }
-.ccc-scr-feed__foot > :last-child { text-align: end; }
+/* keyed to a class, not '> :last-child' (universal bucket, theme.css §03) */
+.ccc-scr-feed__stamp { text-align: end; }
 
 /* STALE — the board is showing the last good data because the feed is not
    answering. loadStreaks() resolves to cached data on failure on purpose
@@ -1199,12 +1484,19 @@ const STYLES = `
   padding: .72em .8em .5em;
   min-block-size: 0;
   opacity: 0;
-  transform: translate3d(0, .4em, 0);
+  transform: translate(0, .4em);     /* 2D everywhere (v29), see the phone block */
   transition: opacity .55s var(--ccc-ov-ease, cubic-bezier(.22,.61,.36,1)),
               transform .55s var(--ccc-ov-ease, cubic-bezier(.22,.61,.36,1));
   pointer-events: none;              /* the hit button above owns every tap */
 }
 .ccc-scr-rpt__slide.is-current { opacity: 1; transform: none; }
+/* v29 final (verifier V2 m2): the lite tier cross-fades slides on opacity only —
+   two animations per change instead of four, inside lite's budget of 2. */
+html[data-motion="lite"] .ccc-scr-feed__slide,
+html[data-motion="lite"] .ccc-scr-rpt__slide {
+  transform: none;
+  transition: opacity .62s var(--ccc-ov-ease, cubic-bezier(.22,.61,.36,1));
+}
 /* the promo card is a photograph: it goes edge to edge, no chrome, no padding */
 .ccc-scr-rpt__slide.is-art { padding: 0; grid-template-rows: minmax(0, 1fr); }
 
@@ -1274,7 +1566,9 @@ const STYLES = `
     color-mix(in oklab, var(--ccc-accent, #c8973f) 14%, transparent));
   pointer-events: none;
 }
-.ccc-scr-rpt__row > :not(.ccc-scr-rpt__fill) { position: relative; z-index: 1; }
+/* keyed to the four text classes rptRow() makes, not '> :not(__fill)' */
+.ccc-scr-rpt__rank, .ccc-scr-rpt__name,
+.ccc-scr-rpt__sub, .ccc-scr-rpt__val { position: relative; z-index: 1; }
 
 .ccc-scr-rpt__rank {
   flex: 0 0 auto;
@@ -1441,7 +1735,11 @@ const STYLES = `
   block-size: auto;
   aspect-ratio: var(--scr-ar, 1.7778);
   border-radius: 3px;
-  filter: drop-shadow(0 14px 34px rgba(0,0,0,.55));
+  /* A box-shadow, not filter: drop-shadow() (v29). The panel is an opaque
+     rounded rectangle, so the two draw the same shadow — but the filter was an
+     offscreen pass re-rendered every time a slide turned inside the panel,
+     on the iPad-portrait band that shows these panels all day. */
+  box-shadow: 0 14px 34px rgba(0,0,0,.55);
 }
 .ccc-scr--narrow .ccc-scr__plane { inset: 0; transform: none; }
 .ccc-scr--narrow .ccc-scr__glow { inset: -14%; }
@@ -1455,8 +1753,9 @@ const STYLES = `
    So the glass and every layer that dresses it stop short of it. */
 .ccc-scr__cap { display: none; }
 .ccc-scr--narrow .ccc-scr__plane { --scr-cap-h: calc(var(--scr-u, 12px) * 2); }
-.ccc-scr--narrow :is(.ccc-scr__glass, .ccc-scr__scan, .ccc-scr__crt,
-                     .ccc-scr__sheen, .ccc-scr__bezel) {
+.ccc-scr--narrow .ccc-scr__glass, .ccc-scr--narrow .ccc-scr__scan,
+.ccc-scr--narrow .ccc-scr__crt, .ccc-scr--narrow .ccc-scr__sheen,
+.ccc-scr--narrow .ccc-scr__bezel {
   inset-block-end: var(--scr-cap-h);
 }
 .ccc-scr--narrow .ccc-scr__cap {
@@ -1481,9 +1780,16 @@ const STYLES = `
 /* A title card is already its own caption — and a zero-height flex row does not
    hide its text, it spills it into the panel below. */
 .ccc-scr--narrow.ccc-scr--title .ccc-scr__cap { display: none; }
+/* The name WRAPS to a second line rather than losing its end to an ellipsis
+   ("DAYS SINCE THE LAST BAD NPS SUR…" at 820x1180; v29 fix round, G3 m-4).
+   Two lines of .86u caps at line-height 1 fit the 2u rail with air above
+   and below; balanced, so a long name breaks in the middle instead of
+   leaving one word on the second line. */
 .ccc-scr__cap b {
   font-weight: 600; min-inline-size: 0;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  white-space: normal; overflow-wrap: anywhere;
+  line-height: 1; text-wrap: balance;
+  max-block-size: 2em; overflow: hidden;
 }
 .ccc-scr__cap i {
   font-style: normal; flex: 0 0 auto;
@@ -1492,11 +1798,17 @@ const STYLES = `
 
 /* ══ reduced motion ══════════════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
-  .ccc-scr__scan::after { animation: none; opacity: 0; }
+  /* Spelled with the owned-room selector too: that rule is more specific than
+     a bare .ccc-scr__scan::after and would otherwise win here. */
+  .ccc-scr__scan::after,
+  .ccc-scr--owned .ccc-scr__scan::after { display: none; animation: none; }
   .ccc-scr__crt { display: none; }
-  /* the terminal's connection light holds lit rather than blinking */
-  .ccc-scr-title__pip { animation: none; opacity: 1; }
-  .ccc-scr-title__key { transition: none; }
+  .ccc-scr-title__key, .ccc-scr-title__key::before, .ccc-scr__hit::before { transition: none; }
+  .ccc-scr-title__key::after,
+  .ccc-scr--owned .ccc-scr-title__key::after { display: none; animation: none; }
+  /* M2's power-on is a state switch here, never a fade — and §9 never writes a
+     data-power under reduced motion at all; this holds even if one lingers. */
+  .ccc-scr[data-power] { opacity: 1; transform: none; transition: none; }
   /* No power-on ramp, and no scroll-driven fade on the band — theme.css §18
      pins .hotspots to opacity 1 for exactly this reason and the band is that
      layer's narrow-viewport counterpart. */
@@ -1531,11 +1843,12 @@ const STYLES = `
    thumbnail every 7.5 seconds. The scanline texture on __scan itself — the
    thing that actually reads as a screen — is a static background and stays.
 
-   __glass carries a transform of translateZ(0), which promotes it to hold a flat
-   two-stop gradient and a filter that only moves when a board powers on. The
-   promotion is worth having on an iPad, where the panels are large, warped onto
-   a wall plane and composited against a moving photograph. In the phone band
-   they are small, axis-aligned and in a static band under the plate.
+   __glass carried a transform of translateZ(0), which promoted it to hold a flat
+   two-stop gradient and a filter that only moved when a board powered on. It
+   was thought worth having on an iPad; the v29 perf audit measured it (layer
+   tree + render passes, iPad 1180x820 @2x) and it was not, so since v29 the
+   glass carries neither the transform nor the filter on ANY breakpoint and the
+   line that used to live here is the rule in the sheet above.
 
    The reduced-motion block above already switches the sweep off by exactly this
    route, and has since v3; this is the same concession spent on a different
@@ -1543,8 +1856,10 @@ const STYLES = `
    band — an iPad Pro portrait matches the narrow band and must not be touched
    here. Keep it identical to PHONE_MEDIA, theme.css §06b TIER 0 and §06e. */
 @media (max-width: 500px), (max-width: 1000px) and (max-height: 500px) {
-  .ccc-scr__scan::after { display: none; }
-  .ccc-scr__glass { transform: none; }
+  .ccc-scr__scan::after,
+  .ccc-scr--owned .ccc-scr__scan::after { display: none; animation: none; }
+  .ccc-scr-title__key::after,
+  .ccc-scr--owned .ccc-scr-title__key::after { display: none; animation: none; }
 
   /* AND THE BAND OF A ROOM THAT DOES NOT OWN THE PAGE.
      .ccc-scr-layer's opacity is var(--cut), which theme.css §05 resolves to
@@ -1581,9 +1896,13 @@ const STYLES = `
      nine-card rotation: 9 always, to at most 2 while a card is turning.
 
      The .is-current rule above needs no change: a transform of none is not a
-     3D transform and was never promoting anything. */
-  .ccc-scr-rpt__slide  { transform: translate(0, .4em); }
-  .ccc-scr-feed__slide { transform: translate(0, .45em); }
+     3D transform and was never promoting anything.
+
+     v29: this was phone-only and is now the base rule of both rotators on
+     every breakpoint (the perf audit measured the same promotion on iPad and
+     desktop). The two declarations that lived here are gone — they had also
+     been quietly out-ranking the reduced-motion block's transform: none on a
+     phone, because they came later in the sheet. */
 }
 
 /* ══ forced colours ══════════════════════════════════════════════════════ */
@@ -2272,8 +2591,8 @@ const ROOM_TITLES = {
  *  panel's position among the screen hosts of its own room, in DOM order, so
  *  the three tablets read 01/02/03 left to right without anything in rooms.js
  *  having to say so. Derived, never hand-set. */
-function stationLabel(rec) {
-  const { room, roomId } = roomOf(rec.host);
+function stationNumber(rec) {
+  const { room } = roomOf(rec.host);
   const scope = room || document;
   let n = 1;
   try {
@@ -2281,8 +2600,13 @@ function stationLabel(rec) {
     const i = hosts.indexOf(rec.host);
     if (i >= 0) n = i + 1;
   } catch { /* a detached host is still worth a station id */ }
+  return n;
+}
+
+function stationLabel(rec) {
+  const { roomId } = roomOf(rec.host);
   const place = ROOM_TITLES[roomId] || 'Cook County Cooks';
-  return `${place} · ${String(n).padStart(2, '0')}`;
+  return `${place} · ${String(stationNumber(rec)).padStart(2, '0')}`;
 }
 
 function makeTitle(rec) {
@@ -2325,6 +2649,8 @@ function makeTitle(rec) {
     el('span', { class: 'ccc-scr-title__cta', text: 'Tap to open' }),
     el('span', { class: 'ccc-scr-title__chev', text: '›' })
   ]);
+  // M6: the sheen crosses the terminals left to right, 300 ms apart (STYLES).
+  key.setAttribute('data-station', String(stationNumber(rec)));
 
   const node = el('div', { class: 'ccc-scr-title' }, [bar, body, key]);
 
@@ -2386,22 +2712,50 @@ function makeTitle(rec) {
 
 /* ── image ────────────────────────────────────────────────────────────────── */
 
+/** How long a promo fetch may run before it is abandoned. The holding card
+ *  goes up at IMAGE_TIMEOUT_MS whatever happens; this is the later, harder
+ *  stop that frees the socket — long enough for 390 KB on bad store Wi-Fi. */
+const PROMO_FETCH_TIMEOUT_MS = 30 * 1000;
+
+/** A fingerprint of the card's bytes, so an unchanged card is never re-decoded.
+ *  SHA-1 through SubtleCrypto where the page is a secure context (it always is
+ *  in production), FNV-1a over the bytes where it is not. Either way it only
+ *  has to tell today's card from yesterday's. */
+async function fingerprint(blob) {
+  const buf = await blob.arrayBuffer();
+  try {
+    if (window.crypto && window.crypto.subtle) {
+      const d = new Uint8Array(await window.crypto.subtle.digest('SHA-1', buf));
+      let s = '';
+      for (let i = 0; i < d.length; i++) s += d[i].toString(16).padStart(2, '0');
+      return `sha1:${s}`;
+    }
+  } catch { /* fall through */ }
+  const b = new Uint8Array(buf);
+  let h = 0x811c9dc5;
+  for (let i = 0; i < b.length; i++) { h ^= b[i]; h = Math.imul(h, 0x01000193); }
+  return `fnv:${b.length}:${(h >>> 0).toString(16)}`;
+}
+
 function makeImage(rec) {
   const node = el('div', { class: 'ccc-scr-art' });
-  let bucket = -1;
-  let timer = 0;
-  let deadline = 0;
+  let timer = 0;          // the check / retry tick, while the panel is in range
+  let deadline = 0;       // IMAGE_TIMEOUT_MS: the holding card if nothing has shown
   let retries = 0;
-  let ok = false;
+  let ok = false;         // a card is on the glass
   let holding = null;
+  let inflight = false;
+  let lastCheck = 0;      // when the HTTP cache was last asked
+  let shownPrint = '';    // fingerprint of the bytes on the glass
+  let objUrl = '';        // the blob: URL on the glass
+  let prevUrl = '';       // the one it replaced, revoked once the new one loads
 
-  // The blurred copy behind the fitted card is what takes a 1.40 promo card
-  // edge to edge inside a 1.52 screen. Two black bars would read as a broken
-  // mount; an ambient backdrop reads as a screen.
-  const bg = el('img', { class: 'ccc-scr-art__bg', alt: '', 'aria-hidden': 'true', decoding: 'async' });
+  // ONE decoded copy of the card: the fitted foreground. The backdrop is a
+  // 24 x 17 canvas painted FROM that copy — see .ccc-scr-art__bg in §3.
+  const bg = el('canvas', { class: 'ccc-scr-art__bg', width: '24', height: '17', 'aria-hidden': 'true' });
   const fg = el('img', { class: 'ccc-scr-art__fg', alt: '', 'aria-hidden': 'true', decoding: 'async' });
 
-  const NOTE = 'Today\u2019s promo card has not landed yet. Tap to open the Daily Sales Report.';
+  const NOTE = 'Today’s promo card has not landed yet. Tap to open the Daily Sales Report.';
 
   /* ⚠ THE HOLDING CARD GOES OVER THE IMAGES, NEVER INSTEAD OF THEM.
      It used to be `node.replaceChildren(holdingCard(...))`, which took both
@@ -2427,81 +2781,161 @@ function makeImage(rec) {
     if (deadline) { window.clearTimeout(deadline); deadline = 0; }
   }
 
+  /** The backdrop: the card's bytes decoded OFF the main thread straight to
+   *  24 x 17 pixels (createImageBitmap with a resize), drawn once and darkened
+   *  the way brightness(.62) used to.
+   *
+   *  NOT ctx.drawImage(fg): measured in Chromium, drawing the displayed <img>
+   *  into a canvas decodes the full 2000 x 1429 JPEG again, synchronously, on
+   *  the main thread (25-112 ms per draw in the traces) — the very second
+   *  decode this replaces, moved somewhere worse. createImageBitmap(blob) does
+   *  its decode on a worker (main thread 0 ms, measured) and hands back 1.6 KB.
+   *  Where it is missing, the backdrop simply stays dark: it is ambience, never
+   *  worth a main-thread decode. */
+  function paintBackdrop(blob) {
+    if (typeof window.createImageBitmap !== 'function') return;
+    window.createImageBitmap(blob, { resizeWidth: bg.width, resizeHeight: bg.height, resizeQuality: 'low' })
+      .then((bmp) => {
+        try {
+          if (rec.destroyed) return;
+          const ctx = bg.getContext('2d', { alpha: false });
+          if (!ctx) return;
+          ctx.drawImage(bmp, 0, 0, bg.width, bg.height);
+          ctx.fillStyle = 'rgba(0,0,0,.38)';
+          ctx.fillRect(0, 0, bg.width, bg.height);
+        } finally {
+          if (bmp && bmp.close) bmp.close();
+        }
+      })
+      .catch(() => { /* the backdrop stays dark; the card is unaffected */ });
+  }
+
   /**
-   * @param {boolean} force  re-request even inside the current bucket. Used by
-   *                         the recovery path; a healthy card is HELD, not
-   *                         re-fetched, until the ten-minute bucket rolls.
+   * Ask for the card through the HTTP cache and put it on the glass only if
+   * its bytes changed.
+   *
+   * @param {boolean} force  ask now, even inside PROMO_CHECK_MS. A card that
+   *                         has never shown always asks.
+   *
+   * Inside max-age=300 this never leaves the device; after it the browser
+   * revalidates with the ETag and gets a 304 — ~0.3 KB, where the old
+   * ten-minute `?t=` bucket re-downloaded 381 KB every time it rolled. A
+   * RECOVERY after a failure asks with `cache: 'no-cache'` (revalidate, do not
+   * trust what is stored) instead of inventing a new URL: assigning an <img>
+   * a src it already has is a no-op, which is why the old code needed `&r=`;
+   * a fetch has no such trap.
    */
-  function load({ force = false } = {}) {
-    const next = Math.floor(Date.now() / BUCKET_MS);
-    if (!force && next === bucket && ok) return;
-    if (force && !ok) retries++;
-    if (next !== bucket) { bucket = next; retries = 0; }
+  function check({ force = false } = {}) {
+    if (inflight || rec.destroyed) return;
+    const now = Date.now();
+    if (ok && !force && now - lastCheck < PROMO_CHECK_MS) return;
+    lastCheck = now;
+    inflight = true;
 
-    const src = promoSrc(ok ? 0 : retries);
     stopDeadline();
-    // An <img> that never errors and never loads is the same dead screen as one
-    // that 404s, and only this timer tells them apart.
-    deadline = window.setTimeout(() => {
-      deadline = 0;
-      if (!ok) showHolding();
-    }, IMAGE_TIMEOUT_MS);
+    // A fetch that neither answers nor fails is the same dead screen as a
+    // 404, and only this timer tells them apart.
+    if (!ok) {
+      deadline = window.setTimeout(() => {
+        deadline = 0;
+        if (!ok) showHolding();
+      }, IMAGE_TIMEOUT_MS);
+    }
 
-    fg.src = src;
-    bg.src = src;
+    const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+    const stop = ctrl ? window.setTimeout(() => ctrl.abort(), PROMO_FETCH_TIMEOUT_MS) : 0;
+
+    fetch(PROMO_CARD_URL, {
+      credentials: 'omit',
+      mode: 'cors',
+      cache: retries > 0 && !ok ? 'no-cache' : 'default',
+      signal: ctrl ? ctrl.signal : undefined
+    })
+      .then((res) => (res.ok ? res.blob() : Promise.reject(new Error(`HTTP ${res.status}`))))
+      .then(async (blob) => {
+        if (stop) window.clearTimeout(stop);
+        if (!blob || !blob.size) throw new Error('empty card');
+        const print = await fingerprint(blob);
+        inflight = false;
+        if (rec.destroyed) return;
+        if (ok && print === shownPrint) return;   // unchanged: nothing to decode
+        shownPrint = print;
+        if (objUrl) prevUrl = objUrl;
+        objUrl = URL.createObjectURL(blob);
+        fg.src = objUrl;                          // → load / error below
+        paintBackdrop(blob);
+      })
+      .catch((err) => {
+        if (stop) window.clearTimeout(stop);
+        inflight = false;
+        if (rec.destroyed) return;
+        console.warn('[screens] promo card unavailable:', err && err.message);
+        if (!ok) { stopDeadline(); showHolding(); }
+        // A card that is already up stays up: stale beats blank.
+      });
   }
 
   fg.addEventListener('error', () => {
     stopDeadline();
+    if (prevUrl) { URL.revokeObjectURL(prevUrl); prevUrl = ''; }
     ok = false;
+    shownPrint = '';
     showHolding();
   });
   fg.addEventListener('load', () => {
     stopDeadline();
     ok = true;
     retries = 0;
+    if (prevUrl) { URL.revokeObjectURL(prevUrl); prevUrl = ''; }
     clearHolding();
     rec.panel.classList.add('is-live');
   });
 
   node.append(bg, fg);
 
+  function stopTimer() {
+    if (timer) { window.clearInterval(timer); timer = 0; }
+  }
+
   return {
     node,
     resize: noop,
     activate() {
-      load({ force: !ok });
-      // Re-check on the 10-minute boundary, but only while the screen is in
-      // range and the tab is visible. The card is HELD, not rotated — this is a
-      // refresh, not a slideshow. While it has never arrived the same tick is
-      // the retry, capped so a permanently dead URL is not polled forever.
-      //
-      // ⚠ This used to read `failed = false; load();` — and `load()` began with
-      // `if (next === bucket && !failed) return;`, so clearing the flag one line
-      // early guaranteed the early return and the retry never fired at all.
-      // The intent is an explicit argument, not a flag mutated around the call.
+      check({ force: !ok });
+      // One tick while the screen is in range and the tab is visible. The
+      // card is HELD, not rotated — this is a freshness check, not a
+      // slideshow: with a card up it asks at most every PROMO_CHECK_MS (and
+      // the HTTP cache answers most of those without the network); with no
+      // card yet the same tick is the retry, capped so a permanently dead URL
+      // is not polled forever. Never under an open tool.
       if (!timer) {
         timer = window.setInterval(() => {
-          if (document.visibilityState === 'hidden') return;
-          if (!ok && retries >= RETRY_LIMIT) return;
-          load({ force: !ok });
+          if (document.visibilityState === 'hidden' || pageViewing()) return;
+          if (!ok) {
+            if (retries >= RETRY_LIMIT) return;
+            retries++;
+            check({ force: true });
+          } else {
+            check();
+          }
         }, RETRY_EVERY_MS);
       }
     },
     deactivate() {
       stopDeadline();
-      if (timer) { window.clearInterval(timer); timer = 0; }
+      stopTimer();
     },
-    /** A tab returning to the foreground gets a fresh card. */
+    /** A tab returning to the foreground asks again (through the cache). */
     refresh() {
       retries = 0;
-      load({ force: true });
+      check({ force: true });
     },
     destroy() {
       stopDeadline();
-      if (timer) { window.clearInterval(timer); timer = 0; }
+      stopTimer();
       fg.removeAttribute('src');
-      bg.removeAttribute('src');
+      if (objUrl) { URL.revokeObjectURL(objUrl); objUrl = ''; }
+      if (prevUrl) { URL.revokeObjectURL(prevUrl); prevUrl = ''; }
     }
   };
 }
@@ -2588,7 +3022,7 @@ function buildSlide(district, data, index, total) {
     el('span', { text: bestLabel }),
     dots,
     el('span', {
-      class: fresh ? '' : 'ccc-scr-feed__stale',
+      class: fresh ? 'ccc-scr-feed__stamp' : 'ccc-scr-feed__stamp ccc-scr-feed__stale',
       text: fresh
         ? (avg !== null ? `District avg ${avg} · ${stamp}` : stamp)
         : `Last updated ${stamp} — not today's numbers`
@@ -2665,7 +3099,9 @@ function makeFeed(rec) {
   function startTimer() {
     if (timer || slides.length < 2 || !active) return;
     timer = window.setInterval(() => {
-      if (document.visibilityState === 'hidden') return;
+      // Nothing turns under an open tool (G2): the board is behind an opaque
+      // viewer, and a slide change is a restyle + a transition for no one.
+      if (document.visibilityState === 'hidden' || pageViewing()) return;
       tick();
     }, FEED_SLIDE_MS);
   }
@@ -2794,8 +3230,27 @@ function makeFeed(rec) {
  *  3200ms is the deck's own budget with room for a cold cellular fetch of the
  *  1.15 MB workbook it renders from. The 12s watchdog below is still the
  *  backstop for a frame that never loads at all, and it now rewrites the note
- *  on this same card instead of swapping the card for another one. */
+ *  on this same card instead of swapping the card for another one.
+ *
+ *  THE WIN-THE-WEEKEND DECKS GET A SHORT SETTLE (v29), because they are not
+ *  that kind of deck. They fetch nothing: every slide is already in their
+ *  2.5 MB of HTML, the first one carries `class="s a"` and inline opacity 1,
+ *  and `load` fires only once that whole document — base64 photographs
+ *  included — is in. What is left after `load` is the first slide's own entry
+ *  motion (rows on `ru .4s` with delays to .3s, the slide on a .6s opacity
+ *  transition), so 1.2 s lifts the lid on a drawn slide instead of 3.2 s.
+ *  The design audit's "black TV with a single 4 px header row" (ipadL-03) was
+ *  a different defect with the same look: the old gate mounted these decks two
+ *  rooms early, so the lid came off while the frame was off-screen, where
+ *  Chromium does not render a cross-origin frame — its row animations were
+ *  still parked at their first keyframe when the room scrolled in. A board
+ *  now mounts only in the room that owns the page (§9), i.e. on screen, so
+ *  its animations run under the lid. */
 const LIVE_REVEAL_MS = 3200;
+const LIVE_REVEAL_MS_BY_SLUG = {
+  'wtw-chicago':   1200,
+  'wtw-big-south': 1200
+};
 
 /* ── THE READY HANDSHAKE — a board that says when it has drawn ─────────────
    LIVE_REVEAL_MS above is a guess about a deck we cannot see into, and the
@@ -2835,6 +3290,12 @@ const LIVE_REVEAL_MS = 3200;
    measured 2026-09-02), so anything that has not drawn by then is not slow,
    it is stuck, and a fresh request is the only thing that will move it. */
 const BOARD_READY_CAP_MS = 45 * 1000;
+
+/** How long a board that HAD arrived is given to paint again after it comes
+ *  back out of display:none, before its lid lifts. One frame is the real
+ *  requirement; this is that plus a margin for a 1561 x 880 re-layout on an
+ *  older iPad. */
+const WAKE_SETTLE_MS = 400;
 const BOARD_UNREACHABLE = 'This board is not reachable right now. It will try again on its own — or tap to open it full screen.';
 
 function makeLive(rec) {
@@ -2852,6 +3313,8 @@ function makeLive(rec) {
   let attempt = 0;       // consecutive failures, drives retryDelay(); reset by `ready`
   let onMessage = null;  // the window listener for the mounted frame
   let wantFresh = false; // retry() asks the next mount() for a unique stamp
+  let suspended = false; // out of rendering (display:none) while a tool is up — §9
+  let revealOnWake = false; // a reveal came due while suspended; it runs on wake
 
   /** The board did not come back. Say so on the lid rather than lifting it off
    *  a grey rectangle, and drop the frame — there is nothing behind it. */
@@ -2875,9 +3338,11 @@ function makeLive(rec) {
     rec.panel.classList.add('is-live');
   }
 
-  /** Fade the lid off and take it out of the DOM. Idempotent. */
+  /** Fade the lid off and take it out of the DOM. Idempotent. A board that is
+   *  out of rendering keeps its lid: the reveal waits for resume(). */
   function uncover() {
     revealT = 0;
+    if (suspended) { revealOnWake = true; return; }
     if (!cover) return;
     const lid = cover;
     cover = null;
@@ -2911,14 +3376,14 @@ function makeLive(rec) {
     window.clearTimeout(revealT); revealT = 0;
     attempt = 0;
     failed = false;
-    rec.deckArrived = true;                       // read by liveWanted(), not by CSS
+    rec.deckArrived = true;                       // read by suspendBoards() (§9), not by CSS
     rec.panel.classList.add('is-live');
     uncover();
   }
 
   /** `error`, or the cap ran out: keep the lid, change its words, and put a
    *  fresh request on the backoff clock. deckArrived goes false on purpose —
-   *  a board with nothing drawn is the one liveWanted() is allowed to drop
+   *  a board with nothing drawn is the one suspendBoards() drops outright
    *  while the viewer is up, because it has nothing to lose. */
   function fail(words) {
     failed = true;
@@ -2938,6 +3403,12 @@ function makeLive(rec) {
   function retry() {
     retryT = 0;
     if (rec.destroyed || !frame) return;         // held or unmounted: nothing to redo
+    // Never a new document under the viewer or while out of rendering: §9
+    // decides when this board may load again, so ask again after RESUME_MS.
+    if (suspended || pageViewing()) {
+      retryT = window.setTimeout(retry, RESUME_MS);
+      return;
+    }
     dead = false;
     unmount();
     wantFresh = true;
@@ -3030,16 +3501,16 @@ function makeLive(rec) {
          reveal: its document being here says nothing about whether it has
          drawn, so `load` lights the glass behind the lid and does nothing
          else. deckArrived stays false until `ready` — a deck still pulling
-         its workbook IS the download liveWanted() wants to drop under the
+         its workbook IS the download suspendBoards() drops under the
          viewer's scrim — and the 12 s watchdog keeps its clock, because
          "taking a while" is the true sentence for a report on store wifi. */
       if (speaks) { rec.panel.classList.add('is-live'); return; }
       window.clearTimeout(watchdog);
-      rec.deckArrived = true;                     // read by liveWanted(), not by CSS
+      rec.deckArrived = true;                     // read by suspendBoards() (§9), not by CSS
       // the glass powers on now — the deck behind the lid is still white.
       rec.panel.classList.add('is-live');
       window.clearTimeout(revealT);
-      revealT = window.setTimeout(uncover, LIVE_REVEAL_MS);
+      revealT = window.setTimeout(uncover, LIVE_REVEAL_MS_BY_SLUG[rec.slug] || LIVE_REVEAL_MS);
     });
     rec.liveFrame = frame;
     /* THE HANDSHAKE LISTENER — see BOARD_READY_CAP_MS. One per mounted frame,
@@ -3056,8 +3527,16 @@ function makeLive(rec) {
       if (rec.destroyed || dead || mounted !== rec.liveFrame) return;
       if (!mounted.contentWindow || event.source !== mounted.contentWindow) return;
       const d = event.data;
-      if (!d || typeof d !== 'object' || d.source !== 'ccc-board') return;
-      handleBoard(d);
+      if (!d || typeof d !== 'object') return;
+      if (d.source === 'ccc-board') {
+        // F2/D5: a board that (re)announces itself while suspended — e.g. it
+        // booted after the pause was sent — is told again to hold its slides.
+        if (suspended) postToBoard('pause');
+        handleBoard(d); return;
+      }
+      // C6: a tool that posts its generic "painted" signal has drawn its first
+      // meaningful content — for a board, that is exactly `ready`.
+      if (d.source === 'ccc-tool' && d.state === 'painted') handleBoard({ state: 'ready' });
     };
     window.addEventListener('message', onMessage);
     // 5-minute bucket, not a per-mount stamp: these boards mount and unmount
@@ -3132,10 +3611,54 @@ function makeLive(rec) {
     rec.panel.classList.add('is-live');
   }
 
+  /** OUT OF RENDERING, STILL MOUNTED — while a tool is up (§9). display:none
+   *  on the frame (the only cheap state measured to stop a frame's rendering;
+   *  see .is-suspended in §3), the branded lid back over the glass so the
+   *  room behind a closing viewer shows the card rather than black glass, and
+   *  every clock that could re-mount it held. Idempotent. */
+  /** F2/D5 (v29): the Daily Sales Report honours {source:'ccc-site',
+   *  action:'pause'|'resume'} and stops its slide + countdown timers while
+   *  paused — display:none stops a frame's rendering, not its timers. Other
+   *  boards ignore the message. Never throws. */
+  function postToBoard(action) {
+    try {
+      if (frame && frame.contentWindow) frame.contentWindow.postMessage({ source: 'ccc-site', action }, '*');
+    } catch (e) { /* a frame mid-navigation — nothing to tell */ }
+  }
+
+  function suspend() {
+    if (!frame || suspended) return;
+    suspended = true;
+    node.classList.add('is-suspended');
+    postToBoard('pause');
+    if (revealT) { window.clearTimeout(revealT); revealT = 0; revealOnWake = true; }
+    armLid('Tap to open this board full screen.');
+  }
+
+  /** Back into rendering, then the lid off once the frame has painted again —
+   *  a short settle for a board that had already arrived, its full one for a
+   *  board whose reveal came due while it was out. Idempotent. */
+  function resume() {
+    if (!suspended) return;
+    suspended = false;
+    node.classList.remove('is-suspended');
+    if (!frame) return;
+    postToBoard('resume');
+    const settle = revealOnWake ? (LIVE_REVEAL_MS_BY_SLUG[rec.slug] || LIVE_REVEAL_MS) : WAKE_SETTLE_MS;
+    if (rec.deckArrived || revealOnWake) {
+      revealOnWake = false;
+      window.clearTimeout(revealT);
+      revealT = window.setTimeout(uncover, settle);
+    }
+  }
+
   function unmount() {
     window.clearTimeout(watchdog);
     window.clearTimeout(revealT);
     revealT = 0;
+    suspended = false;
+    revealOnWake = false;
+    node.classList.remove('is-suspended');
     window.clearTimeout(capT); capT = 0;
     window.clearTimeout(retryT); retryT = 0;
     if (onMessage) { window.removeEventListener('message', onMessage); onMessage = null; }
@@ -3196,6 +3719,9 @@ function makeLive(rec) {
     deactivate: unmount,
     destroy: unmount,
     hold,
+    suspend,
+    resume,
+    get isSuspended() { return suspended; },
     /**
      * A STORE iPAD PARKED ON THE DINING ROOM SHOWED THE LEADERBOARD FROM
      * PAGE-LOAD TIME FOR EVER. This mode exposed no refresh(), so the
@@ -3476,11 +4002,11 @@ function makeReport(rec) {
   }
 
   /** The promo card, built out of `image` mode's own two-layer art so a 1.40
-   *  card in a 1.77 screen goes edge to edge instead of sitting in two bars. */
+   *  card in a 1.77 screen goes edge to edge instead of sitting in two bars —
+   *  one decoded card plus its 24 x 17 backdrop, on the plain URL (v29). */
   function promoNode() {
     const art = el('div', { class: 'ccc-scr-art' });
-    const src = promoSrc();
-    const bg = el('img', { class: 'ccc-scr-art__bg', alt: '', 'aria-hidden': 'true', decoding: 'async' });
+    const bg = el('canvas', { class: 'ccc-scr-art__bg', width: '24', height: '17', 'aria-hidden': 'true' });
     const fg = el('img', { class: 'ccc-scr-art__fg', alt: '', 'aria-hidden': 'true', decoding: 'async' });
     // A promo card that has not been uploaded yet must not become a broken
     // slide in the rotation — the source app drops the slide, so this does too.
@@ -3489,7 +4015,10 @@ function makeReport(rec) {
       promoOk = false;
       build();
     }, { once: true });
-    fg.src = src; bg.src = src;
+    // The backdrop canvas stays dark here: painting it from this <img> would
+    // be a synchronous full-size decode on the main thread (see makeImage's
+    // paintBackdrop), and this mode is not on any wall today.
+    fg.src = PROMO_CARD_URL;
     art.append(bg, fg);
     return el('div', { class: 'ccc-scr-rpt__slide is-art' }, [
       art, el('div', { class: 'ccc-scr-rpt__tick', 'aria-hidden': 'true' }, [el('i')])
@@ -3611,7 +4140,7 @@ function makeReport(rec) {
   function startTimer() {
     if (timer || slides.length < 2 || !active) return;
     timer = window.setInterval(() => {
-      if (document.visibilityState === 'hidden') return;
+      if (document.visibilityState === 'hidden' || pageViewing()) return;
       show(index + 1);
     }, REPORT_SLIDE_MS);
   }
@@ -3822,6 +4351,8 @@ function relocate(rec) {
     rec.plane.style.width = '';
     rec.plane.style.height = '';
     rec.plane.style.transform = '';
+    rec.panel.style.removeProperty('--scr-ox');
+    rec.panel.style.removeProperty('--scr-oy');
     rec.panel.classList.remove('ccc-scr--quad');
   } else {
     rec.host.append(rec.panel);
@@ -3915,6 +4446,12 @@ function applyGeometry(rec) {
           rec.plane.style.transform = matrix;
           W = w; H = h;
           applied = true;
+          // M2's power-on scales about the glass, and a quad's host is the
+          // whole plate: hand the panel the quad's centroid, host-local px.
+          const ox = (dst[0][0] + dst[1][0] + dst[2][0] + dst[3][0]) / 4;
+          const oy = (dst[0][1] + dst[1][1] + dst[2][1] + dst[3][1]) / 4;
+          rec.panel.style.setProperty('--scr-ox', `${ox.toFixed(1)}px`);
+          rec.panel.style.setProperty('--scr-oy', `${oy.toFixed(1)}px`);
         }
       }
       if (!applied && !rec.quadWarned) {
@@ -3927,6 +4464,8 @@ function applyGeometry(rec) {
       rec.plane.style.width = '';
       rec.plane.style.height = '';
       rec.plane.style.transform = '';
+      rec.panel.style.removeProperty('--scr-ox');
+      rec.panel.style.removeProperty('--scr-oy');
       // Layout size again, not the rect: an axis-aligned screen's iframe scale
       // is computed from this, and inside a scaled layer the rect is ~10% wide.
       W = rec.host.offsetWidth; H = rec.host.offsetHeight;
@@ -3958,155 +4497,436 @@ function applyGeometry(rec) {
 }
 
 /* -----------------------------------------------------------------------------
- * 9 · Mount budget
+ * 9 · Mount budget — and THE LIVE BOARDS: WHEN A WHOLE DOCUMENT IS ALLOWED
+ *
+ * Cheap modes (title / image / feed / report) follow their IntersectionObserver
+ * exactly, as they always have: see IO_MARGIN for how near is "near".
+ *
+ * A `live` panel is a whole extra document — a 2.5 MB Win-the-Weekend deck, or
+ * the Daily Sales Report app — and on an iPad it parses, lays out and runs its
+ * timers on the PAGE'S OWN main thread (Safari does not give a cross-origin
+ * frame its own process). The v29 audits measured what the old rule cost:
+ * both Dining decks live from the Pass to the Office (~70% of the walk), the
+ * DSR app running mid-scroll into the Break Room, a 513 ms mount inside an
+ * observer callback, and the decks' 3.6 MB racing the quote sheet a rep had
+ * just tapped. So since v29 a board is ALIVE only when ALL of these hold:
+ *
+ *   1. its room OWNS the page — C2, `.room.is-owned` (engine.js), or, while
+ *      that contract has not spoken, our own geometry: the room with the most
+ *      of the viewport, the engine's own active-room rule (geometryOwner());
+ *   2. the scroll has SETTLED (SETTLE_MS without a scroll event), and the
+ *      mount itself runs in an idle callback, never inside an observer or a
+ *      frame;
+ *   3. no tool is up (C1: pageViewing()), and the viewer closed at least
+ *      RESUME_MS ago (O-5);
+ *   4. its panel is in range (IO_MARGIN.live) and inside the live-frame ration
+ *      (MAX_LIVE_FRAMES; one on a phone, where a dormant room is also out).
+ *
+ * LEAVING. A board whose room hands the page on is NOT torn down on the spot:
+ * that happens while its room is still on screen (the ownership cut lands
+ * ~0.8 vh before the dissolve ends), and a board that goes black or flips to
+ * its card there is the "screens blink off early" defect (design P1-3). It
+ * keeps running until its room is no longer visible — fully dissolved out, or
+ * fully covered by the next room's opaque stage — and is then unmounted in an
+ * idle callback (sweepBoards()).
+ *
+ * UNDER THE VIEWER. A board still loading is dropped the moment a tool opens
+ * (its download shares the link with the tool). A board that has ARRIVED is
+ * kept but taken out of rendering — display:none on its frame, measured as the
+ * only cheap state that actually stops its rendering (see .is-suspended in §3)
+ * — with the branded lid over it, and is woken RESUME_MS after the viewer
+ * closes. Nothing mounts, wakes or refreshes while a tool is up.
  * -------------------------------------------------------------------------- */
 
-function reconcile() {
-  const all = Array.from(records).filter((r) => !r.destroyed);
+/** Every .room on the page, in document order. Filled as screens mount. */
+const rooms = [];
+let roomsObs = null;
 
-  // 1. Everything cheap follows its observer exactly.
-  for (const rec of all) {
-    if (rec.mode === 'live') continue;
+/** C2 has spoken at least once: `ccc:room-owned` fired, or a room carried
+ *  `.is-owned`. Until then ownership is our own geometry, the power-on
+ *  pre-state (data-power) is never written, and everything is fail-open. */
+let c2Live = false;
+/** The room that owns the page per C2 (null during a cut). */
+let ownedRoom = null;
+/** Our own answer, computed at settle, used only while C2 is silent. */
+let fallbackOwner = null;
+/** An ownership change arrived while a tool was up; applied at resume. */
+let ownershipDirty = false;
+
+let scrolling = false;
+let settleT = 0;
+let cancelBoards = null;   // pending idle reconcileBoards()
+let cancelSweep = null;    // pending idle sweepBoards()
+let resumeAt = 0;          // Date.now() before which nothing wakes (O-5)
+let resumeT = 0;
+
+function roomIndex(roomEl) { return roomEl ? rooms.indexOf(roomEl) : -1; }
+
+/** Is this panel's room the one that owns the page? A panel mounted outside
+ *  any room (a standalone mount) always is. */
+function isOwned(rec) {
+  if (!rec.roomEl) return true;
+  if (c2Live) return rec.roomEl.classList.contains('is-owned');
+  return rec.roomEl === fallbackOwner;
+}
+
+/** The engine's own active-room rule (engine.js updateActiveRoom): the room
+ *  whose runway covers most of the viewport. Reads only; used while C2 is
+ *  silent. */
+function geometryOwner() {
+  let best = null, bestOv = 0;
+  const vh = window.innerHeight;
+  for (const r of rooms) {
+    const b = r.getBoundingClientRect();
+    const ov = Math.min(b.bottom, vh) - Math.max(b.top, 0);
+    if (ov > bestOv) { bestOv = ov; best = r; }
+  }
+  return best;
+}
+
+function stageOf(roomEl) {
+  return roomEl ? (roomEl.querySelector(':scope > .stage') || roomEl) : null;
+}
+
+/** Can any of this room still be seen? Reads only. False when its stage is off
+ *  the viewport, transparent or curtained, or when a LATER room's stage is
+ *  opaque and spans the whole viewport (stages stack in document order, and
+ *  every stage paints an opaque matte). */
+function roomVisible(roomEl) {
+  const st = stageOf(roomEl);
+  if (!st) return true;
+  const vh = window.innerHeight;
+  const r = st.getBoundingClientRect();
+  if (!r.width || r.bottom <= 0 || r.top >= vh) return false;
+  const cs = getComputedStyle(st);
+  if (cs.visibility === 'hidden' || cs.display === 'none' || parseFloat(cs.opacity) < 0.01) return false;
+  const i = rooms.indexOf(roomEl);
+  if (i < 0) return true;
+  for (let j = i + 1; j < rooms.length && j <= i + 2; j++) {
+    const s2 = stageOf(rooms[j]);
+    if (!s2) continue;
+    const r2 = s2.getBoundingClientRect();
+    if (r2.top > 0.5 || r2.bottom < vh - 0.5) continue;
+    const c2 = getComputedStyle(s2);
+    if (c2.visibility !== 'hidden' && parseFloat(c2.opacity) >= 0.99) return false;
+  }
+  return true;
+}
+
+/** Distance of a panel's centre from the viewport's middle. A layout read —
+ *  only ever called from the read phase of reconcileBoards(). */
+function panelDist(rec) {
+  const r = (rec.narrow ? rec.panel : rec.plane).getBoundingClientRect();
+  return Math.abs((r.top + r.height / 2) - window.innerHeight / 2);
+}
+
+/** A phone may not hold a board for a room engine.js has curtained. */
+function residentOk(rec) {
+  return !isPhone || !rec.roomEl || !rec.roomEl.classList.contains('is-dormant');
+}
+
+/* ── ownership → power, sweep, boards ───────────────────────────────────── */
+
+/** M2 + M6 on the panels: which ones are powered, and which room's screens
+ *  run the refresh sweep. Writes only (class/attribute), no layout. */
+function applyPower({ arming = false } = {}) {
+  const tier = motionTier();
+  const owner = c2Live ? ownedRoom : fallbackOwner;
+  const oi = roomIndex(ownedRoom);
+  for (const rec of records) {
+    if (rec.destroyed) continue;
+    const p = rec.panel;
+    p.classList.toggle('ccc-scr--owned', !rec.roomEl || rec.roomEl === owner);
+    if (!c2Live || !rec.roomEl || tier === 'off') {
+      if (p.hasAttribute('data-power')) p.removeAttribute('data-power');
+      continue;
+    }
+    const i = roomIndex(rec.roomEl);
+    if (i < 0) continue;
+    if (rec.roomEl === ownedRoom) {
+      if (p.getAttribute('data-power') !== 'on') p.setAttribute('data-power', 'on');
+    } else if (arming && !p.hasAttribute('data-power')) {
+      p.setAttribute('data-power', 'off');
+    } else if (ownedRoom && oi >= 0 && Math.abs(i - oi) >= 2) {
+      // Two rooms away is out of sight: reset, instantly, so the next arrival
+      // plays the power-on again. Adjacent rooms keep whatever they had — a
+      // room you just left is still dissolving out, lit.
+      if (p.getAttribute('data-power') !== 'off') p.setAttribute('data-power', 'off');
+    }
+  }
+}
+
+function currentOwned(hint) {
+  for (const r of rooms) if (r.classList.contains('is-owned')) return r;
+  const any = document.querySelector('.room.is-owned');
+  if (any) return any;
+  if (hint) {
+    try { return document.querySelector(`.room[data-room="${CSS.escape(String(hint))}"]`) || null; }
+    catch { return null; }
+  }
+  return null;
+}
+
+/** Every change of a .room's class (C2's .is-owned, the engine's .is-dormant)
+ *  and every `ccc:room-owned` lands here. Cheap: class reads and writes only;
+ *  anything that reads layout or mounts is deferred to idle. */
+function onOwnership(hint) {
+  const owned = currentOwned(hint);
+  const arming = !c2Live && (owned !== null || hint !== undefined);
+  if (arming) c2Live = true;
+  if (!c2Live) { scheduleBoards(); return; }
+  if (pageViewing()) {
+    // The scroll lock's jump to the top can move ownership behind the scrim.
+    // Nothing visible should change for that; apply the truth at resume.
+    ownershipDirty = true;
+    return;
+  }
+  ownershipDirty = false;
+  if (owned !== ownedRoom || arming) {
+    ownedRoom = owned;
+    applyPower({ arming });
+  }
+  sweepSoon();
+  scheduleBoards();
+}
+
+function trackRooms(roomEl) {
+  if (!roomEl || !roomEl.parentElement) return;
+  let added = false;
+  for (const r of roomEl.parentElement.children) {
+    if (!r.classList || !r.classList.contains('room') || rooms.includes(r)) continue;
+    rooms.push(r);
+    added = true;
+    if (typeof MutationObserver === 'function') {
+      if (!roomsObs) roomsObs = new MutationObserver(() => onOwnership());
+      roomsObs.observe(r, { attributes: true, attributeFilter: ['class'] });
+    }
+  }
+  if (added) {
+    rooms.sort((a, b) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1));
+    if (!c2Live && currentOwned()) onOwnership();
+  }
+}
+
+document.addEventListener('ccc:room-owned', (e) => {
+  const id = e && e.detail && e.detail.id;
+  onOwnership(id === undefined ? null : id);
+});
+
+/* C5: the tier can change at runtime (motion.js demotes on slow frames), and so
+   can the OS setting. Re-apply the power state; `off` removes it entirely. */
+if (typeof MutationObserver === 'function') {
+  new MutationObserver(() => applyPower()).observe(document.documentElement,
+    { attributes: true, attributeFilter: ['data-motion'] });
+}
+try {
+  const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const onRm = () => applyPower();
+  if (mq.addEventListener) mq.addEventListener('change', onRm);
+  else if (mq.addListener) mq.addListener(onRm);
+} catch { /* no matchMedia: nothing to follow */ }
+
+/* ── scroll settle + idle scheduling ────────────────────────────────────── */
+
+function onScrollish() {
+  scrolling = true;
+  if (settleT) window.clearTimeout(settleT);
+  settleT = window.setTimeout(() => {
+    settleT = 0;
+    scrolling = false;
+    scheduleBoards();
+  }, SETTLE_MS);
+}
+window.addEventListener('scroll', onScrollish, { passive: true });
+window.addEventListener('resize', onScrollish, { passive: true });
+
+/** Queue one idle reconcileBoards(). Never while scrolling — the settle timer
+ *  re-queues it. */
+function scheduleBoards() {
+  if (cancelBoards || scrolling) return;
+  cancelBoards = onIdle(reconcileBoards);
+}
+
+/** Queue one idle sweep of boards whose room is out of sight. Unlike a mount
+ *  this does not wait for the scroll to settle — a board two rooms behind the
+ *  reader should not keep running because the reader keeps scrolling. */
+function sweepSoon() {
+  if (cancelSweep) return;
+  cancelSweep = onIdle(() => { cancelSweep = null; sweepBoards(); }, 700);
+}
+
+function liveRecs() {
+  const out = [];
+  for (const rec of records) if (!rec.destroyed && rec.mode === 'live') out.push(rec);
+  return out;
+}
+
+function deactivateBoard(rec) {
+  rec.active = false;
+  rec.api.deactivate(rec);
+}
+
+/** Tear down boards whose room is neither owned nor visible. Reads first,
+ *  then writes. */
+function sweepBoards() {
+  if (pageViewing()) return;
+  const gone = [];
+  for (const rec of liveRecs()) {                                  // ── read
+    if (!rec.active || isOwned(rec)) continue;
+    if (!rec.wantsMount || !residentOk(rec) || !roomVisible(rec.roomEl)) gone.push(rec);
+  }
+  for (const rec of gone) deactivateBoard(rec);                    // ── write
+  if (gone.length) holdBoards();
+}
+
+/** The branded card on every in-range board that has no frame. Idempotent. */
+function holdBoards() {
+  for (const rec of liveRecs()) {
+    if (rec.wantsMount && !rec.active && rec.api.hold) rec.api.hold(rec);
+  }
+}
+
+/** Take every board out of rendering for as long as a tool is up: arrived ones
+ *  suspended under their lid, still-loading ones dropped. Idempotent. */
+function suspendBoards() {
+  if (cancelBoards) { cancelBoards(); cancelBoards = null; }
+  for (const rec of liveRecs()) {
+    if (!rec.active) continue;
+    if (rec.deckArrived && rec.api.suspend) rec.api.suspend();
+    else deactivateBoard(rec);
+  }
+  holdBoards();
+}
+
+/**
+ * THE ONE PLACE A BOARD MOUNTS, WAKES OR REFRESHES. Runs in an idle callback
+ * after the scroll has settled; reads every rect and computed style it needs
+ * first, then writes.
+ */
+function reconcileBoards() {
+  cancelBoards = null;
+  if (scrolling) return;                               // the settle re-queues us
+  if (pageViewing()) {
+    suspendBoards();
+    // The event said closed but the class has not come off yet: look again.
+    if (!viewerOpen) window.setTimeout(scheduleBoards, 500);
+    return;
+  }
+  const wait = resumeAt - Date.now();
+  if (wait > 0) {
+    if (!resumeT) resumeT = window.setTimeout(() => { resumeT = 0; scheduleBoards(); }, wait);
+    return;
+  }
+  // Class writes (the power state) wait for the WRITE phase below, so the
+  // reads in between cost at most one style/layout flush.
+  let repower = false;
+  if (ownershipDirty) {
+    ownershipDirty = false;
+    ownedRoom = currentOwned();
+    repower = true;
+  }
+
+  const live = liveRecs();
+
+  // ── READ ────────────────────────────────────────────────────────────────
+  if (!c2Live) {
+    const owner = geometryOwner();
+    if (owner !== fallbackOwner) { fallbackOwner = owner; repower = true; }
+  }
+  const info = live.map((rec) => {
+    const owned = isOwned(rec);
+    return {
+      rec,
+      owned,
+      want: rec.wantsMount && owned && residentOk(rec),
+      d: rec.wantsMount ? panelDist(rec) : Infinity,
+      visible: rec.active && !owned ? roomVisible(rec.roomEl) : true
+    };
+  });
+
+  // ── DECIDE ──────────────────────────────────────────────────────────────
+  const budget = liveBudget();
+  const wanted = info.filter((x) => x.want).sort((a, b) => a.d - b.d).slice(0, budget);
+  const keep = new Set(wanted);
+  // A leaving board that is still on screen keeps its frame while the ration
+  // has room after the owned room's boards — see LEAVING above.
+  let slots = budget - wanted.length;
+  const leaving = info.filter((y) => y.rec.active && !keep.has(y) && y.visible &&
+                                     y.rec.wantsMount && residentOk(y.rec))
+                      .sort((a, b) => a.d - b.d);
+  for (const x of leaving) {
+    if (slots <= 0) break;
+    keep.add(x);
+    slots--;
+  }
+
+  // ── WRITE ───────────────────────────────────────────────────────────────
+  if (repower) applyPower();
+  for (const x of info) {
+    if (x.rec.active && !keep.has(x)) deactivateBoard(x.rec);
+  }
+  let mounted = 0;
+  let more = false;
+  for (const x of wanted) {
+    const { rec } = x;
+    if (rec.active) {
+      if (rec.api.isSuspended) rec.api.resume();
+      if (rec.refreshWanted) { rec.refreshWanted = false; if (rec.api.refresh) rec.api.refresh(rec); }
+      continue;
+    }
+    // One new document per idle callback: two decks are two parses, and the
+    // second can wait for the next idle period.
+    if (mounted >= 1) { more = true; continue; }
+    rec.active = true;
+    rec.refreshWanted = false;
+    rec.api.activate(rec);
+    mounted++;
+  }
+  for (const x of info) {
+    if (keep.has(x) && !wanted.includes(x) && x.rec.api.isSuspended) x.rec.api.resume();
+  }
+  holdBoards();
+  if (more) scheduleBoards();
+}
+
+/** The old synchronous entry point, kept for every caller that already uses it
+ *  (observer callbacks, media changes, refreshScreens()). Cheap modes follow
+ *  their observer now; boards only ever get a queued idle pass. */
+function reconcile() {
+  if (pageViewing()) {
+    // Under the viewer nothing activates: the scroll lock's jump to the top
+    // makes every observer lie. Boards are taken out of rendering; the rest is
+    // put right by the reconcile the close schedules.
+    suspendBoards();
+    return;
+  }
+  for (const rec of records) {
+    if (rec.destroyed || rec.mode === 'live') continue;
     if (rec.wantsMount && !rec.active) { rec.active = true; rec.api.activate(rec); }
     else if (!rec.wantsMount && rec.active) { rec.active = false; rec.api.deactivate(rec); }
   }
-
-  // 2. Live iframes are rationed, nearest-to-the-viewport first.
-  const live = all.filter((r) => r.mode === 'live');
-  for (const rec of live) {
-    if (!liveWanted(rec) && rec.active) { rec.active = false; rec.api.deactivate(rec); }
-  }
-
-  const mid = window.innerHeight / 2;
-  // A layout read, yes — but only ever inside an IntersectionObserver callback
-  // or a media change, never inside the engine's rAF loop.
-  const dist = (rec) => {
-    const r = (rec.narrow ? rec.panel : rec.plane).getBoundingClientRect();
-    return Math.abs((r.top + r.height / 2) - mid);
-  };
-
-  const budget = liveBudget();
-  let running = live.filter((r) => r.active);
-
-  // The budget can SHRINK under us — a phone rotating out of landscape, where
-  // (max-height: 500px) stops matching, goes 2 -> 1 with two frames already up.
-  // Evict the furthest until the budget is met, or the ration is a ceiling that
-  // only ever applies to boards that had not mounted yet.
-  while (running.length > budget) {
-    let worst = null, worstD = -1;
-    for (const rec of running) { const d = dist(rec); if (d > worstD) { worstD = d; worst = rec; } }
-    if (!worst) break;
-    worst.active = false;
-    worst.api.deactivate(worst);
-    running = running.filter((r) => r !== worst);
-  }
-
-  const waiting = live.filter((r) => liveWanted(r) && !r.active)
-    .map((r) => ({ rec: r, d: dist(r) }))
-    .sort((a, b) => a.d - b.d);
-
-  for (const cand of waiting) {
-    if (running.length >= budget) {
-      let worst = null, worstD = -1;
-      for (const rec of running) { const d = dist(rec); if (d > worstD) { worstD = d; worst = rec; } }
-      if (!worst || worstD <= cand.d) break;
-      worst.active = false;
-      worst.api.deactivate(worst);
-      running = running.filter((r) => r !== worst);
-    }
-    cand.rec.active = true;
-    cand.rec.api.activate(cand.rec);
-    running.push(cand.rec);
-  }
-
-  // WHAT THE UNBUDGETED BOARD SHOWS. Not black glass. A `live` panel that is in
-  // range but did not win a frame gets the same branded holding card the mode
-  // already falls back to when a deck will not load — it names the board and
-  // says "tap to open it full screen", and the button over the glass is
-  // untouched, so the client's rule (every screen readable and clickable the
-  // whole time its room is on screen) still holds with one iframe instead of
-  // two. hold() is idempotent; reconcile() runs on every observer callback.
-  for (const rec of live) {
-    if (rec.wantsMount && !rec.active && rec.api && rec.api.hold) rec.api.hold(rec);
-  }
+  holdBoards();
+  sweepSoon();
+  scheduleBoards();
 }
 
-/* ── WHEN A PHONE IS ALLOWED TO HOLD A LIVE DOCUMENT ──────────────────────
- * MAX_LIVE_FRAMES_PHONE caps live iframes at one. It does not say for how
- * long, and on this page that turned out to be "essentially always": the lazy
- * gate above is an IntersectionObserver with rootMargin 150%, and the panel it
- * observes lives inside a STICKY stage that theme.css §05 pins to the viewport
- * a full --pin-lead early and releases a --pin-lead late. A pinned panel's rect
- * sits at the top of the viewport and stops moving, so the observer keeps
- * reporting it as intersecting for the whole of its room's runway and a
- * viewport and a half either side of that. Measured at 393x852: the Dining
- * boards were mounted from scrollY 591 to 7092 out of 8230 — a whole extra
- * document, laid out in a 1703x960 virtual viewport, carried through five rooms
- * that do not contain it. (The Win-the-Weekend deck is 5.6 MB of HTML.)
- *
- * theme.css §06e's curtain already knows exactly when a room is not being
- * looked at, and engine.js publishes it as one class. So on a phone a live
- * iframe additionally requires its own room to be resident. Nothing changes
- * anywhere else: `is-dormant` is only ever set by engine.js, it is set on every
- * breakpoint, and this is the only place outside theme.css §06e that reads it.
- *
- * ON AN iPAD AND A DESKTOP THIS FUNCTION IS `rec.wantsMount`, EXACTLY AS
- * BEFORE. isPhone cannot match an iPad — see PHONE_MEDIA — and a panel with no
- * room element (a standalone mount) is never gated.
- *
- * WHAT THE UNBUDGETED BOARD SHOWS IS UNCHANGED: hold() below still gives it the
- * branded holding card, still names the board, and the button over the glass is
- * still live, so "every screen readable and clickable the whole time its room
- * is on screen" holds — the room this defers is a room that is not on screen.
- */
-function liveWanted(rec) {
-  if (!rec.wantsMount) return false;
-  /* WHILE THE TOOL VIEWER IS UP, A DECK THAT HAS NOT ARRIVED YET IS NOT
-     WANTED. The viewer's scrim hides the whole room, and a 5 MB deck still
-     coming down behind it is on the same HTTP/2 connection — same host — as
-     the tool the rep is now waiting for. Measured at a 4 Mbps shared link,
-     opening Win the Weekend from the Dining Room while its boards were still
-     loading: 33.6 s to the deck's slides (v14), 12.4 s once the in-flight
-     boards were dropped for the duration; the Daily Sales Report from the same
-     spot, 15.7 s to its first slide (v14), 7.3 s. A board that HAS arrived is
-     left alone: it costs no network to keep and 5 MB to bring back, and it is
-     showing again the instant the viewer closes. The dropped ones re-mount on `ccc:viewer-close` through
-     the ordinary reconcile(), from the HTTP cache when the same 5-minute
-     bucket is still current.
-     `deckArrived`, not the `is-live` class: hold() puts is-live on a board
-     that is showing its holding card with no frame at all, and reading the
-     class here re-mounted every dropped board on the next observer callback
-     — measured as the decks downloading TWICE under the scrim (26 MB). */
-  if (viewerOpen && !rec.deckArrived) return false;
-  if (!isPhone || !rec.roomEl) return true;
-  return !rec.roomEl.classList.contains('is-dormant');
-}
-
-/** True between overlay.js's `ccc:viewer-open` and `ccc:viewer-close`. */
-let viewerOpen = false;
-document.addEventListener('ccc:viewer-open', () => { viewerOpen = true; reconcile(); });
-document.addEventListener('ccc:viewer-close', () => { viewerOpen = false; reconcile(); });
-
-/* liveWanted() reads a class that nothing in this module writes, so nothing in
- * this module would ever notice it change: reconcile() runs on observer
- * callbacks and media changes, and a curtain lifting is neither. Without this
- * watch a board would go dark when its room went dormant and never come back.
- *
- * One MutationObserver for the whole page, attributeFilter'd to `class`, on the
- * handful of .room elements that actually contain a live panel. engine.js
- * touches those classes a few times per full-page scroll (updateResidency()
- * early-outs on an unchanged bitmask), so this fires about as often as the room
- * label in the top bar changes. reconcile() is idempotent. */
-let residencyObs = null;
-const residencyWatched = new WeakSet();
-
-function watchResidency(roomEl) {
-  if (!roomEl || residencyWatched.has(roomEl)) return;
-  if (typeof MutationObserver !== 'function') return;
-  if (!residencyObs) residencyObs = new MutationObserver(() => reconcile());
-  residencyWatched.add(roomEl);
-  residencyObs.observe(roomEl, { attributes: true, attributeFilter: ['class'] });
-}
+document.addEventListener('ccc:viewer-open', () => {
+  viewerOpen = true;
+  suspendBoards();
+});
+document.addEventListener('ccc:viewer-close', () => {
+  viewerOpen = false;
+  // O-5: nothing wakes or mounts for RESUME_MS — the close's own restyle and
+  // scroll restore finish first, then an idle callback does the rest. If the
+  // viewer reopens inside the window, reconcileBoards() sees it and holds off.
+  resumeAt = Date.now() + RESUME_MS;
+  if (resumeT) window.clearTimeout(resumeT);
+  resumeT = window.setTimeout(() => {
+    resumeT = 0;
+    if (ownershipDirty && c2Live) onOwnership();
+    reconcile();
+  }, RESUME_MS);
+});
 
 /** Pull url/title off the registry once it exists. */
 function applyMeta(rec) {
@@ -4161,6 +4981,14 @@ export function mountScreen(cfg = {}) {
   const mode = MODES.has(cfg.mode) ? cfg.mode : (SCREEN_MODES[slug] || 'title');
 
   if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
+  /* THE HOST IS NEVER A HIT TARGET (v29). The panel's one control is
+     `.ccc-scr__hit`, which opts itself back in and carries the ownership clip.
+     The host box around it only ever caught taps it could not act on — through
+     an invisible stage, or, in the narrow band, as an EMPTY box left in the art
+     after its panel moved out (theme.css §17 documents a chip that could not be
+     tapped because of one). pointer-events is inherited, and the button's own
+     `auto` wins over it, so nothing that should click stops clicking. */
+  host.style.pointerEvents = 'none';
 
   const glass = el('div', { class: 'ccc-scr__glass' });
   const label = el('span', { class: 'ccc-sr-only' });
@@ -4201,12 +5029,14 @@ export function mountScreen(cfg = {}) {
     planeW: 0, planeH: 0,
     narrow: null,
     band: null,
-    // The .room this panel lives in, cached at registration. reconcile() reads
-    // its `is-dormant` class to decide whether a live iframe is allowed — see
-    // liveWanted(). Null for a panel mounted outside a room.
+    // The .room this panel lives in, cached at registration. §9 reads its
+    // `is-owned` (C2) and `is-dormant` classes to decide whether a live iframe
+    // is allowed and whether the screen is powered. Null for a panel mounted
+    // outside a room, which is never gated.
     roomEl: roomOf(host).room,
     active: false,
     wantsMount: false,
+    refreshWanted: false,                      // a live board's foreground refresh, run at idle
     destroyed: false,
     content: null,
     api: null,
@@ -4229,18 +5059,25 @@ export function mountScreen(cfg = {}) {
   relocate(rec);                               // places it and measures it
   applyMeta(rec);                              // and now the caption/label
 
-  /* --- lazy gate -----------------------------------------------------------
-     A screen comes to life about one and a half viewports out. Anything
-     further away is not worth an iframe or a fetch on an iPad. */
-  // Only `live` panels are rationed by residency, so only their rooms are
-  // watched — see liveWanted() and watchResidency().
-  if (mode === 'live') watchResidency(rec.roomEl);
+  /* --- ownership -------------------------------------------------------------
+     Every room is watched (one MutationObserver, class attribute only) so §9
+     hears C2's `.is-owned` and the engine's `.is-dormant` as they change. A
+     panel mounted after C2 has spoken takes its power state straight away. */
+  trackRooms(rec.roomEl);
+  if (c2Live && rec.roomEl) {
+    const owned = rec.roomEl.classList.contains('is-owned');
+    panel.classList.toggle('ccc-scr--owned', owned);
+    if (motionTier() !== 'off') panel.setAttribute('data-power', owned ? 'on' : 'off');
+  }
 
+  /* --- lazy gate -----------------------------------------------------------
+     How near is near depends on what the panel costs — see IO_MARGIN. A live
+     board additionally waits for its room to own the page (§9). */
   if ('IntersectionObserver' in window) {
     rec.io = new IntersectionObserver((entries) => {
       for (const entry of entries) rec.wantsMount = entry.isIntersecting;
       reconcile();
-    }, { root: null, rootMargin: '150% 0px 150% 0px', threshold: 0 });
+    }, { root: null, rootMargin: IO_MARGIN[mode] || IO_MARGIN.image, threshold: 0 });
     rec.io.observe(panel);
   } else {
     rec.wantsMount = true;
@@ -4340,10 +5177,16 @@ window.addEventListener('orientationchange', () => {
    this asks for it; every other mode is left alone. */
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState !== 'visible') return;
+  let boards = false;
   for (const rec of records) {
     if (rec.destroyed || !rec.active || !rec.api) continue;
-    if (typeof rec.api.refresh === 'function') rec.api.refresh(rec);
+    if (typeof rec.api.refresh !== 'function') continue;
+    // A live board's refresh is a re-mount — a whole document — so it waits
+    // for an idle, settled, viewer-free moment like any other mount (§9).
+    if (rec.mode === 'live') { rec.refreshWanted = true; boards = true; continue; }
+    if (!pageViewing()) rec.api.refresh(rec);
   }
+  if (boards) scheduleBoards();
 });
 
 /* =============================================================================

@@ -101,6 +101,26 @@ const STALE_AFTER_MS = 10 * 60 * 1000;
 /** Deep-link shape: #/tool/<slug> */
 const HASH_RE = /^#\/tool\/([A-Za-z0-9_-]+)\/?$/;
 
+/* v29 motion (design audit M7). Twins of the durations in STYLES, used only as
+ * safety nets behind the panel's own `transitionend` (see afterPanelFade). */
+const OPEN_MS = { full: 360, lite: 160, off: 0 };
+const CLOSE_MS = { full: 160, lite: 160, off: 0 };
+
+/** The dark skeleton only appears if a tool is still not drawn after this long,
+ *  so a cached or quick tool never flashes it (design audit P1-7). */
+const SKEL_DELAY_MS = 350;
+
+/** O-7: a `load` sooner than this, from a frame that has not said it painted,
+ *  is probed before it is shown (every failure shape fires `load` in 8-23 ms);
+ *  a slower one is shown and never probed. See showFrame(). */
+const PROBE_FAST_LOAD_MS = 1500;
+
+/** How long that probe may hold the reveal; its verdict can still overrule. */
+const PROBE_HOLD_MS = 2000;
+
+/** The hang probe goes out at SLOW_NOTE_MS with this timeout: card at ~11 s. */
+const HANG_PROBE_TIMEOUT_MS = 5000;
+
 /**
  * Hosts known, in advance, to refuse framing (X-Frame-Options /
  * frame-ancestors). For these we don't burn six seconds of the user's life on
@@ -181,6 +201,15 @@ function isClientHosted(url) {
 const reduceMotion = () =>
   window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+/** Contract C5: <html data-motion="full|lite|off">, absent = full, and
+ *  prefers-reduced-motion always wins. Read on every open/close, never cached:
+ *  S6 may demote the tier mid-session. */
+function motionTier() {
+  if (reduceMotion()) return 'off';
+  const m = document.documentElement.getAttribute('data-motion');
+  return m === 'lite' || m === 'off' ? m : 'full';
+}
+
 /**
  * Open a URL in a new tab, safely. Returns the window, or null if the popup
  * was genuinely blocked. ONLY reachable for `external_only` tools on hosts
@@ -240,21 +269,58 @@ function normaliseTriggerLinks(root) {
   }
 }
 
+/* v29: SCOPED (perf audit §3.9). It used to observe the whole document, so
+ * every slide a live board rotated queued records for it. Anchor triggers live
+ * only in body children (C³ menu, Find palette) and the phone list (#kitchen >
+ * .pocket); the rooms' triggers are <button>s. So <body> is watched shallowly,
+ * each child deeply EXCEPT #kitchen, where only a `.pocket` is. */
 function watchTriggerLinks() {
   normaliseTriggerLinks(document.body || document.documentElement);
-  if (typeof MutationObserver !== 'function') return;
-  const mo = new MutationObserver((muts) => {
+  if (typeof MutationObserver !== 'function' || !document.body) return;
+  const DEEP = {
+    childList: true, subtree: true,
+    // pocket.js used to rewrite href after the fact; if anything else does,
+    // the rewrite is undone in the same task.
+    attributes: true, attributeFilter: ['href', 'target']
+  };
+  const watched = new WeakSet();
+  const deep = new MutationObserver((muts) => {
     for (const m of muts) {
       if (m.type === 'attributes') { normaliseTriggerLinks(m.target); continue; }
       for (const n of m.addedNodes) if (n.nodeType === 1) normaliseTriggerLinks(n);
     }
   });
-  mo.observe(document.documentElement, {
-    childList: true, subtree: true,
-    // pocket.js used to rewrite href after the fact; if anything else does,
-    // the rewrite is undone in the same task.
-    attributes: true, attributeFilter: ['href', 'target']
+  const watchDeep = (node) => {
+    if (!node || node.nodeType !== 1 || watched.has(node)) return;
+    watched.add(node);
+    normaliseTriggerLinks(node);
+    deep.observe(node, DEEP);
+  };
+  const isKitchen = (node) => node.id === 'kitchen';
+  const adoptKitchenChild = (n) => {
+    if (n.nodeType !== 1) return;
+    if (n.matches && n.matches('.pocket')) watchDeep(n);
+    else if (n.querySelector) { const p = n.querySelector('.pocket'); if (p) watchDeep(p); }
+  };
+  const kitchenMo = new MutationObserver((muts) => {
+    for (const m of muts) for (const n of m.addedNodes) adoptKitchenChild(n);
   });
+  const adoptBodyChild = (n) => {
+    if (n.nodeType !== 1 || (state.ui && n === state.ui.root)) return;
+    if (isKitchen(n)) {
+      if (watched.has(n)) return;
+      watched.add(n);
+      normaliseTriggerLinks(n);
+      for (const c of Array.from(n.children)) adoptKitchenChild(c);
+      kitchenMo.observe(n, { childList: true });
+      return;
+    }
+    watchDeep(n);
+  };
+  for (const n of Array.from(document.body.children)) adoptBodyChild(n);
+  new MutationObserver((muts) => {
+    for (const m of muts) for (const n of m.addedNodes) adoptBodyChild(n);
+  }).observe(document.body, { childList: true });
 }
 
 /* -----------------------------------------------------------------------------
@@ -290,7 +356,28 @@ const state = {
   /** optional access gate — see initOverlay({ canOpen, onRefused }) */
   canOpen: null,
   onRefused: null,
-  initialised: false
+  initialised: false,
+
+  /* ── v29 lifecycle: one phase, one flag per side effect, applied only on
+     its edge (the P0 inert freeze, perf audit §3.1, came from re-applying).
+       phase   'closed' | 'opening' (fading in, not locked) | 'open' (locked)
+               | 'closing' (unlocked, fading out)
+       inert   background inert, snapshotted on false→true ONLY
+       viewing html.is-viewing (contract C1) */
+  phase: 'closed',
+  inert: false,
+  viewing: false,
+  /** the opening fade's end: lock + inert + is-viewing (see settleOpen) */
+  lockTimer: 0,
+  /** the closing fade's end: hide + unload (see finishClose) */
+  finishTimer: 0,
+  /** bumps on every open/close so a stale timer or rAF can tell it is stale */
+  gen: 0,
+  /** skeleton delay, and the reveal hook of the frame currently shown (O-3) */
+  skelTimer: 0,
+  revealCurrent: null,
+  /** O-9: the ✕ watchdog for a tool that pushed history of its own */
+  closeWatch: 0
 };
 
 function whenReady() {
@@ -303,8 +390,18 @@ function markReady() {
   state.readyWaiters.splice(0).forEach((fn) => fn());
 }
 
+/* C7: slugs are case-insensitive — `#/tool/NPS` used to fall through to the
+ * manager keypad (links audit #10). Only registry slugs can match, and a sealed
+ * tool is not in the registry until its code is typed, so nothing leaks. */
 function getTool(slug) {
-  return state.registry.get(slug) || null;
+  if (typeof slug !== 'string' || !slug) return null;
+  const hit = state.registry.get(slug);
+  if (hit) return hit;
+  const low = slug.toLowerCase();
+  const lowHit = state.registry.get(low);
+  if (lowHit) return lowHit;
+  for (const [key, tool] of state.registry) if (key.toLowerCase() === low) return tool;
+  return null;
 }
 
 /* -----------------------------------------------------------------------------
@@ -321,8 +418,47 @@ const STYLES = `
 }
 
 /* --- background scroll lock ------------------------------------------------ */
-html.ccc-locked { scroll-behavior: auto !important; }
-body.ccc-locked {
+/* (v29 fix round, G1 D8) NOTHING MAY RESTYLE <html> AT THE LOCK. There was
+   an html.ccc-locked rule setting scroll-behavior — a value <html> already
+   has (cinema.js sets it inline at boot) — and a restyle of <html> is a
+   restyle of every element under it (measured: ~710 elements per lock and
+   again per unlock, 1x iPad profile). So no rule has the ccc-locked class in
+   its subject (body's geometry keys on data-ccc-lock below), and
+   unlockScroll() asks for an instant scroll instead of writing
+   html.style.scrollBehavior. The class stays on <html> and <body>: the engine,
+   screens, motion and find read it, and theme.css keys a few loops to it
+   (descendant selectors, which invalidate only those elements). */
+/* NOTHING BEHIND THE VIEWER MOVES WHILE IT IS UP (v29, O-1 / G2). 37 CSS
+   animations kept running under the scrim: with a static tool open, measured
+   322 ms/s of page main-thread CPU and 54 style recalcs/s, 3 ms/s and 1.2/s
+   once they were paused (iPad profile; on an iPad that thread is the tool's too).
+   KEYED, NOT UNIVERSAL (v29 fix round, G1 D8). This used to be
+   "html.is-viewing body > :not(.ccc-ov) *" (+ ::before/::after): a rule whose
+   subject is * makes the is-viewing class invalidate EVERY element under
+   <body>, so opening and closing the viewer each restyled ~1,450 elements in
+   one task (measured 67-74 ms at 1x, 416-450 ms at 4x on close). The loops
+   that exist are few and each one is already keyed to is-viewing by its owner
+   (theme.css §06c plumes, §08 marquee, screens.js scan/key sheen, freezer.js
+   ring, motion.js breath). This list repeats exactly those subjects as a
+   backstop, so the class change invalidates only the elements that carry them.
+   A new infinite loop must be keyed to html.is-viewing by its owner (and may
+   be added here). The Find palette ([data-ccc-keep-live], C4) is not touched.
+   Paused, never hidden: layout is untouched. */
+html.is-viewing .stage::before,
+html.is-viewing .stage::after,
+html.is-viewing .ccc-scr__scan::after,
+html.is-viewing .ccc-scr-title__key::after,
+html.is-viewing [data-marquee]::before,
+html.is-viewing [data-marquee]::after,
+html.is-viewing .frz-pad__ring,
+html.is-viewing .is-breathing::after {
+  animation-play-state: paused !important;
+}
+/* The lock's geometry keys on an ATTRIBUTE that only <body> ever carries,
+   not on the ccc-locked class: a class that is the subject of any rule makes
+   every element that gains it restyle itself, and <html> gains ccc-locked too
+   — a restyle of <html> is a restyle of the whole document (G1 D8). */
+body[data-ccc-lock] {
   position: fixed;
   left: 0; right: 0; width: 100%;
   overscroll-behavior: none;
@@ -345,29 +481,40 @@ body.ccc-locked {
   grid-template-rows: auto 1fr;
   color: var(--ccc-ov-ink, #f2efe9);
   font-family: var(--ccc-font-ui, var(--font-ui, system-ui, -apple-system, "Segoe UI", sans-serif));
-  opacity: 0;
-  transition: opacity .28s var(--ccc-ov-ease);
 }
 .ccc-ov[hidden] { display: none; }
-.ccc-ov.is-in { opacity: 1; }
+/* Closing: the page underneath is already unlocked, un-inerted and in its
+   room (see teardown()), so it takes the pointer from the first frame of the
+   fade rather than from the last. This is also what makes a second ✕ during
+   the fade impossible. */
+.ccc-ov.is-closing { pointer-events: none; }
 
+/* v29 (O-2): no backdrop-filter — an 18px full-viewport blur (≈15 MB backdrop
+   layer at iPad @2x) behind a scrim that is 80-95% opaque. The top stop is a
+   touch denser to make up for it. touch-action is set here and never on an
+   ancestor of the frame (that would take touch scrolling from the tool): a
+   swipe on the margin must not scroll the room before the lock is on. */
 .ccc-ov__scrim {
   position: absolute; inset: 0;
   background:
-    radial-gradient(120% 90% at 50% 0%, rgba(24,20,16,.72), rgba(6,6,7,.94) 70%),
+    radial-gradient(120% 90% at 50% 0%, rgba(24,20,16,.8), rgba(6,6,7,.95) 70%),
     var(--ccc-ov-scrim, rgba(6,6,7,.92));
-  backdrop-filter: blur(18px) saturate(.9);
-  -webkit-backdrop-filter: blur(18px) saturate(.9);
+  opacity: 0;
+  transition: opacity 240ms var(--m-ease-out, cubic-bezier(.22,.61,.24,1));
+  touch-action: none;
 }
+.ccc-ov.is-in .ccc-ov__scrim { opacity: 1; }
 
-/* The panel: a "service window" that slides up a hair as it arrives. */
+/* The panel: a "service window" that grows out of whatever was touched.
+   --ccc-ov-ox/-oy are set per open from the trigger's rect (openTool); with no
+   trigger (a deep link, Back/Forward) it grows from its own centre. */
 .ccc-ov__panel {
   position: relative;
   grid-row: 1 / -1;
   display: grid;
   grid-template-rows: auto 1fr;
   width: min(1680px, 100vw - clamp(0px, 4vw, 56px));
-  height: min(100svh - clamp(0px, 4vw, 56px), 1100px);
+  height: min(var(--ccc-ov-vh, 100svh) - clamp(0px, 4vw, 56px), 1100px);
   margin: auto;
   border-radius: var(--ccc-ov-radius, 18px);
   overflow: hidden;
@@ -375,14 +522,30 @@ body.ccc-locked {
   box-shadow:
     0 0 0 1px rgba(255,255,255,.07),
     0 60px 140px -30px rgba(0,0,0,.9);
-  transform: translate3d(0, 18px, 0) scale(.985);
+  transform-origin: var(--ccc-ov-ox, 50%) var(--ccc-ov-oy, 50%);
+  transform: translate3d(0, 10px, 0) scale(.94);
   opacity: 0;
-  transition: transform .34s var(--ccc-ov-ease), opacity .34s var(--ccc-ov-ease);
+  transition:
+    transform 360ms var(--m-ease-cine, cubic-bezier(.16,1,.3,1)),
+    opacity 360ms var(--m-ease-cine, cubic-bezier(.16,1,.3,1));
 }
 .ccc-ov.is-in .ccc-ov__panel { transform: none; opacity: 1; }
+/* Leaving is quicker and accelerates, and only gives up a hair of scale. The
+   target lives on :not(.is-in) because teardown() sets .is-closing two frames
+   BEFORE it drops .is-in (the room is put right underneath first), and the
+   panel must not move in between. */
+.ccc-ov.is-closing .ccc-ov__scrim {
+  transition: opacity 160ms var(--m-ease-in, cubic-bezier(.5,0,.75,0));
+}
+.ccc-ov.is-closing .ccc-ov__panel {
+  transition:
+    transform 160ms var(--m-ease-in, cubic-bezier(.5,0,.75,0)),
+    opacity 160ms var(--m-ease-in, cubic-bezier(.5,0,.75,0));
+}
+.ccc-ov.is-closing:not(.is-in) .ccc-ov__panel { transform: scale(.985); }
 
 @media (max-width: 720px), (max-height: 500px) and (orientation: landscape) {
-  .ccc-ov__panel { width: 100vw; height: 100svh; border-radius: 0; }
+  .ccc-ov__panel { width: 100vw; height: var(--ccc-ov-vh, 100svh); border-radius: 0; }
 }
 
 /* IMMERSIVE — the arcade asks for this while a game is running (§6b). The
@@ -422,7 +585,8 @@ body.ccc-locked {
   color: var(--ccc-ov-dim, rgba(242,239,233,.62));
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-@media (max-width: 640px) { .ccc-ov__blurb { display: none; } }
+/* v29: the blurb is .ccc-sr (see buildUI) — never display:none, which would
+   drop it from the accessibility tree on a phone. */
 
 .ccc-ov__actions { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
 
@@ -458,52 +622,106 @@ body.ccc-locked {
    28px close button whose hit area is widened invisibly, so it stays easy to
    tap even though it draws small. Scoped to the bar: the fallback card's
    buttons keep their full size. */
-.ccc-ov__bar { padding: 2px 6px 2px clamp(10px, 1.6vw, 16px); gap: 10px; min-height: 32px; }
+.ccc-ov__bar { padding: 2px 8px 2px clamp(10px, 1.6vw, 16px); gap: 10px; min-height: 32px; }
 .ccc-ov__id { display: flex; align-items: baseline; gap: 10px; }
 .ccc-ov__title { flex: 0 1 auto; font-size: 13.5px; line-height: 1.15; }
 .ccc-ov__blurb { flex: 1 1 0; min-width: 0; margin: 0; font-size: 11.5px; line-height: 1.15; }
 .ccc-ov__bar .ccc-ov__btn { min-height: 28px; position: relative; }
-.ccc-ov__bar .ccc-ov__btn--icon { width: 28px; font-size: 11px; }
-.ccc-ov__bar .ccc-ov__btn--icon::after { content: ""; position: absolute; inset: -8px -6px; }
-.ccc-ov__bar .ccc-ov__btn:focus-visible { outline-offset: 0; }
+.ccc-ov__bar .ccc-ov__btn--icon,
+.ccc-ov__bar .ccc-ov__btn--find { width: 28px; padding: 0; font-size: 11px; }
+.ccc-ov__bar .ccc-ov__btn--icon::after,
+.ccc-ov__bar .ccc-ov__btn--find::after { content: ""; position: absolute; inset: -9px; }
+/* v29 fix round (G2 n2): TRULY 44 TALL. The centred -9px area reached above
+   the bar's top edge, where the panel's clip (or the top of a phone's screen)
+   cut it to ~38px. It now starts at the bar's top edge and hangs DOWN past
+   the slim bar, over the top of the stage: 48px tall, 44px wide, for a 28px
+   drawn button in a 33px bar (Jeff's slim header keeps its height). The bar
+   sits above the stage (z-index 1), so the strip under each button is the
+   button's; the rest of the tool's top edge is untouched. */
+.ccc-ov__bar .ccc-ov__btn--icon::after,
+.ccc-ov__bar .ccc-ov__btn--find::after { top: -5px; bottom: auto; height: 50px; }
+
+/* v29 TITLE BAR (design audit P2-10, P1-7, §3.4).
+   · Title in the UI face, Archivo 13/600 (13.5px Bodoni read thin here).
+   · The blurb is not drawn (no descriptions under titles, as elsewhere); it
+     stays as the dialog's aria-describedby.
+   · Find and ✕ draw at 28px with 44px-wide hit areas (::after at -9px: it
+     sits on the 26px padding box), 16px apart so the areas meet exactly; the
+     bar sits over the stage so the lower edge of an area is not under the
+     frame. Height: see the fix-round rule above (the area hangs down from the
+     bar's top edge). Measured with elementFromPoint.
+   · The focus ring is drawn inward (the panel's clipped corner cut it off).
+   · Bar contents fade in 120 ms after the panel starts to grow (M7). */
+.ccc-ov__bar { position: relative; z-index: 1; }
+.ccc-ov__title {
+  font-family: var(--ccc-font-ui, var(--font-text, system-ui, -apple-system, "Segoe UI", sans-serif));
+  font-size: 13px; font-weight: 600; letter-spacing: .01em; line-height: 1.2;
+}
+.ccc-ov__bar .ccc-ov__actions { gap: 16px; }
+/* theme.css gives every :focus-visible a 6px brass halo (box-shadow) outside
+   the box; that halo is what the panel's corner sliced off. Inside the bar the
+   ring is drawn inward instead, same brass, and the halo is dropped. */
+.ccc-ov__bar .ccc-ov__btn:focus-visible {
+  outline: 2px solid var(--ccc-focus, #e8b45a); outline-offset: -2px;
+  box-shadow: none; border-radius: 999px;
+}
+.ccc-ov__btn--find svg { display: block; width: 14px; height: 14px; }
+.ccc-ov__bar > * {
+  opacity: 0;
+  transition: opacity 160ms var(--m-ease-out, cubic-bezier(.22,.61,.24,1)) 120ms;
+}
+.ccc-ov.is-in .ccc-ov__bar > *,
+.ccc-ov.is-closing .ccc-ov__bar > * { opacity: 1; }
+.ccc-ov.is-closing .ccc-ov__bar > * { transition: none; }
 
 /* --- stage (frame / skeleton / fallback share one box) --------------------- */
-.ccc-ov__stage { position: relative; background: var(--ccc-ov-stage, #f7f5f1); overflow: hidden; }
+/* v29: THE STAGE IS DARK, THE FRAME CARRIES THE PAPER. A cream stage and
+   skeleton flashed a bright panel on every open (design audit P1-7). The paper
+   (--ccc-ov-stage) is now the frame's own background, invisible until the
+   frame is revealed, so a tool with no background of its own still sits on
+   paper and nothing light shows before the tool does. */
+.ccc-ov__stage { position: relative; background: var(--ccc-ov-panel, #101012); overflow: hidden; }
 
 .ccc-ov__frame {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
   border: 0; display: block;
-  background: transparent;
+  background: var(--ccc-ov-stage, #f7f5f1);
   opacity: 0;
-  transition: opacity .4s var(--ccc-ov-ease);
+  transition: opacity 240ms var(--m-ease-out, cubic-bezier(.22,.61,.24,1));
 }
 .ccc-ov__frame.is-shown { opacity: 1; }
+.ccc-ov.is-immersive .ccc-ov__frame { background: #000; }
 
-/* --- loading skeleton: a plausible dashboard, gently shimmering ------------ */
+/* --- loading skeleton: a plausible dashboard, dark, gently shimmering -------
+   Hidden by default and only put up if the tool has not drawn after
+   SKEL_DELAY_MS (350 ms), so a quick or cached tool never flashes it; it fades
+   in over 200 ms when it does come. */
 .ccc-ov__skel {
   position: absolute; inset: 0;
   padding: clamp(16px, 3vw, 34px);
   display: grid; gap: clamp(12px, 1.6vw, 20px);
   grid-template-rows: auto auto 1fr;
-  background: var(--ccc-ov-stage, #f7f5f1);
+  background: var(--ccc-ov-panel, #101012);
   overflow: hidden;
+  animation: ccc-skel-in 200ms var(--m-ease-out, cubic-bezier(.22,.61,.24,1)) both;
 }
 .ccc-ov__skel[hidden] { display: none; }
 .ccc-ov__skel::after {
   content: ""; position: absolute; inset: 0;
-  background: linear-gradient(100deg, transparent 25%, rgba(255,255,255,.85) 50%, transparent 75%);
+  background: linear-gradient(100deg, transparent 25%, rgba(255,255,255,.045) 50%, transparent 75%);
   transform: translate3d(-60%,0,0);
   animation: ccc-shimmer 1.5s linear infinite;
   pointer-events: none;
 }
 @keyframes ccc-shimmer { to { transform: translate3d(60%,0,0); } }
+@keyframes ccc-skel-in { from { opacity: 0; } }
 
-.ccc-sk { background: rgba(20,22,26,.075); border-radius: 8px; }
+.ccc-sk { background: rgba(255,255,255,.06); border-radius: 8px; }
 .ccc-sk--title { height: clamp(20px, 2.4vw, 28px); width: min(340px, 52%); }
 .ccc-sk--tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: clamp(10px, 1.4vw, 16px); background: none; }
-.ccc-sk--tile { height: clamp(74px, 9vw, 104px); border-radius: 12px; background: rgba(20,22,26,.06); }
-.ccc-sk--body { border-radius: 14px; background: rgba(20,22,26,.05); }
+.ccc-sk--tile { height: clamp(74px, 9vw, 104px); border-radius: 12px; background: rgba(255,255,255,.05); }
+.ccc-sk--body { border-radius: 14px; background: rgba(255,255,255,.035); }
 
 /* --- fallback card: the un-frameable path --------------------------------- */
 .ccc-ov__fallback {
@@ -558,10 +776,38 @@ body.ccc-locked {
 .ccc-ov__note-text { max-width: 60ch; }
 .ccc-ov__btn--sm { padding: 6px 12px; font-size: 12px; min-height: 0; }
 
+/* --- motion tiers (contract C5; design audit §5.2, M7 fallbacks) ------------
+   lite: opacity only, 160 ms, no shimmer. off (and prefers-reduced-motion): no
+   transitions at all. The lock/unlock ORDER in teardown() is the same in every
+   tier; only the fades change. */
+html[data-motion="lite"] .ccc-ov__scrim,
+html[data-motion="lite"] .ccc-ov__panel,
+html[data-motion="lite"] .ccc-ov.is-closing .ccc-ov__scrim,
+html[data-motion="lite"] .ccc-ov.is-closing .ccc-ov__panel {
+  transition: opacity 160ms var(--m-ease-out, cubic-bezier(.22,.61,.24,1));
+}
+html[data-motion="lite"] .ccc-ov__panel,
+html[data-motion="lite"] .ccc-ov.is-closing:not(.is-in) .ccc-ov__panel { transform: none; }
+html[data-motion="lite"] .ccc-ov__bar > * { transition: none; opacity: 1; }
+html[data-motion="lite"] .ccc-ov__frame { transition-duration: 160ms; }
+html[data-motion="lite"] .ccc-ov__skel,
+html[data-motion="lite"] .ccc-ov__skel::after { animation: none; }
+
+html[data-motion="off"] .ccc-ov__scrim,
+html[data-motion="off"] .ccc-ov__panel,
+html[data-motion="off"] .ccc-ov__frame,
+html[data-motion="off"] .ccc-ov__bar > * { transition: none !important; }
+html[data-motion="off"] .ccc-ov__panel,
+html[data-motion="off"] .ccc-ov.is-closing:not(.is-in) .ccc-ov__panel { transform: none; }
+html[data-motion="off"] .ccc-ov__bar > * { opacity: 1; }
+html[data-motion="off"] .ccc-ov__skel,
+html[data-motion="off"] .ccc-ov__skel::after { animation: none; }
+
 @media (prefers-reduced-motion: reduce) {
-  .ccc-ov, .ccc-ov__panel, .ccc-ov__frame { transition: none; }
-  .ccc-ov__skel::after { animation: none; }
-  .ccc-ov__panel { transform: none; }
+  .ccc-ov__scrim, .ccc-ov__panel, .ccc-ov__frame, .ccc-ov__bar > * { transition: none !important; }
+  .ccc-ov__panel, .ccc-ov.is-closing:not(.is-in) .ccc-ov__panel { transform: none; }
+  .ccc-ov__bar > * { opacity: 1; }
+  .ccc-ov__skel, .ccc-ov__skel::after { animation: none; }
 }
 `;
 
@@ -583,7 +829,8 @@ function lockScroll() {
   if (state.locked) return;
   state.scrollY = window.scrollY || window.pageYOffset || 0;
   document.documentElement.classList.add('ccc-locked');
-  document.body.classList.add('ccc-locked');
+  document.body.classList.add('ccc-locked');       // read by engine/screens/motion/find
+  document.body.setAttribute('data-ccc-lock', ''); // the geometry (see STYLES)
   document.body.style.top = `-${state.scrollY}px`;
   state.locked = true;
 }
@@ -591,12 +838,20 @@ function lockScroll() {
 function unlockScroll() {
   if (!state.locked) return;
   document.body.classList.remove('ccc-locked');
+  document.body.removeAttribute('data-ccc-lock');
   document.body.style.top = '';
   // Restore synchronously, before the browser paints, and without smoothing.
-  const prev = document.documentElement.style.scrollBehavior;
-  document.documentElement.style.scrollBehavior = 'auto';
-  window.scrollTo(0, state.scrollY);
-  document.documentElement.style.scrollBehavior = prev;
+  // behavior 'instant' overrides any CSS scroll-behavior WITHOUT writing a
+  // style on <html> (the old save/set/restore of html.style.scrollBehavior
+  // restyled the whole document twice per close — G1 D8). Only where CSS
+  // scroll-behavior exists at all: an engine without it has no smooth scroll
+  // to defeat, and an old one might read an options object as scrollTo(0, 0).
+  if ('scrollBehavior' in document.documentElement.style) {
+    try { window.scrollTo({ top: state.scrollY, left: 0, behavior: 'instant' }); }
+    catch { window.scrollTo(0, state.scrollY); }
+  } else {
+    window.scrollTo(0, state.scrollY);
+  }
   document.documentElement.classList.remove('ccc-locked');
   state.locked = false;
 }
@@ -642,25 +897,103 @@ function trapFocus(ev) {
        cross-origin frame the browser parks focus on <body>, and the next Tab
        from there went back INTO the frame (measured: ✕ → frame → body → frame).
        The close button is the honest landing place after the frame — it is
-       first in DOM order and it is the way out. Now: ✕ → frame → body → ✕. */
-    ev.preventDefault(); first.focus();
+       first in DOM order and it is the way out. Now: ✕ → frame → body → ✕.
+       v29: Find sits before ✕ now, so the landing place is named rather than
+       taken as `first`. */
+    ev.preventDefault();
+    const home = items.includes(state.ui.closeBtn) ? state.ui.closeBtn : first;
+    home.focus();
   }
 }
 
 /** Hide the rest of the page from assistive tech (and, where supported, from
- *  interaction) while the dialog is up. */
+ *  interaction) while the dialog is up.
+ *
+ *  v29 — THE P0 FREEZE LIVED HERE (perf audit §3.1). Every call used to
+ *  snapshot each node's CURRENT inert as "the state to restore"; a reopen
+ *  inside the old close window snapshotted the viewer's own inert, and the
+ *  next close restored inert=true on eleven body children — a page that
+ *  scrolls and ignores every tap until a reload (race_probe: 3 of 6 probes on
+ *  the base build, 0 now). Now: one flag, snapshot only on false→true, restore
+ *  only on true→false; only nodes marked data-ccc-inerted are restored; body
+ *  children with [data-ccc-keep-live] (the Find palette, C4) are skipped. */
 function setBackgroundInert(on) {
+  on = !!on;
+  if (on === state.inert) return;
+  state.inert = on;
+  if (on && state.ui) liveRoot(state.ui);
   for (const node of Array.from(document.body.children)) {
     if (state.ui && node === state.ui.root) continue;
     if (on) {
+      if (node.hasAttribute('data-ccc-keep-live')) continue;
+      /* ALREADY INERT = SOMEONE ELSE'S (v29 fix round, G1 D2). A chef portrait
+         (chefwall.js) or the C³ panel (cinema.js) inerts every other body
+         child while it is up and releases exactly what it inerted when it
+         closes. Snapshotting their inert=true as "the state to restore" put it
+         back AFTER they had released it — a tool that arrived by Forward over
+         a portrait left eleven body children inert until a reload. Their
+         nodes stay theirs; this module restores only what it changed. */
+      if (node.inert === true) continue;
+      node.dataset.cccInerted = '1';
       if (node.hasAttribute('aria-hidden')) node.dataset.cccPrevAria = node.getAttribute('aria-hidden');
       node.setAttribute('aria-hidden', 'true');
       if ('inert' in node) { node.dataset.cccPrevInert = node.inert ? '1' : '0'; node.inert = true; }
     } else {
-      if ('cccPrevAria' in node.dataset) { node.setAttribute('aria-hidden', node.dataset.cccPrevAria); delete node.dataset.cccPrevAria; }
-      else node.removeAttribute('aria-hidden');
-      if ('inert' in node && 'cccPrevInert' in node.dataset) { node.inert = node.dataset.cccPrevInert === '1'; delete node.dataset.cccPrevInert; }
+      restoreInertNode(node);
     }
+  }
+}
+
+/** THE VIEWER'S OWN ROOT IS NEVER INERT (v29 fix round, G1 D2). A modal that
+ *  was up when the tool arrived (a chef portrait, the C³ panel) inerted every
+ *  other body child, this one included, and inert on the root makes ✕ — and
+ *  every tap on the viewer — fall through to <body>. Whoever inerted it still
+ *  releases it later (setting false on a live node is harmless). */
+function liveRoot(ui) {
+  if (!ui || !ui.root) return;
+  if (ui.root.inert) ui.root.inert = false;
+  if (ui.root.getAttribute('aria-hidden') === 'true') ui.root.removeAttribute('aria-hidden');
+}
+
+function restoreInertNode(node) {
+  if (!node.dataset || !('cccInerted' in node.dataset)) return;
+  delete node.dataset.cccInerted;
+  if ('cccPrevAria' in node.dataset) { node.setAttribute('aria-hidden', node.dataset.cccPrevAria); delete node.dataset.cccPrevAria; }
+  else node.removeAttribute('aria-hidden');
+  if ('inert' in node) {
+    node.inert = 'cccPrevInert' in node.dataset ? node.dataset.cccPrevInert === '1' : false;
+    delete node.dataset.cccPrevInert;
+  }
+}
+
+/** Contract C1: `html.is-viewing` is on for as long as the viewer owns the
+ *  page — added with the lock, removed after the unlock and scroll restore.
+ *  The engine parks and the screens drop their boards on it; the rule in
+ *  STYLES pauses every animation behind the viewer on it. */
+function setViewing(on) {
+  on = !!on;
+  if (on === state.viewing) return;
+  state.viewing = on;
+  document.documentElement.classList.toggle('is-viewing', on);
+}
+
+/**
+ * THE PAGE MUST NEVER BE LEFT INERT WITH NO VIEWER ON IT. Belt and braces
+ * on pageshow (bfcache) and visibilitychange (throttled timers). It only undoes
+ * what this module did (data-ccc-inerted), so it cannot fight the chef wall's
+ * own modal.
+ */
+function selfHeal() {
+  if (state.phase === 'closing') { finishClose(state.gen); return; }
+  if (state.phase !== 'closed') return;
+  if (state.inert) setBackgroundInert(false);
+  for (const node of Array.from(document.body.children)) restoreInertNode(node);
+  if (state.locked) unlockScroll();
+  setViewing(false);
+  document.documentElement.classList.remove('is-viewing');
+  if (state.ui && !state.ui.root.hidden) {
+    state.ui.root.hidden = true;
+    state.ui.root.classList.remove('is-in', 'is-closing', 'is-immersive');
   }
 }
 
@@ -672,28 +1005,43 @@ function buildUI() {
   if (state.ui) return state.ui;
 
   const title = el('h2', { class: 'ccc-ov__title', id: 'ccc-ov-title' });
-  const blurb = el('p', { class: 'ccc-ov__blurb', id: 'ccc-ov-blurb' });
+  // v29: not drawn (ccc-sr), still the dialog's aria-describedby. P2-10.
+  const blurb = el('p', { class: 'ccc-ov__blurb ccc-sr', id: 'ccc-ov-blurb' });
 
   /* The chrome bar used to carry an always-visible "Open in new tab" beside
      the close button, on the argument that a rep should never have to reach a
      failure state to get a real link. The client has since asked for the
-     opposite: no way out of the viewer that shows where a tool is hosted. The
-     close button is the bar's only control now, which also makes it the first
-     AND last tabbable thing before the frame — Shift+Tab out of a cross-origin
-     frame still lands on it (see trapFocus()). */
+     opposite: no way out of the viewer that shows where a tool is hosted.
+     v29: the bar carries Find (left) and ✕ (right), both before the frame in
+     DOM order, so Shift+Tab out of a cross-origin frame still lands on ✕, and
+     trapFocus() sends a forward Tab past the frame back to ✕ as well. */
   const closeBtn = el('button', {
-    class: 'ccc-ov__btn ccc-ov__btn--icon',
+    class: 'ccc-ov__btn ccc-ov__btn--icon ccc-ov__btn--close',
     type: 'button',
     'aria-label': 'Close tool and return to the restaurant',
     html: '<span aria-hidden="true">✕</span>'
   });
 
+  /* v29 Find (design audit §3.4, contract C4): the viewer covers the top bar
+     and a framed tool swallows keys, so this button is the way to the palette
+     while a tool is open. It only announces; find.js owns the palette, and a
+     choice there is a [data-tool] click that reaches openTool() as a swap. */
+  // Deliberately NOT .ccc-ov__btn--icon: `.ccc-ov__bar .ccc-ov__btn--icon`
+  // has meant "the ✕" to every test script and harness since v3, and Find sits
+  // before it in DOM order. It is styled to match below.
+  const findBtn = el('button', {
+    class: 'ccc-ov__btn ccc-ov__btn--find',
+    type: 'button',
+    'aria-label': 'Find another tool',
+    html: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>'
+  });
+
   const bar = el('header', { class: 'ccc-ov__bar' }, [
     el('div', { class: 'ccc-ov__id' }, [title, blurb]),
-    el('div', { class: 'ccc-ov__actions' }, [closeBtn])
+    el('div', { class: 'ccc-ov__actions' }, [findBtn, closeBtn])
   ]);
 
-  const skel = el('div', { class: 'ccc-ov__skel', 'aria-hidden': 'true' }, [
+  const skel = el('div', { class: 'ccc-ov__skel', 'aria-hidden': 'true', hidden: true }, [
     el('div', { class: 'ccc-sk ccc-sk--title' }),
     el('div', { class: 'ccc-sk--tiles' }, [
       el('div', { class: 'ccc-sk--tile' }), el('div', { class: 'ccc-sk--tile' }),
@@ -759,6 +1107,10 @@ function buildUI() {
 
   // --- wiring ---------------------------------------------------------------
   closeBtn.addEventListener('click', () => closeTool());
+  findBtn.addEventListener('click', () => {
+    try { document.dispatchEvent(new CustomEvent('ccc:find-open', { detail: { source: 'viewer' } })); }
+    catch { /* CustomEvent unavailable: nothing to open */ }
+  });
   fbBack.addEventListener('click', () => closeTool());
   fbRetry.addEventListener('click', () => {
     const tool = getTool(state.activeSlug);
@@ -790,7 +1142,7 @@ function buildUI() {
   });
 
   state.ui = {
-    root, panel, title, blurb, closeBtn,
+    root, panel, title, blurb, closeBtn, findBtn, bar,
     stage, frame, skel, fallback, status,
     fbTitle, fbCopy, fbWait, fbGo, fbRetry, fbBack,
     note, noteText, noteAct
@@ -807,12 +1159,17 @@ function ui_status(text) {
  * 6. Frame loading + failure detection
  * -------------------------------------------------------------------------- */
 
-/** Mint a viewer iframe. Fresh elements are how we stay out of history. */
+/** Mint a viewer iframe. Fresh elements are how we stay out of history.
+ *
+ *  v29 `allow` (links audit #2): BLUFOX OVERDRIVE steers by tilt and, opened
+ *  outside the arcade cabinet, logged "accelerometer is not allowed in this
+ *  document". Motion sensors, autoplay and gamepad join the original three;
+ *  the browser's own permission prompts still apply. */
 function makeStageFrame() {
   return el('iframe', {
     class: 'ccc-ov__frame',
     title: 'Tool',
-    allow: 'clipboard-write; fullscreen; geolocation',
+    allow: 'clipboard-write; fullscreen; geolocation; accelerometer; gyroscope; magnetometer; autoplay; gamepad',
     referrerpolicy: 'no-referrer-when-downgrade'
   });
 }
@@ -869,6 +1226,7 @@ function blankStageFrame(ui) {
 function clearFrameTimer() {
   if (state.frameTimer) { clearTimeout(state.frameTimer); state.frameTimer = 0; }
   if (state.slowTimer) { clearTimeout(state.slowTimer); state.slowTimer = 0; }
+  if (state.skelTimer) { clearTimeout(state.skelTimer); state.skelTimer = 0; }
 }
 
 /* -----------------------------------------------------------------------------
@@ -919,6 +1277,34 @@ function onFrameMessage(event) {
   const d = event.data;
   if (!d || typeof d !== 'object') return;
 
+  /* v29 (O-3, contract C6): A TOOL SAYING IT HAS DRAWN — {source:'ccc-tool',
+     state:'painted'}, or the DSR's board handshake {source:'ccc-board', state:
+     loading|ready|error}. Same identity rule; all it can do is reveal the frame
+     that is showing (revealCurrent is re-bound per navigation). `load` waits for
+     every font and CDN script: 6th Gen usable 2.8 s / shown 5.3 s, DSR drawn
+     5.8 s / shown 18.7 s (iPad profile, tools audit). */
+  if ((d.source === 'ccc-tool' || d.source === 'ccc-board') &&
+      (d.state === 'painted' || d.state === 'loading' || d.state === 'ready' || d.state === 'error')) {
+    const rc = state.revealCurrent;
+    if (rc && rc.frame === ui.frame) rc.reveal('message');
+    return;
+  }
+
+  /* v29: KEYS THE FRAME SWALLOWED. With focus inside a cross-origin tool no
+     key reaches this page — the iPad "Escape did nothing" report (links audit
+     #13). A tool or station page may hand them back (opt-in, identity-checked):
+     {source:'ccc-tool'|'ccc-station', action:'escape'} closes the viewer,
+     action:'find' opens the Find palette — no more than ✕ and Find can do. */
+  if ((d.source === 'ccc-tool' || d.source === 'ccc-station') &&
+      (d.action === 'escape' || d.action === 'find')) {
+    if (d.action === 'escape') closeTool();
+    else {
+      try { document.dispatchEvent(new CustomEvent('ccc:find-open', { detail: { source: 'frame' } })); }
+      catch { /* CustomEvent unavailable */ }
+    }
+    return;
+  }
+
   // IMMERSIVE (v28): a game is running inside the arcade and wants the whole
   // screen. Same identity check as above; the only effect is a class on this
   // viewer, which setImmersive(false) undoes on any frame swap or close, so a
@@ -930,12 +1316,14 @@ function onFrameMessage(event) {
 
   if (d.source !== 'ccc-arcade' || d.action !== 'open-tool') return;
 
-  const slug = typeof d.slug === 'string' ? d.slug : '';
+  const asked = typeof d.slug === 'string' ? d.slug : '';
   // Shape first (the same character class HASH_RE accepts), then existence.
-  if (!/^[A-Za-z0-9_-]+$/.test(slug) || !getTool(slug)) {
-    console.warn(`[overlay] arcade asked for an unknown tool "${slug}"; ignored.`);
+  const known = /^[A-Za-z0-9_-]+$/.test(asked) ? getTool(asked) : null;
+  if (!known) {
+    console.warn(`[overlay] arcade asked for an unknown tool "${asked}"; ignored.`);
     return;
   }
+  const slug = known.slug;
 
   // Acknowledge BEFORE opening: openTool() replaces the frame element, and a
   // message posted to a WindowProxy that has just been discarded goes nowhere.
@@ -987,6 +1375,12 @@ function hideNote() {
 function keepWaiting(tool) {
   const ui = state.ui;
   if (!ui) return;
+  /* v29: the card can go up over a frame that has ALREADY loaded or drawn (a
+     probe verdict of `unreachable` after the fact). Waiting for a `load` that
+     has been and gone left the skeleton up for ever; show the frame. */
+  const rc = state.revealCurrent;
+  if (rc && rc.frame === ui.frame && rc.arrived()) { rc.reveal('wait'); return; }
+  if (state.skelTimer) { clearTimeout(state.skelTimer); state.skelTimer = 0; }
   ui.fallback.hidden = true;
   ui.skel.hidden = false;
   showNote(`Still loading ${tool.label}. It will appear here as soon as it lands.`, tool,
@@ -1109,15 +1503,24 @@ function showFallback(tool, reason, opts = {}) {
 }
 
 /**
- * Point the iframe at a tool, ask the server whether the tool is really there,
- * and keep the rep informed about which of those two is taking the time.
+ * Point the iframe at a tool, decide when to show it, and keep the rep
+ * informed about what is taking the time.
  *
- * THE ORDER MATTERS. The frame is navigated FIRST and the preflight goes out
- * beside it, not before it: a working tool must not pay a round trip for the
- * benefit of a broken one. The preflight then either overrules the frame (the
- * server said 404 / nothing answered — card, now, no six-second stare) or
- * confirms it (2xx — the document exists, so anything slow after that is size
- * or network, and is reported as progress rather than as failure).
+ * v29 — WHEN THE FRAME IS SHOWN (O-3): on the tool's "painted" message or on
+ * `load` (+120 ms), whichever comes first. The skeleton only goes up if neither
+ * has happened after SKEL_DELAY_MS, so a quick tool never flashes it.
+ *
+ * v29 — WHEN THE SERVER IS ASKED (O-7). preflight() went out beside every
+ * frame, and its GET-and-cancel only cancels when this thread gets to it: the
+ * netlog showed 72, 70 and 452 KB of the 6th Gen sheet's 547 KB read twice per
+ * open. It now goes out only when there is something to decide:
+ *   (a) `load` in under PROBE_FAST_LOAD_MS from a frame that has not said it
+ *       painted — the shape of every failure in preflight.js's table (8-23 ms).
+ *       The reveal waits for the verdict, at most PROBE_HOLD_MS;
+ *   (b) nothing at all by SLOW_NOTE_MS — the hang case.
+ * A tool that paints, or loads at a normal pace, is never fetched twice. Every
+ * verdict is still reached (tested with page.route: 404 ±CORS, 500, empty 200,
+ * refused, hang), and gone/empty still overrule a frame already shown.
  */
 function showFrame(tool, { force = false } = {}) {
   const ui = state.ui;
@@ -1126,8 +1529,9 @@ function showFrame(tool, { force = false } = {}) {
   ui.fallback.hidden = true;
   hideNote();
   ui.frame.classList.remove('is-shown');
-  ui.skel.hidden = false;
+  ui.skel.hidden = true;                        // up after SKEL_DELAY_MS, if still needed
   ui.status.textContent = `Loading ${tool.label}…`;
+  state.revealCurrent = null;
 
   // Known refusers: skip the spinner entirely and go straight to the card.
   // Nothing routes here today except SharePoint/Microsoft hosts — none of which
@@ -1141,43 +1545,72 @@ function showFrame(tool, { force = false } = {}) {
     return;
   }
 
-  let settled = false;          // a verdict has been reached and announced
+  let settled = false;          // shown, or a card is up: no more clocks
   let confirmed = null;         // preflight's verdict, once it lands
   let preflightLength = -1;     // Content-Length the server reported, or -1
+  let spoke = false;            // the tool itself said it has drawn (C6)
+  let loadedAt = 0;             // when `load` fired, 0 until it has
+  let probing = false;          // a preflight is out (never more than one)
+  let holding = false;          // `load` was fast: the reveal waits for a verdict
+
+  /* The reveal, from `load`, from the tool's own message, from a probe verdict
+     that cleared a fast load, or from "Keep waiting" over a frame that has
+     already arrived. Idempotent: a second call over a frame that is already up
+     with no card on it does nothing. */
+  const reveal = (why) => {
+    if (frame !== ui.frame) return;                // superseded by a newer open
+    if (frame.classList.contains('is-shown') && ui.fallback.hidden) return;
+    if (why === 'message') spoke = true;
+    // SAME-ORIGIN ONLY. See looksBlocked(): for a cross-origin URL this
+    // cannot tell success from any failure, so it is not consulted there. A
+    // frame that has posted a message is a live document by definition.
+    if (!spoke && looksBlocked(frame, tool.url)) {
+      settled = true;
+      showFallback(tool, `${tool.label} refused to load inside the site.`);
+      return;
+    }
+    settled = true;
+    holding = false;
+    clearFrameTimer();
+    hideNote();
+    ui.skel.hidden = true;
+    /* A late arrival lifts the card — which can pull the focused element out
+       from under the keyboard, because showFallback(keepFrame) may have put
+       focus on the card's "Keep waiting". Hand it to the close button
+       before hiding, so Tab does not restart from the top of the page. */
+    if (!ui.fallback.hidden && ui.fallback.contains(document.activeElement)) {
+      try { ui.closeBtn.focus({ preventScroll: true }); } catch { ui.closeBtn.focus(); }
+    }
+    ui.fallback.hidden = true;
+    frame.classList.add('is-shown');
+    /* WHAT WE ARE ALLOWED TO CLAIM. "loaded" is only honest when the tool
+       spoke, the server told us the document is there, or the document is our
+       own. A slow `load` with no probe is very probably the tool (the failure
+       shapes fire in milliseconds), but all we KNOW is that it is open. */
+    ui.status.textContent = (spoke || confirmed === 'ok' || !isCrossOrigin(tool.url))
+      ? `${tool.label} loaded.`
+      : (confirmed === null
+        ? `${tool.label} is open.`
+        : `${tool.label} is open in the viewer. If it looks empty, close it and open it again.`);
+    maybeWarnRefused();
+  };
 
   const onLoad = () => {
     // Give a blocked-frame error document a tick to settle before probing.
     setTimeout(() => {
-      if (frame !== ui.frame) return;              // superseded by a newer open
-      // SAME-ORIGIN ONLY. See looksBlocked(): for a cross-origin URL this
-      // cannot tell success from any failure, so it is not consulted there.
-      if (looksBlocked(frame, tool.url)) {
-        settled = true;
-        showFallback(tool, `${tool.label} refused to load inside the site.`);
+      if (frame !== ui.frame) return;
+      loadedAt = Date.now();
+      if (spoke || (frame.classList.contains('is-shown') && ui.fallback.hidden)) return;
+      // O-7 (a): a fast `load` from a frame that has not said a word is the
+      // shape every failure in preflight.js's table takes. Ask before showing.
+      if (!probing && confirmed === null && loadedAt - startedAt < PROBE_FAST_LOAD_MS) {
+        holding = true;
+        runPreflight();
+        window.setTimeout(() => { if (holding) reveal('load'); }, PROBE_HOLD_MS);
         return;
       }
-      settled = true;
-      clearFrameTimer();
-      hideNote();
-      ui.skel.hidden = true;
-      /* A late arrival lifts the card — which can pull the focused element out
-         from under the keyboard, because showFallback(keepFrame) may have put
-         focus on the card's "Keep waiting". Hand it to the close button
-         before hiding, so Tab does not restart from the top of the page. */
-      if (!ui.fallback.hidden && ui.fallback.contains(document.activeElement)) {
-        try { ui.closeBtn.focus({ preventScroll: true }); } catch { ui.closeBtn.focus(); }
-      }
-      ui.fallback.hidden = true;
-      frame.classList.add('is-shown');
-      /* WHAT WE ARE ALLOWED TO CLAIM. "loaded" is only honest when the server
-         told us the document is there. With a 2xx in hand it is; without one
-         (an origin that sends no CORS header, a browser with no fetch) all we
-         know is that the frame fired `load`, and the old unconditional
-         "<tool> loaded." over a grey void is precisely the defect. */
-      ui.status.textContent = (confirmed === 'ok' || !isCrossOrigin(tool.url))
-        ? `${tool.label} loaded.`
-        : `${tool.label} is open in the viewer. If it looks empty, close it and open it again.`;
-      maybeWarnRefused();
+      if (holding) return;                         // the verdict will reveal it
+      reveal('load');
     }, 120);
   };
 
@@ -1197,6 +1630,9 @@ function showFrame(tool, { force = false } = {}) {
    * fifth of a second, because the frame's URL carries a fresh `_ccc` stamp and
    * therefore CANNOT have come out of the HTTP cache. When that happens,
    * nothing was downloaded — the browser committed an error page instead.
+   * (v29: measured against when `load` fired, not against when the verdict
+   * came back, now that the probe goes out after `load` rather than beside
+   * the frame. A frame that loads that fast is always probed — O-7 (a).)
    *
    * Thresholds are deliberately far outside anything a real load reaches:
    * 500 KB in 200 ms is 2.5 MB/s sustained, which no store connection does.
@@ -1207,10 +1643,12 @@ function showFrame(tool, { force = false } = {}) {
    * lives, sends no X-Frame-Options at all (curl-verified across all 24).
    */
   function maybeWarnRefused() {
+    if (spoke) return;                              // it drew: it was not refused
     if (!isCrossOrigin(tool.url)) return;
     if (confirmed !== 'ok') return;                 // no Content-Length to reason from
     if (!(preflightLength >= 500 * 1024)) return;
-    if (Date.now() - startedAt > 200) return;
+    if (!loadedAt || loadedAt - startedAt > 200) return;
+    if (!frame.classList.contains('is-shown') || !ui.fallback.hidden) return;
     showNote(
       `${tool.label} may not be allowed to show inside the site — if the panel below stays blank, close it and try again.`,
       tool,
@@ -1230,28 +1668,37 @@ function showFrame(tool, { force = false } = {}) {
   frame.title = `${tool.label} — live tool`;
   frame.onload = onLoad;
   frame.onerror = onError;
+  state.revealCurrent = { frame, reveal, arrived: () => spoke || loadedAt > 0 };
 
-  /* ── the preflight ────────────────────────────────────────────────────────
-     One HEAD request, in parallel with the frame. It is the only thing in the
-     build that can tell a tool that loaded from a tool that 404'd; the twelve
-     measured shapes and the curl evidence for the CORS headers are all in
-     preflight.js. A verdict of `gone` or `unreachable` is the server's own
-     answer, so it earns an immediate card and the dead frame is discarded. */
-  preflight(tool.url).then((v) => {
+  state.skelTimer = window.setTimeout(() => {
+    state.skelTimer = 0;
+    if (frame !== ui.frame || frame.classList.contains('is-shown') || !ui.fallback.hidden) return;
+    ui.skel.hidden = false;
+  }, SKEL_DELAY_MS);
+
+  /* ── the preflight, when there is something to decide ────────────────────
+     A verdict of `gone` or `empty` is the server's own answer, so it earns an
+     immediate card and the dead frame is discarded; see the two cases in the
+     header comment for when this runs at all. */
+  function runPreflight(timeoutMs) {
+    if (probing) return;
+    probing = true;
+    preflight(tool.url, timeoutMs ? { timeoutMs } : undefined).then(onVerdict);
+  }
+
+  function onVerdict(v) {
     if (frame !== ui.frame || state.activeSlug === null) return;   // superseded
     confirmed = v.verdict;
     preflightLength = v.length;
 
     /* A DEFINITE FAILURE OVERRULES A REVEALED FRAME, and it has to.
-       The failure shapes all fire `load` in 8-23 ms, which is faster than any
-       round trip, so by the time the status code comes back the frame has
-       usually already been faded in over a grey void. `settled` is not a veto
-       here: the server saying 404 outranks an iframe that cannot say anything.
-       (It cannot fight a WORKING tool: `gone` needs a real error status, or a
-       CORS refusal from a host verified to always send the header; and
-       `unreachable` needs BOTH probes refused at the network level.) */
+       `settled` is not a veto here: the server saying 404 outranks an iframe
+       that cannot say anything. (It cannot fight a WORKING tool: `gone` needs
+       a real error status, or a CORS refusal from a host verified to always
+       send the header; and `unreachable` needs BOTH probes refused at the
+       network level. And a tool that has posted "painted" is never probed.) */
     if (v.verdict === 'gone' || v.verdict === 'empty') {
-      settled = true;
+      settled = true; holding = false;
       showFallback(tool, preflightCopy(v, tool.label), {
         announce: `${tool.label} could not be opened: the server did not return the tool.`
       });
@@ -1267,13 +1714,21 @@ function showFrame(tool, { force = false } = {}) {
          close it out and reopen". So the card goes up (it is the right card:
          "check you are past the sign-in page") and the frame stays underneath
          it. If the network is really gone the frame never loads and the card
-         is the last word; if it was one dropped request, onLoad() lifts the
-         card off the tool when it lands. Nothing is lost either way. */
-      settled = true;
+         is the last word; if it was one dropped request, the frame lifts the
+         card off itself when it lands (or "Keep waiting" shows it, if it
+         already has). Nothing is lost either way. */
+      settled = true; holding = false;
       showFallback(tool, preflightCopy(v, tool.label), {
         keepFrame: true,
         announce: `${tool.label} could not be reached. Still trying behind this card.`
       });
+      return;
+    }
+
+    if (holding) {
+      // A fast `load` that the server has now vouched for (or could not rule
+      // on: `unknown`, `slow`): show it.
+      reveal('load');
       return;
     }
 
@@ -1288,36 +1743,40 @@ function showFrame(tool, { force = false } = {}) {
     }
 
     if (v.verdict === 'slow') {
-      /* Nothing answered inside preflight.js's PREFLIGHT_TIMEOUT_MS (8s), and
-         the frame has not fired either. That is a HANG, which is the one
-         failure the old six-second watchdog got right — so say so at eight
-         seconds rather than thirty, but KEEP the frame: a hung request can
-         still complete, and onLoad() lifts this card off it if it does. */
+      /* Nothing answered the probe either, and the frame has not fired. That
+         is a HANG, which is the one failure the old six-second watchdog got
+         right — so say so now rather than at thirty seconds, but KEEP the
+         frame: a hung request can still complete, and it lifts this card off
+         itself if it does. */
       showFallback(tool, `${tool.label} is not answering. It may be the network rather than the tool — if you are on store wifi, check you are past the sign-in page.`,
         { keepFrame: true,
           announce: `${tool.label} is not answering. Still trying behind this card.` });
     }
     // 'ok' and 'unknown': carry on. The frame is the one doing the work.
-  });
+  }
 
   /* ── the two clocks ───────────────────────────────────────────────────────
-     Neither is a verdict any more. The first says the document is big; the
-     second says it has been long enough that you deserve a choice. Both leave
-     the iframe alone, so nothing that is nearly finished is thrown away —
-     which is what firing the old 6s watchdog did. */
+     Neither is a verdict any more. The first says the document is still
+     coming (and, v29, sends the hang probe); the second says it has been long
+     enough that you deserve a choice. Both leave the iframe alone, so nothing
+     that is nearly finished is thrown away — which is what firing the old 6s
+     watchdog did. */
   state.slowTimer = window.setTimeout(() => {
     if (settled || frame !== ui.frame) return;
+    /* v29 (O-4): this used to tell every rep, whatever they had opened, that
+       "the 6th Gen quote sheet alone is 1.3 MB". It is about THIS tool now. */
     showNote(
-      `Still loading ${tool.label}. These sheets are large — the 6th Gen quote sheet alone is 1.3 MB, and on a store connection that is a real wait.`,
+      `Still loading ${tool.label}. On a store connection this can take a little while — it will appear here as soon as it is ready.`,
       tool
     );
-    ui.status.textContent = `${tool.label} is still loading. It is a large document.`;
+    ui.status.textContent = `${tool.label} is still loading.`;
+    runPreflight(HANG_PROBE_TIMEOUT_MS);          // O-7 (b)
   }, SLOW_NOTE_MS);
 
   state.frameTimer = window.setTimeout(() => {
     if (settled || frame !== ui.frame) return;
     showFallback(tool,
-      `${tool.label} is still coming down after ${Math.round(FRAME_TIMEOUT_MS / 1000)} seconds. It is a large document on a slow connection — it is still loading behind this card and will appear if it lands.`,
+      `${tool.label} is still coming down after ${Math.round(FRAME_TIMEOUT_MS / 1000)} seconds. It may be the connection — it is still loading behind this card and will appear if it lands.`,
       { keepFrame: true,
         announce: `${tool.label} is taking a long time. Still loading behind this card; you can keep waiting or start it again.` });
   }, FRAME_TIMEOUT_MS);
@@ -1339,7 +1798,7 @@ function hashSlug() {
 function refuseTool(slug, tool, { trigger = null, source = 'api' } = {}) {
   // A refused deep link must not leave #/tool/<slug> sitting in the address
   // bar claiming a tool is open. Strip it — but only if nothing else is open.
-  if (state.activeSlug === null && hashSlug() === slug) {
+  if (state.activeSlug === null && (hashSlug() || '').toLowerCase() === slug.toLowerCase()) {
     try { history.replaceState(null, '', location.pathname + location.search); } catch { /* noop */ }
   }
 
@@ -1360,9 +1819,8 @@ function refuseTool(slug, tool, { trigger = null, source = 'api' } = {}) {
 /**
  * Tell the rest of the page that the viewer has gone up or come down.
  *
- * WHY THE PAGE NEEDS TO KNOW. The scrim is 92–94% opaque with an 18px blur,
- * so nothing behind the viewer is visible — but everything behind it was
- * still RUNNING: on an iPad in the Dining Room that is two live iframes of the
+ * WHY THE PAGE NEEDS TO KNOW. The scrim is 92–94% opaque, so nothing behind
+ * the viewer is visible — but everything behind it was still RUNNING: on an iPad in the Dining Room that is two live iframes of the
  * Win-the-Weekend decks (5.6 MB and 5.0 MB of HTML, each cycling slides on a
  * 7 s timer) and, in the Break Room, a television parsing a 1.15 MB workbook.
  * All of it on the same HTTP/2 connection to the same host the tool is loading
@@ -1385,6 +1843,162 @@ function announceViewer(kind, slug, tool) {
   } catch { /* CustomEvent unavailable: the boards simply keep running */ }
 }
 
+/* -----------------------------------------------------------------------------
+ * 7a. The choreography (v29, design audit M7)
+ * -----------------------------------------------------------------------------
+ * OPEN.  The panel grows from the trigger's centre (360 ms; lite: 160 ms
+ *   opacity only; reduced motion: none) over a 240 ms scrim fade, with the page
+ *   NOT locked, so the room stays painted underneath. At the end of the fade,
+ *   viewer opaque, is-viewing + inert + lock go on in one task.
+ * CLOSE. The page first, while the viewer is still opaque: inert off, unlock +
+ *   scroll restore, is-viewing off, `ccc:viewer-close`, focus home. Two frames
+ *   for the room to redraw, then the 160 ms fade — into the room the rep came
+ *   from. (Before v29 the fade ran first and dissolved into black or the hero,
+ *   design audit P0-1.) Independent of the engine ignoring the lock's jump.
+ * SWAP.  Tool to tool: title cross-fade, skeleton between frames, no motion.
+ * REOPEN WHILE CLOSING: the fade reverses; lock/inert/is-viewing come back at
+ *   its end through the same one-edge flags (the case that used to freeze).
+ * -------------------------------------------------------------------------- */
+
+/** The trigger's centre in viewport px, or null (no trigger, off screen,
+ *  hidden) to grow from the panel's centre. Read before any write. */
+function triggerPoint(trigger) {
+  if (!trigger || !trigger.isConnected || typeof trigger.getBoundingClientRect !== 'function') return null;
+  const r = trigger.getBoundingClientRect();
+  if (!(r.width > 0 && r.height > 0)) return null;
+  const x = r.left + r.width / 2;
+  const y = r.top + r.height / 2;
+  if (x < 0 || y < 0 || x > window.innerWidth || y > window.innerHeight) return null;
+  return { x, y };
+}
+
+/** transform-origin at `pt`. offsetLeft/Top, not the (scaled) rect; the read
+ *  also computes the start state the fade runs from (see beginOpen). */
+function setOrigin(ui, pt) {
+  const s = ui.panel.style;
+  const left = ui.panel.offsetLeft;
+  const top = ui.panel.offsetTop;
+  if (!pt) { s.removeProperty('--ccc-ov-ox'); s.removeProperty('--ccc-ov-oy'); return; }
+  s.setProperty('--ccc-ov-ox', `${Math.round(pt.x - left)}px`);
+  s.setProperty('--ccc-ov-oy', `${Math.round(pt.y - top)}px`);
+}
+
+/** Run `cb` when the panel's opacity transition ends, or after `ms` + a margin
+ *  if it never reports (hidden tab, interrupted, themed away). Stale by `gen`.
+ *
+ *  OPEN is `patient`: with a tool busy on this thread (in-process on iPad) the
+ *  transition may not even have started when the timer fires — measured: panel
+ *  still at opacity 0 at 440 ms — and locking then would show the lock's
+ *  effect through a transparent viewer. So it waits while the panel's own
+ *  transition is pending/running, up to ~4 s. CLOSE is not: the room is
+ *  already right underneath, and waiting would keep the closed tool running. */
+function afterPanelFade(ui, gen, ms, cb, { patient = false } = {}) {
+  let done = false;
+  let tries = 0;
+  let timer = 0;
+  const onEnd = (ev) => { if (ev.target === ui.panel && ev.propertyName === 'opacity') finish(); };
+  const finish = () => {
+    if (done) return;
+    done = true;
+    ui.panel.removeEventListener('transitionend', onEnd);
+    clearTimeout(timer);
+    if (state.gen === gen) cb();
+  };
+  const stillMoving = () => {
+    try {
+      return ui.panel.getAnimations().some((a) => a.playState === 'running' || a.playState === 'pending');
+    } catch { return false; }
+  };
+  const onTimer = () => {
+    if (done) return;
+    if (patient && state.gen === gen && stillMoving() && tries++ < 30) { timer = window.setTimeout(onTimer, 120); return; }
+    finish();
+  };
+  ui.panel.addEventListener('transitionend', onEnd);
+  timer = window.setTimeout(onTimer, ms + 80);
+  return timer;
+}
+
+/** Two rendering opportunities from now: the first is the one in which the
+ *  unlock's scroll event reaches the engine and it redraws the room; the
+ *  second is the first one that shows it. A timer backs it for a hidden tab,
+ *  where rAF does not run at all. */
+function afterTwoFrames(cb) {
+  let done = false;
+  const go = () => { if (done) return; done = true; clearTimeout(timer); cb(); };
+  const timer = window.setTimeout(go, 300);
+  try { requestAnimationFrame(() => requestAnimationFrame(go)); } catch { /* the timer has it */ }
+}
+
+/** closed → opening. */
+function beginOpen(ui, origin) {
+  const gen = ++state.gen;
+  const tier = motionTier();
+  state.phase = 'opening';
+  ui.root.classList.remove('is-in', 'is-closing', 'is-immersive');
+  ui.root.hidden = false;
+  liveRoot(ui);
+  // Also forces the start state's style, so adding is-in below transitions.
+  setOrigin(ui, tier === 'full' ? origin : null);
+  ui.root.classList.add('is-in');
+  if (tier === 'off') { settleOpen(gen); return; }
+  state.lockTimer = afterPanelFade(ui, gen, OPEN_MS[tier], () => settleOpen(gen), { patient: true });
+}
+
+/** closing → opening: a reopen inside the close fade. Nothing was torn down
+ *  yet except the page-side state, which settleOpen() puts back. */
+function reopenFromClosing(ui) {
+  const gen = ++state.gen;            // the pending finishClose() is now stale
+  const tier = motionTier();
+  state.phase = 'opening';
+  ui.root.hidden = false;
+  liveRoot(ui);
+  ui.root.classList.remove('is-closing');
+  ui.root.classList.add('is-in');     // the fade reverses from where it is
+  if (tier === 'off') { settleOpen(gen); return; }
+  state.lockTimer = afterPanelFade(ui, gen, OPEN_MS[tier], () => settleOpen(gen), { patient: true });
+}
+
+/** opening → open: the viewer is opaque now. is-viewing goes on first
+ *  (contract C1: before the lock), then inert, then the lock. */
+function settleOpen(gen) {
+  if (state.gen !== gen || state.phase !== 'opening') return;
+  state.lockTimer = 0;
+  setViewing(true);
+  setBackgroundInert(true);
+  lockScroll();
+  state.phase = 'open';
+}
+
+/** closing → closed: the fade is over. Unload the tool and put the viewer
+ *  away. The page was handed back before the fade started. */
+function finishClose(gen) {
+  if (state.gen !== gen || state.phase !== 'closing') return;
+  const ui = state.ui;
+  state.phase = 'closed';
+  state.finishTimer = 0;
+  if (!ui) return;
+  ui.root.hidden = true;
+  ui.root.classList.remove('is-in', 'is-closing', 'is-immersive');
+  blankStageFrame(ui);                           // unload the tool; adds no history
+  ui.fallback.hidden = true;
+  ui.skel.hidden = true;
+  hideNote();
+}
+
+/** Swap: the title changes under a quick fade; nothing else moves. */
+function crossFadeTitle(ui) {
+  if (motionTier() === 'off' || typeof ui.title.animate !== 'function') return;
+  try {
+    ui.title.animate([{ opacity: 0 }, { opacity: 1 }],
+      { duration: 160, easing: 'cubic-bezier(.22,.61,.24,1)' });
+  } catch { /* WAAPI missing: the title just changes */ }
+}
+
+function clearCloseWatch() {
+  if (state.closeWatch) { clearTimeout(state.closeWatch); state.closeWatch = 0; }
+}
+
 /**
  * Open a tool full-screen.
  * @param {string} slug
@@ -1395,9 +2009,11 @@ function announceViewer(kind, slug, tool) {
  * @param {boolean} [opts.bypassGate=false] skip canOpen — for the retry handed
  *                                          to onRefused after a successful unlock
  * @param {string}  [opts.source='api']     'click' | 'hash' | 'api', passed to onRefused
+ * @param {boolean} [opts.replace=false]    on a swap, replace the history entry
+ *                                          instead of pushing one (Find palette)
  */
 export function openTool(slug, opts = {}) {
-  const { history: doPush = true, trigger = null, bypassGate = false, source = 'api' } = opts;
+  const { history: doPush = true, trigger = null, bypassGate = false, source = 'api', replace = false } = opts;
   const tool = getTool(slug);
 
   if (!tool) {
@@ -1406,6 +2022,9 @@ export function openTool(slug, opts = {}) {
     console.warn(`[overlay] unknown tool "${slug}"`);
     return;
   }
+  // C7: from here on, the registry's own spelling — in the gate, the history
+  // entry, the events and the focus return.
+  slug = tool.slug;
 
   // --- access gate ----------------------------------------------------------
   // Consulted on EVERY path into the viewer — click, deep link, hash sync,
@@ -1443,24 +2062,28 @@ export function openTool(slug, opts = {}) {
     // "Open it in its own window" button is a user gesture the blocker allows.
   }
 
+  const from = state.phase;
+  const swapping = from === 'opening' || from === 'open';
+  // Where the window grows from. Read first, while nothing has been written.
+  const origin = !swapping && from !== 'closing' && motionTier() === 'full' ? triggerPoint(trigger) : null;
+
   injectStyles();
   const ui = buildUI();
-  const swapping = state.activeSlug !== null;
 
   state.activeSlug = slug;
   ui.title.textContent = tool.label;
   ui.blurb.textContent = tool.blurb || '';
   state.openedAt = Date.now();
   state.staleOffered = false;
+  clearCloseWatch();
 
+  if (swapping || from === 'closing') crossFadeTitle(ui);
   if (!swapping) {
     state.lastFocus = trigger || document.activeElement;
-    lockScroll();
-    ui.root.hidden = false;
-    setBackgroundInert(true);
-    // Next frame so the transition has a starting state to animate from.
-    requestAnimationFrame(() => ui.root.classList.add('is-in'));
     document.addEventListener('keydown', onKeydown, true);
+    if (from === 'closing') reopenFromClosing(ui);
+    else beginOpen(ui, origin);
+    startViewportWatch();
     announceViewer('open', slug, tool);
   }
 
@@ -1470,9 +2093,15 @@ export function openTool(slug, opts = {}) {
     showFrame(tool);
   }
 
-  if (doPush) {
+  if (doPush && swapping && replace) {
+    // v29 · a swap chosen from the Find palette (C4) REPLACES the viewer's
+    // entry instead of stacking one per tool, so one ✕ / Escape / Back closes
+    // the viewer (S4's request). pushedHistory is left as it was: an entry we
+    // pushed is still ours to pop; a deep link still has none.
+    try { history.replaceState({ cccTool: slug }, '', internalHref(slug)); } catch { /* noop */ }
+  } else if (doPush) {
     try {
-      history.pushState({ cccTool: slug }, '', `#/tool/${slug}`);
+      history.pushState({ cccTool: slug }, '', internalHref(slug));
       state.pushedHistory = true;
     } catch { state.pushedHistory = false; }
   }
@@ -1501,7 +2130,24 @@ export function closeTool(opts = {}) {
   // with history:false and does the real teardown.
   if (useHistory && state.pushedHistory) {
     state.pushedHistory = false;
+    const slug = state.activeSlug;
     history.back();
+    /* v29 (O-9): A TOOL THAT PUSHED HISTORY OF ITS OWN. NPS's skip link
+       (href="#results") adds an entry inside the frame, so history.back()
+       steps back inside the tool and no popstate ever reaches this page: ✕
+       did nothing. If the address bar still names this tool 400 ms later,
+       close it here. The popstate normally lands in 3-10 ms; if it went to a
+       different tool (Back from a game to the arcade) the address bar says so
+       and this does nothing. */
+    clearCloseWatch();
+    state.closeWatch = window.setTimeout(() => {
+      state.closeWatch = 0;
+      if (state.activeSlug !== slug) return;
+      const still = getTool(hashSlug() || '');
+      if (!still || still.slug !== slug) return;
+      try { history.replaceState(null, '', location.pathname + location.search); } catch { /* noop */ }
+      teardown();
+    }, 400);
     return;
   }
 
@@ -1520,32 +2166,53 @@ function teardown() {
   state.activeSlug = null;
   state.pushedHistory = false;
   clearFrameTimer();
+  clearCloseWatch();
+  stopViewportWatch();
+  state.revealCurrent = null;
   document.removeEventListener('keydown', onKeydown, true);
-  announceViewer('close', slug, slug ? getTool(slug) : null);
+  const gen = ++state.gen;                       // a pending settleOpen() is now stale
+  state.lockTimer = 0;
 
-  if (!ui) return;
+  if (!ui) {
+    setBackgroundInert(false);
+    unlockScroll();
+    setViewing(false);
+    state.phase = 'closed';
+    announceViewer('close', slug, slug ? getTool(slug) : null);
+    return;
+  }
 
-  ui.root.classList.remove('is-in', 'is-immersive');
+  state.phase = 'closing';
+  ui.root.classList.add('is-closing');           // pointer to the page; nothing moves yet
   ui.frame.onload = ui.frame.onerror = null;
-  ui.frame.classList.remove('is-shown');
+  /* A tool closed BEFORE it was shown is unloaded now, not after the fade:
+     nothing of it is on screen (the skeleton or the dark stage is), and a
+     report still fetching and parsing its workbook would otherwise keep this
+     thread (on an iPad) busy through the fade. A tool that IS on screen stays
+     for the fade and is unloaded at its end. */
+  if (!ui.frame.classList.contains('is-shown')) blankStageFrame(ui);
   ui.status.textContent = '';
   ui.note.hidden = true;
   state.openedAt = 0;
   state.staleOffered = false;
 
-  const finish = () => {
-    if (state.activeSlug !== null) return;       // reopened mid-transition
-    ui.root.hidden = true;
-    blankStageFrame(ui);                         // unload the tool; adds no history
-    ui.fallback.hidden = true;
-    ui.skel.hidden = false;
-    setBackgroundInert(false);
-    unlockScroll();
-    restoreFocus(slug);
-  };
+  /* M7 close, step 1: THE PAGE FIRST, while the viewer is still opaque. The
+     unlock's scrollTo() is synchronous and needs layout, so this task also
+     pays the style pass for inert/is-viewing coming off — once, and hidden. */
+  setBackgroundInert(false);
+  unlockScroll();
+  setViewing(false);
+  announceViewer('close', slug, slug ? getTool(slug) : null);
+  restoreFocus(slug);
 
-  if (reduceMotion()) finish();
-  else setTimeout(finish, 300);                  // matches the CSS transition
+  /* Step 2: one frame for the room to be drawn where it belongs, then fade. */
+  afterTwoFrames(() => {
+    if (state.gen !== gen || state.phase !== 'closing') return;
+    const tier = motionTier();
+    if (tier === 'off') { finishClose(gen); return; }
+    ui.root.classList.remove('is-in');
+    state.finishTimer = afterPanelFade(ui, gen, CLOSE_MS[tier], () => finishClose(gen));
+  });
 }
 
 function restoreFocus(slug) {
@@ -1623,6 +2290,12 @@ function onViewerVisible() {
 
 function onKeydown(ev) {
   if (ev.key === 'Escape' && state.activeSlug !== null) {
+    /* v29: Escape inside the Find palette (contract C4) is the palette's —
+       it clears the query or closes the palette. This listener is on the
+       document in the capture phase, so without this it ran first and shut
+       the viewer from under the palette. */
+    const t = ev.target;
+    if (t && t.closest && t.closest('[data-ccc-keep-live]')) return;
     ev.preventDefault();
     ev.stopPropagation();
     closeTool();
@@ -1630,12 +2303,88 @@ function onKeydown(ev) {
 }
 
 /* -----------------------------------------------------------------------------
+ * 7b. The on-screen keyboard (v29, touch devices only)
+ * -----------------------------------------------------------------------------
+ * iPadOS shrinks and pans the VISUAL viewport for the keyboard but leaves the
+ * layout viewport (which the fixed, svh-sized viewer is measured against), so a
+ * quote-sheet field can end up under the keyboard (tools audit §3; documented
+ * iOS behaviour, not observable here). On a coarse pointer, and only while the
+ * visual viewport is shorter than the window and not pinch-zoomed, the viewer
+ * is fitted to it. Otherwise nothing is written. */
+let vvHandler = null;
+let vvRaf = 0;
+
+function fitToVisualViewport() {
+  vvRaf = 0;
+  const ui = state.ui;
+  const vv = window.visualViewport;
+  if (!ui || !vv) return;
+  const s = ui.root.style;
+  const zoomed = Math.abs((vv.scale || 1) - 1) > 0.01;
+  const shrunk = !zoomed && vv.height > 0 && vv.height < (window.innerHeight || 0) - 1;
+  if (shrunk) {
+    s.setProperty('--ccc-ov-vh', `${Math.round(vv.height)}px`);
+    s.top = `${Math.max(0, Math.round(vv.offsetTop))}px`;
+    s.height = `${Math.round(vv.height)}px`;
+    s.bottom = 'auto';
+  } else if (s.height) {
+    s.removeProperty('--ccc-ov-vh');
+    s.top = s.height = s.bottom = '';
+  }
+}
+
+function startViewportWatch() {
+  const vv = window.visualViewport;
+  if (!vv || vvHandler) return;
+  let coarse = false;
+  try { coarse = window.matchMedia('(pointer: coarse)').matches; } catch { coarse = false; }
+  if (!coarse) return;
+  vvHandler = () => { if (!vvRaf) vvRaf = requestAnimationFrame(fitToVisualViewport); };
+  vv.addEventListener('resize', vvHandler);
+  vv.addEventListener('scroll', vvHandler);
+}
+
+function stopViewportWatch() {
+  const vv = window.visualViewport;
+  if (vv && vvHandler) {
+    vv.removeEventListener('resize', vvHandler);
+    vv.removeEventListener('scroll', vvHandler);
+  }
+  vvHandler = null;
+  if (vvRaf) { cancelAnimationFrame(vvRaf); vvRaf = 0; }
+  const ui = state.ui;
+  if (ui && ui.root.style.height) {
+    ui.root.style.removeProperty('--ccc-ov-vh');
+    ui.root.style.top = ui.root.style.height = ui.root.style.bottom = '';
+  }
+}
+
+/* -----------------------------------------------------------------------------
  * 8. Routing — the viewer has its own URL
  * -------------------------------------------------------------------------- */
 
+/**
+ * C7: A WRONG-CASE LINK OPENS THE TOOL, NOT THE KEYPAD. A hash naming a
+ * registry tool in the wrong case is rewritten in place (replaceState) to the
+ * registry's spelling, which is returned. It runs before anything else reads
+ * the hash (inside initOverlay(), and in this module's hashchange listener,
+ * registered before cinema's/pocket's sealed-link watchers), so those watchers
+ * see a slug they know. Unknown and sealed slugs are untouched: keypad.
+ */
+function canonicaliseLocation() {
+  const raw = hashSlug();
+  if (!raw) return null;
+  const tool = getTool(raw);
+  if (!tool || tool.slug === raw) return raw;
+  try {
+    history.replaceState(history.state, '', location.pathname + location.search + internalHref(tool.slug));
+  } catch { /* noop: the lookup below is case-insensitive anyway */ }
+  return tool.slug;
+}
+
 /** Reconcile the viewer with whatever the address bar currently says. */
 function syncFromLocation() {
-  const slug = hashSlug();
+  const slug = canonicaliseLocation();
   if (slug) {
     if (slug === state.activeSlug) return;
     // Arrived by history, so don't push another entry — but remember that the
@@ -1667,7 +2416,13 @@ function onDocumentClick(ev) {
   if (state.ui && state.ui.root.contains(trigger)) return;
 
   ev.preventDefault();
-  openTool(slug, { trigger, source: 'click' });
+  // A row in the Find palette ([data-ccc-keep-live], C4). The palette may have
+  // hidden itself by now, so ask the dispatch path, not the live tree.
+  let fromPalette = false;
+  try {
+    fromPalette = ev.composedPath().some((n) => n && n.nodeType === 1 && n.hasAttribute('data-ccc-keep-live'));
+  } catch { /* noop */ }
+  openTool(slug, { trigger, source: 'click', replace: fromPalette });
 }
 
 /** Keyboard activation for non-native triggers (a div with data-tool). */
@@ -1754,9 +2509,9 @@ export function initOverlay(options = {}) {
        pre-lunch stamp on every link out of it. The pocket list has had this
        since v5; the framed viewer never did. See onViewerVisible(). */
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') onViewerVisible();
+      if (document.visibilityState === 'visible') { selfHeal(); onViewerVisible(); }
     });
-    window.addEventListener('pageshow', (ev) => { if (ev.persisted) onViewerVisible(); });
+    window.addEventListener('pageshow', (ev) => { selfHeal(); if (ev.persisted) onViewerVisible(); });
     /* Every anchor that opens a tool carries the site's own address. See
        normaliseTriggerLinks(): this is where "copy link" on a phone or an
        iPad stops handing out the repository. */
@@ -1776,6 +2531,16 @@ export function initOverlay(options = {}) {
   const inlineTools =
     (window.__CCC_INLINE__ && window.__CCC_INLINE__.tools) ||
     (window.CCC && window.CCC.tools) || window.CCC_TOOLS || null;
+
+  /* v29 (C7): fill the registry now, not a microtask later, so a wrong-case
+     deep link is rewritten before cinema/pocket run their (case-sensitive)
+     sealed-link watchers right after this call. The deep link itself still
+     opens in the .then() below, at the same moment as before. */
+  const syncList = Array.isArray(tools) ? tools : (tools && Array.isArray(tools.tools) ? tools.tools : null);
+  if (syncList) {
+    for (const tool of syncList) if (tool && tool.slug) state.registry.set(tool.slug, tool);
+    if (deepLink) canonicaliseLocation();
+  }
 
   const load = tools
     ? Promise.resolve(tools)

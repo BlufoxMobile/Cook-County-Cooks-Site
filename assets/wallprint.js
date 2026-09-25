@@ -541,8 +541,12 @@ function boxVars(x, y, w, h) {
 /* ─────────────────────────────────────────────────────────────────────────────
  * 4 · THE LIGHTS
  * ─────────────────────────────────────────────────────────────────────────────
+ * v29 NOTE: theme.css §05 now publishes a quantised --lit on .stage, and the
+ * sheet reads that (see .ccc-wp below). The derivation that follows is kept
+ * because the §05 declaration IS it, term for term.
+ *
  * theme.css §06b's --lit is the room's "lights come up" ramp, and it is exactly
- * the number this sheet's exposure wants. It cannot be inherited: --lit, --arr,
+ * the number this sheet's exposure wants. It could not be inherited: --lit, --arr,
  * --hold and --lift are all declared on `.plate-wrap`, and `.hotspots` is
  * .plate-wrap's SIBLING, so a sheet in the hotspot layer resolves --lit to its
  * registered initial-value of 1 and would sit at full exposure in a dark room.
@@ -656,8 +660,6 @@ const CSS = `
 .ccc-wp-defer { display: none !important; }
 
 /* ⚠ REGISTERED, NOT DECORATION — see §4 note 1. */
-@property --wp-arr  { syntax: "<number>"; inherits: false; initial-value: 1; }
-@property --wp-hold { syntax: "<number>"; inherits: false; initial-value: 0; }
 @property --wp-lit  { syntax: "<number>"; inherits: true;  initial-value: 1; }
 @property --wp-exp  { syntax: "<number>"; inherits: true;  initial-value: 1; }
 
@@ -756,11 +758,13 @@ const CSS = `
   container-type: inline-size;
   pointer-events: none;                /* the button underneath owns every pixel */
 
-  --wp-arr:  clamp(0, (var(--enter, 1) - 0.90) * 11, 1);
-  --wp-hold: clamp(0, (var(--p, 0) - 0.55) * 4, 1);
-  --wp-lit:  clamp(0, 0.52 * var(--wp-arr)
-                    + 0.48 * var(--bloom, 1) * var(--bloom, 1) * var(--bloom, 1)
-                    + var(--wp-hold), 1);
+  /* v29: the room's lights now come from the stage itself — theme.css §05
+     derives a QUANTISED --lit there (0.04 steps) from the engine's fine tier,
+     with §06b's formula term for term — so this sheet reads it instead of
+     re-deriving it from --enter/--p/--bloom. That re-derivation made the wall
+     print (and everything under it, ~400 elements) restyle and re-raster its
+     two drop-shadows on every scroll frame of the Back Office's arrival. */
+  --wp-lit:  var(--lit, 1);
   --wp-exp:  calc(0.30 + 0.70 * var(--wp-lit));
   opacity: var(--ccc-print-show, 1);
 }
@@ -1077,8 +1081,8 @@ const CSS = `
      step, which at 193px of container is a whole row. */
   line-height: 1.25;
 }
-.ccc-wp__colhead span:first-child { inline-size: var(--wp-gp-w); text-align: end; }
-.ccc-wp__colhead span:last-child  { inline-size: var(--wp-hd-w); text-align: end; }
+.ccc-wp__ch1 { inline-size: var(--wp-gp-w); text-align: end; }
+.ccc-wp__ch2  { inline-size: var(--wp-hd-w); text-align: end; }
 
 .ccc-wp__row {
   display: flex;
@@ -1133,7 +1137,7 @@ const CSS = `
   letter-spacing: 0.03em;
   white-space: nowrap;
 }
-.ccc-wp__foot span {
+.ccc-wp__f1, .ccc-wp__f2 {
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -1545,7 +1549,7 @@ const CSS = `
   .ccc-wp__item + .ccc-wp__item { margin-block-start: 0.7cqw; }
   .ccc-wp__ghead { margin-block-end: 0.8cqw; }
   .ccc-wp__cond { line-height: 1.22; }
-  .ccc-wp--cold .ccc-wp__foot span:first-child { display: none; }
+  .ccc-wp--cold .ccc-wp__f1 { display: none; }
 }
 @container (max-width: 168px) {
   .ccc-wp--cold .ccc-wp__paper { --wp-k: 1.72; }
@@ -1685,7 +1689,7 @@ const CSS = `
      RULE that carries it is what closes up. MEASURED: at k 1.08 they set 265px
      against 274px of measure — 9px, which is inside the tolerance a font stack
      fallback can move, so the left half is clipped rather than trusted. */
-  .ccc-wp--card .ccc-wp__foot span:first-child { min-inline-size: 0; }
+  .ccc-wp--card .ccc-wp__f1 { min-inline-size: 0; }
 }
 
 /* ── STEP 2 · ≤ 288px — the second table in each column goes ───────────────
@@ -1724,7 +1728,7 @@ const CSS = `
      take the size */
   .ccc-wp--card .ccc-wp__block[data-wp-opt] { display: none; }
   .ccc-wp--card .ccc-wp__row[data-wp-opt] { display: flex; }
-  .ccc-wp--card .ccc-wp__foot span:first-child { display: none; }
+  .ccc-wp--card .ccc-wp__f1 { display: none; }
 }
 
 /* ── STEP 3 · ≤ 216px — the GP column goes, and the fourth row with it ─────
@@ -1743,7 +1747,7 @@ const CSS = `
   .ccc-wp--card .ccc-wp__paper { --wp-k: 1.78; line-height: 1.70; }
   .ccc-wp--card .ccc-wp__title { font-size: 6.4cqw; }
   .ccc-wp--card .ccc-wp__gp,
-  .ccc-wp--card .ccc-wp__colhead span:first-child { display: none; }
+  .ccc-wp--card .ccc-wp__ch1 { display: none; }
   .ccc-wp--card .ccc-wp__row[data-wp-opt] { display: none; }
   .ccc-wp--card .ccc-wp__sect { font-size: calc(1.82cqw * var(--wp-k)); letter-spacing: 0.040em; }
   /* The head is two nowrap strings in a space-between row and it stops fitting
@@ -1862,91 +1866,18 @@ const CSS = `
    one a rep quotes first, and the footer still says the sheet is an excerpt
    and the button still opens the whole tool.                                */
 
-/* 16:10 and 3:2 — 1440x900, 1680x1050, 1920x1200, 1350x900. The crop takes
-   16-25% of the paper for most of the runway and 48% on the last frame before
-   the Break Room takes the screen; 32cqw clears the first two thirds of that
-   and is as far as the indent can go before the surviving measure stops
-   holding "Sports & News". */
-@media (min-aspect-ratio: 3 / 2) and (max-aspect-ratio: 5 / 3) {
-  .ccc-wp--card .ccc-wp__paper { padding-inline-start: 30cqw; }
-  .ccc-wp--card .ccc-wp__title { font-size: 5.0cqw; }
-  .ccc-wp--card .ccc-wp__cols  { grid-template-columns: 1fr; }
-  .ccc-wp--card .ccc-wp__col + .ccc-wp__col { display: none; }
-  /* ONE COLUMN IS ONE TABLE, and the ladder's row count does not survive the
-     fold. The container queries solve this page as TWO columns: at 344px of
-     container — a 2560x1600 desktop, aspect 1.60, which is inside this band —
-     the ladder prints four tables of five rows, and stacking half of them into
-     a single column is 46cqw of content in a 40cqw box, which .ccc-wp__cols'
-     own overflow:hidden would eat the bottom of, silently. So the fold takes
-     the optional table and the optional row with it, and what is left is the
-     Internet table's top four rows in whatever measure the crop has spared. */
-  .ccc-wp--card .ccc-wp__block[data-wp-opt] { display: none; }
-  .ccc-wp--card .ccc-wp__row[data-wp-opt]   { display: none; }
-  /* The footer is the longest single line on the page and the indent is taken
-     out of its measure too: MEASURED at 1440x900, "Excerpt — tap for the full
-     sheet" set 122px against 123px and ellipsised on the last word. 2.2cqw
-     against 2.3 is 117px in 127 — and it is the smallest move that clears it,
-     because this line is also the lowest-contrast line on the sheet. */
-  /* The footer's left half is a legend and the indent has taken a third of the
-     measure it needs: at 344px of container (2560x1600) the two halves want
-     273px of a 227px line and BOTH ellipsised. The ladder already drops the
-     legend below 288px of container; inside this band it has to go at every
-     container, because here it is the crop and not the paper that sets the
-     measure. The right half — the one that says the page is an excerpt — is
-     what the space buys. */
-  .ccc-wp--card .ccc-wp__foot span:first-child { display: none; }
-  .ccc-wp--card .ccc-wp__foot { font-size: calc(2.2cqw * var(--wp-k)); }
-}
-
-/* 4:3 and 5:4 — 1024x768, 1280x1024, 1152x864. The crop takes 52% of the paper
-   at arrival, so the indent has to be nearly twice the one above and there is
-   only about 40cqw of measure left on the other side of it. Three things move
-   with it, all of them because of that measure:
-     · the title comes down to 5.2cqw and is allowed to set over two lines —
-       "Commission Payouts 2026" is 140px of type in 66px of column, and a
-       heading that wraps is a heading, while one that ellipsises is a defect;
-     · the footer wraps too, at 2.05cqw, because it is the one line on the page
-       that has to survive: it is what says this is an excerpt;
-     · the column heads go. "GP COMM" over a two-figure row is a legend, and a
-       legend is the first thing off a page this narrow.
-   MEASURED at 1024x768: the printing occupies the right 40cqw of the paper,
-   which is 66 of 165 layout px, and the frame is showing 48% of the sheet at
-   arrival — so the whole of it is inside the visible strip with 7% to spare. */
-@media (min-aspect-ratio: 8 / 7) and (max-aspect-ratio: 3 / 2) {
-  .ccc-wp--card .ccc-wp__paper { padding-inline-start: 66cqw; }
-  .ccc-wp--card .ccc-wp__title { font-size: 5.0cqw; white-space: normal; }
-  .ccc-wp--card .ccc-wp__rule  { margin: 0.9cqw 0 1.1cqw; }
-  .ccc-wp--card .ccc-wp__cols  { grid-template-columns: 1fr; }
-  .ccc-wp--card .ccc-wp__col + .ccc-wp__col { display: none; }
-  /* one column is one table — see the note in the band above */
-  .ccc-wp--card .ccc-wp__block[data-wp-opt] { display: none; }
-  .ccc-wp--card .ccc-wp__row[data-wp-opt]   { display: none; }
-  /* "GP COMM" over a two-figure row is a legend, and a legend is the first
-     thing off a page this narrow — and so is the GP figure itself. The ladder
-     already drops both below 216px of container; this band has to drop them
-     one step earlier because the indent, not the paper, is what sets the
-     measure here. MEASURED at 1280x1024 (220px of container, 66px of column):
-     "500 Mbps" + GP + payout is 73px and ellipsised; without GP it is 53. */
-  .ccc-wp--card .ccc-wp__colhead { display: none; }
-  .ccc-wp--card .ccc-wp__gp      { display: none; }
-  /* AND THE HEAD GOES WITH IT, which is the one place on the ladder the date
-     stamp is allowed to go. 40cqw of measure is 50px: "UPDATED SEPT 1, 2026"
-     needs 87 of it and would set over three lines, which costs 35px of a
-     115px page — more than the table it is dated. This band is the emergency
-     one (see the ⚠ above); what it prints is a title, one table and the line
-     that says the sheet is an excerpt, and nothing else fits. */
-  .ccc-wp--card .ccc-wp__head   { display: none; }
-  /* The footer is the one line on the page that has to survive — it is what
-     says this is an excerpt — so here it is allowed to set over as many lines
-     as it needs instead of being clipped to one. */
-  .ccc-wp--card .ccc-wp__foot {
-    display: block;
-    white-space: normal;
-    font-size: calc(2.0cqw * var(--wp-k));
-    line-height: 1.32;
-  }
-  .ccc-wp--card .ccc-wp__foot span { overflow: visible; }
-}
+/* v30 · BOTH BANDS ARE GONE, BECAUSE THE CROP NO LONGER REACHES THE SHEET.
+   This block used to hold two media queries (3:2-5:3 and 8:7-3:2) that set the
+   page to one column indented 30cqw / 66cqw past the part of the paper the
+   frame was eating. The Back Office plate was widened (theme.css §06f) and the
+   room re-framed per aspect band so that this sheet is WHOLE, inside the safe
+   box, at p 0-.5 on every landscape shape from 8:7 up (1024x768, 1180x820,
+   1440x900, 1512x751, 1920x1080 — build/checks/safebox.py). An indent for a
+   crop that does not happen only printed a third of a page on the right of a
+   blank sheet, so the container-query ladder above now sets it everywhere.
+   Layout containers after the re-frame: 132px at 1024x768, 152 at 1180x820,
+   181 at 1440x900, 192 at 1512x751, 244 at 1920x1080 — the ≤180/≤216/≤288
+   steps, whose type is in cqw and therefore holds its proportions. */
 
 /* Reduced motion: the room is already lit (theme.css §18 pins the plate), so
    the sheet is already lit too. No ramp, nothing to interpolate. */
@@ -2093,8 +2024,10 @@ function buildSheet(doc, spot, sheet, title) {
     for (const blocks of sheet.columns) {
       const col = el(doc, 'span', 'ccc-wp__col');
       const heads = el(doc, 'span', 'ccc-wp__colhead');
-      heads.appendChild(el(doc, 'span', null, sheet.colHead[0]));
-      heads.appendChild(el(doc, 'span', null, sheet.colHead[1]));
+      // Classed, not reached as `.ccc-wp__colhead span:first-child`: a span-keyed
+      // rule is tried against every span in the Back Office on every restyle.
+      heads.appendChild(el(doc, 'span', 'ccc-wp__ch1', sheet.colHead[0]));
+      heads.appendChild(el(doc, 'span', 'ccc-wp__ch2', sheet.colHead[1]));
       col.appendChild(heads);
       for (const block of blocks) col.appendChild(buildBlock(doc, block));
       cols.appendChild(col);
@@ -2104,8 +2037,8 @@ function buildSheet(doc, spot, sheet, title) {
 
   paper.appendChild(el(doc, 'hr', 'ccc-wp__rule ccc-wp__rule--foot'));
   const foot = el(doc, 'span', 'ccc-wp__foot');
-  foot.appendChild(el(doc, 'span', null, sheet.foot));
-  foot.appendChild(el(doc, 'span', null, sheet.footEnd));
+  foot.appendChild(el(doc, 'span', 'ccc-wp__f1', sheet.foot));
+  foot.appendChild(el(doc, 'span', 'ccc-wp__f2', sheet.footEnd));
   paper.appendChild(foot);
 
   sheetEl.appendChild(paper);

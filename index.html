@@ -17,7 +17,7 @@
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
   <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
   <title>Cook County Cooks — the kitchen</title>
-  <meta name="description" content="Walk through Cook County Cooks. Quote sheets, daily numbers, leaderboards, training and manager tools for the Blue Fox C3 team — every link one tap away.">
+  <meta name="description" content="Walk through Cook County Cooks. Quote sheets, daily numbers, leaderboards, training and manager tools for the Blufox C3 team — every link one tap away.">
   <meta name="theme-color" content="#05070a">
   <meta name="color-scheme" content="dark">
 
@@ -34,6 +34,74 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%B3%3C/text%3E%3C/svg%3E">
 
   <!-- ═══════════════════════════════════════════════════════════════════════
+       CRITICAL HINTS — FIRST IN <head>, AND ALL OF THEM NON-BLOCKING
+       ═══════════════════════════════════════════════════════════════════════
+       What the first frame needs, requested before anything else: the
+       stylesheet, the hero plate, the two faces the curtain's masthead is set
+       in, and the entry module. They are here, above the view script, because
+       the inline tool data below is ~25 KB and the parser does not reach the
+       <link>s after it until the next network packet has arrived — measured
+       (iPad, LTE), the cinema's modulepreloads were going out 100–200 ms ahead
+       of the stylesheet, and the first paint slid behind them.
+
+       THE v14 RULE STILL HOLDS: nothing RENDER-BLOCKING above the view script.
+       A preload blocks neither rendering nor scripts; the stylesheet that
+       applies theme.css is still the <link rel="stylesheet"> further down (it
+       reuses this download). The hero preload's `media` and the italic face's
+       `media` are the exact negation of the pocket predicate below, so a phone
+       fetches neither (the pocket list does not use the italic); everything
+       else here is needed by both views. -->
+  <link rel="preload" href="assets/theme.eac66f530d.css" as="style">
+  <!-- PLATE PRELOAD — THE HERO ONLY.
+       The hero is the LCP element, so it gets the one preload and the one high
+       priority. `pass` used to be preloaded here as well; it is not any more.
+       It is now loading="lazy" in app.js, and preloading a lazy image is a
+       contradiction that fetches it eagerly anyway — measurement showed Chrome's
+       lazy threshold is generous enough that pass AND host land at first paint
+       regardless, so the preload was doing nothing except taking bandwidth off
+       the hero. The other seven plates are lazy; preloading all eight would cost
+       ~1.6MB of contention on a store iPad for imagery nobody has scrolled to.
+
+       imagesrcset/imagesizes must mirror the <img> in app.js EXACTLY — the same
+       three candidates and the same sizes expression — or the preload misses
+       and the browser fetches the plate twice. The sizes value describes the
+       plate's COVER box (theme.css §06), not the viewport, EXCEPT in the phone
+       band, where it deliberately under-declares to 440px so an iPhone takes
+       the 1400 cut instead of the 2400; app.js's PLATE_SIZES carries the whole
+       derivation and the measurements behind it. Copy that constant here
+       verbatim, in the same order — `sizes` takes the FIRST matching branch, so
+       the two phone conditions must stay ahead of the aspect-ratio ones.
+
+       THE `media` ATTRIBUTE IS THE PHONE'S HALF OF THE POCKET BUILD, and it is
+       not decoration. A `<link rel="preload">` whose media query does not match
+       is NEVER FETCHED — unlike a media-mismatched stylesheet, which browsers
+       download anyway at low priority. That property is the only way to keep
+       the hero off a phone without deleting the tag and rebuilding it from
+       script, which would take the preload SCANNER off it for everybody else
+       and cost the iPads their LCP.
+
+       The condition is the exact NEGATION of the pocket predicate in the script
+       below — De Morgan on `coarse AND (w<=500 OR (w<=1000 AND h<=500))`:
+
+           NOT coarse            ->  (pointer: fine), (pointer: none)
+           NOT (w<=500 OR ...)   ->  (min-width: 1001px)
+                                 ->  (min-width: 501px) and (min-height: 501px)
+
+       Checked: iPhone 393x852 and 852x393 match nothing -> no fetch. iPad
+       820x1180 and 1180x820, iPad in half-and-half Split View at 570x820, and
+       every desktop match -> fetched exactly as before. A browser too old to
+       understand `pointer` fails those two terms and still matches on width, so
+       it keeps the preload. IF YOU CHANGE THE PREDICATE, CHANGE THIS TOO. -->
+  <link rel="preload" as="image" href="plates/hero.197e175d93.webp"
+        media="(pointer: fine), (pointer: none), (min-width: 1001px), (min-width: 501px) and (min-height: 501px)"
+        imagesrcset="plates/hero@1400.24df9e8171.webp 1400w, plates/hero@1800.e298cedad8.webp 1800w, plates/hero.197e175d93.webp 2400w"
+        imagesizes="(max-width: 500px) 440px, (max-width: 1000px) and (max-height: 500px) 440px, (min-aspect-ratio: 2400/1340) 110vw, 197vh" fetchpriority="high">
+  <link rel="preload" href="assets/fonts/bodoni-moda-latin.c032219ef6.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/bodoni-moda-italic-latin.b737328c13.woff2" as="font" type="font/woff2" crossorigin
+        media="(pointer: fine), (pointer: none), (min-width: 1001px), (min-width: 501px) and (min-height: 501px)">
+  <link rel="modulepreload" href="assets/app.b15e3166a5.js">
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
        THE ONE DECISION: RESTAURANT, OR POCKET LIST?
        ═══════════════════════════════════════════════════════════════════════
        The client: "The mobile site just looks super rough, if I'm honest." He
@@ -41,7 +109,7 @@
        weekly and two codebases would silently drift, so the answer is this —
        one URL, one tool list, two front ends, chosen here.
 
-       WHY THIS RUNS HERE AND NOT IN A MODULE. assets/app.60e027b99e.js is type="module",
+       WHY THIS RUNS HERE AND NOT IN A MODULE. assets/app.b15e3166a5.js is type="module",
        which is deferred by definition: it cannot run until the document has
        parsed, by which point the page has painted. A decision made there would
        show the wrong site first and swap it — a flash of the whole cinema on a
@@ -119,6 +187,27 @@
                                         here would leave the page unstyled.
          3. the predicate above.
        data-view-source records which of the three answered, for support calls.
+
+       AND, ONCE THE ANSWER IS "full", THE CINEMA'S MODULES GO ON THE WIRE HERE.
+       The restaurant is sixteen modules four imports deep (app -> cinema ->
+       engine/overlay/screens/… -> preflight/coldstore/…), and each level used
+       to be discovered only when the level above it had arrived and parsed:
+       three extra round trips before boot could start. The list below is every
+       module cinema.js reaches by a STATIC import, as <link rel=modulepreload>,
+       so they all start with the stylesheet (measured, iPad LTE: modules done
+       −504 ms, boot −593 ms). It is FULL VIEW ONLY — a phone takes the pocket
+       list and must not pay for the cinema — and it is decided in this script
+       because this is the one place the view is known before the parser moves
+       on. `?view=full` forcing still works: it is the same attribute.
+
+       THE LIST IS WRITTEN BY build/fingerprint.mjs, never by hand. It holds
+       hashed filenames, so a typed list is stale on the next build; the build
+       recomputes the import closure and rewrites everything between the marker
+       and its `]` on every run, and fails if a name in it does not exist. A
+       stale entry would only be a wasted fetch — the imports themselves never
+       read this list — but the build does not ship one. Safari 17+ honours
+       modulepreload; an older engine ignores the tag and loads exactly as
+       before.
        ═══════════════════════════════════════════════════════════════════════ -->
   <script>
     (function () {
@@ -133,6 +222,35 @@
       d.setAttribute('data-view', q || saved || auto);
       d.setAttribute('data-view-auto', auto);
       d.setAttribute('data-view-source', q ? 'query' : (saved ? 'stored' : 'auto'));
+      /* Contract C5 · THE MOTION TIER, stated before first paint so the curtain,
+         the phone list and theme.css all see it from the first frame.
+         assets/motion.js OWNS it (the key names, the order, and the runtime
+         probe and demotion that can only happen later); this is its rules 1-4,
+         mirrored — keep the two in step:
+           1. prefers-reduced-motion: reduce          -> off (always wins)
+           2. ?motion=full|lite|off                   -> that tier
+           3. sessionStorage 'ccc-motion'             -> an earlier demotion
+           4. deviceMemory <= 2 or hardwareConcurrency <= 2 -> lite (a hint)
+         html[data-motion-why] says which rule answered, for support calls. */
+      try {
+        var T = { full: 1, lite: 1, off: 1 }, mo = null, why = 'default', n = navigator;
+        try { if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { mo = 'off'; why = 'reduced'; } } catch (e) {}
+        if (!mo) { try { mo = new URLSearchParams(location.search).get('motion'); } catch (e) {} if (T[mo]) why = 'query'; else mo = null; }
+        if (!mo) { try { mo = window.sessionStorage.getItem('ccc-motion'); } catch (e) {} if (T[mo]) why = 'session'; else mo = null; }
+        if (!mo && ((n.deviceMemory > 0 && n.deviceMemory <= 2) || (n.hardwareConcurrency > 0 && n.hardwareConcurrency <= 2))) { mo = 'lite'; why = 'hint'; }
+        d.setAttribute('data-motion', mo || 'full');
+        d.setAttribute('data-motion-why', why);
+      } catch (e) {}
+      if (d.getAttribute('data-view') !== 'full') return;
+      var P = /*@cinema-graph*/["assets/cinema.afbd8ca064.js","assets/engine.638cfc5330.js","assets/overlay.dbf3839ea2.js","assets/screens.14b6a54b78.js","assets/chefwall.561dda2416.js","assets/labels.b8974f5d8d.js","assets/wallprint.c6e5ad8da9.js","assets/freezer.db542c2f18.js","assets/coldgate.5557b67d4d.js","assets/dom.d7b1df3700.js","rooms.d58e8ef8a0.js","assets/freshurl.72537abf1f.js","assets/preflight.3928c43470.js","assets/coldstore.26c122da4b.js","assets/roomorder.e9125c1800.js"];
+      try {
+        for (var i = 0; i < P.length; i++) {
+          var l = document.createElement('link');
+          l.rel = 'modulepreload';
+          l.href = P[i];
+          document.head.appendChild(l);
+        }
+      } catch (e) { /* a preload is an optimisation; the imports still run */ }
     })();
   </script>
 
@@ -146,7 +264,7 @@
        tools.json and headchefs.json; app.js falls back to fetching those two
        files out of data/ and headchefs/ if this block is ever removed.
 
-       `freezer` is NOT a third payload — it is the SEALED one. The fourteen
+       `freezer` is NOT a third payload — it is the SEALED one. The
        Walk-In Freezer tools are AES-256-GCM ciphertext; the key is
        PBKDF2-HMAC-SHA256 over the manager password at the iteration count named
        inside it. There is nothing in there to read without the password, which
@@ -161,106 +279,169 @@
        cannot serve last week's art under this week's markup. Edit the SOURCE
        file in assets/ or plates/, never a hashed copy, then re-run the build. */
     window.__CCC_INLINE__ = {
-      tools: {"rooms":[{"id":"pass","label":"The Pass","short":"Pass","tagline":"Quotes fired and plated — the tools you touch on every sale."},{"id":"host","label":"Host Stand","short":"Host","tagline":"The front of house: today's numbers, tickets, and payouts."},{"id":"dining","label":"Dining Room","short":"Dining","tagline":"Leaderboards and reviews — how the room feels tonight."},{"id":"prep","label":"Prep Station","short":"Prep","tagline":"Recipe cards for the fiddly stuff: ports, credit, online orders."},{"id":"office","label":"Back Office","short":"Office","tagline":"Paperwork, exceptions, and the things that fell off."},{"id":"breakroom","label":"Break Room","short":"Breakroom","tagline":"Training binders, the wall of fame, and the C³ arcade."},{"id":"freezer","label":"Walk-In Freezer","short":"Freezer","tagline":"Manager cold storage. Keypad access only."}],"tools":[{"slug":"quote-6th-gen","label":"6th Gen Mobile Quote Sheet","url":"https://blufoxmobile.github.io/Mobile-Quote-Sheet-6th-Gen/","room":"pass","object":"ipad-left","audience":"rep","blurb":"Build a full Xfinity Mobile quote — lines, devices, trade-ins, and promos — right at the counter."},{"slug":"quote-upgrade","label":"Upgrade Quote Sheet","url":"https://blufoxmobile.github.io/Upgrade-Quote-Sheet/","room":"pass","object":"ipad-center","audience":"rep","blurb":"Price out device upgrades for existing XM customers, with Upgrade Anytime and trade-in math handled."},{"slug":"quote-internet","label":"Internet Quote Sheet","url":"https://blufoxmobile.github.io/Internet-Rate-Plan-Calculator/","room":"pass","object":"ipad-right","audience":"rep","blurb":"Calculate Xfinity Internet rate plans and bundle pricing before the customer asks twice."},{"slug":"arcade","label":"C³ Arcade","url":"tools/arcade/","room":"breakroom","object":"arcade-cabinet","audience":"rep","marquee":"arcade/manifest.json","blurb":"Every game on the site on one screen — pick a cabinet and it opens right here."},{"slug":"discount-close","label":"The Mobile Discount Close","url":"https://blufoxmobile.github.io/Mobile-Quote-Sheet-Landing-Page/","room":"breakroom","object":"chip-only","audience":"rep","blurb":"The word-for-word close that turns an internet sale into a mobile line with the bundle discount."},{"slug":"daily-sales","label":"Daily Sales Report","url":"https://blufoxmobile.github.io/Daily-Sales-Report/","room":"host","object":"specials-board","audience":"rep","blurb":"Log today's sales as they happen — the specials board every store reads from."},{"slug":"tsheet-submissions","label":"T-Sheet Submissions","url":"https://blufoxmobile.github.io/T-Sheet-Submissions/","room":"pass","object":"script-card","audience":"rep","blurb":"Every submitted t-sheet on one spike — review, track, and follow up on customer quotes."},{"slug":"yesterdays-conversion","label":"Yesterday's Conversion","url":"https://blufoxmobile.github.io/Yesterday-s-Conversion/","room":"host","object":"reservation-book","audience":"rep","blurb":"How yesterday's traffic turned into sales — conversion rates by store, at a glance."},{"slug":"commission-payouts","label":"Commission Payouts 2026","url":"https://blufoxmobile.github.io/Commission-Payouts/","room":"office","object":"wall-print","audience":"rep","blurb":"The 2026 commission structure — what every sale pays out, before you ring it up."},{"slug":"wtw-chicago","label":"Win the Weekend — Chicago","url":"https://blufoxmobile.github.io/Win-The-Weekend---Chicago/","room":"dining","object":"menu-board-1","audience":"rep","blurb":"Chicago's weekend leaderboard — who's winning, who's chasing, and what it takes to take the top spot."},{"slug":"wtw-big-south","label":"Win the Weekend — Big South","url":"https://blufoxmobile.github.io/Win-The-Weekend---Big-South/","room":"dining","object":"menu-board-2","audience":"rep","blurb":"Big South's weekend leaderboard — the standings, the stakes, and the stores to beat."},{"slug":"nps","label":"NPS Report","url":"https://blufoxmobile.github.io/NPS-Index---Medallia/","room":"dining","object":"reviews-wall","audience":"rep","blurb":"Medallia NPS scores by store — what customers are actually saying about the experience."},{"slug":"porting-guide","label":"PortPro — Porting Guide","url":"tools/porting-guide/","room":"prep","object":"recipe-card-1","audience":"rep","blurb":"Account numbers, PINs, and port-out steps for 20+ carriers — everything you need to move a number clean."},{"slug":"credit-limit","label":"Credit Limit Increase","url":"https://blufoxmobile.github.io/Credit-Eligibility-Request/","room":"prep","object":"recipe-card-2","audience":"rep","blurb":"Request a credit eligibility review when a customer needs more lines than their limit allows."},{"slug":"bapis","label":"Online Order Processing (BAPIS)","url":"https://blufoxmobile.github.io/Bapis-Orders/","room":"prep","object":"recipe-card-3","audience":"rep","blurb":"Work BAPIS online orders step by step so nothing falls off between the web cart and activation."},{"slug":"bp-access","label":"Report BP Access Issues","url":"https://blufoxmobile.github.io/BP-Access-Issues/","room":"prep","object":"recipe-card-4","audience":"rep","blurb":"Locked out of BP? File the access issue here so it gets fixed instead of forgotten."},{"slug":"printouts","label":"Print Outs","url":"tools/printouts/","room":"office","object":"printer","audience":"rep","blurb":"Printable forms, signage, and store paperwork — hosted on the site now, so you can preview and print without leaving the kitchen."},{"slug":"exception-report","label":"Exception Report","url":"https://blufoxmobile.github.io/Exception-Report/","room":"office","object":"clipboard-1","audience":"rep","blurb":"Flag transactions that didn't go by the book — exceptions logged and tracked to resolution."},{"slug":"fall-off","label":"Fall-Off Summary","url":"https://blufoxmobile.github.io/Fall-Off-Summary-Report/","room":"office","object":"clipboard-2","audience":"rep","blurb":"Sales that fell off before install or activation — see what slipped and chase it back."},{"slug":"rep-hourly-rate","label":"Rep Hourly Rate Estimate","url":"https://blufoxmobile.github.io/Rep-Hourly-Rate-Estimate/","room":"office","object":"chip-only","audience":"rep","blurb":"Work out what a rep's hours and commission come to as an effective hourly rate."},{"slug":"training-xfinity","label":"Xfinity Product Mastery","url":"https://blufoxmobile.github.io/Xfinity-Training-Class/","room":"breakroom","object":"binder-1","audience":"rep","blurb":"The full Xfinity product training — plans, pricing, and battle cards, with a quiz to prove you know it."},{"slug":"training-straight-line","label":"Sales Process 101","url":"https://blufoxmobile.github.io/Straight-Line-Selling-Techniques/","room":"breakroom","object":"binder-2","audience":"rep","blurb":"The straight-line sales process from greeting to close — tonality, control, and the loops in between."},{"slug":"training-tsheet","label":"The Plus-First Playbook","url":"https://blufoxmobile.github.io/T-Sheet-Training/","room":"breakroom","object":"binder-3","audience":"rep","blurb":"How to run the t-sheet plus-first — lead with the full-value quote and let the discounts do the closing."},{"slug":"training-pos","label":"Celestial Point of Sale","url":"https://blufoxmobile.github.io/Celestial-Point-Of-Sale/","room":"breakroom","object":"locker-4","audience":"rep","blurb":"Learn the Celestial POS — how to ring, tender and correct a sale on the system the floor actually runs on."},{"slug":"fox-run","label":"C³ FOX RUN","url":"https://blufoxmobile.github.io/C3-Run-Game/","room":"breakroom","object":"no-chip","audience":"rep","blurb":"The break-room arcade cabinet. Run the fox, dodge the obstacles, hold the high score."},{"slug":"after-hours","label":"AFTER HOURS","url":"https://blufoxmobile.github.io/After-Hours/","room":"breakroom","object":"no-chip","audience":"rep","blurb":"The second cabinet in the C³ arcade. When the floor is quiet, the break room is not."},{"slug":"deep-six","label":"DEEP SIX — Blufox Fleet Command","url":"https://blufoxmobile.github.io/Deep-Six/","room":"breakroom","object":"no-chip","audience":"rep","blurb":"The third cabinet in the C³ arcade. Read the sonar, call the shot, and put the other fleet on the bottom."},{"slug":"overdrive","label":"BLUFOX OVERDRIVE","url":"https://blufoxmobile.github.io/Blufox-Overdrive/","room":"breakroom","object":"no-chip","audience":"rep","blurb":"The fourth cabinet in the C³ arcade. Eight karts, six circuits, and a Chicago night that does not slow down."},{"slug":"casino","label":"BLUFOX CASINO","url":"tools/casino/","room":"breakroom","object":"no-chip","audience":"rep","blurb":"The fifth cabinet in the C³ arcade. Hold'em, blackjack, roulette and the gateway slots — play chips only, nothing to buy and nothing to win."}]},
+      tools: {"rooms":[{"id":"pass","label":"The Pass","short":"Pass","tagline":"Quotes fired and plated — the tools you touch on every sale.","aliases":["quotes"]},{"id":"host","label":"Host Stand","short":"Host","tagline":"The front of house: today's numbers, tickets, and payouts.","aliases":["reports","numbers"]},{"id":"dining","label":"Dining Room","short":"Dining","tagline":"Leaderboards and reviews — how the room feels tonight.","aliases":["leaderboards"]},{"id":"prep","label":"Prep Station","short":"Prep","tagline":"Recipe cards for the fiddly stuff: ports, credit, online orders.","aliases":["recipes","how to"]},{"id":"office","label":"Back Office","short":"Office","tagline":"Paperwork, exceptions, and the things that fell off.","aliases":["paperwork"]},{"id":"breakroom","label":"Break Room","short":"Break Room","tagline":"Training binders, the wall of fame, and the C³ arcade.","aliases":["training","games"]},{"id":"freezer","label":"Walk-In Freezer","short":"Freezer","tagline":"Manager cold storage. Keypad access only.","aliases":["manager","walk-in","keypad"]}],"tools":[{"slug":"quote-6th-gen","label":"6th Gen Mobile Quote Sheet","url":"https://blufoxmobile.github.io/Mobile-Quote-Sheet-6th-Gen/","room":"pass","object":"ipad-left","audience":"rep","blurb":"Build a full Xfinity Mobile quote — lines, devices, trade-ins, and promos — right at the counter.","aliases":["quote","quote sheet","mobile quote","xm quote","6th gen","sixth gen","qs","unlimited","byod","bring your own device","plans","mobile plans","new line","lines"]},{"slug":"quote-upgrade","label":"Upgrade Quote Sheet","url":"https://blufoxmobile.github.io/Upgrade-Quote-Sheet/","room":"pass","object":"ipad-center","audience":"rep","blurb":"Price out device upgrades for existing XM customers, with Upgrade Anytime and trade-in math handled.","aliases":["upgrade","upgrade quote","ua","upgrade anytime","trade in"]},{"slug":"quote-internet","label":"Internet Quote Sheet","url":"https://blufoxmobile.github.io/Internet-Rate-Plan-Calculator/","room":"pass","object":"ipad-right","audience":"rep","blurb":"Calculate Xfinity Internet rate plans and bundle pricing before the customer asks twice.","aliases":["internet quote","rate plan","calculator","bundle","hsd","home internet"]},{"slug":"arcade","label":"C³ Arcade","url":"tools/arcade/","room":"breakroom","object":"arcade-cabinet","audience":"rep","marquee":"arcade/manifest.json","blurb":"Every game on the site on one screen — pick a cabinet and it opens right here.","aliases":["games","arcade","game","play","play a game","video games"]},{"slug":"discount-close","label":"The Mobile Discount Close","url":"https://blufoxmobile.github.io/Mobile-Quote-Sheet-Landing-Page/","room":"breakroom","object":"chip-only","audience":"rep","blurb":"The word-for-word close that turns an internet sale into a mobile line with the bundle discount.","aliases":["discount close","close script","bundle discount"]},{"slug":"daily-sales","label":"Daily Sales Report","url":"https://blufoxmobile.github.io/Daily-Sales-Report/","room":"host","object":"specials-board","audience":"rep","blurb":"Log today's sales as they happen — the specials board every store reads from.","aliases":["dsr","daily sales","sales report","daily report","numbers","specials","promo card","ranking","rankings","rank","standings"]},{"slug":"tsheet-submissions","label":"T-Sheet Submissions","url":"https://blufoxmobile.github.io/T-Sheet-Submissions/","room":"pass","object":"script-card","audience":"rep","blurb":"Every submitted t-sheet on one spike — review, track, and follow up on customer quotes.","aliases":["tsheet","t sheet","tsheets","submissions"]},{"slug":"yesterdays-conversion","label":"Yesterday's Conversion","url":"https://blufoxmobile.github.io/Yesterday-s-Conversion/","room":"host","object":"reservation-book","audience":"rep","blurb":"How yesterday's traffic turned into sales — conversion rates by store, at a glance.","aliases":["yc","conversion","traffic","daily report"]},{"slug":"commission-payouts","label":"Commission Payouts 2026","url":"https://blufoxmobile.github.io/Commission-Payouts/","room":"office","object":"wall-print","audience":"rep","blurb":"The 2026 commission structure — what every sale pays out, before you ring it up.","aliases":["commission","comp","comm","payouts","gp","pay sheet","pay","paycheck","pay check","paystub","spiff","spiffs"]},{"slug":"wtw-chicago","label":"Win the Weekend — Chicago","url":"https://blufoxmobile.github.io/Win-The-Weekend---Chicago/","room":"dining","object":"menu-board-1","audience":"rep","blurb":"Chicago's weekend leaderboard — who's winning, who's chasing, and what it takes to take the top spot.","aliases":["wtw","win the weekend","leaderboard","contest"]},{"slug":"wtw-big-south","label":"Win the Weekend — Big South","url":"https://blufoxmobile.github.io/Win-The-Weekend---Big-South/","room":"dining","object":"menu-board-2","audience":"rep","blurb":"Big South's weekend leaderboard — the standings, the stakes, and the stores to beat.","aliases":["wtw","win the weekend","leaderboard","contest"]},{"slug":"nps","label":"NPS Report","url":"https://blufoxmobile.github.io/NPS-Index---Medallia/","room":"dining","object":"reviews-wall","audience":"rep","blurb":"Medallia NPS scores by store — what customers are actually saying about the experience.","aliases":["nps","medallia","survey","reviews","detractor"]},{"slug":"porting-guide","label":"PortPro — Porting Guide","url":"tools/porting-guide/","room":"prep","object":"recipe-card-1","audience":"rep","blurb":"Account numbers, PINs, and port-out steps for 20+ carriers — everything you need to move a number clean.","aliases":["port","porting","portpro","transfer pin","account number"]},{"slug":"credit-limit","label":"Credit Limit Increase","url":"https://blufoxmobile.github.io/Credit-Eligibility-Request/","room":"prep","object":"recipe-card-2","audience":"rep","blurb":"Request a credit eligibility review when a customer needs more lines than their limit allows.","aliases":["cli","credit","credit limit","eligibility","credit check","credit score","line limit"]},{"slug":"bapis","label":"Online Order Processing (BAPIS)","url":"https://blufoxmobile.github.io/Bapis-Orders/","room":"prep","object":"recipe-card-3","audience":"rep","blurb":"Work BAPIS online orders step by step so nothing falls off between the web cart and activation.","aliases":["bapis","online order","web order"]},{"slug":"bp-access","label":"Report BP Access Issues","url":"https://blufoxmobile.github.io/BP-Access-Issues/","room":"prep","object":"recipe-card-4","audience":"rep","blurb":"Locked out of BP? File the access issue here so it gets fixed instead of forgotten.","aliases":["bp","locked out","login","access"]},{"slug":"printouts","label":"Print Outs","url":"tools/printouts/","room":"office","object":"printer","audience":"rep","blurb":"Printable forms, signage, and store paperwork — hosted on the site now, so you can preview and print without leaving the kitchen.","aliases":["print","printouts","print outs","forms","signage","paperwork","flyer","flyers","google review","google review print out","review cards","whole home bundle","welcome kit","nps start stop","start stop qr codes","qr codes","qr code","channel lineup","channel line up","lineup","channel guide","now tv","now latino","daily menu","sales tracker","welcome sign in sheet","sign in sheet","brinks pick up log","brinks","pick up log","cash log","employee handbook","handbook","nps black and white","nps text template","text template","spanish"]},{"slug":"exception-report","label":"Exception Report","url":"https://blufoxmobile.github.io/Exception-Report/","room":"office","object":"clipboard-1","audience":"rep","blurb":"Flag transactions that didn't go by the book — exceptions logged and tracked to resolution.","aliases":["exception","exceptions"]},{"slug":"fall-off","label":"Fall-Off Summary","url":"https://blufoxmobile.github.io/Fall-Off-Summary-Report/","room":"office","object":"clipboard-2","audience":"rep","blurb":"Sales that fell off before install or activation — see what slipped and chase it back.","aliases":["falloff","fall off","fell off","chargeback","chargebacks","clawback","cancellations"]},{"slug":"rep-hourly-rate","label":"Rep Hourly Rate Estimate","url":"https://blufoxmobile.github.io/Rep-Hourly-Rate-Estimate/","room":"office","object":"chip-only","audience":"rep","blurb":"Work out what a rep's hours and commission come to as an effective hourly rate.","aliases":["hourly","wage","pay estimate"]},{"slug":"training-xfinity","label":"Xfinity Product Mastery","url":"https://blufoxmobile.github.io/Xfinity-Training-Class/","room":"breakroom","object":"binder-1","audience":"rep","blurb":"The full Xfinity product training — plans, pricing, and battle cards, with a quiz to prove you know it.","aliases":["training","class","quiz","product"]},{"slug":"training-straight-line","label":"Sales Process 101","url":"https://blufoxmobile.github.io/Straight-Line-Selling-Techniques/","room":"breakroom","object":"binder-2","audience":"rep","blurb":"The straight-line sales process from greeting to close — tonality, control, and the loops in between.","aliases":["training","class","quiz","sales process","straight line"]},{"slug":"training-tsheet","label":"The Plus-First Playbook","url":"https://blufoxmobile.github.io/T-Sheet-Training/","room":"breakroom","object":"binder-3","audience":"rep","blurb":"How to run the t-sheet plus-first — lead with the full-value quote and let the discounts do the closing.","aliases":["training","class","quiz","plus first"]},{"slug":"training-pos","label":"Celestial Point of Sale","url":"https://blufoxmobile.github.io/Celestial-Point-Of-Sale/","room":"breakroom","object":"locker-4","audience":"rep","blurb":"Learn the Celestial POS — how to ring, tender and correct a sale on the system the floor actually runs on.","aliases":["training","class","quiz","pos","celestial","register"]},{"slug":"fox-run","label":"C³ FOX RUN","url":"https://blufoxmobile.github.io/C3-Run-Game/","room":"breakroom","object":"no-chip","audience":"rep","blurb":"The break-room arcade cabinet. Run the fox, dodge the obstacles, hold the high score.","aliases":["fox run","games","arcade"]},{"slug":"after-hours","label":"AFTER HOURS","url":"https://blufoxmobile.github.io/After-Hours/","room":"breakroom","object":"no-chip","audience":"rep","blurb":"The second cabinet in the C³ arcade. When the floor is quiet, the break room is not.","aliases":["after hours","games","arcade"]},{"slug":"deep-six","label":"DEEP SIX — Blufox Fleet Command","url":"https://blufoxmobile.github.io/Deep-Six/","room":"breakroom","object":"no-chip","audience":"rep","blurb":"The third cabinet in the C³ arcade. Read the sonar, call the shot, and put the other fleet on the bottom.","aliases":["deep six","games","arcade"]},{"slug":"overdrive","label":"BLUFOX OVERDRIVE","url":"https://blufoxmobile.github.io/Blufox-Overdrive/","room":"breakroom","object":"no-chip","audience":"rep","blurb":"The fourth cabinet in the C³ arcade. Eight karts, six circuits, and a Chicago night that does not slow down.","aliases":["overdrive","games","arcade"]},{"slug":"casino","label":"BLUFOX CASINO","url":"tools/casino/","room":"breakroom","object":"no-chip","audience":"rep","blurb":"The fifth cabinet in the C³ arcade. Hold'em, blackjack, roulette and the gateway slots — play chips only, nothing to buy and nothing to win.","aliases":["casino","games","arcade"]}]},
       freezer: {"v":1,"alg":"PBKDF2-SHA256/AES-256-GCM","kdf":{"name":"PBKDF2","hash":"SHA-256","iterations":600000,"salt":"Hv4y24jVb0t6IuQaqKVPpA=="},"iv":"/rmUmVIWrQAqxFhW","tagBits":128,"count":13,"ct":"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"},
       headchefs: {"generated_at":"2026-09-11T15:34:36.946Z","generator":"build/pull-headchefs.mjs","note":"GENERATED FILE — do not hand-edit. Rebuilt from the Win-The-Weekend decks by .github/workflows/headchefs.yml every 30 minutes.","policy":{"poll_minutes":30,"client_cadence":"weekly, Fridays","hold_last_seen":true,"stale_warn_days":8,"stale_drop_days":14,"why":"The decks are edited in place, so a district can be missing for minutes while the client rebuilds a slide. Blanking a frame on one absent read would make the wall flicker. So an absent district keeps the chef already on file and only the clock moves. The cap is 14 days = two missed Friday postings: one skipped week is normal (holiday, manager out, deck rebuilt), two consecutive means the entry is no longer \"last week's winner\" but a fortnight-old photograph being presented as this week's — worse than an empty frame. Past the cap the chef is dropped and the frame goes back to a labelled empty mat. The frame and its engraved district label are never dropped.","photo":{"max_w":384,"max_h":576,"format":"webp","quality":78,"why":"Sized for the picture frames (~105 CSS px at 2560) and the narrow card strip (~172 CSS px at 390). The deck ships 1024x1536 JPEGs."}},"district_order":["big-south","west-side","east-side","north-side","south-side","xfinity"],"sources":[{"deck":"big-south","label":"Big South","page":"https://blufoxmobile.github.io/Win-The-Weekend---Big-South/","raw":"https://raw.githubusercontent.com/BlufoxMobile/Win-The-Weekend---Big-South/main/index.html","fetched_at":"2026-09-11T15:34:37.571Z","bytes":2857840,"head_chef_slides":1,"districts":["Big South"]},{"deck":"chicago","label":"Chicago","page":"https://blufoxmobile.github.io/Win-The-Weekend---Chicago/","raw":"https://raw.githubusercontent.com/BlufoxMobile/Win-The-Weekend---Chicago/main/index.html","fetched_at":"2026-09-11T15:34:37.985Z","bytes":2502684,"head_chef_slides":5,"districts":["North Side","East Side","South Side","West Side","Xfinity Head Chef of the Week"]}],"districts":{"big-south":{"district":"Big South","district_short":"Big South","source_deck":"big-south","source_url":"https://blufoxmobile.github.io/Win-The-Weekend---Big-South/","slide_title":"Head Chef Of The Week — Big South","present_this_run":true,"first_seen":"2026-08-28T14:30:10.145Z","last_confirmed":"2026-09-11T15:34:36.946Z","last_changed":"2026-09-11T13:29:08.756Z","days_since_confirmed":0},"west-side":{"district":"West Side","district_short":"West Side","source_deck":"chicago","source_url":"https://blufoxmobile.github.io/Win-The-Weekend---Chicago/","slide_title":"Head Chef Of The Week — West Side","present_this_run":true,"first_seen":"2026-08-28T14:30:10.145Z","last_confirmed":"2026-09-11T15:34:36.946Z","last_changed":"2026-09-11T15:34:36.946Z","days_since_confirmed":0},"east-side":{"district":"East Side","district_short":"East Side","source_deck":"chicago","source_url":"https://blufoxmobile.github.io/Win-The-Weekend---Chicago/","slide_title":"Head Chef Of The Week — Outlawz","present_this_run":true,"first_seen":"2026-08-28T14:30:10.145Z","last_confirmed":"2026-09-11T15:34:36.946Z","last_changed":"2026-09-11T15:34:36.946Z","days_since_confirmed":0},"north-side":{"district":"North Side","district_short":"North Side","source_deck":"chicago","source_url":"https://blufoxmobile.github.io/Win-The-Weekend---Chicago/","slide_title":"Head Chef Of The Week — North Side","present_this_run":true,"first_seen":"2026-08-28T14:30:10.145Z","last_confirmed":"2026-09-11T15:34:36.946Z","last_changed":"2026-09-11T15:34:36.946Z","days_since_confirmed":0},"south-side":{"district":"South Side","district_short":"South Side","source_deck":"chicago","source_url":"https://blufoxmobile.github.io/Win-The-Weekend---Chicago/","slide_title":"Head Chef Of The Week — The South Side","present_this_run":true,"first_seen":"2026-08-28T14:30:10.145Z","last_confirmed":"2026-09-11T15:34:36.946Z","last_changed":"2026-09-11T15:34:36.946Z","days_since_confirmed":0},"xfinity":{"district":"Xfinity Head Chef of the Week","district_short":"Xfinity","source_deck":"chicago","source_url":"https://blufoxmobile.github.io/Win-The-Weekend---Chicago/","slide_title":"⭐ Xfinity Head Chef Of The Week","present_this_run":true,"first_seen":"2026-08-26T04:16:23.645Z","last_confirmed":"2026-09-11T15:34:36.946Z","last_changed":"2026-09-11T15:34:36.946Z","days_since_confirmed":0}},"headchefs":[{"district":"Big South","district_key":"big-south","district_short":"Big South","region_deck":"Big South","slide_title":"Head Chef Of The Week — Big South","slide_index":0,"name":"Joshua Jones","store_role":"Johnson City • Sales Representative","stats":[{"value":"$2,815","label":"GP $"},{"value":"50%","label":"Plus"},{"value":"100%","label":"GIG Attach"},{"value":"$9.43","label":"Accy $/Box"}],"writeup":"This guy leaves no stone left unturned. Always has a great attitude and in his manager’s absence he has stepped up in a major way and owned the success of the store as though it were his own.","is_xfinity":false,"is_store":false,"vacant":false,"has_photo":true,"photo_file":"photos/big-south.webp","photo_w":384,"photo_h":375,"photo_bytes":13682,"photo_sha":"a0c62cf6c38c0c8d060fb17ba7a796155a825624fa3f3d0541977e0c368b8c5f","photo_file_sha":"13e56957b3c2c7019b450dfabbb7d187121f6d2eebaca1fb983c8ea7123dabed","photo_low_quality":true,"last_confirmed":"2026-09-11T15:34:36.946Z","last_changed":"2026-09-11T13:29:08.756Z","days_since_confirmed":0,"stale":false},{"district":"West Side","district_key":"west-side","district_short":"West Side","region_deck":"Chicago","slide_title":"Head Chef Of The Week — West Side","slide_index":3,"name":"Linda Weeks","store_role":"Glenview • Assistant Manager","stats":[{"value":"$7,948","label":"GP $"},{"value":"85%","label":"Plus"},{"value":"100%","label":"GIG Attach"},{"value":"$0.70","label":"Accy $/Box"}],"writeup":"• 7.3K GP\n• 6 NETS ALL GIG\n• 31 TOTAL LINES\n• 85% PLUS\n\n•• Always looking for opportunities with every customer","is_xfinity":false,"is_store":false,"vacant":false,"has_photo":false,"photo_file":null,"photo_w":0,"photo_h":0,"photo_bytes":0,"photo_sha":null,"photo_file_sha":null,"photo_low_quality":false,"last_confirmed":"2026-09-11T15:34:36.946Z","last_changed":"2026-09-11T15:34:36.946Z","days_since_confirmed":0,"stale":false},{"district":"East Side","district_key":"east-side","district_short":"East Side","region_deck":"Chicago","slide_title":"Head Chef Of The Week — Outlawz","slide_index":1,"name":"April Vasquez","store_role":"Schererville • Assistant Manager","stats":[{"value":"$5,415","label":"GP $"},{"value":"94%","label":"Plus"},{"value":"20%","label":"GIG Attach"},{"value":"$25.23","label":"Accy $/Box"}],"writeup":"Ranked 111th nationally\nMaintains performance when manager is off\nDevelops those around her\nConsistent top region performer","is_xfinity":false,"is_store":false,"vacant":false,"has_photo":true,"photo_file":"photos/east-side.webp","photo_w":384,"photo_h":365,"photo_bytes":17144,"photo_sha":"5abcd71ae7e515c5973445fa01fc9cb4a8a094c67728ca823cc6df4371a37678","photo_file_sha":"004aa7d561174172d28594b52fe6f81e18fa9ca44b01811ddd33c4f3f9ab8189","photo_low_quality":true,"last_confirmed":"2026-09-11T15:34:36.946Z","last_changed":"2026-09-11T15:34:36.946Z","days_since_confirmed":0,"stale":false},{"district":"North Side","district_key":"north-side","district_short":"North Side","region_deck":"Chicago","slide_title":"Head Chef Of The Week — North Side","slide_index":0,"name":"Mobi","store_role":"Head Chef Nominee","stats":[],"writeup":"$1000+ in Commission\nGreat customer service\nAlways looking for a sale\nImpact maker","is_xfinity":false,"is_store":false,"vacant":false,"has_photo":true,"photo_file":"photos/north-side.webp","photo_w":384,"photo_h":382,"photo_bytes":8550,"photo_sha":"91ac8dad26fb0b04bd7ddc60cfd2f64653c5b7ac180eda7507e894c6e2f9047b","photo_file_sha":"1cac867117eb8f3666cb8343753dc0410dd517d8bcbcc15d0c9b5ffd7d0cc888","photo_low_quality":true,"last_confirmed":"2026-09-11T15:34:36.946Z","last_changed":"2026-09-11T15:34:36.946Z","days_since_confirmed":0,"stale":false},{"district":"South Side","district_key":"south-side","district_short":"South Side","region_deck":"Chicago","slide_title":"Head Chef Of The Week — The South Side","slide_index":2,"name":"Alicia Valdez","store_role":"Evergreen Park • Assistant Manager","stats":[{"value":"$6,396","label":"GP $"},{"value":"65%","label":"Plus"},{"value":"78%","label":"GIG Attach"},{"value":"$4.91","label":"Accy $/Box"}],"writeup":"Currently leading the southside in the ranker coming in at number 76. Alicia is a shark day in and day out. It doesn't matter if it's a remote swap or phone issue she's going into the account and looking for the opportunities. Thank you for all the work you put in.","is_xfinity":false,"is_store":false,"vacant":false,"has_photo":true,"photo_file":"photos/south-side.webp","photo_w":384,"photo_h":378,"photo_bytes":4402,"photo_sha":"cf2e12e4925e6189f1af7173a429bfbdbd13f0fc798a448330804e0a8b38399e","photo_file_sha":"c7d0f0332ffe9d7cbfef8e40d1d3052563d9ff483f73c83c614f700b27578c07","photo_low_quality":true,"last_confirmed":"2026-09-11T15:34:36.946Z","last_changed":"2026-09-11T15:34:36.946Z","days_since_confirmed":0,"stale":false},{"district":"Xfinity Head Chef of the Week","district_key":"xfinity","district_short":"Xfinity","region_deck":"Chicago","slide_title":"⭐ Xfinity Head Chef Of The Week","slide_index":4,"name":"Uptown, Evanston, Cal City, and Cicero","store_role":"Xfinity Head Chef • Greater Chicago","stats":[],"writeup":"Congratulations to these stores for delivering an outstanding customer experience and leading the region in NPS performance!\n🥇 55009 - Uptown, Chicago | 89.4 SMS NPS (47 surveys)\n🥈 55008 - Evanston | 87.3 SMS NPS (55 surveys)\n🥉 51041 - Calumet City | 82.2 SMS NPS (45 surveys)\n🏅 55011 - Cicero | 81.7 SMS NPS (60 surveys)\nYour commitment to creating exceptional customer experiences is showing through every interaction. These results don't happen by accident. They come from consistent execution, strong engagement, and a relentless focus on taking care of our customers.\nKeep raising the bar and setting the standard for the market. Great work, teams! 👏🔥","is_xfinity":true,"is_store":false,"vacant":false,"has_photo":false,"photo_file":null,"photo_w":0,"photo_h":0,"photo_bytes":0,"photo_sha":null,"photo_file_sha":null,"photo_low_quality":false,"last_confirmed":"2026-09-11T15:34:36.946Z","last_changed":"2026-09-11T15:34:36.946Z","days_since_confirmed":0,"stale":false}]}
     };
   </script>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
-       FONTS — ASYNCHRONOUS, AND THAT IS THE WHOLE POINT
+       FONTS — SELF-HOSTED (v29), AND STILL NEVER ON THE CRITICAL PATH
        ═══════════════════════════════════════════════════════════════════════
-       This was a plain render-blocking <link rel="stylesheet">, and it sat
-       ABOVE every script in this head. A stylesheet that is still pending
-       blocks SCRIPT EXECUTION as well as rendering, and a parser-inserted
-       script that cannot run stops the parser dead — so a fonts.googleapis.com
-       request that HANGS never let the document reach <body> at all.
+       HISTORY, because every rule below was paid for. This used to be a
+       render-blocking <link> to fonts.googleapis.com ABOVE the two inline
+       scripts, and on 2026-08-31 a HUNG font host (connection accepted, never
+       answered — a store's guest wifi, a captive portal) never let the document
+       reach <body>: no data-view, nothing painted. The fix then was the inline
+       scripts above, a media="print" onload link, and removing theme.css §00's
+       @import. That made a hung host harmless, but the fonts stayed LATE: the
+       Google CSS was fetched at the lowest priority, behind the module waterfall,
+       and the files it named were requested only once text was laid out after
+       boot — fonts ready 3.7 s on LTE, a visible swap, and the ticket rail's
+       layout shift (the page's only CLS source). Two extra origins, two extra
+       TLS handshakes, 43% of a phone's bytes.
 
-       Measured 2026-08-31, font request hung (connection accepted, never
-       answered — which is precisely what a store's guest wifi and a captive
-       portal do):
-           BEFORE   t=1s / 10s / 30s   document.body: MISSING (bodyLen -1),
-                                       <html data-view>: never stamped,
-                                       nothing painted, readyState "loading"
-           AFTER    t=1s               body present, data-view stamped,
-                                       the kitchen built, the page usable
-       Fast FAILURE was never the problem (with the font host refusing
-       outright the view was decided at 92ms). It is the HANG that killed it.
+       NOW: the same four Latin files Google serves (Archivo roman/italic, Bodoni
+       Moda roman/italic — variable, OFL; assets/fonts/OFL.txt) live in
+       assets/fonts/ and are declared right here. build/fingerprint.mjs hashes
+       them like any other asset and rewrites both URLs below, so they cache for
+       good. What is unchanged, deliberately:
+         · nothing here is render-blocking and nothing is ABOVE the view script;
+         · font-display: swap — text paints at once in the §02 fallback stacks
+           and the webfont replaces it (FOUT, never invisible text);
+         · the descriptors are Google's, byte for byte, so nothing is set in a
+           different weight, width or style than it was;
+         · unicode-range stays the Latin range Google uses: a glyph outside it
+           (an arrow, a check mark) falls back to a system face exactly as it
+           always has.
+       There is no third-party font host left to hang, so the "hung font host"
+       failure class is gone rather than defended against.
 
-       Three changes, and all three are load-bearing:
-         1. THE TWO INLINE SCRIPTS MOVED ABOVE THIS TAG. Neither of them needs
-            one byte of CSS — the first stamps <html data-view>, the second
-            assigns an object — so they now run before a stylesheet has even
-            been requested. Nothing else about them changed.
-         2. media="print" + onload="this.media='all'". A stylesheet whose
-            media does not match is still DOWNLOADED (at low priority) but is
-            neither render-blocking nor script-blocking; flipping the media in
-            onload applies it the instant it arrives. The <noscript> copy keeps
-            the webfont for a browser with scripting off, where there is no
-            boot left to protect.
-         3. theme.css §00's own @import of this same URL IS GONE. It was the
-            other half of the hazard and, on its own, still fatal: a sheet is
-            not "loaded" until its @imports settle, whatever media they carry,
-            so a hung import kept theme.css blocking scripts and app.js never
-            ran. Measured with 1 and 2 already in place: @import unscoped and
-            @import … print BOTH left <main id="kitchen"> with 0 children at
-            1s, 10s and 30s; with the import removed the kitchen was built at
-            1s. See the note in theme.css §00 — DO NOT PUT IT BACK. This <link>
-            is now the only place the webfont is requested from.
+       THREE OF THE FOUR ARE PRELOADED. The two Bodoni Moda faces are in the
+       CRITICAL HINTS at the top of <head> — the curtain's masthead is set in
+       them and waits for them. Archivo roman is preloaded here: it carries the
+       ticket rail and every word of UI, and is otherwise discovered only when
+       boot lays out the rail, which is what made the rail re-flow when it
+       swapped. It sits after the cinema modules in request order on purpose:
+       boot needs the modules first and the font by the time the rail is built.
+       Archivo italic is declared only so nothing is ever synthesised, and is
+       never fetched unless used. `crossorigin` is required on a font preload
+       even on the same origin — without it the preload is not reused and the
+       file downloads twice.
 
-       The URL is copied verbatim from theme.css §00; keep them in sync. -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,300..700;1,62..125,300..700&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&display=swap"
-        media="print" onload="this.media='all'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,300..700;1,62..125,300..700&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&display=swap"></noscript>
+       STATION PAGES under tools/ carry their own copy of these faces with
+       ../../ URLs (printouts, arcade), or of their own family (porting-guide:
+       Inter; casino: DM Sans + Manrope). Keep the descriptors in step. -->
+  <link rel="preload" href="assets/fonts/archivo-latin.e3a28eade2.woff2" as="font" type="font/woff2" crossorigin>
+  <style>
+    @font-face {
+      font-family: 'Archivo'; font-style: normal; font-weight: 300 700; font-stretch: 62% 125%; font-display: swap;
+      src: url(assets/fonts/archivo-latin.e3a28eade2.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: 'Archivo'; font-style: italic; font-weight: 300 700; font-stretch: 62% 125%; font-display: swap;
+      src: url(assets/fonts/archivo-italic-latin.d63de74ee5.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: 'Bodoni Moda'; font-style: normal; font-weight: 400 900; font-display: swap;
+      src: url(assets/fonts/bodoni-moda-latin.c032219ef6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: 'Bodoni Moda'; font-style: italic; font-weight: 400 700; font-display: swap;
+      src: url(assets/fonts/bodoni-moda-italic-latin.b737328c13.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+  </style>
 
-  <!-- PLATE PRELOAD — THE HERO ONLY.
-       The hero is the LCP element, so it gets the one preload and the one high
-       priority. `pass` used to be preloaded here as well; it is not any more.
-       It is now loading="lazy" in app.js, and preloading a lazy image is a
-       contradiction that fetches it eagerly anyway — measurement showed Chrome's
-       lazy threshold is generous enough that pass AND host land at first paint
-       regardless, so the preload was doing nothing except taking bandwidth off
-       the hero. The other seven plates are lazy; preloading all eight would cost
-       ~1.6MB of contention on a store iPad for imagery nobody has scrolled to.
 
-       imagesrcset/imagesizes must mirror the <img> in app.js EXACTLY — the same
-       three candidates and the same sizes expression — or the preload misses
-       and the browser fetches the plate twice. The sizes value describes the
-       plate's COVER box (theme.css §06), not the viewport, EXCEPT in the phone
-       band, where it deliberately under-declares to 440px so an iPhone takes
-       the 1400 cut instead of the 2400; app.js's PLATE_SIZES carries the whole
-       derivation and the measurements behind it. Copy that constant here
-       verbatim, in the same order — `sizes` takes the FIRST matching branch, so
-       the two phone conditions must stay ahead of the aspect-ratio ones.
+  <link rel="stylesheet" href="assets/theme.eac66f530d.css">
 
-       THE `media` ATTRIBUTE IS THE PHONE'S HALF OF THE POCKET BUILD, and it is
-       not decoration. A `<link rel="preload">` whose media query does not match
-       is NEVER FETCHED — unlike a media-mismatched stylesheet, which browsers
-       download anyway at low priority. That property is the only way to keep
-       the hero off a phone without deleting the tag and rebuilding it from
-       script, which would take the preload SCANNER off it for everybody else
-       and cost the iPads their LCP.
+  <!-- M1 · THE CURTAIN'S OWN RULES. The markup and the reasoning are in <body>,
+       on #curtain. Everything here is keyed off <html data-view>, which the
+       first script above has already stamped: `full` pins the curtain over the
+       page, `pocket` and `floor` never show it, and NO data-view (scripting
+       off) leaves it in the flow as the page's own hero, above the <noscript>
+       list. Motion is transform/opacity only; tiers follow contract C5
+       (html[data-motion] full|lite|off, absent = full) and reduced motion. -->
+  <style>
+    .ccc-curtain {
+      position: relative;
+      block-size: 100svh;
+      overflow: hidden;
+      /* .plate-wrap solves its cover box in cqw against its container — on the
+         live hero that is .stage; here it is the curtain, the same 100% x 100svh. */
+      container-type: inline-size;
+      background: var(--ink-950, #05070a);
+      pointer-events: none;
+      /* The hero's resting frame, as engine.js writes it at scrollY 0: p 0,
+         enter 1, bloom 0, push-in 1, and the parallax drift at its start
+         (drift −1 → x −DRIFT_X_PCT for the first room, y +DRIFT_Y_PCT). Given
+         these, theme.css's own formulas produce the same grade, glow, vignette
+         and crop as the live hero. KEEP IN STEP with engine.js if those change. */
+      --p: 0; --enter: 1; --bloom: 0;
+      /* v29: engine.js writes the FINE tier and .plate-wrap re-derives the
+         public names from it (theme.css §01/§06), so the rest values go here
+         too — unset, bloom-fine falls to its @property initial 1 (lit). */
+      --p-fine: 0; --enter-fine: 1; --bloom-fine: 0; --exit-fine: 0;
+      --plate-scale: 1; --plate-x: -1.4; --plate-y: 1.8;
+      --focus-x: 0.5; --focus-y: 0.45; --glow-x: 50%; --glow-y: 20%;
+    }
+    /* theme.css §06d's framing for .room / .room[data-room="hero"], which the
+       curtain (not a .room) has to state itself. KEEP IN STEP with it. */
+    @media (min-width: 901px) and (min-aspect-ratio: 8 / 7) {
+      .ccc-curtain { --overscan-k: 1.04; --art-y: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ccc-curtain { --overscan-k: 1; }
+    }
+    html[data-view="full"] .ccc-curtain { position: fixed; inset: 0; z-index: 150; }
+    html[data-view="pocket"] .ccc-curtain,
+    html[data-view="floor"] .ccc-curtain { display: none; }
+    .ccc-curtain picture { display: contents; }
+    /* theme.css §17 grades a narrow-band room's vignette for its screens band
+       and zeroes it on a `.stage` that has none — the hero's case. The curtain
+       is not a .stage, so it states the hero's value itself. */
+    .ccc-curtain .plate-vig { --band-h: 0px; }
 
-       The condition is the exact NEGATION of the pocket predicate in the script
-       below — De Morgan on `coarse AND (w<=500 OR (w<=1000 AND h<=500))`:
+    /* The rise starts at opacity .01, not 0. It looks identical, and it is the
+       difference between Chromium counting the name as painted at first paint
+       and not counting it at all: text whose first paint is at opacity 0 under
+       an animation is ignored by FCP/LCP, so those metrics used to report the
+       live hero's title after boot while this one was already on screen. */
+    @keyframes ccc-curtain-rise   { from { opacity: .01; transform: translate3d(0, var(--m-rise-2, 14px), 0); } }
+    @keyframes ccc-curtain-appear { from { opacity: .01; } }
+    /* THE NAME WAITS FOR ITS FONT, THEN RISES. Until the two Bodoni Moda faces
+       it is set in have loaded (or 1.2 s have passed — the script adds
+       .is-type), the masthead is not shown at all. Shown in a fallback serif
+       and then swapped, its line boxes and its §07 ground (sized in % of the
+       title's own width) move — measured, that was the curtain's only layout
+       shift. Hidden, the swap happens off screen and the rise starts on the
+       real letterforms. The plate is not held back; only the type. */
+    html[data-view="full"] .ccc-curtain:not(.is-type) .hero-inner { visibility: hidden; }
+    html[data-view="full"] .ccc-curtain.is-type .hero-title > span {
+      animation: ccc-curtain-rise var(--m-t-5, 560ms) var(--m-ease-cine, cubic-bezier(.16, 1, .3, 1)) 120ms both;
+    }
+    html[data-view="full"] .ccc-curtain.is-type .hero-title > span:nth-child(2) { animation-delay: 210ms; }
+    html[data-view="full"] .ccc-curtain.is-type .hero-title > span:nth-child(3) { animation-delay: 300ms; }
+    html[data-view="full"] .ccc-curtain.is-type.is-lite .hero-title > span {
+      animation-name: ccc-curtain-appear; animation-duration: 200ms; animation-timing-function: linear;
+    }
+    .ccc-curtain.is-off .hero-title > span { animation: none; }
 
-           NOT coarse            ->  (pointer: fine), (pointer: none)
-           NOT (w<=500 OR ...)   ->  (min-width: 1001px)
-                                 ->  (min-width: 501px) and (min-height: 501px)
+    .ccc-curtain.is-up {
+      opacity: 0;
+      transition: opacity var(--m-t-4, 360ms) var(--m-ease-out, cubic-bezier(.22, .61, .24, 1));
+    }
+    .ccc-curtain.is-up.is-lite { transition-duration: 200ms; transition-timing-function: linear; }
 
-       Checked: iPhone 393x852 and 852x393 match nothing -> no fetch. iPad
-       820x1180 and 1180x820, iPad in half-and-half Split View at 570x820, and
-       every desktop match -> fetched exactly as before. A browser too old to
-       understand `pointer` fails those two terms and still matches on width, so
-       it keeps the preload. IF YOU CHANGE THE PREDICATE, CHANGE THIS TOO. -->
-  <link rel="preload" as="image" href="plates/hero.197e175d93.webp"
-        media="(pointer: fine), (pointer: none), (min-width: 1001px), (min-width: 501px) and (min-height: 501px)"
-        imagesrcset="plates/hero@1400.24df9e8171.webp 1400w, plates/hero@1800.e298cedad8.webp 1800w, plates/hero.197e175d93.webp 2400w"
-        imagesizes="(max-width: 500px) 440px, (max-width: 1000px) and (max-height: 500px) 440px, (min-aspect-ratio: 2400/1340) 110vw, 197vh" fetchpriority="high">
-
-  <link rel="stylesheet" href="assets/theme.a73825e539.css">
+    @media (prefers-reduced-motion: reduce) {
+      .ccc-curtain .hero-title > span { animation: none !important; }
+      .ccc-curtain.is-up { transition: none; }
+    }
+  </style>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
        THE SERVICE WORKER, AND THE THREE THINGS IT IS NOT ALLOWED TO DO
@@ -282,7 +463,7 @@
            next build has already pruned.
 
        REGISTERED HERE, NOT IN A MODULE, AND AFTER `load`.
-       In the <head> because it must not depend on assets/app.60e027b99e.js — the deploy
+       In the <head> because it must not depend on assets/app.b15e3166a5.js — the deploy
        window where a hashed module 404s is one of the cases this is meant to
        survive. After `load` because registration competes for the same
        connection as the hero plate, and the offline floor is for the NEXT
@@ -303,8 +484,16 @@
       try { nosw = new URLSearchParams(location.search).has('nosw'); } catch (e) {}
       if (nosw) {
         try {
-          // Unregister FIRST, then drop the caches — in that order, so a worker
-          // cannot be re-populating a cache while it is being deleted.
+          // Tell the worker that controls THIS page to stand down first (sw.js
+          // handles {ccc:'unregister'}): unregistering alone leaves it in
+          // control until the page closes, and a still-controlling worker
+          // re-filled its cache after the delete below (links audit: `regs 0,
+          // caches 1`). Then unregister, then drop the caches — in that order,
+          // so a worker cannot be re-populating a cache while it is deleted.
+          try {
+            var ctl = navigator.serviceWorker.controller;
+            if (ctl) ctl.postMessage({ ccc: 'unregister' });
+          } catch (e) {}
           navigator.serviceWorker.getRegistrations()
             .then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister(); })); })
             .then(function () {
@@ -335,6 +524,60 @@
   <!-- The always-available room menu. Filled by app.js §4. -->
   <header id="ticket-rail" aria-label="Kitchen navigation"></header>
 
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       M1 · THE CURTAIN — THE FIRST FRAME IS THE RESTAURANT, NOT BLACK
+       ═══════════════════════════════════════════════════════════════════════
+       #kitchen is empty until every cinema module has downloaded and boot has
+       built all eight rooms, so a cold iPad used to look at a black page with a
+       hairline for 2.7 s (LTE) to 4.9 s (an older iPad). This is the hero,
+       as static HTML: the storefront plate and the three-line masthead, painted
+       from the first frame with nothing but theme.css. The name rises in (M1:
+       560 ms, 90 ms apart); boot happens underneath; when the engine has painted
+       its own first hero frame (contract C3, `ccc:first-frame`) the curtain
+       dissolves (360 ms) into a picture it is built to match, and is removed.
+
+       WHY IT MATCHES WITHOUT A SECOND COPY OF THE STYLING. It uses theme.css's
+       own .plate-wrap / .plate / .plate-glow / .plate-vig / .hero-inner /
+       .hero-title rules, fed the engine's resting values for the hero (see the
+       <style> after theme.css). It is deliberately NOT a `.room` and has no ids:
+       engine.js collects `.room` elements and every other query in the codebase
+       is scoped to a room, so nothing can mistake this for the kitchen. Keep it
+       that way — a global querySelector('.plate-wrap') would find this first.
+
+       THE PLATE IS THE PRELOADED ONE, NEVER A SECOND DOWNLOAD. The <source>
+       carries the hero preload's exact media, srcset and sizes, so it picks the
+       URL the preload already fetched. On a phone the media does not match and
+       the <img> keeps its 1x1 placeholder: no request at all (and the pocket
+       view never shows this element anyway).
+
+       IT FAILS OPEN, every way it can:
+         · no JavaScript — no data-view, so it sits in the flow as the page's
+           hero, static, with the <noscript> list below it;
+         · the phone — data-view="pocket": never displayed, removed at once;
+         · a boot failure — app.js's fallback list and the inline floor both
+           set data-view="floor", which hides it and removes it at once;
+         · a boot that never signals — 4 s after the kitchen is built it lifts
+           anyway, and 12 s after this script ran it lifts whatever happened;
+         · it never takes a click (pointer-events: none) and is aria-hidden:
+           the live page underneath is the one that is read and operated.
+       <html data-curtain> records what lifted it, for support calls. -->
+  <div class="ccc-curtain" id="curtain" aria-hidden="true">
+    <div class="plate-wrap">
+      <picture>
+        <source media="(pointer: fine), (pointer: none), (min-width: 1001px), (min-width: 501px) and (min-height: 501px)"
+                srcset="plates/hero@1400.24df9e8171.webp 1400w, plates/hero@1800.e298cedad8.webp 1800w, plates/hero.197e175d93.webp 2400w"
+                sizes="(max-width: 500px) 440px, (max-width: 1000px) and (max-height: 500px) 440px, (min-aspect-ratio: 2400/1340) 110vw, 197vh">
+        <img class="plate" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+             width="2400" height="1340" alt="" fetchpriority="high">
+      </picture>
+      <div class="plate-glow"></div>
+      <div class="plate-vig"></div>
+    </div>
+    <div class="hero-inner">
+      <div class="hero-title"><span>Cook</span><span>County</span><span>Cooks</span></div>
+    </div>
+  </div>
+
   <!-- The restaurant: a hero section, then the seven rooms in scroll order.
        Filled by app.js §3 from rooms.js geometry and tools.json copy.
 
@@ -348,6 +591,83 @@
        attribute makes <main> a real focus target on every engine. It stays
        untabbable: -1 means programmatic focus only, so it adds no tab stop. -->
   <main id="kitchen" tabindex="-1"></main>
+
+  <script>
+    (function () {
+      var d = document.documentElement, c = document.getElementById('curtain');
+      if (!c) return;
+      var done = false, safety = 0, cap = 0, moView = null, moKitchen = null;
+      var raf = window.requestAnimationFrame
+        ? function (f) { window.requestAnimationFrame(f); }
+        : function (f) { window.setTimeout(f, 16); };
+
+      /* Contract C5: html[data-motion] (full|lite|off), stamped by the first
+         script in <head> and owned by assets/motion.js from boot on. The
+         fallbacks below only matter if that script did not run: the same
+         early signals, read-only. Reduced motion is always off. */
+      function tier() {
+        var ok = { full: 1, lite: 1, off: 1 };
+        var m = d.getAttribute('data-motion');
+        if (!ok[m]) { m = null; try { m = new URLSearchParams(location.search).get('motion'); } catch (e) {} }
+        if (!ok[m]) { m = null; try { m = window.sessionStorage.getItem('ccc-motion'); } catch (e) {} }
+        if (!ok[m]) m = 'full';
+        try { if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) m = 'off'; } catch (e) {}
+        return m;
+      }
+      function drop() { if (c.parentNode) c.parentNode.removeChild(c); }
+      function stop() {
+        window.clearTimeout(safety); window.clearTimeout(cap);
+        try { document.removeEventListener('ccc:first-frame', onFrame); } catch (e) {}
+        try { if (moView) moView.disconnect(); if (moKitchen) moKitchen.disconnect(); } catch (e) {}
+      }
+      function lift(why) {
+        if (done) return;
+        done = true;
+        stop();
+        d.setAttribute('data-curtain', why);
+        var t = tier();
+        if (t === 'off' || d.getAttribute('data-view') !== 'full') { drop(); return; }
+        // Two frames: the frame that raised the signal is on screen before the
+        // fade starts, so the dissolve is onto a painted hero, never onto black.
+        raf(function () { raf(function () {
+          if (t === 'lite') c.classList.add('is-lite');
+          c.classList.add('is-up');
+          c.addEventListener('transitionend', function (e) { if (e.target === c) drop(); });
+          window.setTimeout(drop, (t === 'lite' ? 200 : 360) + 300);
+        }); });
+      }
+      function onFrame() { lift('first-frame'); }
+      function viewChanged() { if (d.getAttribute('data-view') !== 'full') lift('view-' + d.getAttribute('data-view')); }
+
+      var t0 = tier();
+      if (t0 !== 'full') c.classList.add('is-' + t0);
+      if (d.getAttribute('data-view') !== 'full') { lift('view-' + d.getAttribute('data-view')); return; }
+
+      // The masthead is shown once its faces are in (see the note on .is-type).
+      var typed = false;
+      function type() { if (!typed) { typed = true; c.classList.add('is-type'); } }
+      window.setTimeout(type, 1200);
+      try {
+        Promise.all([document.fonts.load('430 100px "Bodoni Moda"'),
+                     document.fonts.load('italic 430 100px "Bodoni Moda"')]).then(type, type);
+      } catch (e) { type(); }
+
+      document.addEventListener('ccc:first-frame', onFrame);
+      cap = window.setTimeout(function () { lift('cap'); }, 12000);
+      try {
+        moView = new MutationObserver(viewChanged);
+        moView.observe(d, { attributes: true, attributeFilter: ['data-view'] });
+        var k = document.getElementById('kitchen');
+        moKitchen = new MutationObserver(function () {
+          if (!k.firstElementChild || safety) return;
+          safety = window.setTimeout(function () { lift('timeout'); }, 4000);
+        });
+        if (k) moKitchen.observe(k, { childList: true });
+      } catch (e) {
+        safety = window.setTimeout(function () { lift('timeout'); }, 4000);
+      }
+    })();
+  </script>
 
   <!-- The plain index of every tool. Filled by app.js §6. -->
   <footer id="site-footer">
@@ -402,7 +722,7 @@
           <li><a href="https://blufoxmobile.github.io/Blufox-Overdrive/" target="_blank" rel="noopener noreferrer">BLUFOX OVERDRIVE</a></li>
           <li><a href="tools/casino/">BLUFOX CASINO</a></li>
         </ul>
-        <p>The Walk-In Freezer holds 14 manager tools behind a keypad; it needs JavaScript.</p>
+        <p>The Walk-In Freezer holds 13 manager tools behind a keypad; it needs JavaScript.</p>
       </div>
     </noscript>
   </footer>
@@ -416,10 +736,10 @@
   <!-- ═══════════════════════════════════════════════════════════════════════
        THE ENTRY POINT, AND WHAT HAPPENS WHEN THE ENTRY POINT ITSELF IS GONE
        ═══════════════════════════════════════════════════════════════════════
-       assets/app.60e027b99e.js wraps its own boot in a try/catch and draws a flat list of
+       assets/app.b15e3166a5.js wraps its own boot in a try/catch and draws a flat list of
        every tool if any module it imports fails — but it cannot draw anything
        if IT is the file that 404'd, and that is not hypothetical: on
-       2026-08-31 assets/app.60e027b99e.js was live-404ing on
+       2026-08-31 assets/app.b15e3166a5.js was live-404ing on
        cookcountycooks.com while index.html, served with cache-control:
        max-age=600, was still naming it. build/fingerprint.mjs had emitted the
        next build's hashed names and pruned the previous build's; for up to ten
@@ -427,8 +747,11 @@
        longer existed. What that gave a rep mid-conversation was a page whose
        only link was "Skip to the kitchen", pointing at an empty <main>.
 
-       A <script> element fires `error` when its module fails to load, which is
-       exactly and only this case, so that is the hook. The handler below is a
+       The entry below catches that case — its import() of app.js rejects — and
+       calls the floor. (It used to be a <script type="module" src> with an
+       `onerror`; see the note on the entry itself for why it is an inline
+       module now. A rejected import() covers everything `onerror` did, plus an
+       app.js that loads but throws while it evaluates.) The handler below is a
        DELIBERATE, MINIMAL DUPLICATE of app.js's renderFloor(): a <ul> of real
        <a href>, grouped by room, built from the tool list that is already
        inline in this document three <script>s above. It is inline because a
@@ -519,6 +842,39 @@
       } catch (e) { /* a floor that throws is not a floor; fail silent */ }
     };
   </script>
-  <script type="module" src="assets/app.60e027b99e.js" onerror="window.__cccFloor()"></script>
+  <!-- THE ENTRY — ONE PAINTED FRAME FIRST, THEN app.js (full view only).
+       With the cinema's modules preloaded (see the first script in <head>)
+       they are all on hand the moment parsing ends, and a plain
+       <script type="module" src> then runs app.js and the whole boot — one long
+       task, 0.4–0.9 s on a store iPad, 2–3 s on an older one — with no chance
+       for the browser to paint in between. Measured: the curtain, which is
+       ready at that point, first reached the screen AFTER boot in two of three
+       iPad runs. So the entry waits for one frame (rAF, then a task, i.e.
+       after that frame's paint) and only then imports app.js. Cost: one frame.
+       The pocket view has no curtain and imports at once. A hidden tab does not
+       run rAF, so a 250 ms timer races it and boot is never held for a frame
+       that is not coming.
+       app.js is still found by the preload scanner — it is <link
+       rel="modulepreload">'d in CRITICAL HINTS at the top of <head> — so
+       nothing is fetched later than before. The import path is rewritten to the
+       hashed name by build/fingerprint.mjs like every other reference. -->
+  <script type="module">
+    (function () {
+      var started = false;
+      function go() {
+        if (started) return;
+        started = true;
+        import('./assets/app.b15e3166a5.js').catch(function (err) {
+          try { console.error('[entry] assets/app.b15e3166a5.js did not load; drawing the plain list.', err); } catch (e) {}
+          if (window.__cccFloor) window.__cccFloor();
+        });
+      }
+      var d = document.documentElement;
+      if (d.getAttribute('data-view') !== 'full' || !window.requestAnimationFrame ||
+          document.visibilityState === 'hidden') { go(); return; }
+      window.setTimeout(go, 250);
+      window.requestAnimationFrame(function () { window.setTimeout(go, 0); });
+    })();
+  </script>
 </body>
 </html>

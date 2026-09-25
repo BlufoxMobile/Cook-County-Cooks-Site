@@ -136,8 +136,20 @@ function addWayBack() {
 function normaliseToolParam() {
   let params;
   try { params = new URLSearchParams(location.search); } catch { return; }
-  const slug = params.get('tool');
-  if (!slug) return;
+  /* CONTRACT C7 — slugs are case-insensitive, and every slug in the tool list
+     is lower-case. `#/tool/NPS` (a link typed from memory) used to be an
+     unknown slug and so opened the manager keypad; canonicalising the case
+     here, once, before either front end boots, means both the viewer and the
+     sealed-deep-link watchers only ever see the canonical spelling on a cold
+     load. The watchers do the same for a hash that changes later. */
+  const hm = /^#\/tool\/([^/?#]+)(.*)$/.exec(location.hash || '');
+  if (hm && hm[1] !== hm[1].toLowerCase()) {
+    try { history.replaceState(history.state, '', location.pathname + location.search + `#/tool/${hm[1].toLowerCase()}${hm[2]}`); }
+    catch { /* noop: the watchers lower-case it themselves */ }
+  }
+  const raw = params.get('tool');
+  if (!raw) return;
+  const slug = raw.toLowerCase();
   params.delete('tool');
   const q = params.toString();
   const url = location.pathname + (q ? `?${q}` : '') + `#/tool/${encodeURIComponent(slug)}`;

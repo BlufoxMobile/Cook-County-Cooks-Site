@@ -79,21 +79,11 @@
                                           NOT release the parent sheet
        no @import at all   t=1s           kitchen built, 8 children, usable
 
-   THE FONT IS NOT LOST. Every HTML page that uses this stylesheet carries the
-   same font URL as a NON-blocking <link> in its own <head>:
-
-       <link rel="preconnect" href="https://fonts.googleapis.com">
-       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-       <link rel="stylesheet" href="…css2?family=Archivo…"
-             media="print" onload="this.media='all'">
-       <noscript><link rel="stylesheet" href="…css2?family=Archivo…"></noscript>
-
-   A media-mismatched stylesheet is still downloaded, but it can hold up neither
-   rendering nor scripts; the onload flips it to `all` the instant it arrives.
-   index.html and tools/printouts/index.html both carry it. If you add a third
-   page, copy those four lines with it — and if the font host is down, that page
-   renders in the fallback stacks in §02 (--font-display and --font-text both
-   end in real system faces) instead of not rendering at all.
+   THE FONT IS NOT LOST. v29: fonts are self-hosted (assets/fonts/) and
+   declared by @font-face inline in index.html's <head> and in each station
+   page; see the FONTS note in index.html. Still no @import here. If the font
+   files fail, pages render in the fallback stacks in §02 (--font-display and
+   --font-text both end in real system faces) instead of not rendering at all.
    ─────────────────────────────────────────────────────────────────────────── */
 
 
@@ -110,11 +100,47 @@
         every room renders correct, static and beautiful (--enter:1, scale:1);
      3. they interpolate, so `--enter` can be transitioned on the rare code
         path where JS hands us a step change.
+
+   ── v29: TWO TIERS, AND WHY (audit/perf.md §3.3, fix #10) ─────────────────
+   The six used to be registered `inherits: true`, so every write restyled the
+   whole stage subtree — rail, hotspots, screens, printed labels, the office's
+   wall print, the chef wall — every frame of every scrub: 14-18ms of style per
+   frame on an iPad, the single largest cost on the page. Only two things have
+   to follow the finger every frame: the plate/hotspot TRANSFORM and the stage's
+   OPACITY. Everything else is lighting and ownership, and it only has to move
+   when it moves by a visible step. So:
+
+   FINE tier — `inherits: false`, written by engine.js on .stage every frame:
+       --p-fine  --enter-fine  --bloom-fine  --exit-fine
+       --plate-x  --plate-y  --plate-scale
+     Not inherited, so a write restyles the stage and nothing under it. The few
+     direct children that need them take them with an explicit `inherit`
+     (.plate-wrap, .hotspots, freezer.js's .frz) — Chromium then recalcs the
+     stage's direct children only: measured 4 elements instead of 337 on a
+     synthetic stage (scratchpad build/s2/inherittest.py), and WebKit resolves
+     explicit inheritance the same way.
+
+   QUANTISED tier — the public names, `inherits: true`, DERIVED on .stage in
+   CSS from the fine tier (§05) with round():
+       --p (0.25)  --enter (0.1)  --bloom (0.1)  --cut (0.1)  --lit (0.04)
+     A descendant is restyled only when one of these crosses a step, which is
+     a handful of times per room instead of every frame. Inside .plate-wrap the
+     same names are re-declared from the fine tier (§06), so the grade, the dark
+     twin and the glow keep their full, smooth resolution.
+   Initial values are the lit/no-JS end on both tiers, exactly as before.
    ─────────────────────────────────────────────────────────────────────────── */
+@property --p-fine      { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --enter-fine  { syntax: "<number>"; inherits: false; initial-value: 1; }
+@property --bloom-fine  { syntax: "<number>"; inherits: false; initial-value: 1; }
+/* M3 · the outgoing room's lights-down (0 → 1 across p .50-.74). §06 grade. */
+@property --exit-fine   { syntax: "<number>"; inherits: false; initial-value: 0; }
+/* §05 hands this to the stage's opacity. Registered non-inherited: as a plain
+   custom property it inherited as a fresh token stream every frame. */
+@property --dissolve    { syntax: "<number>"; inherits: false; initial-value: 1; }
 @property --p           { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --plate-scale { syntax: "<number>"; inherits: true; initial-value: 1; }
-@property --plate-x     { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --plate-y     { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --plate-scale { syntax: "<number>"; inherits: false; initial-value: 1; }
+@property --plate-x     { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --plate-y     { syntax: "<number>"; inherits: false; initial-value: 0; }
 @property --enter       { syntax: "<number>"; inherits: true; initial-value: 1; }
 /* INITIAL-VALUE 1, NOT 0, AND THAT IS THE ENGINE'S CONTRACT TOO.
    --bloom now drives the whole "lights come up" grade in §06c, not just the
@@ -143,7 +169,6 @@
    a page whose engine.js never ran must render every room fully lit, with the
    dark layer clipped away. See the note above and the promise at the end of
    this file. */
-@property --pulse-amp   { syntax: "<number>"; inherits: true;  initial-value: 0; }
 @property --hold        { syntax: "<number>"; inherits: false; initial-value: 1; }
 @property --lit         { syntax: "<number>"; inherits: true;  initial-value: 1; }
 @property --lift        { syntax: "<number>"; inherits: false; initial-value: 1; }
@@ -293,16 +318,47 @@
   --ring-brass: 0 0 0 1px color-mix(in oklab, var(--brass) 62%, transparent),
                 0 0 26px -6px color-mix(in oklab, var(--amber) 55%, transparent);
 
-  /* ── Motion ─────────────────────────────────────────────────────────────
-     --ease-cine is an expo-out: fast off the mark, very long settle.  It is
-     what makes a UI feel like a camera move rather than a CSS transition.  */
-  --ease-cine:  cubic-bezier(.16, 1, .3, 1);
-  --ease-out:   cubic-bezier(.22, .61, .24, 1);
-  --ease-in-out:cubic-bezier(.65, 0, .35, 1);
-  --ease-bite:  cubic-bezier(.34, 1.36, .44, 1);
+  /* ── Motion (v29 · design audit §5.1) ──────────────────────────────────
+     ONE easing system and ONE duration ladder for the whole site. overlay.js,
+     screens.js, chefwall.js and freezer.js read these with a literal fallback
+     each. Exits are faster than entrances and accelerate (--m-ease-in);
+     nothing staggers past six items (--m-stagger x 6 = 270ms).
+     --m-ease-cine is an expo-out: fast off the mark, very long settle — what
+     makes a UI move feel like a camera move rather than a CSS transition. */
+  --m-ease-out:   cubic-bezier(.22, .61, .24, 1);   /* UI entering              */
+  --m-ease-in:    cubic-bezier(.5, 0, .75, 0);      /* UI leaving               */
+  --m-ease-cine:  cubic-bezier(.16, 1, .3, 1);      /* big reveals, camera      */
+  --m-ease-inout: cubic-bezier(.65, 0, .35, 1);     /* loops, cross-fades       */
+  --m-ease-press: cubic-bezier(.34, 1.36, .44, 1);  /* press release only       */
+  --m-t-1:  90ms;   /* press, focus ring                    */
+  --m-t-2: 160ms;   /* hover, every exit, palette close     */
+  --m-t-3: 240ms;   /* menus, palette open, cascade item    */
+  --m-t-4: 360ms;   /* viewer open, curtain, ticket slide   */
+  --m-t-5: 560ms;   /* room title, rule draw                */
+  --m-t-6: 900ms;   /* signage sweep, discovery sweep total */
+  --m-stagger: 45ms;
+  --m-rise-1: 6px;  --m-rise-2: 14px;  --m-scale-in: .985;
+  /* v29 · S6 · the press every button family shares (§16): down in --m-t-1,
+     back up in --m-t-2 on --m-ease-press. */
+  --m-press: .98;
 
-  --dur-1: 110ms;  --dur-2: 190ms;  --dur-3: 320ms;
-  --dur-4: 520ms;  --dur-5: 820ms;  --dur-6: 1400ms;
+  /* ── The focus ring (v29 · S6, §16) ────────────────────────────────────
+     ONE ring for every control, two tones because no single colour survives a
+     photograph (§16's note): a dark core and a brass halo. The INSET form is
+     for a control inside a box that clips (a scroller, a masked strip, a
+     panel with rounded overflow), where the outer ring would be cut off. */
+  --ring-core: var(--ink-950);
+  --ring-halo: var(--brass-300);
+
+  /* legacy aliases, so nothing that reads the old names moves by more than a
+     few milliseconds */
+  --ease-cine:  var(--m-ease-cine);
+  --ease-out:   var(--m-ease-out);
+  --ease-in-out:var(--m-ease-inout);
+  --ease-bite:  var(--m-ease-press);
+
+  --dur-1: var(--m-t-1);  --dur-2: var(--m-t-2);  --dur-3: var(--m-t-3);
+  --dur-4: var(--m-t-5);  --dur-5: 820ms;         --dur-6: 1400ms;
 
   /* ── Z ladder ─────────────────────────────────────────────────────────
      ⚠ THE HOTSPOT LAYER IS ABOVE THE RAIL, AND THAT IS DELIBERATE.
@@ -461,9 +517,18 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    03 · RESET + BASE
    ═══════════════════════════════════════════════════════════════════════════ */
-*, *::before, *::after { box-sizing: border-box; }
-
-* { margin: 0; }
+/* v29: `*::before, *::after` are GONE from the reset, deliberately. A pseudo-
+   element rule that every element matches flags every element as possibly
+   having a ::before and an ::after, so each restyle then resolves two pseudo
+   styles per element just to learn their `content` is none — measured as the
+   single largest selector cost of an engine frame after the universal-bucket
+   cleanup (Back Office: 637 elements x 2 pseudo styles, every frame). No
+   pseudo-element in this file or in the modules depends on border-box except
+   .tool-row::after, which now says so itself (§10). */
+* { box-sizing: border-box; margin: 0; }
+/* the one pseudo-element outside this file that sized itself against the old
+   pseudo reset: tools/printouts' back chevron (8px box, 1.5px borders) */
+.po-back::before { box-sizing: border-box; }
 
 html {
   /* clip, not hidden — `overflow: hidden` on the scroll root kills position:sticky */
@@ -503,9 +568,22 @@ button { background: none; border: 0; padding: 0; cursor: pointer; }
 
 a { color: inherit; text-decoration: none; }
 
-:where(ul, ol) { list-style: none; padding: 0; }
+/* v29 SELECTOR HYGIENE — every rule in this file is keyed to a tag, a class or
+   an id in its RIGHTMOST compound. A rule that is not (`*`, `::selection`,
+   `:where(…)`, `.x > *`, `:is(a, b)::before`, a nested `&` under a selector
+   LIST) lands in Blink's universal bucket and is tried against every element
+   the engine restyles, every frame: measured 40-62% of one engine frame's
+   style cost per room (audit/perf.md §3.3). `ul, ol` are plain type selectors
+   (still below every class rule); ::selection is set on :root (highlight
+   inheritance carries it down in current Chromium; elsewhere the system colour
+   shows) plus the few text classes worth copying from. A per-tag ::selection
+   list was measured as expensive as the bucket it replaced. Keep it
+   that way — scratchpad build/s2/univ.py lists any rule that slips back. */
+ul, ol { list-style: none; padding: 0; }
 
-::selection { background: color-mix(in oklab, var(--brass) 55%, transparent); color: var(--ink-950); }
+:root::selection,
+.rail-title::selection, .t-sub::selection, .micro::selection,
+.tool-row-name::selection { background: color-mix(in oklab, var(--brass) 55%, transparent); color: var(--ink-950); }
 
 /* The body background propagates to the canvas, so the warm pool also fills
    the iOS rubber-band overscroll area. No extra painted layer needed. */
@@ -735,8 +813,31 @@ a { color: inherit; text-decoration: none; }
      plate is behind something solid and cannot ghost, whatever it is doing.
      The outgoing's own opacity does not start dropping until enter < 0.92,
      which is 100% covered by then, so there is never a gap either. */
-  --dissolve: clamp(0, calc((var(--enter) - 0.22) * 1.43), 1);
+  --dissolve: clamp(0, calc((var(--enter-fine) - 0.22) * 1.43), 1);
   opacity: var(--dissolve);
+
+  /* ── v29 · THE QUANTISED TIER (§01) ─────────────────────────────────────
+     The public, inherited names, derived here from the engine's fine,
+     non-inherited writes. A descendant is restyled only when one of these
+     crosses a step. Inside .plate-wrap they are re-declared from the fine
+     tier (§06), so the photograph itself never steps.
+
+     The steps are sized by who reads them, because every crossing restyles
+     the whole room (measured: ~11 elements on a plain frame, ~250 on a
+     crossing, in the Back Office):
+       --p      0.25  nothing outside .plate-wrap reads it any more
+       --enter  0.1   screens.js's power-on ramp (enter .42-.61)
+       --bloom  0.1   screen glow, label ink density, §06c's atmosphere (.2)
+       --cut    0.1   a ~10px ramp: the rail, the hotspot layer, the gates
+     --lit is §06b's lights formula, stated once more at stage level for the
+     two rooms whose furniture wants the room's exposure — the wall print
+     (office) and the chef wall (break room) — so they read it instead of
+     recomputing it from per-frame inputs. It is scoped to those rooms below:
+     anywhere else it would be a dozen restyles per arrival for no reader.
+     Keep it in step with §06b. */
+  --p:     round(down, var(--p-fine), 0.25);
+  --enter: round(var(--enter-fine), 0.1);
+  --bloom: round(var(--bloom-fine), 0.1);
 
   /* a matte behind the plate so a lazy image that has not decoded yet fades
      up out of darkness rather than out of white */
@@ -755,8 +856,8 @@ a { color: inherit; text-decoration: none; }
      the visitor is in. The solution is in §08; the constants are in §02 and
      §17. Registered in §01 with initial-value 1, so a page whose engine.js
      never ran hands every room its chips, its objects and its screens.        */
-  --cut: clamp(0, min((var(--enter) - 0.578) * 34,
-                      (var(--cut-z) - var(--p)) * var(--cut-k)), 1);
+  --cut: round(clamp(0, min((var(--enter-fine) - 0.578) * 34,
+                            (var(--cut-z) - var(--p-fine)) * var(--cut-k)), 1), 0.1);
   --live-cut: clamp(0, calc(var(--cut) * 1000), 1);
   /* The clip a non-owning room's interactive elements take. -24px when the room
      owns the page (so nothing real is ever clipped — not a focus ring, not a
@@ -799,8 +900,10 @@ a { color: inherit; text-decoration: none; }
      link and the runway is not a control. See the rule below .stage. */
   pointer-events: none;
 
-  /* keeps the stage on its own layer AND carries the pin-lead offset */
-  transform: translate3d(0, calc(-1 * var(--pin-lead)), 0);
+  /* carries the pin-lead offset. v29: 2D — a 3D translate promoted all eight
+     stages for the whole session (audit/perf.md §3.4); the stage composites
+     when its opacity is mid-dissolve, which is the only time it has to. */
+  transform: translate(0, calc(-1 * var(--pin-lead)));
 }
 
 /* THE LAST ROOM HAS NOTHING TO CUT AGAINST. The exit half of --cut exists for
@@ -812,7 +915,15 @@ a { color: inherit; text-decoration: none; }
    the exit dropped, the second-brightest rail is still 0.0000 at every scroll
    position, because there is no second rail down there to be brightest. */
 #kitchen > .room:last-child .stage {
-  --cut: clamp(0, (var(--enter) - 0.578) * 34, 1);
+  --cut: round(clamp(0, (var(--enter-fine) - 0.578) * 34, 1), 0.1);
+}
+
+/* v29 · the stage-level --lit (see the quantised tier in .stage above). */
+.room[data-room="office"] > .stage,
+.room[data-room="breakroom"] > .stage {
+  --lit:   round(clamp(0, calc(0.52 * clamp(0, calc((var(--enter-fine) - 0.90) * 11), 1)
+                             + 0.48 * var(--bloom-fine) * var(--bloom-fine) * var(--bloom-fine)
+                             + clamp(0, calc((var(--p-fine) - 0.55) * 4), 1)), 1), 0.04);
 }
 
 
@@ -883,15 +994,55 @@ a { color: inherit; text-decoration: none; }
      no `!important` anywhere.
 
      Every layer that resolves the crop reads the same chain. If you add a
-     fifth one, read it the same way or it will drift off the other four. */
-  inset-inline-start: calc((100cqw - var(--cover-w)) * var(--art-x, var(--focus-x, .5)));
-  inset-block-start:  calc((100svh - var(--cover-h)) * var(--art-y, var(--focus-y, .5)));
+     fifth one, read it the same way or it will drift off the other four.
 
-  /* ⚠ CONTRACT: nothing else in this codebase may set transform here. */
+     v30 · --art-dy is a fixed nudge (px, default 0) added to the vertical
+     offset, for a crop that must hang a set distance under the course menu
+     whatever the window's size — the widened Break Room and Back Office use
+     it (§06f). Every other room leaves it unset, i.e. exactly as before. */
+  inset-inline-start: calc((100cqw - var(--cover-w)) * var(--art-x, var(--focus-x, .5)));
+  inset-block-start:  calc((100svh - var(--cover-h)) * var(--art-y, var(--focus-y, .5)) + var(--art-dy, 0px));
+
+  /* v29 · the fine tier (§01) is not inherited; these two take it from the
+     stage explicitly, which restyles the stage's direct children and nothing
+     below them. */
+  --plate-x: inherit;
+  --plate-y: inherit;
+  --plate-scale: inherit;
+
+  /* ⚠ CONTRACT: nothing else in this codebase may set transform here.
+     v29: 2D, not translate3d. A 3D transform is an unconditional promotion, so
+     all sixteen of these were full-cover layers for the whole session and the
+     engine's will-change budget (engine.js updatePromotions) was moot. The
+     engine still promotes its two rooms through will-change; the rest stay in
+     their stage's layer (audit/perf.md §3.4 fix 3). */
   transform:
-    translate3d(calc(var(--plate-x) * 1cqw), calc(var(--plate-y) * 1svh), 0)
+    translate(calc(var(--plate-x) * 1cqw), calc(var(--plate-y) * 1svh))
     scale(calc(var(--plate-scale) * var(--overscan-k)));
   transform-origin: 50% 50%;
+}
+
+/* ── v29 · THE PLATE STACK KEEPS FULL RESOLUTION ──────────────────────────
+   The grade, the dark twin, the glow and the vignette are the photograph
+   itself, and they must not step. .plate-wrap takes the fine tier from the
+   stage and re-declares the public names from it, so everything in its small
+   subtree (the <img>, .plate-glow, .plate-vig, the ::after twin) reads smooth
+   values while the rest of the stage reads the quantised ones. */
+.plate-wrap {
+  --p-fine: inherit;
+  --enter-fine: inherit;
+  --bloom-fine: inherit;
+  --exit-fine: inherit;
+  --p: var(--p-fine);
+  --enter: var(--enter-fine);
+  --bloom: var(--bloom-fine);
+  /* The grade's inputs, quantised to steps below perception (0.6% brightness,
+     0.2% contrast). The filter recomputes on every frame the plate moves; this
+     lets it stay byte-identical — and the compositor untouched — for most of
+     them, including the whole of a room's runway once its lights are up. */
+  --g-e: round(var(--enter-fine), 0.02);
+  --g-p: round(var(--p-fine), 0.05);
+  --g-x: round(var(--exit-fine), 0.02);
 }
 
 .plate-wrap {
@@ -941,13 +1092,22 @@ a { color: inherit; text-decoration: none; }
         rose most of the way first, and then the tables popped in underneath
         it. That is a slideshow. Light arrives in a room; a room does not
         brighten and then acquire objects. The whole argument is in §06b. */
+  /* v29 · M3, LIGHTS DOWN, THEN LIGHTS UP. --exit-fine is 0 until the room is
+     handing over and 1 by the time the next room is half in (engine.js,
+     p .50-.74). It takes the outgoing plate toward the dark end of this same
+     grade — brightness x (1 - .45 exit), saturate x (1 - .2 exit) — while the
+     incoming room arrives on its dark twin (§06b), so the overlap is dark over
+     dark and the double exposure the design audit measured (P1-3) sits below
+     perception. No new layer and no new pass: it is the filter that was
+     already running. --g-* are the quantised inputs declared above. */
+  --g-l: round(var(--lift), 0.02);
   filter:
-    saturate(calc(0.66 + 0.24 * var(--enter) + 0.26 * var(--lift)))
-    brightness(calc(0.68 + 0.30 * var(--enter) + 0.11 * var(--lift)))
-    hue-rotate(calc((1 - var(--lift)) * -5deg))
-    contrast(calc(1.02 + 0.04 * var(--p)));
-
-  backface-visibility: hidden;
+    saturate(calc((0.66 + 0.24 * var(--g-e) + 0.26 * var(--g-l)) * (1 - 0.2 * var(--g-x))))
+    brightness(calc((0.68 + 0.30 * var(--g-e) + 0.11 * var(--g-l)) * (1 - 0.45 * var(--g-x))))
+    hue-rotate(calc((1 - var(--g-l)) * -5deg))
+    contrast(calc(1.02 + 0.04 * var(--g-p)));
+  /* v29: no backface-visibility — with the 3D translate gone it was the one
+     remaining unconditional promotion on this element. */
 }
 
 .plate {
@@ -989,7 +1149,7 @@ a { color: inherit; text-decoration: none; }
   inline-size: 100cqw;
   block-size: 100svh;
   inset-inline-start: calc(-1 * (100cqw - var(--cover-w)) * var(--art-x, var(--focus-x, .5)));
-  inset-block-start:  calc(-1 * (100svh - var(--cover-h)) * var(--art-y, var(--focus-y, .5)));
+  inset-block-start:  calc(-1 * ((100svh - var(--cover-h)) * var(--art-y, var(--focus-y, .5)) + var(--art-dy, 0px)));
   pointer-events: none;
 
   /* ⚠ NO `will-change` HERE — ON PURPOSE.
@@ -1023,7 +1183,9 @@ a { color: inherit; text-decoration: none; }
      roughly half the pool is already in the room as it lands and the rest
      comes up with the scrub. It also inherits --hold, so a room you are
      LEAVING keeps its lamps on — which is what --hold was for. */
-  opacity: calc(var(--lit) * 0.82);
+  /* v29: quantised like the grade, and M3's lights-down (--g-x, §06) takes the
+     pool out with the room. */
+  opacity: calc(round(var(--lit), 0.02) * 0.82 * (1 - 0.8 * var(--g-x)));
   background:
     radial-gradient(62% 50% at var(--glow-x, 62%) var(--glow-y, 30%),
       color-mix(in oklab, #ffd9a8 34%, transparent) 0%,
@@ -1041,7 +1203,7 @@ a { color: inherit; text-decoration: none; }
    soft corner-anchored fall-off rather than a black slab.                  */
 .plate-vig {
   z-index: var(--z-vig);
-  opacity: calc(0.62 + 0.38 * var(--p));
+  opacity: calc(0.62 + 0.38 * round(var(--p), 0.02));
   background:
     /* barrel vignette */
     radial-gradient(128% 108% at 50% 42%,
@@ -1059,6 +1221,28 @@ a { color: inherit; text-decoration: none; }
       rgb(var(--shade) / .58) 0%,
       rgb(var(--shade) / .18) calc(var(--topbar-h) * 1.6),
       transparent calc(var(--topbar-h) * 2.6));
+}
+
+
+/* v29 fix round (G3 m-7) · THE PASS'S COUNTER FRONT IS WOOD, NOT A BAND.
+   The plate's bottom eighth is the walnut front of the counter, already the
+   darkest thing in the photograph; the barrel's rim and the lower-left fall
+   (which exists for rails that sit low — the Pass's title card hangs HIGH,
+   off the tablets' top edge) took it to a flat black strip 110-150px deep
+   under the terminals. Here the fall goes and the rim eases, so the counter
+   reads as a counter. Wide layouts only; the narrow band grades its own. */
+@media (min-width: 901px) and (min-aspect-ratio: 8 / 7) {
+  .room[data-room="pass"] .plate-vig {
+    background:
+      radial-gradient(128% 112% at 50% 40%,
+        transparent 40%,
+        rgb(var(--shade) / .22) 70%,
+        rgb(var(--shade) / .44) 100%),
+      linear-gradient(to bottom,
+        rgb(var(--shade) / .58) 0%,
+        rgb(var(--shade) / .18) calc(var(--topbar-h) * 1.6),
+        transparent calc(var(--topbar-h) * 2.6));
+  }
 }
 
 
@@ -1459,7 +1643,16 @@ a { color: inherit; text-decoration: none; }
    viewport margin — roughly two viewports of scroll before the layer is due.
    Walked at 2000px/s on a throttled 5Mbps link, in both directions: no frame
    in which the layer was needed and not yet decoded. */
-@container style(--dark-gate: 0) and style(--p: 0) {
+/* v29 · AND RELEASED ONCE LIT (audit/perf.md §3.8). The `style(--p: 0)` half
+   of the old pair kept every dark twin a room had ever shown resident for the
+   rest of the session — measured 8 dark bitmaps decoded by the Walk-In, never
+   fewer again. The gate alone is the right test: it is 0 exactly when the
+   layer is fully transparent (--lit ≥ 0.5, i.e. the never-entered rooms of the
+   table above AND every room whose lights are up), so the bitmap is dropped
+   the moment it stops being visible and re-requested when --lit falls back
+   through 0.5 on the way up — while the twin's own opacity is still 0, so a
+   late decode shows the graded lit plate for a frame, never a gap. */
+@container style(--dark-gate: 0) {
   .plate-wrap::after { background-image: none; }
 }
 
@@ -1501,6 +1694,18 @@ a { color: inherit; text-decoration: none; }
        (max-aspect-ratio: 2400/1340) and (min-width: 901px) and (min-height: 914px),
        (max-aspect-ratio: 2400/1340) and (min-resolution: 2dppx) and (min-width: 901px) and (min-height: 457px) {
   .room .plate-wrap { --plate-dark: var(--dark-2400, none); }
+}
+
+/* ── v29 · THE iPAD TAKES THE 1400 CUT (audit/perf.md §3.8) ──────────────────
+   A dark twin is only ever seen dim — under §06's dark-end grade, mid-dissolve
+   or in the few frames before --arr lifts it — and on an iPad it was decoded at
+   the 2400 cut: 8 x 12.3 MB of bitmap for a layer that is never sharp. The
+   1400 cut is a third of the pixels: -65 MB decoded across a walk, on the
+   device whose tab budget is the tightest after the phone. Touch-primary only
+   (an iPad with a trackpad reports hover and keeps the higher tier); the phone
+   rule below still wins on phones. */
+@media (hover: none) and (pointer: coarse) {
+  .room .plate-wrap { --plate-dark: var(--dark-1400, none); }
 }
 
 /* ── TIER 0 — THE PHONE, WHICH GETS NO SECOND PHOTOGRAPH AT ALL ───────────
@@ -1628,19 +1833,21 @@ a { color: inherit; text-decoration: none; }
   inset-inline-start: var(--atmo-x, 40%);
   inset-block-start:  var(--atmo-y, 34%);
   rotate: var(--atmo-roll, 0deg);
-  background:
-    radial-gradient(46% 26% at 52% 84%,
-      var(--atmo-tint, rgb(255 238 212 / .34)) 0%, transparent 72%),
-    radial-gradient(34% 22% at 36% 50%,
-      var(--atmo-tint, rgb(255 238 212 / .34)) 0%, transparent 74%),
-    radial-gradient(26% 17% at 64% 20%,
-      var(--atmo-tint, rgb(255 238 212 / .34)) 0%, transparent 76%);
   /* The room gate. Squared, so the air arrives AFTER the light rather than
-     with it; on `filter`, because the keyframes own `opacity` and an animated
-     property beats a declared one outright; and QUANTISED — see the note under
-     .stage::after, which is the difference between this section being free and
-     it being the most expensive thing on the page. */
-  filter: opacity(calc(var(--atmo, 0) * round(down, var(--bloom) * var(--bloom), .2)));
+     with it; QUANTISED — see the note under .stage::after, which is the
+     difference between this section being free and it being the most
+     expensive thing on the page.
+     v29: IN THE GRADIENT'S ALPHA, NOT IN A `filter`. A filter on an animated,
+     composited element is an offscreen render pass per element per frame —
+     two per lit room (audit/perf.md §3.4). The keyframes still own `opacity`,
+     so the gate still cannot live there; it now scales the tint instead, which
+     is the same multiplication, re-rastered a handful of times per room. */
+  --atmo-gate: calc(var(--atmo, 0) * round(down, var(--bloom) * var(--bloom), .2));
+  --atmo-c: color-mix(in srgb, var(--atmo-tint, rgb(255 238 212 / .34)) calc(var(--atmo-gate) * 100%), transparent);
+  background:
+    radial-gradient(46% 26% at 52% 84%, var(--atmo-c) 0%, transparent 72%),
+    radial-gradient(34% 22% at 36% 50%, var(--atmo-c) 0%, transparent 74%),
+    radial-gradient(26% 17% at 64% 20%, var(--atmo-c) 0%, transparent 76%);
   animation: ccc-plume var(--atmo-dur, 15s) linear infinite;
 }
 
@@ -1660,14 +1867,38 @@ a { color: inherit; text-decoration: none; }
   inset-inline-start: calc(var(--glow-x, 62%) - var(--fil-w, 30%) / 2);
   inset-block-start:  calc(var(--glow-y, 30%) - var(--fil-h, 24%) / 2);
   border-radius: 50%;
+  /* v29: the gate scales the stops' alpha instead of riding a `filter` (see
+     .stage::before) — same product, no render pass. */
+  --fil-gate: calc(var(--fil, 0) * round(down, var(--bloom), .2));
   background: radial-gradient(50% 50% at 50% 50%,
-    color-mix(in oklab, #ffe7c2 42%, transparent) 0%,
-    color-mix(in oklab, var(--amber) 20%, transparent) 40%,
-    color-mix(in oklab, var(--ember) 7%, transparent) 62%,
+    color-mix(in oklab, #ffe7c2 calc(42% * var(--fil-gate)), transparent) 0%,
+    color-mix(in oklab, var(--amber) calc(20% * var(--fil-gate)), transparent) 40%,
+    color-mix(in oklab, var(--ember) calc(7% * var(--fil-gate)), transparent) 62%,
     transparent 78%);
-  filter: opacity(calc(var(--fil, 0) * round(down, var(--bloom), .2)));
   animation: var(--fil-anim, ccc-filament) var(--fil-dur, 8.4s) ease-in-out infinite;
 }
+
+/* ── v29 · G1 / G2 (design audit §5.3): the air moves only in the room that
+   owns the page, and nothing moves under a tool. Paused, never hidden: a
+   paused plume is still a plume. `.room:not(.is-owned)` also covers dormant
+   rooms, which are never owned. Keyed to .stage (§03). */
+.room:not(.is-owned) > .stage::before,
+.room:not(.is-owned) > .stage::after,
+html.is-viewing .stage::before,
+html.is-viewing .stage::after,
+html.ccc-locked .stage::before,
+html.ccc-locked .stage::after { animation-play-state: paused; }
+
+/* v29 · S6 · the lite tier (C5, design audit §5.2): no air and no filament at
+   all — `content` is the switch, so neither pseudo-element is generated and
+   neither animation exists. The same switch §18 throws for reduced motion,
+   but on .room, NOT .stage, and that is load-bearing: .stage is restyled on
+   every scroll frame (the engine writes to it), and an unregistered custom
+   property declared there is re-created each time, which Blink reads as the
+   inherited variables changing — so every descendant of every live stage was
+   restyled every frame (measured, iPad scroll: 5 → 22-56 elements per
+   recalc). .room is never written per frame; the stage inherits it. */
+html[data-motion="lite"] .room { --atmo-on: none; --fil-on: none; }
 
 /* ── TWO THINGS THAT LOOK LIKE FUSSINESS AND ARE NOT ──────────────────────
    1. THE GATE IS ON `filter`, NOT ON `opacity`.
@@ -1797,142 +2028,206 @@ a { color: inherit; text-decoration: none; }
      iPad and a desktop get an inert attribute and byte-identical rendering.
    · No JS, no class, no curtain: the page renders exactly as it did.
    ═══════════════════════════════════════════════════════════════════════════ */
-@media (max-width: 500px), (max-width: 1000px) and (max-height: 500px) {
-  /* THE ONE DECLARATION THAT CAN BLANK THIS PAGE, AND THE ONLY REASON IT IS
-     STILL HERE.
+/* ── v29 · THE CURTAIN ON EVERY BREAKPOINT ────────────────────────────────
+   Until v29 everything below sat inside the phone query. engine.js has always
+   written `is-dormant` on every breakpoint (it is the same residency code, the
+   same fail-open observer, the same skirts), so an iPad and a desktop carried
+   an inert class and every room's full layer stack for the whole session:
+   164-261 composited layers and 454-910 MB of raw backing store at iPad DPR 2.
+   Measured with the curtain applied everywhere: -60% layers where the reader
+   is, ~190 MB less raw backing store (audit/perf.md §3.4, fix #6).
 
-     It shipped once with a residency rule that decided what to hide from what
-     engine.js BELIEVED — an async IntersectionObserver flag and a --enter value
-     the engine may not have written yet — and it hid four fully-opaque stages
-     under the reading position on the first frame after any jump. See the
-     RESIDENCY section of engine.js for the reproduction; the short version is
-     that a room which had not been computed yet resolved --enter to its
-     registered initial-value of 1, was therefore painting at full opacity, and
-     was hidden anyway.
+   THE v9 LESSON STILL GOVERNS IT. A room is hidden only on the paint
+   observer's evidence (its stage half a viewport clear of the screen, for a
+   dwell), never within two rooms of the one being read, never across a
+   resize, and — new in v29 — never while engine.js's own geometry says the
+   stage's pinned span reaches the viewport (applyResidency's belt and braces).
+   Every one of those is fail-OPEN: when in doubt, it paints. */
+/* THE ONE DECLARATION THAT CAN BLANK THIS PAGE, AND THE ONLY REASON IT IS
+   STILL HERE.
 
-     `is-dormant` now means something a browser measured, not something the
-     engine inferred: a dedicated IntersectionObserver over the .stage elements,
-     rootMargin one full viewport in both directions, plus a dwell, plus a
-     never-hide-the-neighbours skirt, plus a hard fail-open across every resize
-     and visual-viewport change. engine.js is the single writer and the whole
-     rule is documented there. DO NOT add a second writer of this class, and do
-     not widen this selector to anything the observer is not watching.
+   It shipped once with a residency rule that decided what to hide from what
+   engine.js BELIEVED — an async IntersectionObserver flag and a --enter value
+   the engine may not have written yet — and it hid four fully-opaque stages
+   under the reading position on the first frame after any jump. See the
+   RESIDENCY section of engine.js for the reproduction; the short version is
+   that a room which had not been computed yet resolved --enter to its
+   registered initial-value of 1, was therefore painting at full opacity, and
+   was hidden anyway.
 
-     Removing the curtain instead was measured and rejected: at 393x852 DPR 3
-     this build without it peaks at 122 composited layers and 339.0 MB of
-     viewport-clipped backing store, against 69 / 180.7 MB with it and the
-     --paints query below. 339 MB on a phone with a ~200 MB tab budget is the
-     blue screen this section exists to prevent, so "just take the curtain out"
-     is not available; it had to be made safe instead. */
-  .room.is-dormant .stage { visibility: hidden; }
+   `is-dormant` now means something a browser measured, not something the
+   engine inferred: a dedicated IntersectionObserver over the .stage elements,
+   rootMargin one full viewport in both directions, plus a dwell, plus a
+   never-hide-the-neighbours skirt, plus a hard fail-open across every resize
+   and visual-viewport change. engine.js is the single writer and the whole
+   rule is documented there. DO NOT add a second writer of this class, and do
+   not widen this selector to anything the observer is not watching.
 
-  /* The stage's own matte, which is a full-viewport backing store to hold one
-     colour. §05 gives every .stage `background: var(--ink-950)` so a plate that
-     has not decoded yet fades up out of darkness rather than out of white. That
-     is one flat fill, and it costs a 393x852 layer with drawsContent — 11.5 MB
-     at DPR 3, times the three stages that are pinned on the viewport at once.
+   Removing the curtain instead was measured and rejected: at 393x852 DPR 3
+   this build without it peaks at 122 composited layers and 339.0 MB of
+   viewport-clipped backing store, against 69 / 180.7 MB with it and the
+   --paints query below. 339 MB on a phone with a ~200 MB tab budget is the
+   blue screen this section exists to prevent, so "just take the curtain out"
+   is not available; it had to be made safe instead. */
+.room.is-dormant .stage { visibility: hidden; }
+/* v29 fix round (G2 M1) · …EXCEPT THE CONTROLS. `visibility: hidden` also
+   takes an element out of the Tab order and the accessibility tree, so with
+   the curtain on every breakpoint a keyboard walked skip link → tickets →
+   Host → Prep → Break Room and skipped the Pass, the Dining Room and the Back
+   Office (and every room from the second lap on), and VoiceOver could not
+   reach a single room from the hero. In KEYBOARD MODE — html.ccc-kbd, set by
+   engine.js on the first Tab and cleared by the next pointer or touch — a
+   dormant room keeps its title, its chips (every object in a room is also a
+   chip) and the walk-in's keypad, so a Tab walk visits every room in order;
+   nothing else (no wash, plate, screens or chef wall). Pointer and touch
+   users keep the whole saving: exposed all the time, even the titles alone
+   cost +8 layers and ~0.5-1 render pass per scroll frame at 1180x820
+   (sticky stages composite whatever of them paints). A screen reader still
+   finds every room without it: each .room is a region named by its title
+   (aria-labelledby resolves through hidden content), and moving onto one
+   scrolls it in and brings its content live. Focus moving into a room opens
+   the curtain first (engine onFocusIn → bringRoomToReadingPosition). */
+html.ccc-kbd .room.is-dormant .stage :is(.rail-title, .rail-chips > .chip, .frz-pad) { visibility: visible; }
+/* the landing point of a keyboard menu jump (engine.js focusRoomHeading): a
+   programmatic focus target, not a control — no ring on the title itself; the
+   next Tab is the room's first control, which draws its own */
+.rail-title[tabindex="-1"]:focus,
+.rail-title[tabindex="-1"]:focus-visible { outline: none; box-shadow: none; }
 
-     On a phone it is buying nothing. `body` is already painted `var(--bg)` with
-     the warm pool over it (§03), background-attachment: fixed, so the ground
-     behind a stage is dark whether the stage paints one or not; the plate's
-     cover box is always at least the size of the stage and always scaled up by
-     --overscan-k, so there is no scroll position at which a decoded plate fails
-     to cover this; and the only frame the matte was ever visible in — a room
-     whose plate has not decoded — now shows the room BEHIND it instead of a
-     black rectangle, which is better, not worse. Measured: .stage drops out of
-     the drawing set entirely, -34.5 MB of clipped backing store.
+/* The stage's own matte, which is a full-viewport backing store to hold one
+   colour. §05 gives every .stage `background: var(--ink-950)` so a plate that
+   has not decoded yet fades up out of darkness rather than out of white. That
+   is one flat fill, and it costs a 393x852 layer with drawsContent — 11.5 MB
+   at DPR 3, times the three stages that are pinned on the viewport at once.
 
-     THE HERO KEEPS ITS MATTE. It is the LCP element, it is the one plate that
-     is genuinely being waited for, and there is no room behind it — see the
-     `.hero .stage` rule in §08. */
-  .room .stage { background: none; }
+   On a phone it is buying nothing. `body` is already painted `var(--bg)` with
+   the warm pool over it (§03), background-attachment: fixed, so the ground
+   behind a stage is dark whether the stage paints one or not; the plate's
+   cover box is always at least the size of the stage and always scaled up by
+   --overscan-k, so there is no scroll position at which a decoded plate fails
+   to cover this; and the only frame the matte was ever visible in — a room
+   whose plate has not decoded — now shows the room BEHIND it instead of a
+   black rectangle, which is better, not worse. Measured: .stage drops out of
+   the drawing set entirely, -34.5 MB of clipped backing store.
 
-  /* ...BUT THE MATTE DOES NOT VANISH, IT MOVES ONE ELEMENT IN, AND FOR FREE.
+   THE HERO KEEPS ITS MATTE. It is the LCP element, it is the one plate that
+   is genuinely being waited for, and there is no room behind it — see the
+   `.hero .stage` rule in §08. */
+.room .stage { background: none; }
 
-     The paragraph above is right that `body` is dark behind a stage, and wrong
-     that that is enough. Every plate except the hero's is `loading="lazy"` and
-     `fetchpriority="low"` (app.js buildPlate), so on a phone on a store's LTE
-     the room you arrive at routinely has a stage that IS painting — rail,
-     chips, hotspots, the whole screen panel — over a photograph that has not
-     landed. With no matte, that frame is the page ground with the furniture
-     floating on it: the client's first two screenshots, a Break Room with the
-     pendant glow at the top and nothing under it, and a Back Office whose
-     detractor board reads perfectly against near-black.
+/* ...BUT THE MATTE DOES NOT VANISH, IT MOVES ONE ELEMENT IN, AND FOR FREE.
 
-     So the fill goes on `.plate` — the <img> itself. It is already the drawing
-     content of the .plate-wrap layer, it is sized `100%/100%` of the cover box
-     (which §06 guarantees is at least the stage, scaled up by --overscan-k), it
-     is behind the decoded bitmap by definition, and an element that is already
-     rastering a background-colour costs no additional backing store. The
-     measured -34.5 MB from taking the matte off .stage is kept in full; the
-     black frame it was silently buying is not.
+   The paragraph above is right that `body` is dark behind a stage, and wrong
+   that that is enough. Every plate except the hero's is `loading="lazy"` and
+   `fetchpriority="low"` (app.js buildPlate), so on a phone on a store's LTE
+   the room you arrive at routinely has a stage that IS painting — rail,
+   chips, hotspots, the whole screen panel — over a photograph that has not
+   landed. With no matte, that frame is the page ground with the furniture
+   floating on it: the client's first two screenshots, a Break Room with the
+   pendant glow at the top and nothing under it, and a Back Office whose
+   detractor board reads perfectly against near-black.
 
-     It sits INSIDE .plate-wrap's exposure grade, which is the right side of it:
-     the matte comes up with the room's lights instead of sitting at a fixed
-     black behind them. */
-  .room .plate { background-color: var(--ink-950); }
+   So the fill goes on `.plate` — the <img> itself. It is already the drawing
+   content of the .plate-wrap layer, it is sized `100%/100%` of the cover box
+   (which §06 guarantees is at least the stage, scaled up by --overscan-k), it
+   is behind the decoded bitmap by definition, and an element that is already
+   rastering a background-colour costs no additional backing store. The
+   measured -34.5 MB from taking the matte off .stage is kept in full; the
+   black frame it was silently buying is not.
 
-  /* ── THE SECOND CURTAIN, WHICH CANNOT DISAGREE WITH ANYTHING ────────────
-     §05 pins every stage a --pin-lead early and releases it a --pin-lead late,
-     so THREE stages sit on the same viewport rectangle at every scroll
-     position, and one of the three is always at zero opacity — the room you
-     have finished with, whose --enter the engine has resolved to exactly 0.
-     Retiring that one is where a third of the memory saving lives: a
-     full-viewport layer at 393x852 DPR 3 is 12.0 MB, and a stage stack is six
-     of them.
+   It sits INSIDE .plate-wrap's exposure grade, which is the right side of it:
+   the matte comes up with the room's lights instead of sitting at a fixed
+   black behind them. */
+.room .plate { background-color: var(--ink-950); }
 
-     The rule above cannot do it, and must not try. It hides a room on the
-     evidence of an IntersectionObserver, and an observer knows where a stage IS
-     but not whether it is PAINTING anything — so asking it to retire a
-     transparent-but-on-screen stage means feeding it a number (a --enter
-     threshold) that can be stale, unwritten, or simply not what the compositor
-     resolved. That is the exact defect this section shipped with.
+/* ── THE SECOND CURTAIN, WHICH CANNOT DISAGREE WITH ANYTHING ────────────
+   §05 pins every stage a --pin-lead early and releases it a --pin-lead late,
+   so THREE stages sit on the same viewport rectangle at every scroll
+   position, and one of the three is always at zero opacity — the room you
+   have finished with, whose --enter the engine has resolved to exactly 0.
+   Retiring that one is where a third of the memory saving lives: a
+   full-viewport layer at 393x852 DPR 3 is 12.0 MB, and a stage stack is six
+   of them.
 
-     So this half is not a decision at all. `style(--enter: 0)` asks the
-     COMPUTED VALUE of the same registered <number> that §05 turns into the
-     stage's opacity, on the same element, in the same frame. If it matches, the
-     stage's own `--dissolve` is clamp(0, (0 - 0.22) * 1.43, 1) = 0 and the
-     stage is painting nothing, by arithmetic, whatever the engine believes and
-     whatever the geometry cache says. There is no second source of truth to
-     drift from, no async delivery, no cache. A room this engine has never
-     written resolves --enter to its initial-value of 1 and is untouched; a
-     stale 0 left over from a jump is a stage the browser is ALREADY painting as
-     fully transparent, so hiding its layers removes nothing that was on screen.
+   The rule above cannot do it, and must not try. It hides a room on the
+   evidence of an IntersectionObserver, and an observer knows where a stage IS
+   but not whether it is PAINTING anything — so asking it to retire a
+   transparent-but-on-screen stage means feeding it a number (a --enter
+   threshold) that can be stale, unwritten, or simply not what the compositor
+   resolved. That is the exact defect this section shipped with.
 
-     It hides the children rather than the .stage so that .stage's own box, and
-     every rect inside it, is exactly what it was — screens.js rations its live
-     iframes off getBoundingClientRect() on panels in here, and `visibility`
-     (unlike `content-visibility`) changes no rect anywhere.
+   So this half is not a decision at all. `style(--enter: 0)` asks the
+   COMPUTED VALUE of the same registered <number> that §05 turns into the
+   stage's opacity, on the same element, in the same frame. If it matches, the
+   stage's own `--dissolve` is clamp(0, (0 - 0.22) * 1.43, 1) = 0 and the
+   stage is painting nothing, by arithmetic, whatever the engine believes and
+   whatever the geometry cache says. There is no second source of truth to
+   drift from, no async delivery, no cache. A room this engine has never
+   written resolves --enter to its initial-value of 1 and is untouched; a
+   stale 0 left over from a jump is a stage the browser is ALREADY painting as
+   fully transparent, so hiding its layers removes nothing that was on screen.
 
-     Nothing hidden here was hit-testable: at --enter 0, §05's --cut has already
-     put .hotspot and .rail-chips at `clip-path: inset(50%)`, which is neither
-     painted nor hit-tested. The curtain closes strictly inside a window that
-     was already dead.
+   It hides the children rather than the .stage so that .stage's own box, and
+   every rect inside it, is exactly what it was — screens.js rations its live
+   iframes off getBoundingClientRect() on panels in here, and `visibility`
+   (unlike `content-visibility`) changes no rect anywhere.
 
-     WHY IT ASKS --paints AND NOT --enter. --enter 0 is only the settled end of
-     the fade; §05 resolves the stage's opacity as
-     `clamp(0, (--enter - 0.22) * 1.43, 1)`, so everything from --enter 0 up to
-     0.22 is ALSO a stage at opacity zero, and that band is most of the frames
-     — it is the whole approach and the whole departure of every room. Querying
-     --enter directly left those on the table (measured 215.2 MB peak with no
-     query at all and 192.2 MB querying --enter, against 180.7 MB with this).
-     --paints is declared just below as
-     `clamp(0, --dissolve * 1000, 1)`: it is zero exactly when --dissolve is
-     zero, and --dissolve is not a copy of the opacity rule, it IS the opacity
-     rule — §05 declares it once and hands the same variable to `opacity`. One
-     source of truth. Re-solve the dissolve ramp and this follows it for free;
-     there is no threshold here to leave behind.
+   Nothing hidden here was hit-testable: at --enter 0, §05's --cut has already
+   put .hotspot and .rail-chips at `clip-path: inset(50%)`, which is neither
+   painted nor hit-tested. The curtain closes strictly inside a window that
+   was already dead.
 
-     `@container style()` is the same feature §06b's --dark-gate already depends
-     on, so it is not a new requirement on the browser. Where it is missing the
-     query never matches and the page merely keeps the layers. */
-  .room .stage { --paints: clamp(0, calc(var(--dissolve) * 1000), 1); }
+   WHY IT ASKS --paints AND NOT --enter. --enter 0 is only the settled end of
+   the fade; §05 resolves the stage's opacity as
+   `clamp(0, (--enter - 0.22) * 1.43, 1)`, so everything from --enter 0 up to
+   0.22 is ALSO a stage at opacity zero, and that band is most of the frames
+   — it is the whole approach and the whole departure of every room. Querying
+   --enter directly left those on the table (measured 215.2 MB peak with no
+   query at all and 192.2 MB querying --enter, against 180.7 MB with this).
+   --paints is declared just below as
+   `clamp(0, --dissolve * 1000, 1)`: it is zero exactly when --dissolve is
+   zero, and --dissolve is not a copy of the opacity rule, it IS the opacity
+   rule — §05 declares it once and hands the same variable to `opacity`. One
+   source of truth. Re-solve the dissolve ramp and this follows it for free;
+   there is no threshold here to leave behind.
 
-  @container stage style(--paints: 0) {
-    .plate-wrap,
-    .hotspots,
-    .rail { visibility: hidden; }
-  }
+   `@container style()` is the same feature §06b's --dark-gate already depends
+   on, so it is not a new requirement on the browser. Where it is missing the
+   query never matches and the page merely keeps the layers. */
+.room .stage { --paints: clamp(0, calc(var(--dissolve) * 1000), 1); }
+
+/* v29 · G1 / G2 SAFETY NET for screens.js's two idle loops (the CRT sweep and
+   the "online" pip). A curtained room is visibility:hidden, and an animation
+   in a hidden subtree cannot run on the compositor — so without this, the
+   sweeps in rooms two away ticked a MAIN-THREAD style recalc every frame
+   (measured 60 recalcs/s at the hero; 0 with this). screens.js owns these
+   loops and their owned-room-only rule (design audit M6); this only makes sure
+   a hidden room or an open tool never runs them. Paused, never hidden. It is
+   the one place this file names .ccc-scr-* classes — keep it to this. */
+.room.is-dormant .ccc-scr__scan::after,
+.room.is-dormant .ccc-scr-title__pip,
+html.is-viewing .ccc-scr__scan::after,
+html.is-viewing .ccc-scr-title__pip,
+html.ccc-locked .ccc-scr__scan::after,
+html.ccc-locked .ccc-scr-title__pip { animation-play-state: paused; }
+
+@container stage style(--paints: 0) {
+  .plate-wrap,
+  .hotspots,
+  .rail { visibility: hidden; }
+  /* v29 fix round (G2 M1): in keyboard mode (see the dormant rule above) the
+     whole rail and hotspot layer stay reachable, so a Tab walk visits the next
+     room's objects in order (always on, that was +16 layers and ~10MB of
+     viewport backing at iPad size). A stage at opacity 0 paints none of it. */
+  html.ccc-kbd .hotspots,
+  html.ccc-kbd .rail { visibility: visible; }
+  /* the same G1 safety net as above, for a stage that is on the viewport but
+     painting nothing (its layers are hidden right here, so the loops would
+     fall back to the main thread) */
+  /* .stage-qualified: screens.js injects its own sheet after this one, and its
+     `animation` shorthand would win a same-specificity tie */
+  .stage .ccc-scr__scan::after,
+  .stage .ccc-scr-title__pip { animation-play-state: paused; }
 }
 
 
@@ -1979,7 +2274,9 @@ a { color: inherit; text-decoration: none; }
    and --overscan-k returns to the default with it. */
 .room[data-room="office"] { --art-x: .5; }
 
-/* THE CLIPBOARD WALL, 2026-09-02 — the office gets its own bleed again, and
+/* (v30: at every wide aspect the Back Office's crop is now §06f's, on a widened
+   plate; the history below explains the .room-level values that remain.)
+   THE CLIPBOARD WALL, 2026-09-02 — the office gets its own bleed again, and
    a crop that leans toward the brick.
 
    The two clipboards (`exception-report` 85.6-90.0, `fall-off` 91.5-97.5 in
@@ -2059,6 +2356,48 @@ a { color: inherit; text-decoration: none; }
   .room[data-room="office"] { --art-x: .90; }
 }
 
+/* ── v29 · THE SAFE BOX (design audit P1-6) ────────────────────────────────
+   Rule: every hotspot and screen should sit inside the viewport minus the top
+   bar minus 16px, in the part of the runway where its room owns the page
+   (p 0-0.5). build/checks/safebox.py measures it at 1440x900, 1512x751,
+   1920x1080, 1180x820 and 820x1180, and scratchpad build/s2/framesolve.py
+   solved these numbers against the same boxes (one pair per room, all four
+   wide viewports at once):
+
+   · the wide bleed drops 1.10 → 1.04. Parallax needs 1.028 (x) / 1.036 (y) to
+     never expose an edge; the extra 6% was cropping 3% off every side, which is
+     exactly where the Pass's T-sheet, the Dining Room's reviews wall and the
+     Back Office's clipboards hang. (The office has run at 1.04 since 09-02.)
+   · the Pass leans right (.75): all four tablets and the T-sheet inside at
+     every width, where the T-sheet was 97-108px off an iPad.
+   · the Dining Room leans fully right: the reviews wall was 146px off a 1440
+     desktop and 201px off an iPad; now ~14px at the deepest push-in.
+   · the Break Room leans fully right: the arcade cabinet came back 150-200px,
+     still ~80px short — it is photographed at the plate's right edge.
+   · the hero, and the Host Stand's television, crop from the TOP on windows
+     wider than the plate (1512x751): the painted sign and the TV were under
+     the top bar. --art-y only acts when the plate is cropped vertically, so
+     this changes nothing at 16:9 or narrower.
+   (v30: both were solved by widening the photographs — §06f.)
+   The Back Office cannot be solved by a crop: the commission sheet and the
+   clipboards are 88% of the plate apart. Its numbers above stand. */
+@media (min-width: 901px) and (min-aspect-ratio: 8 / 7) {
+  .room { --overscan-k: 1.04; }
+  .room[data-room="hero"]      { --art-y: 0; }
+  .room[data-room="pass"]      { --art-x: .75; }
+  .room[data-room="host"]      { --art-y: 0; }
+  .room[data-room="dining"]    { --art-x: 1; }
+  .room[data-room="breakroom"] { --art-x: 1; }
+}
+/* …except that on a 4:3-ish iPad the Break Room cannot hold both ends — the
+   training lockers at the left and the cabinet at the right are further apart
+   than the frame is wide — and the lockers win: all three trainings stay whole,
+   and the cabinet (also a chip, and the arcade marquee) is cut ~100px instead of
+   being entirely off the right edge as it was. */
+@media (min-width: 901px) and (min-aspect-ratio: 8 / 7) and (max-aspect-ratio: 3 / 2) {
+  .room[data-room="breakroom"] { --art-x: .75; }
+}
+
 /* THE BREAK ROOM'S VERTICAL ANCHOR — why the television kept getting clipped.
    The client, twice: "the TV is still cut off at the top... the header of the
    website covers the tv." It was never the panel: the plate is cover-cropped,
@@ -2070,6 +2409,188 @@ a { color: inherit; text-decoration: none; }
    every aspect this room is seen at. Verified, not guessed: see the check in
    the deploy notes. */
 .room[data-room="breakroom"] { --art-y: .18; }
+
+/* ── v29 fix round · THE SAFE BOX, SOLVED PER ASPECT BAND (G3 M-1, m-5; G2 m1) ──
+   S2's crops above were one pair per room for four wide viewports at once.
+   Solved again per aspect BAND (f1a/frame2-4.py in the fix-round scratchpad:
+   the engine's own push-in and drift, p 0/.25/.5, 16px margin, plus two hard
+   constraints across the WHOLE runway — the plate covers both sides and the
+   bottom at every p, and any gap at the top stays under the course menu),
+   with two tools S2 did not use:
+     · a box a few % SMALLER than the cover box (--cover-h 0.96-0.98 of the
+       stage, hung from the bottom). Its top edge then sits under the menu,
+       which already paints the ink there, and the room gains 2-4% of width —
+       exactly what the clipboards and the arcade are short by;
+     · a box LARGER than cover, by width (Break Room at 16:10 and wider), to
+       keep the line-art fox mural at the plate's left edge fully off frame at
+       every --p instead of sliced through its face (G3 m-5: it was cut at
+       1512 and 1920; it cannot be shown whole — the plate itself cuts it).
+   Measured result is in the F1a hand-back; what no crop can reach is the
+   arcade cabinet (photographed AT the plate's right edge) and, on a 4:3 iPad,
+   the Back Office's clipboard (the tools span 88.5% of a plate that shows
+   ~80% there) — those need new art, and engine.js stops a hotspot that is
+   more than half off screen from taking a tap (its chip remains). Bands:
+   A ≤ 3:2 (iPads in landscape) · B 3:2-17:10 (16:10 desktops) · C 17:10-2:1
+   (16:9) · D ≥ 2:1 (Jeff's 1512x751). */
+@media (min-width: 901px) and (min-aspect-ratio: 8 / 7) and (max-aspect-ratio: 3 / 2) {
+  .room:is([data-room="dining"], [data-room="pass"]) :is(.plate-wrap, .hotspots) {
+    --cover-w: calc(100svh * var(--plate-ar) * .98);
+    --cover-h: calc(100svh * .98);
+    --art-y: 1;
+    --overscan-k: .97;
+  }
+  .room[data-room="host"] :is(.plate-wrap, .hotspots) {
+    --cover-w: calc(100svh * var(--plate-ar) * .96);
+    --cover-h: calc(100svh * .96);
+    --art-x: .40; --art-y: 1; --overscan-k: 1;
+  }
+  .room[data-room="dining"]    :is(.plate-wrap, .hotspots) { --art-x: .98; }
+  .room[data-room="pass"]      :is(.plate-wrap, .hotspots) { --art-x: .68; }
+}
+@media (min-width: 901px) and (min-aspect-ratio: 3 / 2) and (max-aspect-ratio: 17 / 10) {
+  .room[data-room="host"] :is(.plate-wrap, .hotspots) {
+    --cover-w: calc(100svh * var(--plate-ar) * .94);
+    --cover-h: calc(100svh * .94);
+    --art-x: 0; --art-y: 1; --overscan-k: 1.04;
+  }
+  .room[data-room="dining"] :is(.plate-wrap, .hotspots) { --art-x: .96; --art-y: 0; --overscan-k: .97; }
+}
+@media (min-width: 901px) and (min-aspect-ratio: 17 / 10) {
+  .room:is([data-room="dining"], [data-room="host"]) :is(.plate-wrap, .hotspots) {
+    --art-y: 0; --overscan-k: 1.02;
+  }
+  .room[data-room="dining"] :is(.plate-wrap, .hotspots) { --art-x: .96; }
+  .room[data-room="host"]   :is(.plate-wrap, .hotspots) { --art-x: 0; }
+}
+@media (min-width: 901px) and (min-aspect-ratio: 2 / 1) {
+  .room:is([data-room="dining"], [data-room="host"]) :is(.plate-wrap, .hotspots) {
+    --overscan-k: 1.03;
+  }
+}
+/* v30: the Break Room and the Back Office left this table when their plates
+   were widened — their crops are §06f's, below. */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   06f · THE WIDENED PLATES  ·  Break Room + Back Office (v30)
+   ═══════════════════════════════════════════════════════════════════════════
+   Two objects no crop could hold: the arcade cabinet, photographed AT the
+   Break Room plate's right edge, and the Back Office's clipboard wall, 88.5%
+   of its plate away from the commission sheet. Both photographs were widened
+   (outpainted, approved by the client) — the Break Room to the right and
+   down, the Office on all four sides — and the ORIGINAL 2400x1340 pixels were
+   put back exactly where they were, so every object, frame and screen inside
+   them is where it always was (a ~40px multi-band seam inside the old border
+   is the only place a pixel changed; the dark twins were rebuilt the same way
+   from the lit plate's own lit→dark grade).
+
+   ── THE COORDINATE FRAME DID NOT MOVE ─────────────────────────────────────
+   .plate-wrap and .hotspots are still the cover box of the ORIGINAL 2400x1340
+   frame, --plate-ar 1.79104, and every % in rooms.js, chefwall's frames,
+   labels.js's quads and wallprint.js's sheet is still a % of that frame. The
+   photograph simply runs PAST the box: the <img> (and the dark twin) is hung
+   --bleed-* of the box outside it on each side, and the stage's overflow crops
+   it. So the push-in still scales about the same centre, the head chefs still
+   sit in their painted frames by construction, and an object in the new art
+   has a coordinate outside 0-100 (the arcade cabinet's side runs to 115%).
+   The canvas, in native plate px (the region is 2400x1340 inside it):
+     breakroom  2700x1656   +0 left  +0 top    +300 right  +316 bottom
+     office     2484x1656   +24 left +156 top  +60 right   +160 bottom
+   --bleed-* are those margins as fractions of the region (px / 2400 across,
+   px / 1340 down). Both sides are multiples of 12, so the 3/4 and 7/12 cuts
+   are whole pixels and every cut, lit and dark, registers exactly (the last
+   ~4 bottom rows repeat the outpaint's edge; no framing ever shows them).
+   They are cut to what the framing below can ever show
+   (solved over every window 901-3440 wide, every p, and the reduced-motion
+   still): decoded, the pair costs +38% / +28% of a plate, not the +71% the
+   whole outpaint would have. cinema.js's srcset carries the true widths.
+
+   ── THE CROPS, SOLVED PER ASPECT BAND ─────────────────────────────────────
+   The rule is the safe box (build/checks/safebox.py): every hotspot and
+   screen inside the viewport minus the menu minus 16px at p 0 / .25 / .5,
+   AND the photograph covering the stage at every p and in the reduced-motion
+   still (a gap may only ever sit under the menu). New knobs: the region may
+   now be narrower than the stage (the canvas covers), --art-x/--art-y may
+   leave 0..1 (they are just the linear crop — 2.64 = "pan right past the old
+   edge"), and --art-dy hangs a crop a fixed distance under the menu.
+   Desktops keep their size: effective room width (cover-w x overscan) vs the
+   old crop — Office 1440 -1.5%, 1512 0%, 1920 0%; Break Room 1512 0%, 1920
+   0%, 1440 -6.5% (the one desktop where lockers + cabinet did not fit the
+   frame at the old size; the arcade was 19-76px off it). iPads trade size for
+   a whole room: Break Room -6% at 1180x820 and -13% at 4:3, Office -12% and
+   -18% (the Office's five tools span 88.5% of its frame, and the sheet cannot
+   move right — the wall corner is at 22.2%). Every one of the five tools in
+   each room is on screen at the six test profiles, and across a sweep of
+   5,600 windows the only misses are Office windows at ~1.30:1 taller than
+   any iPad (a 1360x1046 window cuts the sheet by up to 26px). The narrow /
+   portrait band (§17) is untouched: object hotspots are off there. */
+.room[data-room="breakroom"] { --bleed-l: 0; --bleed-t: 0;       --bleed-r: .125; --bleed-b: .235821; }
+.room[data-room="office"]    { --bleed-l: .01; --bleed-t: .116418; --bleed-r: .025; --bleed-b: .119403; }
+.room:is([data-room="breakroom"], [data-room="office"]) .plate {
+  position: absolute;
+  inset-inline-start: calc(-100% * var(--bleed-l));
+  inset-block-start: calc(-100% * var(--bleed-t));
+  inline-size: calc(100% * (1 + var(--bleed-l) + var(--bleed-r)));
+  block-size: calc(100% * (1 + var(--bleed-t) + var(--bleed-b)));
+  /* §03's img reset caps an image at 100% of its container — this one is
+     meant to overhang it */
+  max-inline-size: none;
+  max-block-size: none;
+}
+/* the dark twin hangs over exactly the same rectangle, or the cross-fade jumps */
+.room:is([data-room="breakroom"], [data-room="office"]) .plate-wrap::after {
+  inset: calc(-100% * var(--bleed-t)) calc(-100% * var(--bleed-r))
+         calc(-100% * var(--bleed-b)) calc(-100% * var(--bleed-l));
+}
+/* A · 8:7-3:2, the iPads in landscape. Width-led: the span of objects is what
+   has to fit, and it fits a WIDTH. The Office's height floor (with its px
+   term) keeps its ±11.6% top/bottom margins covering a tall window. */
+@media (min-width: 901px) and (min-aspect-ratio: 8 / 7) and (max-aspect-ratio: 3 / 2) {
+  .room[data-room="breakroom"] :is(.plate-wrap, .hotspots) {
+    --cover-w: max(calc(100cqw * 1.115), calc(100svh * var(--plate-ar) * .8));
+    --cover-h: calc(var(--cover-w) / var(--plate-ar));
+    --art-x: 1.47; --art-y: .08; --art-dy: 0px; --overscan-k: 1;
+  }
+  .room[data-room="office"] :is(.plate-wrap, .hotspots) {
+    --cover-w: max(calc((100cqw - 16px) * 1.09), calc((100svh * .85 - 51px) * var(--plate-ar)));
+    --cover-h: calc(var(--cover-w) / var(--plate-ar));
+    --art-x: .98; --art-y: .46; --art-dy: 20px; --overscan-k: .97;
+  }
+}
+/* B · 3:2-17:10, the 16:10 desktops (1440x900). The Break Room keeps the fox
+   mural off frame (F1a, G3 m-5) by panning right into the new art instead of
+   zooming in. */
+@media (min-width: 901px) and (min-aspect-ratio: 3 / 2) and (max-aspect-ratio: 17 / 10) {
+  .room[data-room="breakroom"] :is(.plate-wrap, .hotspots) {
+    --cover-w: calc((100cqw - 16px) * 1.17);
+    --cover-h: calc(var(--cover-w) / var(--plate-ar));
+    --art-x: 1.23; --art-y: -.02; --art-dy: 0px; --overscan-k: .97;
+  }
+  .room[data-room="office"] :is(.plate-wrap, .hotspots) {
+    --cover-w: calc((100cqw - 16px) * 1.06);
+    --cover-h: calc(var(--cover-w) / var(--plate-ar));
+    --art-x: 1.27; --art-y: .94; --art-dy: 0px; --overscan-k: 1;
+  }
+}
+/* C + D · 17:10 and wider (1920x1080, 1366x768, Jeff's 1512x751). The old
+   sizes exactly; the Break Room pans ~150px right so the whole cabinet front
+   is in, the Office a little. */
+@media (min-width: 901px) and (min-aspect-ratio: 17 / 10) {
+  .room[data-room="breakroom"] :is(.plate-wrap, .hotspots) {
+    --cover-w: calc(100cqw * 1.05);
+    --cover-h: calc(var(--cover-w) / var(--plate-ar));
+    --art-x: 2.64; --art-y: .06; --art-dy: 10px; --overscan-k: 1.06;
+  }
+  .room[data-room="office"] :is(.plate-wrap, .hotspots) {
+    --cover-w: calc(100cqw * 1.06);
+    --cover-h: calc(var(--cover-w) / var(--plate-ar));
+    --art-x: .9; --art-y: .32; --art-dy: 0px; --overscan-k: .97;
+  }
+}
+@media print {
+  .room:is([data-room="breakroom"], [data-room="office"]) .plate {
+    position: static; inline-size: 100%; block-size: auto;
+  }
+}
 
 /* Every room that wants air or a wandering filament turns the pseudo-elements
    on and then says what it is. A room absent from this table generates
@@ -2150,6 +2671,61 @@ a { color: inherit; text-decoration: none; }
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .hero .stage { background: var(--ink-950); }
+
+/* ── v29 fix round (G3 M-4) · A TALL SCREEN GETS THE WHOLE SIGN ────────────
+   The storefront's painted sign spans 59% of the plate's width. A cover crop
+   keeps (W/H) / 1.79 of it, so below ~1.26:1 — an iPad in portrait, a narrow
+   window — the first thing on screen was "K COUNTY CO": the brand, sliced.
+   No crop can fix that; the plate has to be framed to its WIDTH. Below 6:5
+   the hero is a poster: the plate at 1.55 x the stage width (the sign at 91%
+   of it, centred), hung from the underside of the course menu so the glass
+   transom above the sign shows, its floor running out into the house ink,
+   and the masthead set on that ink at the foot of the screen. At 6:5 the box
+   is within 4% of what the cover crop gives, so a window resized across the
+   line barely moves. The static curtain (index.html) is the same markup and
+   takes these same rules, so its first frame is still the engine's first
+   frame. Overscan 1: the plate has horizontal slack for the drift; the top
+   edge is hung 1.8svh high so the drift's first frame (+1.8svh) lands it
+   exactly on the menu, and the push-in only ever moves it up, under the menu. */
+@media (max-aspect-ratio: 6 / 5) {
+  .room[data-room="hero"] :is(.plate-wrap, .hotspots),
+  .ccc-curtain .plate-wrap {
+    --cover-w: calc(100cqw * 1.55);
+    --cover-h: calc(100cqw * 1.55 / 1.79104);
+    --art-x: .5;
+    --overscan-k: 1;
+    inset-block-start: calc(var(--topbar-h) - 1.8svh);
+  }
+  /* the light layers are pulled back onto the stage rect by the same offset */
+  .room[data-room="hero"] :is(.plate-glow, .plate-vig),
+  .ccc-curtain :is(.plate-glow, .plate-vig) {
+    inset-block-start: calc(1.8svh - var(--topbar-h));
+  }
+  /* the floor runs out into the ink — above the plate and its dark twin,
+     below the vignette and the glow (z 1 = --z-vig, earlier in the tree) */
+  .room[data-room="hero"] .plate-wrap::before,
+  .ccc-curtain .plate-wrap::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: -2px;
+    block-size: 36%;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(to bottom,
+      transparent 0%,
+      rgb(var(--shade) / .36) 36%,
+      rgb(var(--shade) / .80) 70%,
+      var(--ink-950) 100%);
+  }
+  /* the masthead sits on the ink at the foot of the screen (on a squarer
+     window, over the floor — its own ground, below, carries it either way) */
+  .room[data-room="hero"] .hero-inner,
+  .ccc-curtain .hero-inner {
+    align-content: end;
+    padding-block-end: calc(var(--sp-8) + var(--sp-5));
+  }
+}
 
 /* ── THE MASTHEAD IS THE WHOLE HERO NOW (2026-08-28) ───────────────────────
    The lede and the "Walk the line" scroll cue were removed at the client's
@@ -2367,7 +2943,7 @@ a { color: inherit; text-decoration: none; }
   --cover-w: max(100cqw, calc(100svh * var(--plate-ar)));
   --cover-h: max(100svh, calc(100cqw / var(--plate-ar)));
   --plate-left: calc((100cqw - var(--cover-w)) * var(--art-x, var(--focus-x, .5)));
-  --plate-top:  calc((100svh - var(--cover-h)) * var(--art-y, var(--focus-y, .5)));
+  --plate-top:  calc((100svh - var(--cover-h)) * var(--art-y, var(--focus-y, .5)) + var(--art-dy, 0px));
 
   /* ── THE TEXT IS A CUT, NOT A DISSOLVE — AND IT TAKES BOTH AXES ─────────
      Two photographs can blend through each other and still read as one image.
@@ -2461,10 +3037,29 @@ a { color: inherit; text-decoration: none; }
      Both axes also mean a page where engine.js never runs still shows its
      type: the registered initials are --enter: 1 and --p: 0, which is inside
      the window. */
+  /* v29: the stagger is now read off --cut alone. The entry points are the
+     same to three decimals of --enter (0.5824 / 0.5868 / 0.5912 against the
+     old 0.582 / 0.586 / 0.590) and every row is up when --cut is; on the way
+     out the rows now leave chips-first, strictly INSIDE the outgoing ramp, so
+     the exit guarantee gains margin rather than losing it. Reading --enter
+     here would have re-coupled the rail to a per-frame value (§01). */
   --e1: var(--cut);
-  --e2: clamp(0, min((var(--enter) - 0.582) * 34, var(--cut)), 1);
-  --e3: clamp(0, min((var(--enter) - 0.586) * 34, var(--cut)), 1);
-  --e4: clamp(0, min((var(--enter) - 0.590) * 34, var(--cut)), 1);
+  --e2: clamp(0, calc((var(--cut) - 0.15) / 0.85), 1);
+  --e3: clamp(0, calc((var(--cut) - 0.30) / 0.70), 1);
+  --e4: clamp(0, calc((var(--cut) - 0.45) / 0.55), 1);
+
+  /* v29 · S6 · M2 — THE EXIT IS ONE NUMBER ON THE WRAPPER. The scrubbed cut
+     above still decides when a room's type LEAVES — that is invariant A, and
+     it has to be in scroll space — but it is now read once, here, instead of
+     four times on four children. The children ENTER on a clock instead
+     (the ROOM ARRIVAL block below), off the binary `.is-owned`, which is the
+     only way an entrance can be choreographed without a transition on a
+     per-frame value (G3). --cut is quantised (§05), so this changes on the
+     few frames of the ramp and never at rest. The wash (::before) rides it
+     too: at --cut 0 the room's type is gone and so is its legibility ground;
+     the bottom grade it kept (.24) only ever showed on a plate that was
+     already half dissolved. */
+  opacity: var(--cut);
 }
 
 
@@ -2828,9 +3423,12 @@ a { color: inherit; text-decoration: none; }
    elementFromPoint at the centre of two Host Stand hotspots returned
    H2.rail-title and the tagline paragraph that used to follow it — the two
    hotspots under them were unclickable with a mouse. */
-.rail > * { pointer-events: none; }
-.rail-chips,
-.rail > :is(a, button, ul, ol) { pointer-events: auto; }
+/* v29: keyed to the rail's own four children instead of `.rail > *` and
+   `.rail > :is(a, button, ul, ol)` (universal-bucket selectors, §03's note).
+   .rail is pointer-events:none and it inherits, so the three text rows need no
+   rule of their own; only the chips opt back in. The chip strip is a <nav>, so
+   the old `:is(a, button, ul, ol)` arm never matched anything. */
+.rail-chips { pointer-events: auto; }
 
 /* ── THE OWNERSHIP GATE, ON EVERYTHING THAT OPTS BACK IN ──────────────────
    See the long note on `.stage { pointer-events: none }` in §05. Every element
@@ -2844,11 +3442,12 @@ a { color: inherit; text-decoration: none; }
    .hotspot is NOT in this list because it has had its own copy of this gate
    since v3 (§09, on --live). Screens and the chef wall are gated by their HOST
    element rather than by their internals, which keeps every .ccc-scr__* and
-   .cw-* selector out of this file — the module boundary §17 insists on. */
+   .cw-* selector out of this file — the module boundary §17 insists on.
+   v29 · M3: the screen hosts left this list. A screen leaves with its
+   photograph (§09); its one control, .ccc-scr__hit, carries this same clip in
+   screens.js, and the host box is pointer-events:none. */
 .rail-chips,
-.rail > :is(a, button, ul, ol),
 .rail > .ccc-chefwall,
-.hotspots > [data-screen],
 .hotspots > [data-chefwall-host],
 .frz-pad {
   clip-path: inset(var(--cut-clip));
@@ -2876,13 +3475,11 @@ a { color: inherit; text-decoration: none; }
 .rail-kicker {
   color: color-mix(in oklab, var(--brass-300) 72%, var(--bone));
   text-shadow: var(--shadow-text), 0 0 10px rgb(var(--shade) / .85);
-  opacity: var(--e1);
-  transform: translate3d(calc((1 - var(--e1)) * -14px), 0, 0);
+  /* v29 · S6: no per-frame opacity or transform here any more — the exit is
+     .rail's own opacity (§08), the entrance is M2 (ROOM ARRIVAL, below). */
 }
 
 .rail-title {
-  opacity: var(--e2);
-  transform: translate3d(0, calc((1 - var(--e2)) * 22px), 0);
   max-width: 15ch;
 }
 
@@ -2908,8 +3505,6 @@ a { color: inherit; text-decoration: none; }
 .rail-rule {
   inline-size: clamp(64px, 16cqi, 190px);
   margin-block: calc(-1 * var(--sp-2)) var(--sp-2);
-  opacity: var(--e3);
-  transform: scaleX(var(--e3));
   transform-origin: 0 50%;
 }
 
@@ -2918,14 +3513,31 @@ a { color: inherit; text-decoration: none; }
   flex-wrap: wrap;
   gap: var(--sp-2);
   max-inline-size: min(62ch, 78cqi);
-  opacity: var(--e4);
-  transform: translate3d(0, calc((1 - var(--e4)) * 12px), 0);
 }
 
 /* ── Chip ─────────────────────────────────────────────────────────────────
    A brass hairline plate, not a rounded pill.  Reads as an enamel tag on a
-   kitchen rack.  44px minimum block size on every device.                  */
+   kitchen rack.  44px minimum block size on every device.
+
+   v29 · S6 · THE GLASS SECONDARY BUTTON (design audit P2-10 / P2-11, §16).
+   A chip is the one thing in a room that says "tap me", and it used to be set
+   exactly like the kicker above it — 12px letter-spaced caps — so it read as a
+   tag. It is now set like a button: sentence case, 14px/600, tracked .01em,
+   with the brass tick kept. A 33-character tool name stops needing two rows.
+   The kicker, the title and the tickets keep their caps: those are labels.
+
+   HOVER IS LIGHT, NOT PAINT. Hovering used to fill the whole plate gold — heavy
+   when a pointer sweeps a row — by switching a gradient (which cannot
+   interpolate, so it jumped) while box-shadow and colour transitioned (paint,
+   every frame). Now three pre-painted things change OPACITY or TRANSFORM only:
+     · ::after  the hover plate — a brass hairline and a lift of light, faded in;
+     · ::before the brass tick, which carries its own glow and brightens;
+     · the chip itself rises 1px.
+   The gold fill is kept for the one moment it means something: the PRESS
+   (:active), with the shared press — scale(.98) in 90 ms, back on the
+   press ease. Keyboard focus shows the plate and the ring (§16), not gold. */
 .chip {
+  position: relative;          /* the hover plate (::after) is laid over it */
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
@@ -2941,55 +3553,91 @@ a { color: inherit; text-decoration: none; }
      screenshots taken either side of a running CSS transition and counting the
      moving pixels as glyphs. Freeze transitions as well as animations before
      you trust a number off this component.) */
-  background: color-mix(in oklab, var(--ink-900) 58%, transparent);
+  /* v29: no backdrop-filter (audit/perf.md §3.4 fix 2: ~6 offscreen blur passes per frame over a moving plate). The glass is carried by an opaque-enough ground plus a top-lit sheen and a hairline, which read as glass without re-blurring the room every frame. */
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--bone) 8%, transparent) 0%, transparent 52%),
+    color-mix(in oklab, var(--ink-900) 76%, transparent);
   /* Two shadows rather than one: a tight one that darkens the pixels the glyph
      actually sits on, and a wider one for a specular the glass lets through.
      Worth roughly 1.4:1 on the worst pixel, for no visual weight. */
   text-shadow: 0 1px 2px rgb(var(--shade) / .92), 0 0 9px rgb(var(--shade) / .72);
   box-shadow:
     inset 0 0 0 1px var(--line-soft),
+    inset 0 1px 0 rgb(255 255 255 / .07),
     0 1px 0 rgb(var(--shade) / .5);
-  -webkit-backdrop-filter: blur(10px) saturate(1.3);
-  backdrop-filter: blur(10px) saturate(1.3);
-  transition:
-    background var(--dur-2) var(--ease-out),
-    box-shadow var(--dur-2) var(--ease-out),
-    color      var(--dur-2) var(--ease-out),
-    transform  var(--dur-3) var(--ease-cine);
+  /* transform only (G4). This is the RELEASE: the press itself (:active)
+     swaps in its own, faster timing through --press-t / --press-e, which M2's
+     arrival transitions (§09b) read too, so a press still feels the same
+     while a room is arriving. M2 moves `translate`/`opacity`, which are
+     separate properties, so the two never fight. */
+  transition: transform var(--press-t, var(--m-t-2)) var(--press-e, var(--m-ease-press));
 
-  /* the label typography */
+  /* the label typography — a button's, not a label's (see above) */
   font-family: var(--font-text);
-  font-size: var(--t--2);
+  font-size: 0.875rem;
   font-weight: 600;
-  font-stretch: 90%;
-  text-transform: uppercase;
-  letter-spacing: var(--track-caps);
+  font-stretch: 94%;
+  letter-spacing: .01em;
   line-height: 1;
   white-space: nowrap;
 
-  /* the brass tick that lights on hover */
+  /* the brass tick. It carries its own glow, pre-painted; hover and focus only
+     turn it up (opacity), never repaint it. */
   &::before {
     content: "";
     inline-size: 5px;
     block-size: 5px;
     flex: none;
     border-radius: 50%;
-    background: color-mix(in oklab, var(--brass) 55%, transparent);
-    transition: background var(--dur-2) var(--ease-out),
-                box-shadow var(--dur-2) var(--ease-out);
+    background: var(--brass-300);
+    box-shadow: 0 0 7px 1px color-mix(in oklab, var(--amber) 70%, transparent);
+    opacity: .5;
+    transition: opacity var(--m-t-2) var(--m-ease-out);
+  }
+  /* the hover plate: a brass hairline and a lift of light, laid over the
+     glass and faded in. Pointer-transparent; it is decoration. */
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(180deg,
+      color-mix(in oklab, var(--bone) 8%, transparent),
+      color-mix(in oklab, var(--bone) 3%, transparent));
+    box-shadow:
+      inset 0 0 0 1px color-mix(in oklab, var(--brass-300) 72%, transparent),
+      0 6px 16px -8px rgb(var(--shade) / .85);
+    opacity: 0;
+    transition: opacity var(--m-t-2) var(--m-ease-out);
   }
 
-  &:hover, &:focus-visible {
+  /* the press: the one state that fills gold */
+  &:active {
     color: var(--ink-950);
     background: linear-gradient(180deg, var(--brass-300), var(--brass));
-    box-shadow: inset 0 0 0 1px var(--brass-300), var(--shadow-1);
     text-shadow: none;
-    transform: translateY(-1px);
-    &::before { background: var(--ink-950); box-shadow: none; }
   }
-
-  &:active { transform: translateY(0); }
 }
+/* Flat, not nested under a selector list: a nested `&` under a list resolves
+   to :is(…) and lands in the universal bucket (§03). Hover is for a real
+   pointer only — on an iPad a tap would leave the plate stuck on the chip it
+   opened, under the tool, until the next tap somewhere else. */
+@media (hover: hover) {
+  .chip:hover { transform: translate(0, -1px); }
+  .chip:hover::before,
+  .chip:hover::after { opacity: 1; }
+}
+.chip:focus-visible::before,
+.chip:focus-visible::after { opacity: 1; }
+/* the press, after the hover so it wins while both apply: down in --m-t-1 */
+.chip:active {
+  transform: scale(var(--m-press));
+  --press-t: var(--m-t-1);
+  --press-e: var(--m-ease-out);
+}
+.chip:active::before { background-color: var(--ink-950); box-shadow: none; opacity: 1; }
+.chip:active::after { opacity: 0; transition: none; }
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -3050,20 +3698,32 @@ a { color: inherit; text-decoration: none; }
    The floor is 4.5:1. The bulbs themselves are decoration and carry no
    information — the word GAMES does — so they are not held to a text ratio.
 
-   MOTION. The chase is a background-position translation on one composited
-   pseudo-element, no layout and no paint of the chip itself. It is switched off
+   MOTION (v29). The chase used to be a background-position animation, which
+   cannot run on the compositor: it forced a main-thread style recalc and a
+   paint on EVERY frame, forever — 47-97 recalcs a second at the top of the
+   page, 7,000px from the chip (audit/perf.md §3.6). It is now the classic
+   two-phase theatre chase: the odd bulbs on ::after and the even bulbs on
+   ::before, each blinking its OPACITY on a step timing, half a period apart.
+   Opacity on two small pseudo-elements is compositor-only, and it runs only
+   while the Break Room owns the page and no tool is open (G1/G2 below).
+   (Before v29: the chase was a background-position translation on one
+   pseudo-element, no layout and no paint of the chip itself.) It is switched off
    entirely under prefers-reduced-motion, where the bulbs simply stay lit: the
    sign still reads as a sign, which is the part that carries meaning.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-@keyframes ccc-marquee-chase {
-  /* one bulb pitch, so the loop is seamless — see --bulb-pitch below */
-  to { background-position: var(--bulb-pitch) 2px, var(--bulb-pitch) calc(100% - 2px); }
+/* v29: two phases, 1 → .2 → 1 on a step timing; ::before runs half a period
+   behind ::after, so exactly one set of bulbs is lit at a time. */
+@keyframes ccc-bulbs {
+  0%   { opacity: 1; }
+  50%  { opacity: .2; }
+  100% { opacity: 1; }
 }
 
 .chip[data-marquee] {
-  /* the bulbs live on ::after, which needs a containing block */
+  /* the bulbs live on ::before and ::after, which need a containing block */
   position: relative;
+  --bulb-pitch: 11px;
   /* room for the bulb rails top and bottom, so they never sit on the glyphs */
   padding-block: 7px;
   /* a hair warmer than a training chip, and a brass hairline instead of a bone
@@ -3080,40 +3740,84 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* THE BULBS. Two rails — one along the top inside edge, one along the bottom —
-   drawn as a single repeating radial gradient painted twice at two
-   background-positions. One pseudo-element, two gradient layers, zero extra
-   DOM: the chip is a <button> with one text node and one <span> in it and this
-   must not change that. */
+   drawn as repeating radial gradients. v29: split across both pseudo-elements,
+   every other bulb each (a 2x pitch), so each set can blink on the compositor.
+   Zero extra DOM: the chip is a <button> with one text node and one <span> in
+   it and this must not change that. The brass tick that every other chip
+   carries on ::before is redundant here anyway — the bulbs already say "this
+   one is different". */
+.chip[data-marquee]::before,
 .chip[data-marquee]::after {
   content: "";
   position: absolute;
   inset: 0;
+  inline-size: auto;
+  block-size: auto;
+  flex: none;
   border-radius: inherit;
   pointer-events: none;
-  --bulb-pitch: 11px;
-  background-image:
-    radial-gradient(circle at 3px 50%,
-      color-mix(in oklab, var(--amber) 82%, transparent) 0 1.5px,
-      color-mix(in oklab, var(--amber) 26%, transparent) 1.6px 3px,
-      transparent 3.2px),
-    radial-gradient(circle at 3px 50%,
+  box-shadow: none;
+  transition: none;
+  background: none;
+  --bulb: radial-gradient(circle at 3px 50%,
       color-mix(in oklab, var(--amber) 82%, transparent) 0 1.5px,
       color-mix(in oklab, var(--amber) 26%, transparent) 1.6px 3px,
       transparent 3.2px);
-  background-size: var(--bulb-pitch) 6px;
-  background-position: 0 2px, calc(var(--bulb-pitch) / 2) calc(100% - 2px);
+  background-image: var(--bulb), var(--bulb);
+  background-size: calc(2 * var(--bulb-pitch)) 6px;
   background-repeat: repeat-x;
   /* the two rails fade out at the ends so the sign has soft corners rather than
      a bulb cut in half by the border radius */
   -webkit-mask: linear-gradient(90deg, transparent 0, #000 9px, #000 calc(100% - 9px), transparent 100%);
   mask:         linear-gradient(90deg, transparent 0, #000 9px, #000 calc(100% - 9px), transparent 100%);
-  animation: ccc-marquee-chase 2.4s linear infinite;
+  /* v29 · S6: .chip's own ::before (the tick) and ::after (the hover plate)
+     rest at .5 and 0 — the bulbs are always fully drawn. */
+  opacity: 1;
+  /* At rest, and in every room that does not own the page, the sign is LIT
+     and STILL: no animation object at all rather than a paused one. The chase
+     is switched on below, for the owned room in the full tier only. */
+  animation: none;
+}
+/* phase A: top rail at 0, 2p, 4p…; bottom rail at 1.5p, 3.5p… */
+.chip[data-marquee]::after {
+  background-position: 0 2px, calc(var(--bulb-pitch) * 1.5) calc(100% - 2px);
+}
+/* phase B: top rail at p, 3p…; bottom rail at .5p, 2.5p… — half a period behind */
+.chip[data-marquee]::before {
+  background-position: var(--bulb-pitch) 2px, calc(var(--bulb-pitch) / 2) calc(100% - 2px);
 }
 
-/* The brass tick that every other chip carries is redundant here — the bulbs
-   already say "this one is different" — and at 5px it reads as a sixth bulb in
-   the wrong place. */
-.chip[data-marquee]::before { display: none; }
+/* v29 · S6 · M6 — THE SIGN FLICKERS ON. When the Break Room takes the page the
+   marquee does what a real one does when its circuit closes: the bulbs catch
+   (0 → .8 → .2 → 1 → .6 → 1 over 600 ms), then the chase starts. It begins at
+   300 ms, which is when M2 puts the first chip of the rail up, so the sign
+   lights as it arrives. Two animations per rail, listed chase-first so the
+   flicker (later in the list) wins while it runs and lets go when it ends —
+   `backwards` holds the bulbs dark through its delay and never past its end.
+   Phase B's chase starts 600 ms before phase A's, which is exactly half a
+   period, so one set is lit at a time as before. Opacity only, on two small
+   pseudo-elements: compositor work. Full tier only; lite and off keep the
+   sign lit and still; a tool over the page pauses it (G2, below). */
+@keyframes ccc-bulbs-on {
+  0%   { opacity: 0; }
+  18%  { opacity: .8; }
+  34%  { opacity: .2; }
+  52%  { opacity: 1; }
+  70%  { opacity: .6; }
+  100% { opacity: 1; }
+}
+html[data-motion="full"] .room.is-owned .chip[data-marquee]::after {
+  animation: ccc-bulbs 1.2s step-end 900ms infinite, ccc-bulbs-on 600ms linear 300ms backwards;
+}
+html[data-motion="full"] .room.is-owned .chip[data-marquee]::before {
+  animation: ccc-bulbs 1.2s step-end 300ms infinite, ccc-bulbs-on 600ms linear 300ms backwards;
+}
+/* G2 (design audit §5.3): no tool is open while it chases. Paused, never
+   hidden — the sign stays lit. (G1 is the rule above: only the owned room.) */
+html.is-viewing .chip[data-marquee]::before,
+html.is-viewing .chip[data-marquee]::after,
+html.ccc-locked .chip[data-marquee]::before,
+html.ccc-locked .chip[data-marquee]::after { animation-play-state: paused; }
 
 /* the count. One rule, and it is the only thing on the chip that is not --fg. */
 .chip .chip-count {
@@ -3130,27 +3834,29 @@ a { color: inherit; text-decoration: none; }
   color: color-mix(in oklab, var(--brass) 70%, transparent);
 }
 
-/* Hover/focus: the sign goes solid brass like every other chip, so the arcade
-   is not a different KIND of control — it is the same control, lit. The bulbs
-   go dark against it, the way real bulbs do when the sign behind them lights. */
-.chip[data-marquee]:hover,
-.chip[data-marquee]:focus-visible {
+/* Hover/focus: the same control as every other chip, so it answers the same
+   way (v29 · S6): a brass hairline and a 1px lift, the bulbs left burning. Its
+   ::after is a bulb rail rather than the hover plate, so the hairline is the
+   chip's own ring, switched (not transitioned: G4). Press fills it gold, as
+   it does every chip. */
+@media (hover: hover) {
+  .chip[data-marquee]:hover {
+    box-shadow:
+      inset 0 0 0 1px color-mix(in oklab, var(--brass-300) 80%, transparent),
+      0 1px 0 rgb(var(--shade) / .5),
+      0 0 22px -8px color-mix(in oklab, var(--amber) 70%, transparent);
+  }
+}
+.chip[data-marquee]:active {
   background: linear-gradient(180deg, var(--brass-300), var(--brass));
   .chip-count { color: color-mix(in oklab, var(--ink-950) 88%, var(--walnut)); }
   .chip-sep::before { color: color-mix(in oklab, var(--ink-950) 55%, transparent); }
-  &::after {
-    background-image:
-      radial-gradient(circle at 3px 50%, rgb(var(--shade) / .55) 0 1.5px, transparent 2.2px),
-      radial-gradient(circle at 3px 50%, rgb(var(--shade) / .55) 0 1.5px, transparent 2.2px);
-    animation-play-state: paused;
-  }
 }
-.chip[data-marquee]:hover { box-shadow: inset 0 0 0 1px var(--brass-300), var(--shadow-1); }
 
 @media (prefers-reduced-motion: reduce) {
   /* the bulbs stay LIT, they just stop travelling: the sign is the message, the
      chase is only the flourish */
-  .chip[data-marquee]::after { animation: none; }
+  .chip[data-marquee]::before, .chip[data-marquee]::after { animation: none; }
 }
 
 
@@ -3167,7 +3873,15 @@ a { color: inherit; text-decoration: none; }
    Hover/focus draws the reticle out, lights the ring to brass and slides in
    a named label.
 
-   THE PULSE.  It has to run when you arrive in a room and then get out of the
+   v29 · THE PULSE IS GONE (design audit M5 / §5.5). Seventeen infinite
+   animations whose keyframes read a per-frame custom property ran in every
+   room, off-screen and under the tool viewer, re-resolving on every scroll
+   frame. The resting state is now the reticle at .72 plus the glint — the
+   "always findable" half of the bargain below — and the hover/focus state
+   draws the reticle out as before. The note that follows is kept as the record
+   of what the pulse was.
+
+   THE PULSE (retired).  It has to run when you arrive in a room and then get out of the
    way.  It does that with NO JS state, NO timers and NO extra classes: the
    amplitude is arithmetic on the two contract numbers —
 
@@ -3233,7 +3947,8 @@ a { color: inherit; text-decoration: none; }
      photograph are hit-testable from the moment the room is 55% of what you
      are looking at. See §08 for the solve. */
   --own: var(--cut);
-  opacity: var(--own);
+  /* v29 · M3: the fade is on this layer's object children, not on the layer —
+     see the rule after this block. */
 
   /* opacity:0 STILL HIT-TESTS, so the ownership fade alone would let an
      invisible layer go on swallowing clicks through the hand-off gap. The gate
@@ -3254,13 +3969,47 @@ a { color: inherit; text-decoration: none; }
      left to do what opacity can do safely. */
   --live: clamp(0, calc(var(--own) * 1000), 1);
 
-  /* the self-arming, self-settling discoverability amplitude */
-  --pulse-amp: clamp(0, calc(var(--own) * (1 - clamp(0, calc((var(--p) - 0.10) * 4), 1))), 1);
+  /* v29: --pulse-amp (the p-driven pulse amplitude) is retired with hs-pulse;
+     nothing under .hotspots reads a per-frame value any more (§01). */
+}
+/* v29 · M3 · THE SCREENS LEAVE WITH THEIR PHOTOGRAPH (S3's request).
+   The ownership fade was on .hotspots itself, so the Pass tablets, the Host TV
+   and the boards went black at --cut 0 while their room was still on screen
+   under a half-dissolved successor (design audit P1-3). The object hotspots
+   and the chef wall keep exactly that fade; the [data-screen] hosts do not
+   take it and go out with the stage's own --dissolve. They stay gated:
+   screens.js powers a screen on only when its room owns the page
+   (data-power) and clips its one button, .ccc-scr__hit, on --cut-clip.
+   Keyed to the two child kinds (§03's universal-bucket note), not `> *`. */
+.hotspots > .hotspot,
+.hotspots > [data-chefwall-host] { opacity: var(--own); }
+/* v29 fix round (G3 M-3) · …BUT THEY GO DOWN WITH THE LIGHTS. Going out only
+   with the stage's --dissolve left the brightest thing in the outgoing room —
+   a lit TV, three white tablets — at full brightness under the incoming
+   stage while the photograph around it was already dimmed by M3 (§06), so
+   the hand-over double-exposed exactly the screens. They now take the same
+   lights-down number as the plate's grade, quantised to 0.05 (≤ 20 steps per
+   hand-over, restyling only these hosts — --exit-fine is registered
+   non-inherited, so nothing below them follows it), and THEN leave with the
+   dissolve. Driven by M3's own ramp and eased in (0.4·x(1+x), so a screen is
+   still above half while the incoming stage is below half: they never blink
+   out while their room is the picture — the integrator's hand-over check), down
+   to .2 by the time the next room is ~83% in. */
+.hotspots { --exit-fine: inherit; }
+.hotspots > [data-screen] {
+  --exit-fine: inherit;
+  opacity: calc(1 - 0.4 * round(var(--exit-fine), 0.05) * (1 + round(var(--exit-fine), 0.05)));
 }
 
 /* Positioning: accepts either inline left/top/width/height (which win by
-   specificity) or the --x/--y/--w/--h custom properties. */
-.hotspots > * {
+   specificity) or the --x/--y/--w/--h custom properties.
+   v29: keyed to the three kinds of child cinema.js buildHotspot() makes (a
+   .hotspot button, a screen host, the chef-wall host) instead of `.hotspots >
+   *`, which sat in the universal bucket (§03's note). wallprint.js's
+   .ccc-wp-defer placeholder is display:none and needs no geometry. */
+.hotspots > .hotspot,
+.hotspots > [data-screen],
+.hotspots > [data-chefwall-host] {
   position: absolute;
   left:   var(--x, 50%);
   top:    var(--y, 50%);
@@ -3276,18 +4025,24 @@ a { color: inherit; text-decoration: none; }
      These are the elements that actually navigate, so these are the ones that
      must not accept a click while they belong to a room you have scrolled off.
      --live snaps to 1 the instant --own leaves zero, so it is a binary gate
-     and never lops the edge off a hotspot mid-fade. */
-  clip-path: inset(calc((1 - var(--live)) * 50%));
+     and never lops the edge off a hotspot mid-fade.
+     v29 · S6: AND WHILE LIVE IT CLIPS NOTHING. It resolved to inset(0%) — the
+     button's own border box — which is not "no clip": it cut off everything
+     this block draws OUTSIDE the box. The name label (hung 10px below), the
+     glint's outer half, the focus halo and the hover bloom had never shown
+     since v3; hovering a guest book lit a frame and said nothing. §05's
+     --cut-clip solved the same gate with a negative inset for exactly this
+     reason; this is the same shape, with room for a two-line label. */
+  clip-path: inset(calc((1 - var(--live)) * 50% - var(--live) * 100vmax));
   min-inline-size: 44px;
   min-block-size: 44px;
   border-radius: var(--r-xs);
   color: var(--brass-300);
   -webkit-tap-highlight-color: transparent;
-  transition:
-    color      var(--dur-3) var(--ease-out),
-    box-shadow var(--dur-3) var(--ease-out),
-    background var(--dur-3) var(--ease-out),
-    --bracket  var(--dur-4) var(--ease-cine);
+  /* v29 · S6 · M5: nothing on the button itself transitions any more. Hover
+     used to transition box-shadow, background and --bracket (a mask-size) —
+     three paints per frame. The engaged look is now pre-painted on ::after
+     and only its opacity and scale move. */
 
   /* Resting: a quiet inset ring + a warm glint centre. It was "all but
      invisible" at 9%, which was the right call when the room around it was
@@ -3313,8 +4068,8 @@ a { color: inherit; text-decoration: none; }
        rather than as a mark. .72 on a 1px brass hairline is still four corner
        ticks, not a pill. */
     opacity: .72;
-    transition: opacity var(--dur-3) var(--ease-out);
-    /* keep only the four corners of that border */
+    /* keep only the four corners of that border (a static mask: v29 · S6 no
+       longer animates --bracket; the full frame is ::after's own border) */
     -webkit-mask:
       linear-gradient(#000, #000) 0    0    / var(--bracket) var(--bracket) no-repeat,
       linear-gradient(#000, #000) 100% 0    / var(--bracket) var(--bracket) no-repeat,
@@ -3327,38 +4082,70 @@ a { color: inherit; text-decoration: none; }
       linear-gradient(#000, #000) 100% 100% / var(--bracket) var(--bracket) no-repeat;
   }
 
-  /* ── the pulse ring ── */
+  /* ── M5 · THE GLOW (v29 · S6) ──
+     The retired pulse ring's pseudo-element, switched back on as the engaged
+     state, PRE-PAINTED: the full brass frame (which the four corners of
+     ::before join up into), the amber bloom inside it and the halo outside
+     it are all drawn once and sit at opacity 0. Hover and keyboard focus fade
+     it in and settle it from .96 to full size — opacity and transform, so the
+     compositor does it. The idle breath (motion.js) plays the same layer once.
+     Lite: opacity only. */
   &::after {
     content: "";
     position: absolute;
-    inset: -6px;
-    border: 1px solid var(--brass-300);
-    border-radius: var(--r-sm);
-    pointer-events: none;
-    opacity: 0;
-    /* No will-change: a running infinite transform/opacity animation is
-       compositor-promoted on its own, and there are 37 of these — the static
-       hint would have pinned a layer for every hotspot on the site, in every
-       room, forever. Same defect class as the .plate-glow rule above. */
-    animation: hs-pulse 2900ms var(--ease-cine) infinite;
-  }
-
-  /* ── engaged ── */
-  &:hover, &:focus-visible {
-    --bracket: 50%;                /* four masks tile → a full frame */
-    color: var(--brass-300);
+    inset: 0;
+    border: 1px solid color-mix(in oklab, var(--brass-300) 92%, transparent);
+    border-radius: var(--r-xs);
     background:
       radial-gradient(70% 70% at 50% 50%,
         color-mix(in oklab, var(--amber) 20%, transparent) 0%,
         color-mix(in oklab, var(--amber) 6%, transparent) 52%,
         transparent 78%);
     box-shadow:
-      inset 0 0 0 1px color-mix(in oklab, var(--brass) 70%, transparent),
+      inset 0 0 0 1px color-mix(in oklab, var(--brass) 40%, transparent),
       0 0 34px -6px color-mix(in oklab, var(--amber) 60%, transparent);
-    &::before { opacity: 1; }
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(.96);
+    transition: opacity var(--m-t-2) var(--m-ease-out), transform var(--m-t-2) var(--m-ease-out);
   }
 
   &:active { background: color-mix(in oklab, var(--amber) 22%, transparent); }
+}
+/* Engaged. Hover only for a real pointer: on a touch screen a tap opens the
+   tool at once, and a sticky :hover would leave the glow lit on the object
+   underneath the viewer until the next tap. Keyboard focus always. */
+@media (hover: hover) {
+  .hotspot:hover::after { opacity: 1; transform: none; }
+}
+.hotspot:focus-visible::after { opacity: 1; transform: none; }
+
+/* v29 fix round (G2 m1): a hotspot engine.js found mostly off screen is inert
+   (no tap, no Tab stop — its chip is the way in) and shows no reticle, glint
+   or glow, so nothing at the screen's edge promises a tap it will not take.
+   Its drawn content (a wall print) stays: it is part of the wall. */
+.hotspot[data-offstage]::before,
+.hotspot[data-offstage]::after,
+.hotspot[data-offstage] > .dot,
+.hotspot[data-offstage] .hotspot-dot,
+.hotspot[data-offstage] .hotspot-label { visibility: hidden; }
+.hotspot[data-offstage] { box-shadow: none; background: none; }
+/* v29 fix round (G3 M-6): an object box that runs into its room's title card
+   draws no resting brackets or ring there (the hover/focus glow still says
+   what it is), and a label that would land on the type hangs above the
+   object — both decided by engine.js checkOffstage() from real rects. */
+.hotspot[data-over-rail]::before,
+.hotspot[data-over-rail] > .dot,
+.hotspot[data-over-rail] .hotspot-dot { visibility: hidden; }
+.hotspot[data-over-rail] { box-shadow: none; }
+.hotspot[data-label-up] .hotspot-label {
+  inset-block-start: auto;
+  inset-block-end: calc(100% + 10px);
+  transform: translate(0, 6px);
+}
+.hotspot[data-label-up]:focus-visible .hotspot-label { transform: translate(0, 0); }
+@media (hover: hover) {
+  .hotspot[data-label-up]:hover .hotspot-label { transform: translate(0, 0); }
 }
 
 /* the permanent glint — one 6px brass bead pinned to the reticle's top-left.
@@ -3378,10 +4165,11 @@ a { color: inherit; text-decoration: none; }
      (see the section header) and it was spending a third of its strength on a
      pulse that is over by --p 0.35 — i.e. it was dimmest exactly when a room
      had settled and someone was reading it. */
-  opacity: calc(0.72 + 0.28 * var(--pulse-amp));
-  transition: opacity var(--dur-3) var(--ease-out);
+  /* v29: a constant at rest. v29 · S6: and a constant on hover too — the glow
+     (::after) is the engaged state now, so this never transitions except as
+     part of a room's arrival (M2, below). */
+  opacity: .72;
 }
-.hotspot:is(:hover, :focus-visible) :is(.hotspot-dot, .dot) { opacity: 1; }
 
 /* the name, revealed on engagement */
 .hotspot-label {
@@ -3399,14 +4187,20 @@ a { color: inherit; text-decoration: none; }
      sheet and printed "PRINT OU". So: a cap in the units the text is actually
      set in, and wrapping instead of an ellipsis. Two lines is the practical
      ceiling for every name in tools.json plus the sealed twelve. */
+  /* v29 fix round (G3 M-6): sized to its text, not to the object. An
+     absolutely positioned box shrink-wraps to its containing block, which is
+     the hotspot — so a locker door 45px wide set "XFINITY / PRODUCT /
+     MASTERY" on three lines. max-content up to the cap below. */
+  inline-size: max-content;
   max-inline-size: min(30em, 42cqw);
   padding: var(--sp-2) var(--sp-3);
   border-radius: var(--r-xs);
   color: var(--fg);
-  background: color-mix(in oklab, var(--ink-900) 78%, transparent);
+  /* v29: no backdrop-filter (audit/perf.md §3.4 fix 2: ~6 offscreen blur passes per frame over a moving plate). The glass is carried by an opaque-enough ground plus a top-lit sheen and a hairline, which read as glass without re-blurring the room every frame. */
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--bone) 6%, transparent), transparent 60%),
+    color-mix(in oklab, var(--ink-900) 94%, transparent);
   box-shadow: inset 0 0 0 1px var(--line), var(--shadow-1);
-  -webkit-backdrop-filter: blur(14px) saturate(1.4);
-  backdrop-filter: blur(14px) saturate(1.4);
   white-space: normal;
   overflow-wrap: break-word;
   text-wrap: balance;
@@ -3420,31 +4214,216 @@ a { color: inherit; text-decoration: none; }
   line-height: 1.2;
 
   opacity: 0;
-  transform: translate3d(0, -6px, 0);
+  transform: translate(0, -6px);   /* v29: 2D; the transition promotes while it runs */
   transition: opacity var(--dur-2) var(--ease-out),
               transform var(--dur-3) var(--ease-cine);
   pointer-events: none;
 }
-.hotspot:is(:hover, :focus-visible) .hotspot-label {
+/* v29 · S6: focus always; hover for a real pointer only (see the glow). This
+   label had never been seen before v29 — the clip on .hotspot cut it off. */
+.hotspot:focus-visible .hotspot-label {
   opacity: 1;
-  transform: translate3d(0, 0, 0);
+  transform: translate(0, 0);
+}
+@media (hover: hover) {
+  .hotspot:hover .hotspot-label {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
 }
 /* flip the label inboard near the right/bottom edges of the plate */
 .hotspot[data-edge~="right"]  .hotspot-label { inset-inline-start: auto; inset-inline-end: 0; }
 .hotspot[data-edge~="bottom"] .hotspot-label {
   inset-block-start: auto;
   inset-block-end: calc(100% + 10px);
-  transform: translate3d(0, 6px, 0);
+  transform: translate(0, 6px);
 }
-.hotspot[data-edge~="bottom"]:is(:hover, :focus-visible) .hotspot-label {
-  transform: translate3d(0, 0, 0);
+.hotspot[data-edge~="bottom"]:focus-visible .hotspot-label {
+  transform: translate(0, 0);
+}
+@media (hover: hover) {
+  .hotspot[data-edge~="bottom"]:hover .hotspot-label { transform: translate(0, 0); }
 }
 
-@keyframes hs-pulse {
-  0%   { opacity: 0;                              transform: scale(.90); }
-  14%  { opacity: calc(0.95 * var(--pulse-amp));  }
-  70%  { opacity: 0;                              transform: scale(1.30); }
-  100% { opacity: 0;                              transform: scale(1.30); }
+/* @keyframes hs-pulse — deleted in v29 with the pulse (§09 header). */
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   09b · M2 ROOM ARRIVAL  ·  M5 IDLE BREATH   (v29 · S6, design audit §5.4)
+   ═══════════════════════════════════════════════════════════════════════════
+   WHAT IT IS. When a room takes the page (engine.js puts `.is-owned` on it,
+   contract C2), its type and its objects arrive in one short piece of
+   choreography instead of popping in over ~15px of scroll:
+
+       kicker   slides in from the left      360 ms  out   from 100 ms
+       title    rises 14px                    560 ms  cine  from 160 ms
+       rule     draws left to right           560 ms  cine  from 240 ms
+       chips    rise 6px, 45 ms apart (≤6)    240 ms  out   from 300 ms
+       reticles settle from 1.06, 60 ms apart 420 ms  cine  from 360 ms (≤3)
+       glints   pop from .6                   240 ms  press 180 ms after each
+                                              ── everything done by 900 ms
+   and when a room loses the page it all goes in 160 ms, opacity only, no
+   stagger, the transforms reset only once it is invisible.
+
+   HOW, AND WHY IT CANNOT FIGHT THE SCROLL. Every value here hangs off a
+   BINARY class, never a per-frame custom property (G3), and every one is a
+   transition: flip the class back mid-way and it reverses from where it is
+   (G7), so a fling through five rooms queues nothing. The per-frame part —
+   when a room's type must be GONE, in scroll space — is §08's one
+   `opacity: var(--cut)` on .rail, untouched by this block, and so is every
+   hit-test gate (--cut-clip, --live): ownership decides what you see arrive,
+   --cut still decides what you can touch. The moves use the individual
+   `translate` / `scale` properties so they compose with the chips' hover
+   and press (`transform`) instead of replacing them.
+
+   FAIL-OPEN. Nothing here hides anything unless <html> carries
+   `motion-ready`, which motion.js sets and takes away again if the engine
+   never speaks C2. No JavaScript, no engine, a broken module — every room's
+   type and objects are simply there.
+
+   TIERS (C5). full: all of the above. lite: the rail fades as one, 200 ms,
+   no movement, and the reticles are simply there. off: no pre-state at all.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+
+/* ── full · before the room is owned (and on the way out) ──
+   The way out is 160 ms × --live-cut: 160 ms while the room's type is still on screen
+   (--live-cut 1 — an M4 cut takes the page away from a room that is fully
+   visible, and its type fades with the black), and 0 when §08's scrub has
+   already taken it off (the ordinary scroll case: the room lost its --cut
+   before it lost the page). A zero duration creates no transition at all, so
+   nothing ticks for an element nobody can see — an exit on an invisible
+   element cannot run on the compositor and would restyle it every frame for
+   its whole duration (measured). --live-cut is binary and registered, so
+   this reads no per-frame value (G3). Written out in each rule (not as a
+   custom property) so it resolves against each element's own stage. */
+html.motion-ready[data-motion="full"] .room:not(.is-owned) .rail-kicker {
+  opacity: 0;
+  translate: -8px 0;
+}
+html.motion-ready[data-motion="full"] .room:not(.is-owned) .rail-title {
+  opacity: 0;
+  translate: 0 var(--m-rise-2);
+}
+html.motion-ready[data-motion="full"] .room:not(.is-owned) .rail-rule {
+  opacity: 0;
+  scale: 0 1;
+}
+html.motion-ready[data-motion="full"] .room:not(.is-owned) .rail-chips > .chip {
+  opacity: 0;
+  translate: 0 var(--m-rise-1);
+}
+html.motion-ready[data-motion="full"] .room:not(.is-owned) .rail-kicker,
+html.motion-ready[data-motion="full"] .room:not(.is-owned) .rail-title,
+html.motion-ready[data-motion="full"] .room:not(.is-owned) .rail-rule {
+  transition:
+    opacity calc(var(--m-t-2) * var(--live-cut, 1)) var(--m-ease-in),
+    translate 0s linear calc(var(--m-t-2) * var(--live-cut, 1)),
+    scale 0s linear calc(var(--m-t-2) * var(--live-cut, 1));
+}
+html.motion-ready[data-motion="full"] .room:not(.is-owned) .rail-chips > .chip {
+  transition:
+    opacity calc(var(--m-t-2) * var(--live-cut, 1)) var(--m-ease-in),
+    translate 0s linear calc(var(--m-t-2) * var(--live-cut, 1)),
+    transform var(--press-t, var(--m-t-2)) var(--press-e, var(--m-ease-press));
+}
+html.motion-ready[data-motion="full"] .room:not(.is-owned) .hotspots > .hotspot::before {
+  opacity: 0;
+  scale: 1.06;
+  transition: opacity calc(var(--m-t-2) * var(--live-cut, 1)) var(--m-ease-in), scale 0s linear calc(var(--m-t-2) * var(--live-cut, 1));
+}
+html.motion-ready[data-motion="full"] .room:not(.is-owned) .hotspots > .hotspot > .dot {
+  opacity: 0;
+  scale: .6;
+  transition: opacity calc(var(--m-t-2) * var(--live-cut, 1)) var(--m-ease-in), scale 0s linear calc(var(--m-t-2) * var(--live-cut, 1));
+}
+
+/* ── full · owned: the arrival ── */
+html.motion-ready[data-motion="full"] .room.is-owned .rail-kicker {
+  transition:
+    opacity var(--m-t-4) var(--m-ease-out) 100ms,
+    translate var(--m-t-4) var(--m-ease-out) 100ms;
+}
+html.motion-ready[data-motion="full"] .room.is-owned .rail-title {
+  transition:
+    opacity var(--m-t-5) var(--m-ease-cine) 160ms,
+    translate var(--m-t-5) var(--m-ease-cine) 160ms;
+}
+html.motion-ready[data-motion="full"] .room.is-owned .rail-rule {
+  transition:
+    opacity var(--m-t-3) var(--m-ease-out) 240ms,
+    scale var(--m-t-5) var(--m-ease-cine) 240ms;
+}
+html.motion-ready[data-motion="full"] .room.is-owned .rail-chips > .chip {
+  transition:
+    opacity var(--m-t-3) var(--m-ease-out) 300ms,
+    translate var(--m-t-3) var(--m-ease-out) 300ms,
+    transform var(--press-t, var(--m-t-2)) var(--press-e, var(--m-ease-press));
+}
+html.motion-ready[data-motion="full"] .room.is-owned .hotspots > .hotspot::before {
+  transition:
+    opacity 420ms var(--m-ease-cine) 360ms,
+    scale 420ms var(--m-ease-cine) 360ms;
+}
+html.motion-ready[data-motion="full"] .room.is-owned .hotspots > .hotspot > .dot {
+  transition:
+    opacity var(--m-t-3) var(--m-ease-out) 540ms,
+    scale var(--m-t-3) var(--m-ease-press) 540ms;
+}
+/* THE STAGGER, as literal delays per position (--m-stagger = 45 ms for the
+   chips, 60 ms for the objects; nth-of-type counts the <button> objects in a
+   .hotspots layer — screen hosts and the chef wall are <div>s). NOT an index
+   custom property on each chip/object, and that is measured, not taste: a
+   custom property DECLARED on an element is re-created each time the element
+   is restyled, which Blink reads as its inherited variables changing, so its
+   whole subtree is restyled with it — and chips and objects are restyled on
+   every step of their room's quantised scroll values. That cost +4 elements
+   per recalc and ~0.5 ms of style per scroll frame (iPad profile). */
+html.motion-ready[data-motion="full"] .room.is-owned .rail-chips > .chip:nth-child(2) { transition-delay: 345ms, 345ms, 0s; }
+html.motion-ready[data-motion="full"] .room.is-owned .rail-chips > .chip:nth-child(3) { transition-delay: 390ms, 390ms, 0s; }
+html.motion-ready[data-motion="full"] .room.is-owned .rail-chips > .chip:nth-child(4) { transition-delay: 435ms, 435ms, 0s; }
+html.motion-ready[data-motion="full"] .room.is-owned .rail-chips > .chip:nth-child(5) { transition-delay: 480ms, 480ms, 0s; }
+html.motion-ready[data-motion="full"] .room.is-owned .rail-chips > .chip:nth-child(n+6) { transition-delay: 525ms, 525ms, 0s; }
+html.motion-ready[data-motion="full"] .room.is-owned .hotspots > .hotspot:nth-of-type(2)::before { transition-delay: 420ms, 420ms; }
+html.motion-ready[data-motion="full"] .room.is-owned .hotspots > .hotspot:nth-of-type(n+3)::before { transition-delay: 480ms, 480ms; }
+html.motion-ready[data-motion="full"] .room.is-owned .hotspots > .hotspot:nth-of-type(2) > .dot { transition-delay: 600ms, 600ms; }
+html.motion-ready[data-motion="full"] .room.is-owned .hotspots > .hotspot:nth-of-type(n+3) > .dot { transition-delay: 660ms, 660ms; }
+
+/* ── lite · one 200 ms fade of the rail, no movement ──
+   120 ms in, so after a (lite, 120/240 ms) menu cut the type comes up with
+   the room rather than over the last of the black. */
+html.motion-ready[data-motion="lite"] .room:not(.is-owned) .rail-kicker,
+html.motion-ready[data-motion="lite"] .room:not(.is-owned) .rail-title,
+html.motion-ready[data-motion="lite"] .room:not(.is-owned) .rail-rule,
+html.motion-ready[data-motion="lite"] .room:not(.is-owned) .rail-chips > .chip {
+  opacity: 0;
+  transition: opacity calc(var(--m-t-2) * var(--live-cut, 1)) var(--m-ease-in);
+}
+html.motion-ready[data-motion="lite"] .room.is-owned .rail-kicker,
+html.motion-ready[data-motion="lite"] .room.is-owned .rail-title,
+html.motion-ready[data-motion="lite"] .room.is-owned .rail-rule,
+html.motion-ready[data-motion="lite"] .room.is-owned .rail-chips > .chip {
+  transition: opacity 200ms var(--m-ease-out) 120ms;
+}
+
+/* ── lite · the glow on things you can click is opacity only (M5) ── */
+html[data-motion="lite"] .hotspot::after {
+  transform: none;
+  transition: opacity var(--m-t-2) var(--m-ease-out);
+}
+
+/* ── M5 · THE IDLE BREATH ──
+   motion.js adds .is-breathing to one object in the owned room after 6 s
+   without input, once per visit, one at a time site-wide, full tier only, and
+   takes it off at animationend. It plays the hover glow's own pre-painted
+   layer (§09 ::after) up to .6 and back — a lamp being noticed, not a
+   notification. */
+@keyframes m-breath {
+  0%, 100% { opacity: 0; transform: scale(.96); }
+  50%      { opacity: .6; transform: none; }
+}
+html[data-motion="full"] .hotspot.is-breathing::after {
+  animation: m-breath 1400ms var(--m-ease-inout) 1 both;
 }
 
 
@@ -3471,11 +4450,14 @@ a { color: inherit; text-decoration: none; }
   min-block-size: 56px;
   padding: var(--sp-3) var(--sp-3) var(--sp-3) 0;
   border-block-end: 1px solid var(--line-hair);
-  transition: background var(--dur-2) var(--ease-out),
-              padding-inline-start var(--dur-3) var(--ease-cine);
+  /* v29 · S6: no transitions on the row. It used to animate background (a
+     paint per frame) and padding-inline-start (a LAYOUT per frame) to nudge
+     the name right on hover; the name and blurb now move by transform, and
+     the wash switches in one frame. */
 
   & .tool-row-name {
     grid-column: 1;
+    transition: translate var(--m-t-3) var(--m-ease-cine);
     font-family: var(--font-display);
     font-optical-sizing: none;
     font-weight: 540;
@@ -3487,6 +4469,7 @@ a { color: inherit; text-decoration: none; }
   }
   & .tool-row-blurb {
     grid-column: 1;
+    transition: translate var(--m-t-3) var(--m-ease-cine);
     font-size: var(--t--1);
     line-height: 1.45;
     color: var(--fg-dim);
@@ -3499,6 +4482,7 @@ a { color: inherit; text-decoration: none; }
     content: "";
     grid-row: 1 / -1;
     grid-column: 2;
+    box-sizing: border-box;   /* the reset no longer reaches pseudo-elements (§03) */
     inline-size: 9px;
     block-size: 9px;
     border-inline-end: 1.5px solid var(--brass);
@@ -3508,10 +4492,13 @@ a { color: inherit; text-decoration: none; }
   }
   &:hover, &:focus-visible {
     background: color-mix(in oklab, var(--brass) 9%, transparent);
-    padding-inline-start: var(--sp-3);
-    &::after { transform: rotate(45deg) translate3d(2px, -2px, 0); }
   }
 }
+.tool-row:hover::after,
+.tool-row:focus-visible::after { transform: rotate(45deg) translate(2px, -2px); }
+/* the nudge the padding used to make, by transform (flat: §03's note) */
+.tool-row:hover .tool-row-name, .tool-row:focus-visible .tool-row-name,
+.tool-row:hover .tool-row-blurb, .tool-row:focus-visible .tool-row-blurb { translate: var(--m-rise-1) 0; }
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -3534,12 +4521,11 @@ a { color: inherit; text-decoration: none; }
   padding-inline: var(--gut) calc(var(--gut) + 8.5rem);  /* room for C³ */
   padding-block-start: env(safe-area-inset-top);
 
+  /* v29: no backdrop-filter (audit/perf.md §3.4 fix 2: ~6 offscreen blur passes per frame over a moving plate). The glass is carried by an opaque-enough ground plus a top-lit sheen and a hairline, which read as glass without re-blurring the room every frame. */
   background: linear-gradient(to bottom,
-    color-mix(in oklab, var(--ink-950) 82%, transparent) 0%,
-    color-mix(in oklab, var(--ink-950) 58%, transparent) 62%,
-    transparent 100%);
-  -webkit-backdrop-filter: blur(18px) saturate(1.35);
-  backdrop-filter: blur(18px) saturate(1.35);
+    color-mix(in oklab, var(--ink-950) 96%, transparent) 0%,
+    color-mix(in oklab, var(--ink-950) 88%, transparent) 62%,
+    color-mix(in oklab, var(--ink-950) 62%, transparent) 100%);
 
   /* the brass hairline that separates chrome from photograph */
   &::after {
@@ -3599,8 +4585,15 @@ a { color: inherit; text-decoration: none; }
   /* fade the overflow instead of showing a cut edge */
   -webkit-mask: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 22px), transparent 100%);
   mask:         linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 22px), transparent 100%);
-  &::-webkit-scrollbar { display: none; }
 }
+/* v29 fix round (G3 nit): once engine.js has measured the strip (.has-ind) it
+   says whether it overflows; a strip that fits needs no edge fade, and the
+   fade was smudging the first and last tickets — the lit PASS / FREEZER pill
+   always had a dimmed edge. */
+#ticket-rail .tickets.has-ind:not(.is-overflowing) { -webkit-mask: none; mask: none; }
+#ticket-rail .tickets::-webkit-scrollbar,
+#ticket-rail > ul::-webkit-scrollbar,
+#ticket-rail > nav::-webkit-scrollbar { display: none; }
 
 .ticket {
   flex: none;
@@ -3622,8 +4615,14 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: var(--track-caps);
   line-height: 1;
 
-  transition: color var(--dur-2) var(--ease-out),
-              background var(--dur-2) var(--ease-out);
+  /* v29: no colour/background transition (design audit P1-7). The gradient
+     background could not interpolate, so it switched on the first frame while
+     the colour eased for 190ms — bone type on gold, illegible, on every room
+     change. The lit state is now carried by .ticket-ind below. */
+  position: relative;
+  z-index: 1;
+  /* v29 · S6: the shared press (§16) — transform only. */
+  transition: transform var(--press-t, var(--m-t-2)) var(--press-e, var(--m-ease-press));
 
   /* the course number, in Bodoni figures — a menu, not a nav bar */
   & .ticket-no {
@@ -3633,18 +4632,118 @@ a { color: inherit; text-decoration: none; }
     font-variation-settings: "opsz" 12, "wght" 600;
     font-size: 0.85em;
     letter-spacing: 0;
-    color: var(--accent-deep);
-    transition: color var(--dur-2) var(--ease-out);
+    /* v29: --brass (7.4:1 on the bar), not --accent-deep (#8a6323, 3.6:1 at
+       10px — under AA; design audit P2-10). */
+    color: var(--brass);
   }
 
   &:hover { color: var(--fg); background: color-mix(in oklab, var(--bone) 7%, transparent); }
-  &:hover .ticket-no { color: var(--brass); }
+  &:hover .ticket-no { color: var(--brass-300); }
+  &:active { transform: scale(var(--m-press)); --press-t: var(--m-t-1); --press-e: var(--m-ease-out); }
 
   &[aria-current], &.is-current {
     color: var(--ink-950);
     background: linear-gradient(180deg, var(--brass-300), var(--brass));
     & .ticket-no { color: color-mix(in oklab, var(--ink-950) 70%, transparent); }
   }
+}
+
+/* ── v29 · M4 · THE SLIDING TICKET (design audit §5.4) ─────────────────────
+   engine.js mounts one .ticket-ind inside the ticket strip and moves it with
+   transform only (translate + scale off a 100 x 40 box, so a 2px corner stays
+   ~2px) when the room changes. While it is mounted the strip carries
+   .has-ind and the current ticket drops its own gold ground: the pill slides
+   under the type instead of the ground blinking from one ticket to the next.
+
+   v29 fix round (G3 M-2) · NO LABEL EVER CHANGES COLOUR. The current ticket's
+   type used to turn dark 360 ms after the pill set off, so it was bone on gold
+   for most of every move (and all of a cut). Now every real label stays in
+   the strip's own bone, and .ticket-ink — a dark copy of all seven labels on
+   the pill's gold, laid OVER the strip — is clipped to the pill's rectangle
+   by two nested overflow boxes that ride its left and right edges (engine.js
+   explains the arithmetic). Wherever the gold is, the type is dark; wherever
+   it is not, bone — at every frame of a slide, a cut or a dropped frame.
+   Four transform transitions on the same timing, compositor-driven; nothing
+   here is repainted per frame. Without JS, or before the engine has measured,
+   the old gradient state above is untouched. */
+#ticket-rail .tickets { position: relative; }
+.ticket-ind {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inline-size: 100px;
+  block-size: 40px;
+  z-index: 0;
+  border-radius: var(--r-xs);
+  background: linear-gradient(180deg, var(--brass-300), var(--brass));
+  box-shadow: 0 0 18px -6px color-mix(in oklab, var(--amber) 60%, transparent);
+  transform-origin: 0 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: transform var(--m-t-4) var(--m-ease-cine), opacity var(--m-t-2) linear;
+}
+.tickets.has-ind .ticket-ind.is-on { opacity: 1; }
+/* the lit ticket keeps the strip's type; the pill's copy does the dark ink */
+.tickets.has-ind .ticket[aria-current] { background: none; color: var(--fg); }
+.tickets.has-ind .ticket[aria-current] .ticket-no { color: var(--brass); }
+.tickets.has-ind .ticket-ind.is-snap { transition: none; }
+
+/* the ink layer: clipper > left edge > right edge > copy */
+.ticket-ink {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--m-t-2) linear;
+}
+.tickets.has-ind .ticket-ink.is-on { opacity: 1; }
+.ticket-ink__l,
+.ticket-ink__r,
+.ticket-ink__c {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  transform-origin: 0 0;
+  transition: transform var(--m-t-4) var(--m-ease-cine);
+}
+.ticket-ink__l { overflow: hidden; border-radius: var(--r-xs) 0 0 var(--r-xs); }
+.ticket-ink__r { overflow: hidden; border-radius: 0 var(--r-xs) var(--r-xs) 0; }
+.ticket-ink__c { background: linear-gradient(180deg, var(--brass-300), var(--brass)) no-repeat; }
+.ticket-ink.is-snap,
+.ticket-ink.is-snap :is(.ticket-ink__l, .ticket-ink__r, .ticket-ink__c) { transition: none; }
+.ticket-ink__no,
+.ticket-ink__name {
+  position: absolute;
+  white-space: nowrap;
+  margin: 0;
+  padding: 0;
+}
+.ticket-ink__name { color: var(--ink-950); }
+.ticket-ink__no { color: color-mix(in oklab, var(--ink-950) 70%, transparent); }
+/* the keyboard ring on the lit ticket is drawn by the ticket itself, so it
+   comes up over the pill's copy (dark type, the ring, the gold under both) */
+.tickets.has-ind .ticket[aria-current]:focus-visible { z-index: 3; color: var(--ink-950); }
+.tickets.has-ind .ticket[aria-current]:focus-visible .ticket-no {
+  color: color-mix(in oklab, var(--ink-950) 70%, transparent);
+}
+
+/* ── v29 · M4 · THE CUT ─────────────────────────────────────────────────────
+   A menu jump of two rooms or more dips to black instead of scrubbing through
+   every room in between (design audit P1-5): engine.js fades this in, jumps,
+   waits (capped) for the target plate, and fades it out. Below the top bar, so
+   the course menu and its sliding ticket stay in view through the cut. The
+   opacity is driven by the Web Animations API from engine.js; this is only
+   the surface, and it is not in the tree between cuts. */
+#ccc-cut {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-topbar) - 10);
+  background: var(--ink-950);
+  opacity: 0;
+  pointer-events: none;
 }
 
 
@@ -3677,14 +4776,13 @@ a { color: inherit; text-decoration: none; }
 
   color: var(--bone);
   background: linear-gradient(180deg,
-    color-mix(in oklab, var(--slate) 82%, transparent),
+    color-mix(in oklab, var(--slate) 96%, transparent),
     color-mix(in oklab, var(--ink-900) 88%, var(--slate)));
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / .10),
     inset 0 0 0 1px color-mix(in oklab, var(--brass) 34%, transparent),
     var(--shadow-2);
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
-  backdrop-filter: blur(16px) saturate(1.4);
+  /* v29: no backdrop-filter; the slate ground carries the glass (see .chip). */
 
   font-family: var(--font-text);
   font-size: var(--t--2);
@@ -3694,18 +4792,32 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: var(--track-caps);
   line-height: 1;
 
-  transition: box-shadow var(--dur-2) var(--ease-out),
-              transform  var(--dur-3) var(--ease-cine);
+  /* v29 · S6: transform only (§16's shared press). The hover/open ring used
+     to be a box-shadow transition — a paint on every frame of it — and is
+     now pre-painted on ::after, faded by opacity. */
+  transition: transform var(--press-t, var(--m-t-2)) var(--press-e, var(--m-ease-press));
 
   & .c3-fox { inline-size: 18px; block-size: 18px; flex: none; color: #6ea8ff; }
   & .c3-mark { font-family: var(--font-display); font-optical-sizing: none;
                font-weight: 700; font-variation-settings: "opsz" 14, "wght" 700;
                letter-spacing: 0; }
 
-  &:hover { box-shadow: inset 0 1px 0 rgb(255 255 255 / .14), var(--ring-brass), var(--shadow-2); }
-  &:active { transform: scale(.97); }
-  &[aria-expanded="true"] { box-shadow: inset 0 1px 0 rgb(255 255 255 / .14), var(--ring-brass), var(--shadow-2); }
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / .06), var(--ring-brass);
+    opacity: 0;
+    transition: opacity var(--m-t-2) var(--m-ease-out);
+  }
+  &[aria-expanded="true"]::after { opacity: 1; }
 }
+@media (hover: hover) {
+  #c3-button:hover::after { opacity: 1; }
+}
+#c3-button:active { transform: scale(var(--m-press)); --press-t: var(--m-t-1); --press-e: var(--m-ease-out); }
 
 #c3-menu {
   position: fixed;
@@ -3720,13 +4832,14 @@ a { color: inherit; text-decoration: none; }
   border: 0;
   border-radius: var(--r-lg);
   color: var(--fg);
-  background: color-mix(in oklab, var(--ink-900) 90%, transparent);
+  /* v29: no backdrop-filter (audit/perf.md §3.4 fix 2: ~6 offscreen blur passes per frame over a moving plate). The glass is carried by an opaque-enough ground plus a top-lit sheen and a hairline, which read as glass without re-blurring the room every frame. */
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--bone) 5%, transparent), transparent 22%),
+    color-mix(in oklab, var(--ink-900) 97%, transparent);
   box-shadow:
     inset 0 0 0 1px var(--line-soft),
     inset 0 1px 0 rgb(255 255 255 / .06),
     var(--shadow-3);
-  -webkit-backdrop-filter: blur(26px) saturate(1.5);
-  backdrop-filter: blur(26px) saturate(1.5);
   overflow: hidden;
 }
 
@@ -3823,9 +4936,10 @@ dialog#c3-menu[open],
   &:hover, &:focus-visible {
     color: var(--fg);
     background: color-mix(in oklab, var(--bone) 8%, transparent);
-    &::before { background: var(--brass-300); box-shadow: 0 0 8px var(--brass); }
   }
 }
+.c3-item:hover::before,
+.c3-item:focus-visible::before { background: var(--brass-300); box-shadow: 0 0 8px var(--brass); }
 
 @keyframes pop-in {
   from { opacity: 0; transform: translate3d(0, -8px, 0) scale(.985); }
@@ -3962,7 +5076,8 @@ dialog#c3-menu[open],
 }
 
 #site-footer > hr { margin-block-start: var(--sp-5); }
-#site-footer > hr + * { margin-block-start: var(--sp-6); }
+#site-footer > hr + .footer-index,
+#site-footer > hr + p { margin-block-start: var(--sp-6); }   /* v29: was `hr + *` (universal bucket) */
 
 /* the last hairline before the colophon gets more air than the first */
 #site-footer > hr:last-of-type { margin-block-start: var(--sp-8); }
@@ -4097,9 +5212,8 @@ dialog#c3-menu[open],
     radial-gradient(90% 70% at 50% 40%,
       color-mix(in oklab, var(--ice-800) 62%, transparent) 0%,
       transparent 70%),
-    rgb(6 11 16 / .8);
-  -webkit-backdrop-filter: blur(12px) saturate(.72);
-  backdrop-filter: blur(12px) saturate(.72);
+    rgb(6 11 16 / .94);
+  /* v29: no backdrop-filter — the page behind still animates (see .chip). */
   animation: keypad-scrim-in var(--dur-3) var(--ease-out) both;
 }
 
@@ -4276,9 +5390,10 @@ dialog#c3-menu[open],
     color: var(--ink-950);
     background: linear-gradient(180deg, var(--ice-100), var(--ice-300));
     box-shadow: inset 0 0 0 1px var(--ice-100);
-    &::before { background: var(--ink-950); }
   }
 }
+.keypad-actions .chip:hover::before,
+.keypad-actions .chip:focus-visible::before { background: var(--ink-950); }
 
 /* ── the message line ──────────────────────────────────────────────────────
    Empty by default and it must not reserve a gap, or the panel jumps every
@@ -4371,11 +5486,51 @@ dialog#c3-menu[open],
   text-transform: uppercase;
   letter-spacing: var(--track-caps);
   line-height: 1;
-  transition: filter var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-bite);
+  position: relative;
+  /* v29 · S6: transform only. The hover used to transition `filter:
+     brightness()`; the lift of light is now a pre-painted layer (::after)
+     faded by opacity. */
+  transition: transform var(--press-t, var(--m-t-2)) var(--press-e, var(--m-ease-press));
 
-  &:hover, &:focus-visible { filter: brightness(1.08); }
-  &:active { transform: scale(.98); }
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgb(255 255 255 / .16), rgb(255 255 255 / .04));
+    opacity: 0;
+    transition: opacity var(--m-t-2) var(--m-ease-out);
+  }
 }
+@media (hover: hover) {
+  .btn:hover::after { opacity: 1; }
+}
+.btn:focus-visible::after { opacity: 1; }
+.btn:active { transform: scale(var(--m-press)); --press-t: var(--m-t-1); --press-e: var(--m-ease-out); }
+
+/* ── THE THREE BUTTON FAMILIES (v29 · S6, design audit P2-11) ─────────────
+   There were six button languages on the site. There are three, and they
+   share ONE press, ONE focus ring and ONE rule about motion:
+
+     1. BRASS PRIMARY — the thing to do next. Solid brass, ink type.
+        .btn (the keypad's Unlock), the Pass terminals' "Tap to open" key
+        (screens.js), the viewer's primary card button (overlay.js).
+     2. GLASS SECONDARY — the way around. Dark glass, bone type, a hairline.
+        .chip (§08), .ticket (§11), #c3-button (§12), the Find trigger
+        (find.js). Hover: a brass hairline and a lift of light, faded in.
+     3. ICON — a control with no words: the viewer's ✕ and Find, the Find
+        palette's clear. 44x44 hit area whatever it draws at.
+
+   PRESS: scale(var(--m-press)) = .98, down in --m-t-1 (90 ms), back up in
+   --m-t-2 on --m-ease-press — through --press-t / --press-e, so a rule that
+   owns the element's `transition` list (M2's arrival, §09b) still honours it.
+   FOCUS: the two-tone ring below; the inward form wherever a box clips.
+   MOTION: hover, focus and press move `transform` and `opacity` only. Every
+   hover glow, hairline and lift of light is PRE-PAINTED on a pseudo-element
+   and faded — never a transition on box-shadow, background or filter (G4).
+   Hover is gated on (hover: hover): a touch screen has no hover, and a tap
+   would otherwise leave the state stuck on whatever it opened. */
 
 /* A TWO-TONE RING. A single brass ring measured 1.07:1 against the prep
    station's plate — 100% of its pixels below 3:1, i.e. a keyboard user tabbing
@@ -4385,9 +5540,9 @@ dialog#c3-menu[open],
    ring's total width past the 2px that thin bright lines lose to a busy
    background. */
 :focus-visible {
-  outline: 3px solid var(--ink-950);
+  outline: 3px solid var(--ring-core);
   outline-offset: 2px;
-  box-shadow: 0 0 0 6px var(--brass-300);
+  box-shadow: 0 0 0 6px var(--ring-halo);
   border-radius: var(--r-xs);
 }
 /* Components that own their box-shadow lose it to the halo while focused —
@@ -4395,22 +5550,33 @@ dialog#c3-menu[open],
    component's own outline uses, so no element ends up wearing two colours. */
 .chip:focus-visible,
 .btn:focus-visible,
-.ticket:focus-visible,
-.c3-item:focus-visible,
-.tool-row:focus-visible {
-  box-shadow: 0 0 0 6px var(--brass-300);
+.tool-row:focus-visible,
+#c3-button:focus-visible {
+  box-shadow: 0 0 0 6px var(--ring-halo);
 }
 .keypad-key:focus-visible,
 .keypad-readout:focus-visible {
   box-shadow: 0 0 0 5px color-mix(in oklab, var(--lcd) 72%, transparent);
 }
-/* the hotspot keeps its amber bloom AND gains the halo — it is the one control
-   that sits directly on a photograph, so it gets both tones and its own glow */
+/* the hotspot's bloom is its own layer now (§09 ::after, lit by focus as by
+   hover), so the button takes the plain halo like every other control */
 .hotspot:focus-visible {
-  box-shadow:
-    inset 0 0 0 1px color-mix(in oklab, var(--brass) 70%, transparent),
-    0 0 34px -6px color-mix(in oklab, var(--amber) 60%, transparent),
-    0 0 0 6px var(--brass-300);
+  box-shadow: 0 0 0 6px var(--ring-halo);
+}
+
+/* ── THE SAME RING, DRAWN INWARD (v29 · S6) ───────────────────────────────
+   For a control that sits inside a box that clips: the tickets in the course
+   menu's scrolling, masked strip (overflow-y: hidden — the outer ring was cut
+   off above and below, i.e. invisible), the C³ menu's scrolling list, and a
+   ≤900px drawer row. The same two tones, turned inside out: the brass edge
+   on the control's own border, the dark core inside it — so it reads on the
+   dark bar and on the gold current ticket alike. The overlay's title bar and
+   the Find palette draw the same inward ring in their own sheets. */
+.ticket:focus-visible,
+.c3-item:focus-visible {
+  outline: 2px solid var(--ring-halo);
+  outline-offset: -2px;
+  box-shadow: inset 0 0 0 5px var(--ring-core);
 }
 /* never show the ring for a mouse press, always show it for the keyboard */
 :focus:not(:focus-visible) { outline: none; }
@@ -4442,21 +5608,31 @@ dialog#c3-menu[open],
 }
 
 [hidden] { display: none !important; }
-[aria-disabled="true"], :disabled { opacity: .45; pointer-events: none; }
+[aria-disabled="true"], button:disabled, input:disabled, select:disabled,
+textarea:disabled, fieldset:disabled { opacity: .45; pointer-events: none; }
 
-/* Scrollbars, where they are visible at all */
-* {
+/* Scrollbars, where they are visible at all.
+   v29: on the page's scroll containers by name, not on `*`. The universal
+   version put a var()-bearing color-mix() into the matched properties of EVERY
+   element, which is substituted per element on every restyle — the engine's
+   per-frame restyle included (audit/perf.md §3.3). The containers below are
+   every overflow:auto/scroll box this stylesheet and chefwall.js author; the
+   ticket strip hides its bar and the C³ list styles its own (§11, §12). */
+html, .keypad-scrim, .rail-chips, .cw-panel, .cw-strip {
   scrollbar-width: thin;
   scrollbar-color: color-mix(in oklab, var(--brass) 45%, transparent) transparent;
 }
-*::-webkit-scrollbar { inline-size: 10px; block-size: 10px; }
-*::-webkit-scrollbar-thumb {
+html::-webkit-scrollbar, .keypad-scrim::-webkit-scrollbar, .rail-chips::-webkit-scrollbar,
+.cw-panel::-webkit-scrollbar { inline-size: 10px; block-size: 10px; }
+html::-webkit-scrollbar-thumb, .keypad-scrim::-webkit-scrollbar-thumb,
+.rail-chips::-webkit-scrollbar-thumb, .cw-panel::-webkit-scrollbar-thumb {
   background: color-mix(in oklab, var(--brass) 40%, transparent);
   border-radius: var(--r-pill);
   border: 3px solid transparent;
   background-clip: content-box;
 }
-*::-webkit-scrollbar-track { background: transparent; }
+html::-webkit-scrollbar-track, .keypad-scrim::-webkit-scrollbar-track,
+.rail-chips::-webkit-scrollbar-track, .cw-panel::-webkit-scrollbar-track { background: transparent; }
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -4773,7 +5949,10 @@ dialog#c3-menu[open],
   }
   :is(.room[data-room="pass"],
       .room[data-room="dining"],
-      .room[data-room="host"]) :is(.rail-title, .rail-chips) {
+      .room[data-room="host"]) .rail-title,
+  :is(.room[data-room="pass"],
+      .room[data-room="dining"],
+      .room[data-room="host"]) .rail-chips {
     max-inline-size: none;
   }
 
@@ -4923,6 +6102,21 @@ dialog#c3-menu[open],
     -webkit-mask: linear-gradient(to bottom, #000 0, #000 calc(100% - 26px), transparent 100%);
     mask:         linear-gradient(to bottom, #000 0, #000 calc(100% - 26px), transparent 100%);
   }
+  /* v29 fix round (G2 M4 / G1 D7) · TWO COLUMNS WHERE THE COLUMN IS WIDE.
+     On an iPad in portrait the drawer is a 748px column holding 56px rows, and
+     the Break Room's six tools plus its Head Chef strip did not fit: "The
+     Plus-First Playbook" and "Celestial Point of Sale" sat below the fold of a
+     223px drawer, one row cut by the fade, with nothing to say the list
+     scrolls — reachable only by knowing to flick a box inside the page. Two
+     columns put every room's tools on screen at once (six tools = three
+     rows = 176px) and read as the menu they are. Only when the stage is wide
+     enough for two readable rows; a narrow window keeps the one-column list. */
+  @container stage (min-width: 600px) {
+    .rail-chips {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--sp-5);
+    }
+  }
   .rail-chips::-webkit-scrollbar { inline-size: 3px; }
   .rail-chips::-webkit-scrollbar-thumb {
     background: color-mix(in oklab, var(--brass) 45%, transparent);
@@ -4943,7 +6137,8 @@ dialog#c3-menu[open],
     white-space: normal;
     text-align: start;
     font-size: var(--t--1);
-    letter-spacing: 0.12em;
+    /* v29 · S6: sentence case like every chip (§08); caps tracking off with it */
+    letter-spacing: .01em;
     /* the row is the tap target and the glass is gone, so the glyphs carry
        their own ground */
     text-shadow: 0 1px 2px rgb(var(--shade) / .95), 0 0 10px rgb(var(--shade) / .8);
@@ -4954,7 +6149,6 @@ dialog#c3-menu[open],
       transform: none;
       box-shadow: none;
       text-shadow: 0 1px 2px rgb(var(--shade) / .95);
-      &::before { background: var(--brass-300); }
     }
     /* THE HALO SURVIVES. A drawer row drops the glass and with it its
        box-shadow, and §16's `.chip:focus-visible` halo is the same specificity
@@ -4969,10 +6163,21 @@ dialog#c3-menu[open],
       color: var(--fg);
       transform: none;
       text-shadow: 0 1px 2px rgb(var(--shade) / .95);
-      box-shadow: 0 0 0 6px var(--brass-300);
-      &::before { background: var(--brass-300); }
+      /* v29 · S6: the drawer scrolls, so its rows take §16's INWARD ring —
+         the outer halo was clipped at the drawer's left and right edges. */
+      outline: 2px solid var(--ring-halo);
+      outline-offset: -2px;
+      box-shadow: inset 0 0 0 5px var(--ring-core);
+      &::before { background-color: var(--brass-300); }
     }
   }
+  /* flat: under the `&:hover, &:active` list this was :is(…)::before (§03) */
+  .rail-chips .chip:hover::before,
+  .rail-chips .chip:active::before { background-color: var(--brass-300); }
+  /* v29 · S6: a drawer row is a list row, not a glass plate — its hover is the
+     brass wash above, so §08's hover plate is not drawn here (the marquee
+     row's ::after is a bulb rail and keeps it). */
+  .rail-chips .chip:not([data-marquee])::after { content: none; }
 
   /* ── THE MARQUEE CHIP IN THE DRAWER (§08b) ────────────────────────────────
      Below this breakpoint the rail stops being a row of glass tags and becomes
@@ -5013,11 +6218,24 @@ dialog#c3-menu[open],
        marquee and starts reading as a dotted border. 18px halves the count and
        the sign reads as a sign again. The mask also keeps the bulbs off the
        brass spine so the two do not collide at the left corner. */
-    &::after {
-      --bulb-pitch: 18px;
-      -webkit-mask: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 9px), transparent 100%);
-      mask:         linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 9px), transparent 100%);
-    }
+    --bulb-pitch: 18px;
+  }
+  /* v29: both bulb phases (§08b). Flat and keyed, and restating the box — the
+     drawer's `.rail-chips .chip::before` tick rules sit later than §08b at the
+     same specificity and would otherwise shrink a bulb rail to a 6px dot. */
+  .rail-chips .chip[data-marquee]::before,
+  .rail-chips .chip[data-marquee]::after {
+    inline-size: auto;
+    block-size: auto;
+    -webkit-mask: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 9px), transparent 100%);
+    mask:         linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 9px), transparent 100%);
+  }
+  .rail-chips .chip[data-marquee]:hover::before, .rail-chips .chip[data-marquee]:hover::after,
+  .rail-chips .chip[data-marquee]:active::before, .rail-chips .chip[data-marquee]:active::after,
+  .rail-chips .chip[data-marquee]:focus-visible::before,
+  .rail-chips .chip[data-marquee]:focus-visible::after {
+    background-color: transparent;
+    background-image: var(--bulb), var(--bulb);
   }
 
   /* THE WALK-IN IS THE ONE ROOM THAT KEEPS ITS BOTTOM-ANCHORED DRAWER.
@@ -5152,7 +6370,8 @@ dialog#c3-menu[open],
     justify-content: stretch;
     gap: var(--sp-2);
   }
-  .keypad-actions > * { flex: 1 1 45%; justify-content: center; text-align: center; }
+  .keypad-actions > .chip,
+  .keypad-actions > button { flex: 1 1 45%; justify-content: center; text-align: center; }
   .keypad-actions > .frz-mute { flex-basis: 100%; order: 3; }
 }
 
@@ -5460,10 +6679,14 @@ dialog#c3-menu[open],
    wrote: --live-cut 0 still resolves this to inset(50%), which is the one
    declaration that makes an element neither painted nor hit-tested. Only the
    live-state allowance moves, and only on .frz-pad.                        */
+/* v29: EVERY BREAKPOINT, NOT ONLY THE PHONE. On a desktop the label hangs
+   below the pad (freezer.js: top 100% + 10px, ~26px tall), i.e. ~36px past a
+   24px allowance — the design audit photographed "ENTER CODE" cut through its
+   x-height at 1440 (zoom-freezer-keypad-label.png). Same binary, same gate. */
+.frz-pad {
+  clip-path: inset(calc((1 - var(--live-cut)) * 50% - var(--live-cut) * 88px));
+}
 @media (max-width: 560px), (max-width: 1000px) and (max-height: 560px) {
-  .frz-pad {
-    clip-path: inset(calc((1 - var(--live-cut)) * 50% - var(--live-cut) * 88px));
-  }
   /* and the same 44px floor as the portrait block above, for a phone on its
      side — 195x43 measured at 852x393. */
   .skip-link { min-block-size: 44px; display: inline-flex; align-items: center; }
@@ -5481,6 +6704,11 @@ dialog#c3-menu[open],
    18 · REDUCED MOTION · FORCED COLORS · PRINT
    ═══════════════════════════════════════════════════════════════════════════ */
 
+/* v29 · S6 · ?motion=off (html[data-motion="off"] WITHOUT the OS setting) gets
+   exactly this block, and every other `prefers-reduced-motion: reduce` block
+   in this file and in the modules' own sheets: motion.js rewrites those rules'
+   media text to match while the override is on (see its §2), so there is one
+   copy of the CSS and no universal selector keyed on the attribute. */
 @media (prefers-reduced-motion: reduce) {
 
   html { scroll-behavior: auto; scroll-snap-type: y proximity; }
@@ -5497,6 +6725,8 @@ dialog#c3-menu[open],
      than removed; this rule is later in the sheet than §06d's and wins on
      source order. */
   .room[data-room="office"] { --overscan-k: 1; }
+  /* v29: and the same for the wide 1.04 every room now carries (§06d). */
+  .room { --overscan-k: 1; }
   .room, .hero { scroll-snap-align: start; }
   :is(.room, .hero) + .room { margin-block-start: 0; }
 
@@ -5540,6 +6770,11 @@ dialog#c3-menu[open],
      for every room, and although that IS inside the ownership window, forcing
      it here keeps the reduced-motion path independent of those thresholds. */
   .hotspots   { transform: none !important; opacity: 1 !important; }
+  /* v29 · M3 moved the ownership fade onto these two children (§09), and the
+     fix round's lights-down onto the screen hosts */
+  .hotspots > .hotspot,
+  .hotspots > [data-screen],
+  .hotspots > [data-chefwall-host] { opacity: 1 !important; }
   .hotspot    { clip-path: none !important; }
   /* …and the six other elements that carry §05's ownership clip. On this path
      applyReducedMotion() pins --p to 0 and --enter to 1, so --cut is 1 and
@@ -5547,19 +6782,33 @@ dialog#c3-menu[open],
      states it unconditionally anyway, exactly as the line above does for
      .hotspot, so the reduced-motion page never depends on a threshold. */
   .rail-chips,
-  .rail > :is(a, button, ul, ol),
   .rail > .ccc-chefwall,
   .hotspots > [data-screen],
   .hotspots > [data-chefwall-host],
   .frz-pad { clip-path: none !important; }
 
   /* the rail arrives, it does not perform */
-  .rail::before { opacity: 1 !important; }
-  .rail > * { opacity: 1 !important; transform: none !important; }
+  .rail, .rail::before { opacity: 1 !important; }
+  .rail-kicker, .rail-title, .rail-rule, .rail-chips,
+  .rail > .ccc-chefwall { opacity: 1 !important; transform: none !important; }
   .rail-rule { transform: scaleX(1) !important; }
+  /* v29 · S6: M2's arrival never pre-states anything under this query (it is
+     keyed on data-motion full|lite, and motion.js writes `off` here), but its
+     moves are individual properties that `transform: none` does not reach —
+     so they are stated too, and the pre-reveal can never strand a word. */
+  .rail-kicker, .rail-title, .rail-rule, .rail-chips > .chip,
+  .hotspot::before, .hotspot > .dot { translate: none !important; scale: none !important; }
+  .rail-chips > .chip { opacity: 1 !important; }
 
-  /* the discoverability pulse becomes a steady, always-on mark */
-  .hotspot::after { animation: none !important; opacity: .5 !important; transform: none !important; }
+  /* (v29: the discoverability pulse is gone at every tier, so reduced motion
+     shows exactly the full-motion rest state — reticle + glint — already.) */
+
+  /* v29 · M4: the course-menu pill jumps instead of sliding, and the type
+     turns with it. (engine.js never cuts under reduced motion: a menu jump is
+     an instant scroll there, exactly as before.) */
+  .ticket-ind,
+  .ticket-ink,
+  .ticket-ink__l, .ticket-ink__r, .ticket-ink__c { transition: none !important; }
   .hotspot::before { opacity: .85 !important; }
   .hotspot-dot, .hotspot > .dot { opacity: 1 !important; }
 
@@ -5602,10 +6851,8 @@ dialog#c3-menu[open],
    deliberately not §17's narrow band: an iPad Pro portrait matches that one and
    the glass on an iPad is fine. */
 @media (max-width: 500px), (max-width: 1000px) and (max-height: 500px) {
-  #ticket-rail, #c3-menu, #c3-button, .hotspot-label, .keypad-scrim {
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
+  /* v29: the blur is gone on every breakpoint now (see .chip); the grounds
+     below stay as the phone's own, slightly denser tuning. */
   #ticket-rail   { background: linear-gradient(to bottom,
                      color-mix(in oklab, var(--ink-950) 96%, transparent) 0%,
                      color-mix(in oklab, var(--ink-950) 88%, transparent) 62%,
@@ -6131,11 +7378,10 @@ html[data-view="floor"] #kitchen { isolation: auto; }
   padding-inline: var(--sp-5);
   border-radius: var(--r-pill);
   color: var(--bone-2);
-  background: color-mix(in oklab, var(--ink-900) 78%, transparent);
+  /* v29: no backdrop-filter over a scrolling list; opaque enough to read. */
+  background: color-mix(in oklab, var(--ink-900) 94%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--brass) 32%, transparent),
               var(--shadow-2);
-  -webkit-backdrop-filter: blur(14px) saturate(1.3);
-  backdrop-filter: blur(14px) saturate(1.3);
 
   font-family: var(--font-text);
   font-size: var(--t--2);

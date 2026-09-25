@@ -172,6 +172,50 @@ async function submitFreezerCode(code) {
  * moment the user starts over.
  * ───────────────────────────────────────────────────────────────────────── */
 
+/* The keypad's secondary button. Everything else about the keypad is
+   theme.css §15; this one class is new, prefixed, and grepped absent from
+   theme.css. Same box as .btn (Unlock) — 44px, caps, --r-sm — in the steel
+   the walk-in's other controls use; hover/focus fade a pre-painted plate
+   (opacity only) and the press is the site's shared .98. */
+const KEYPAD_CSS = `
+.keypad-cancel {
+  -webkit-appearance: none; appearance: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  position: relative;
+  min-block-size: 44px; min-inline-size: 44px;
+  padding: 0 var(--sp-5, 1.25rem);
+  border: 0; border-radius: var(--r-sm, 4px);
+  cursor: pointer;
+  font-family: var(--font-text, system-ui, sans-serif);
+  font-size: var(--t--2, .75rem); font-weight: 700; font-stretch: 90%;
+  letter-spacing: var(--track-caps, .1em); text-transform: uppercase; line-height: 1;
+  color: var(--ice-300, #b9cbd6);
+  background: rgb(159 182 196 / .06);
+  box-shadow: inset 0 0 0 1px rgb(159 182 196 / .24);
+  transition: transform var(--press-t, var(--m-t-2, 160ms)) var(--press-e, var(--m-ease-press, ease-out));
+}
+.keypad-cancel::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: rgb(159 182 196 / .12);
+  opacity: 0; transition: opacity var(--m-t-2, 160ms) var(--m-ease-out, ease-out);
+}
+@media (hover: hover) { .keypad-cancel:hover::after { opacity: 1; } }
+.keypad-cancel:focus-visible::after { opacity: 1; }
+.keypad-cancel:active { transform: scale(var(--m-press, .98)); --press-t: var(--m-t-1, 90ms); }
+@media (prefers-reduced-motion: reduce) { .keypad-cancel, .keypad-cancel::after { transition: none; } }
+`;
+let keypadCssDone = false;
+function injectKeypadCss() {
+  if (keypadCssDone) return;
+  keypadCssDone = true;
+  try {
+    const st = document.createElement('style');
+    st.dataset.ccc = 'keypad';
+    st.textContent = KEYPAD_CSS;
+    document.head.append(st);
+  } catch { /* a CSP-blocked <style>: Cancel is still a working button */ }
+}
+
 /** Only ever one keypad on screen. Resolves true when the door opens. */
 export function openKeypad() {
   const root = $('#modal-root');
@@ -197,7 +241,12 @@ export function openKeypad() {
       keyBtn('back', '⌫')
     ]);
 
-    const cancel = el('button', { type: 'button', class: 'chip', 'data-act': 'cancel', text: 'Cancel' });
+    /* Cancel is the keypad's own SECONDARY button, not a chip (v29 fix round,
+       G3 m-2): as a chip it inherited the rail's sentence-case glass-and-brass
+       look and sat between two caps steel/brass buttons. It is the Unlock
+       button's shape in the walk-in's steel — see KEYPAD_CSS. */
+    injectKeypadCss();
+    const cancel = el('button', { type: 'button', class: 'keypad-cancel', 'data-act': 'cancel', text: 'Cancel' });
     const unlock = el('button', { type: 'button', class: 'btn', 'data-act': 'unlock', text: 'Unlock' });
 
     const panel = el('div', {
@@ -205,7 +254,7 @@ export function openKeypad() {
       class: 'keypad'
     }, [
       el('h2', { class: 't-sub', id: 'keypad-title', text: 'Walk-In Freezer' }),
-      el('p', { class: 'micro', text: 'Manager access. Enter the freezer code to open cold storage.' }),
+      el('p', { class: 'micro', text: 'Manager tools — enter the code to open cold storage.' }),
       el('hr', { class: 'rule' }),
       input, grid, msg,
       el('div', { class: 'keypad-actions' }, [cancel, unlock])

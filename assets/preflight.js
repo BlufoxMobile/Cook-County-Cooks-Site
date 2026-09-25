@@ -135,6 +135,16 @@ function verdict(kind, status, detail, length) {
  *
  * `res.body` is null for a 204/304 and for a body-less error page, and
  * `cancel()` rejects if the stream was already disturbed, so both are swallowed.
+ *
+ * v29 CORRECTION. The cancel only lands when this thread gets round to running
+ * it, and while a tool is opening that thread is busy (on an iPad the tool
+ * shares it). Chrome's netlog in the v29 audit, same sheet, three opens: 72 KB,
+ * 70 KB and 452 KB read before the abort — a second download of up to 83% of
+ * the document on every open. So the viewer no longer sends this beside every
+ * frame: overlay.js showFrame() asks only when a frame fires `load` suspiciously
+ * fast (the shape every failure in the table above takes) or when nothing has
+ * happened for SLOW_NOTE_MS. A tool that paints, or loads at a normal pace, is
+ * never fetched twice. screens.js still calls it for the live boards.
  */
 function cancelBody(res) {
   try { if (res && res.body && typeof res.body.cancel === 'function') res.body.cancel().catch(() => {}); }
@@ -250,11 +260,21 @@ export function preflight(url, opts = {}) {
          the first probe succeeds and this branch never runs. Verified in the
          harness by aborting the first cors probe only: v13 returned `gone`
          (card, frame discarded); this returns `ok` on the retry. */
-      const retry = withTimeout({ mode: sameOrigin ? 'same-origin' : 'cors' });
-      const retryAfter = new Promise((r) => setTimeout(r, 400)).then(() => retry.promise);
+      /* v29: the retry is CREATED after the pause, not before it. It used to
+         be minted up front and only chained after 400 ms, which meant (a) it
+         went out ~50 ms after the first probe, not 400 ms (measured through
+         page.route: 0.37 s, 0.42 s), so it met the same congested instant it
+         was meant to avoid; and (b) on a dead network its rejection sat with
+         no handler for those 400 ms and surfaced as an uncaught "Failed to
+         fetch" page error on every open. */
+      let retry = null;
+      const retryAfter = new Promise((r) => setTimeout(r, 400)).then(() => {
+        retry = withTimeout({ mode: sameOrigin ? 'same-origin' : 'cors' });
+        return retry.promise;
+      });
       return retryAfter.then(
         (res) => {
-          retry.done();
+          if (retry) retry.done();
           cancelBody(res);
           if (res.status === 405 || res.status === 501) return verdict('unknown', res.status, 'method refused');
           const len = bodyLength(res);
@@ -263,8 +283,8 @@ export function preflight(url, opts = {}) {
           return verdict('gone', res.status, '', len);
         },
         (errR) => {
-          retry.done();
-          if (retry.aborted() || (errR && errR.name === 'AbortError')) return verdict('slow');
+          if (retry) retry.done();
+          if ((retry && retry.aborted()) || (errR && errR.name === 'AbortError')) return verdict('slow');
           // The cors probe was refused twice. Was anything there at all? A
           // no-cors GET resolves (opaquely) whenever the network transaction
           // succeeded, and rejects only when it did not — the discriminator.

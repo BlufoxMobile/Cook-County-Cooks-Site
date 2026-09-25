@@ -126,7 +126,7 @@ let next = html.slice(0, objStart) + rebuilt + html.slice(objEnd);
  *   read, this falls back to the order the rooms are written in tools.json
  *   (identical today) and warns, rather than failing a build over a list order.
  *
- * THE WALK-IN IS NOT IN HERE, and that is load-bearing. The 14 manager tools
+ * THE WALK-IN IS NOT IN HERE, and that is load-bearing. The manager tools
  *   live encrypted in data/freezer.sealed.json and are never in tools.json;
  *   the `freezer` room is skipped explicitly as well, so a manager tool that
  *   ever did land in tools.json by mistake still could not leak into a block
@@ -225,8 +225,51 @@ if (linkCount !== n) {
   process.exit(1);
 }
 
-const nextBlock = block.slice(0, h3At) + nsLines.join('\n').slice(h3Indent.length) +
+let nextBlock = block.slice(0, h3At) + nsLines.join('\n').slice(h3Indent.length) +
                   block.slice(ulAt + '</ul>'.length);
+
+/* ---------------------------------------------------------------------------
+ * THE WALK-IN SENTENCE'S NUMBER — DERIVED, NOT TYPED.
+ *
+ * "The Walk-In Freezer holds N manager tools behind a keypad" was a literal,
+ * and it drifted: it said 14 while the sealed envelope held 13 and the rail
+ * chip, the C³ menu and the phone list all said 13 (links audit, 2026-09-24).
+ *
+ * The number comes from the sealed envelope's PUBLIC `count` field — the same
+ * field every other surface reads. Nothing is decrypted and nothing but that
+ * integer is read: the envelope is parsed only to find it, first from the
+ * inline `freezer:` line carried through above, then from
+ * data/freezer.sealed.json. If neither has a usable count the sentence is left
+ * exactly as it is, with a warning: a missing count must not fail a build or
+ * invent a number.
+ * ------------------------------------------------------------------------- */
+function sealedCount() {
+  const pick = (json) => {
+    try {
+      const n = JSON.parse(json).count;
+      return Number.isInteger(n) && n >= 0 ? n : null;
+    } catch { return null; }
+  };
+  let n = freezerLine ? pick(freezerLine) : null;
+  if (n === null) {
+    const f = resolve(ROOT, 'data', 'freezer.sealed.json');
+    if (existsSync(f)) n = pick(readFileSync(f, 'utf8'));
+  }
+  return n;
+}
+const WALKIN_RE = /(The Walk-In Freezer holds )(\d+)( manager tools?)/;
+const walkInCount = sealedCount();
+let walkInNote = '';
+if (walkInCount === null) {
+  console.warn('! sync-inline-tools: no usable `count` in the sealed envelope; ' +
+               'the <noscript> Walk-In sentence was left as it is.');
+} else if (!WALKIN_RE.test(nextBlock)) {
+  console.warn('! sync-inline-tools: the <noscript> Walk-In sentence was not found; nothing to update.');
+} else {
+  nextBlock = nextBlock.replace(WALKIN_RE,
+    (_m, a, _n, b) => a + walkInCount + (walkInCount === 1 ? b.replace(/s$/, '') : b.replace(/tool$/, 'tools')));
+  walkInNote = ` · Walk-In sentence: ${walkInCount} (from the sealed envelope's count)`;
+}
 const noscriptChanged = nextBlock !== block;
 next = next.slice(0, nsStart) + nextBlock + next.slice(nsEnd);
 
@@ -235,4 +278,4 @@ if (next !== html) writeFileSync(htmlPath, next);
 console.log(`inline bootstrap: ${n} tools synced from data/tools.json${next === html ? ' (already current)' : ''}`);
 if (chefCount !== null) console.log(`inline bootstrap: ${chefCount} head chefs synced from headchefs/headchefs.json`);
 console.log(`noscript index:   ${linkCount} links in ${nsLines.filter((l) => l.includes('<h3>')).length} rooms` +
-            `${noscriptChanged ? ' (rewritten)' : ' (already current)'}`);
+            `${noscriptChanged ? ' (rewritten)' : ' (already current)'}${walkInNote}`);

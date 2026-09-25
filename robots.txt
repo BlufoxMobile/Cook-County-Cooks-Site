@@ -1,4 +1,4 @@
-# Cook County Cooks — internal tools portal for BluFox Mobile / C³.
+# Cook County Cooks — internal tools portal for Blufox Mobile / C³.
 # Not a public website. Nothing here is meant to be found by search.
 #
 # This asks well-behaved crawlers to stay out. It is a request, not a lock:

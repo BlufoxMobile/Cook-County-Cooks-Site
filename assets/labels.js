@@ -150,25 +150,25 @@ const SURFACES = [
      size and in light from left to right; the sampled paper colours below carry
      that (217,204,186 on the first card, 228,219,210 on the fourth), so the
      fourth card's ink is measurably lighter than the first's. */
-  { slug: 'porting-guide',  room: 'prep',   surface: 'card',
+  { slug: 'porting-guide', snap: true,  room: 'prep',   surface: 'card',
     quad: [[24.58, 33.36], [33.20, 34.35], [33.26, 46.82], [24.60, 47.06]],
     zone: [0.07, 0.285, 0.93, 0.715],  align: 'start',
     paper: [217, 204, 186], ramp: [-0.020, 0.073],
     lines: ['PortPro', 'Porting Guide'], meta: 'Tap to open' },
 
-  { slug: 'credit-limit',   room: 'prep',   surface: 'card',
+  { slug: 'credit-limit', snap: true,   room: 'prep',   surface: 'card',
     quad: [[34.45, 34.68], [41.60, 35.52], [41.62, 46.88], [34.56, 46.95]],
     zone: [0.10, 0.260, 0.93, 0.740],  align: 'start',
     paper: [224, 213, 198], ramp: [0.007, 0.024],
     lines: ['Credit Limit', 'Increase'], meta: 'Tap to open' },
 
-  { slug: 'bapis',          room: 'prep',   surface: 'card',
+  { slug: 'bapis', snap: true,          room: 'prep',   surface: 'card',
     quad: [[43.12, 35.75], [49.05, 36.42], [49.12, 46.72], [43.48, 46.80]],
     zone: [0.10, 0.26, 0.93, 0.73],    align: 'start',
     paper: [228, 219, 209], ramp: [-0.019, 0.044],
     kicker: 'BAPIS', lines: ['Online Order', 'Processing'], meta: 'Tap to open' },
 
-  { slug: 'bp-access',      room: 'prep',   surface: 'card',
+  { slug: 'bp-access', snap: true,      room: 'prep',   surface: 'card',
     quad: [[50.50, 36.79], [55.26, 37.31], [55.30, 46.80], [50.54, 46.88]],
     zone: [0.11, 0.24, 0.96, 0.71],    align: 'start',
     paper: [228, 219, 210], ramp: [-0.030, 0.018],
@@ -192,14 +192,13 @@ const SURFACES = [
 
   { slug: 'fall-off',        room: 'office', surface: 'clipboard',
     quad: [[91.54, 36.19], [97.46, 34.4], [97.12, 58.58], [91.46, 50.97]],
-    /* The writing area is pulled left of centre on purpose. This clipboard is
-       the right-most object in the plate; at 1280x800 its outer third is
-       already outside the frame, and the push-in takes another 30px of it at
-       every desktop width. Setting on u 0.06-0.82 keeps the words on the part
-       of the sheet that stays in shot — and the ink is cropped with the paper
-       rather than independently of it, which is the only version of this that
-       does not look like a bug. */
-    zone: [0.06, 0.09, 0.82, 0.60],    align: 'start',
+    /* v30: centred like its neighbour's. The writing area used to be pulled
+       left of centre (u 0.06-0.82) because the plate's right edge cut this
+       clipboard's outer third at 1280x800 and the push-in took more; the Back
+       Office plate was widened and re-framed (theme.css §06f) and the whole
+       board is now inside the safe box at every landscape test size, so the
+       words sit on the middle of the sheet again. */
+    zone: [0.11, 0.09, 0.89, 0.60],    align: 'start',
     paper: [222, 181, 155], ramp: [-0.066, -0.068],
     lines: ['Fall-Off', 'Summary'], meta: 'Tap to open', rules: 0.5 },
 
@@ -599,7 +598,11 @@ const CSS = `
   --lbl-light:  calc(0.82 + 0.18 * var(--bloom, 1));
   opacity: calc(var(--ccc-label-show, 1) * var(--lbl-alpha)
                 * var(--lbl-reveal) * var(--lbl-light));
-  transition: opacity 220ms var(--ease-out, cubic-bezier(.22,.61,.36,1));
+  /* v29: NO transition. --cut and --bloom are scrubbed by the scroll, so a
+     transition here restarted on every step of every scrub (42 CSSTransition
+     objects in one 1440px pass, design audit P2-13 / G3) and lagged the ink
+     behind the paper. The quantised --cut and --bloom (theme.css §05) already
+     step it at most a dozen times per room. */
 }
 
 .ccc-ink__sheet {
@@ -740,6 +743,9 @@ function ensureStyles(doc) {
  * 6 · BUILD
  * ────────────────────────────────────────────────────────────────────────── */
 
+/** v29: the ~5px kicker / "Tap to open" lines are not rendered (see buildInk). */
+const SHOW_MICRO = false;
+
 function spotFor(room, slug) {
   return (HOTSPOTS[room] || []).find((s) => s.slug === slug) || null;
 }
@@ -777,7 +783,13 @@ function buildInk(rec, spot, doc) {
   const sheet = doc.createElement('div');
   sheet.className = 'ccc-ink__sheet';
 
-  if (rec.kicker) {
+  // v29 (design audit P1-7): the pre-printed kicker and the "Tap to open"
+  // line are GONE. At 0.42em / 0.38em of a title that is itself ~12-16px on a
+  // desktop they rendered at ~5px, which is noise rather than type, and a
+  // 9px floor does not fit on a card this size. The title, the rule and the
+  // form lines carry the sheet. (rec.kicker / rec.meta stay in SURFACES as
+  // the record of what was printed.)
+  if (rec.kicker && SHOW_MICRO) {
     const k = doc.createElement('span');
     k.className = 'ccc-ink__kicker';
     k.textContent = rec.kicker;
@@ -800,7 +812,7 @@ function buildInk(rec, spot, doc) {
     sheet.appendChild(rule);
   }
 
-  if (rec.meta) {
+  if (rec.meta && SHOW_MICRO) {
     const meta = doc.createElement('span');
     meta.className = 'ccc-ink__meta';
     meta.textContent = rec.meta;
@@ -853,7 +865,27 @@ export function initLabels(options = {}) {
     const existing = button.querySelector(':scope > .ccc-ink');
     if (existing) existing.remove();
 
-    const ink = buildInk(rec, spot, doc);
+    // v29 · THE RETICLE SITS ON THE PAPER (design audit P1-7). A card's
+    // hotspot box in rooms.js was drawn by eye and sits 1.2-1.8% of the plate
+    // above its card and 1.5-2.9% short of its foot, so §09's corner brackets
+    // floated up-left of every recipe card. The card's own four corners are
+    // right here (rec.quad, traced off the plate), so a `snap` surface's box
+    // IS their bounding box: written onto the button's --x/--y/--w/--h (the
+    // same custom properties cinema.js wrote, so §09 positions it exactly as
+    // before) and handed to the ink fit, which is then relative to that box.
+    // Idempotent: if rooms.js is ever updated to these numbers, nothing moves.
+    let fit = spot;
+    if (rec.snap) {
+      const xs = rec.quad.map((q) => q[0]), ys = rec.quad.map((q) => q[1]);
+      const x = Math.min(...xs), y = Math.min(...ys);
+      fit = { ...spot, x, y, w: Math.max(...xs) - x, h: Math.max(...ys) - y };
+      button.style.setProperty('--x', `${fit.x.toFixed(2)}%`);
+      button.style.setProperty('--y', `${fit.y.toFixed(2)}%`);
+      button.style.setProperty('--w', `${fit.w.toFixed(2)}%`);
+      button.style.setProperty('--h', `${fit.h.toFixed(2)}%`);
+    }
+
+    const ink = buildInk(rec, fit, doc);
     if (!ink) continue;
     button.classList.add('hotspot--lettered');
     button.appendChild(ink);

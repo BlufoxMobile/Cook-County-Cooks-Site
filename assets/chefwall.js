@@ -195,9 +195,13 @@ const CSS = `
   --cw-shadow-3:   var(--shadow-3, 0 30px 90px -18px rgb(3 5 9 / .8), 0 4px 18px -6px rgb(3 5 9 / .6));
   --cw-ease:       var(--ease-cine, cubic-bezier(.2,.7,.2,1));
 }
-.ccc-chefmodal *{ box-sizing:border-box; }
+/* v29: tag-keyed, not "*" — a universal rightmost compound is tried against
+   every element on every restyle (theme.css §03's note). */
+.ccc-chefmodal div, .ccc-chefmodal button, .ccc-chefmodal img, .ccc-chefmodal figure, .ccc-chefmodal ul, .ccc-chefmodal li{ box-sizing:border-box; }
 
 /* ---- THE LIGHTS -------------------------------------------------------------
+   (v29: now read straight from the stage's quantised --lit — see .ccc-chefwall
+   below. The derivation is kept as the record of what that value is.)
    theme.css §06b's --lit, re-derived from numbers that actually reach this
    subtree. See the ⚠ block in the file header for why it cannot simply be
    inherited: --lit is declared on .plate-wrap and .hotspots is its SIBLING, so
@@ -217,8 +221,6 @@ const CSS = `
    first time --bloom arrived as anything but a bare number. The initial values
    are the LIT end for the same reason theme.css's are: a page whose engine.js
    never ran must render a correct, fully-lit wall. */
-@property --cw-arr  { syntax: "<number>"; inherits: false; initial-value: 1; }
-@property --cw-hold { syntax: "<number>"; inherits: false; initial-value: 0; }
 @property --cw-lit  { syntax: "<number>"; inherits: true;  initial-value: 1; }
 
 /* ---- root -------------------------------------------------------------- */
@@ -229,13 +231,14 @@ const CSS = `
   pointer-events:none;              /* only the buttons are hit-testable */
   font-family:var(--cw-sans);
 
-  --cw-arr:  clamp(0, (var(--enter, 1) - 0.90) * 11, 1);
-  --cw-hold: clamp(0, (var(--p, 0) - 0.55) * 4, 1);
-  --cw-lit:  clamp(0, 0.52 * var(--cw-arr)
-                    + 0.48 * var(--bloom, 1) * var(--bloom, 1) * var(--bloom, 1)
-                    + var(--cw-hold), 1);
+  /* v29: theme.css §05 now publishes the room's --lit on .stage itself,
+     quantised (0.04 steps) and derived from the engine's fine tier with the
+     formula below, term for term — so the wall reads it instead of
+     re-deriving it from per-frame inputs, which restyled every frame, plaque
+     and photo on each scroll frame of the Break Room's arrival. */
+  --cw-lit:  var(--lit, 1);
 }
-.ccc-chefwall *{ box-sizing:border-box; }
+.ccc-chefwall div, .ccc-chefwall button, .ccc-chefwall img, .ccc-chefwall figure, .ccc-chefwall ul, .ccc-chefwall li{ box-sizing:border-box; }
 
 /* =========================================================================
    A. THE WALL (>= 900px) — five buttons pinned into the painted frames
@@ -294,16 +297,19 @@ const CSS = `
    actually trigger the animation, and only while it is over the frame. */
 .cw-lift{
   position:absolute; inset:0;
-  transform:translate3d(0,0,0);
+  /* v29: no resting transform at all. translate3d(0,0,0) was an unconditional
+     promotion — exactly the five permanent layers the note above says were
+     removed. The hover transition promotes for its own duration. */
+  transform:none;
   transition:transform 420ms var(--cw-ease);
 }
 @media (hover:hover){
   .cw-frame:hover .cw-lift{
     will-change:transform;
-    transform:translate3d(0,-3px,0) scale(1.015);
+    transform:translate(0,-3px) scale(1.015);
   }
 }
-.cw-frame:focus-visible .cw-lift{ transform:translate3d(0,-3px,0) scale(1.015); }
+.cw-frame:focus-visible .cw-lift{ transform:translate(0,-3px) scale(1.015); }
 
 /* Cast shadow under the lifted frame. Opacity-only animation (perf rule). */
 .cw-cast{
@@ -379,7 +385,9 @@ const CSS = `
 .cw-grade{
   position:absolute; inset:0;
   background:var(--cw-walnut);
-  mix-blend-mode:multiply;
+  /* v29: plain alpha, not multiply. A blend mode reads the backdrop back on
+     every composite (audit/perf.md §3.4 fix 5); at 6% walnut the two differ by
+     under 1% of luminance anywhere on a portrait. */
   opacity:.06;
   pointer-events:none;
 }
@@ -410,7 +418,9 @@ const CSS = `
       rgba(255,255,255,.10) 26%,
       rgba(255,255,255,.02) 44%,
       rgba(255,255,255,0)   62%);
-  mix-blend-mode:screen;
+  /* v29: no mix-blend-mode. A pure-white layer at alpha a composites to
+     base + a(1 - base) under BOTH screen and normal blending, so the gloss is
+     pixel-identical — minus the backdrop readback screen cost every frame. */
 }
 /* The travelling highlight — a narrow angled band that sweeps left→right on
    hover/focus, as if the viewer leaned in. Same 118deg as the standing gloss. */
@@ -422,18 +432,18 @@ const CSS = `
       rgba(255,255,255,.30) 45%,
       rgba(255,255,255,.42) 55%,
       rgba(255,255,255,0) 100%);
-  transform:rotate(28deg) translate3d(0,0,0);
+  transform:rotate(28deg) translate(0,0);
   transition:none;
   pointer-events:none;
 }
 @media (hover:hover){
   .cw-frame:hover .cw-sweep{
-    transform:rotate(28deg) translate3d(340%,0,0);
+    transform:rotate(28deg) translate(340%,0);
     transition:transform 900ms var(--cw-ease);
   }
 }
 .cw-frame:focus-visible .cw-sweep{
-  transform:rotate(28deg) translate3d(340%,0,0);
+  transform:rotate(28deg) translate(340%,0);
   transition:transform 900ms var(--cw-ease);
 }
 
@@ -444,7 +454,7 @@ const CSS = `
    the button's aria-label already carries the full name. */
 .cw-nametag{
   position:absolute; left:50%; bottom:100%; margin-bottom:.5rem;
-  transform:translate3d(-50%,4px,0);
+  transform:translate(-50%,4px);
   opacity:0;
   padding:.28em .6em;
   font-family:var(--cw-sans);
@@ -452,16 +462,17 @@ const CSS = `
   font-weight:600; letter-spacing:.14em; text-transform:uppercase;
   white-space:nowrap; pointer-events:none;
   color:var(--cw-accent-lit);
-  background:rgb(var(--cw-shade) / .74);
-  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+  /* v29: no backdrop-filter anywhere on the site (theme.css .chip note); a
+     denser ground reads the same over a photograph. */
+  background:rgb(var(--cw-shade) / .9);
   border-radius:var(--cw-r-xs);
   box-shadow:inset 0 0 0 1px var(--cw-line), 0 2px 10px rgb(var(--cw-shade) / .5);
   transition:opacity 240ms var(--cw-ease), transform 240ms var(--cw-ease);
 }
 @media (hover:hover){
-  .cw-frame:hover .cw-nametag{ opacity:1; transform:translate3d(-50%,0,0); }
+  .cw-frame:hover .cw-nametag{ opacity:1; transform:translate(-50%,0); }
 }
-.cw-frame:focus-visible .cw-nametag{ opacity:1; transform:translate3d(-50%,0,0); }
+.cw-frame:focus-visible .cw-nametag{ opacity:1; transform:translate(-50%,0); }
 
 /* ---- held entries -------------------------------------------------------
    An entry the pipeline is HOLDING (the district's slide was absent on this
@@ -553,7 +564,7 @@ const CSS = `
      (11px at 1024) of wall between neighbours, which is what makes the row read
      as six separate plates rather than a strip. */
   width:158cqw;
-  transform:translate3d(-50%,0,0);
+  transform:translate(-50%,0);
   box-sizing:border-box;
   /* Centred in a fixed box so the row is one straight line of identical plates.
      Before this, "NORTH SIDE" and "SOUTH SIDE" wrapped to two lines at 1024
@@ -626,12 +637,21 @@ const CSS = `
    carries the full accessible name, and .cw-nametag reveals it on hover and
    focus exactly as it does for a frame with a picture in it. */
 .cw-photo.cw-blank{
-  /* one shade off the mat so the recess still reads, but no visible "hole" */
+  /* v29 fix round (G3 m-8) · A BLANK SLIDE IS A DARK, EMPTY FRAME. The mat
+     used to fill the opening in its own light bone, which on the wall read
+     as a blank white card — "a missing image", the reviewer's words — in the
+     one place a visitor looks for faces. Jeff's rule stands (blank slide →
+     blank frame, no stand-in art, no caption): the opening is now what an
+     empty frame on a dark wall actually shows — the dark backing, a little
+     depth at the top edge, and the glass catching the room's light — with
+     its district plate beneath it exactly as the others have. */
   background:
-    linear-gradient(158deg,
-      color-mix(in oklab, var(--cw-mat) 94%, #fff) 0%,
-      var(--cw-mat) 44%,
-      color-mix(in oklab, var(--cw-mat) 90%, var(--cw-walnut)) 100%);
+    linear-gradient(158deg, rgb(255 255 255 / .07) 0%, rgb(255 255 255 / .02) 30%, transparent 46%),
+    radial-gradient(120% 95% at 50% 38%,
+      color-mix(in oklab, var(--cw-walnut) 38%, #0c0f15) 0%,
+      #080a0f 72%,
+      #05070a 100%);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / .5), inset 0 7px 12px -4px rgb(0 0 0 / .7);
 }
 
 /* ---- a vacant slot -----------------------------------------------------
@@ -807,8 +827,9 @@ const CSS = `
     padding:.6rem .6rem .7rem;
     border:1px solid var(--cw-line);
     border-radius:var(--cw-r-sm);
-    background:rgb(var(--cw-shade) / .55);
-    -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+    background:
+      linear-gradient(180deg, rgb(255 255 255 / .05), transparent 50%),
+      rgb(var(--cw-shade) / .8);
     color:var(--cw-fg);
     text-align:left; cursor:pointer;
     -webkit-appearance:none; appearance:none;
@@ -987,9 +1008,7 @@ const CSS = `
   /* Matches the freezer keypad's scrim, the site's best modal. Deliberately
      NOT near-opaque: this is a dialog ABOUT the wall of fame, so the break-room
      set stays legible behind it instead of disappearing. */
-  background:rgb(var(--cw-shade) / .72);
-  -webkit-backdrop-filter:blur(18px) saturate(.92);
-  backdrop-filter:blur(18px) saturate(.92);
+  background:rgb(var(--cw-shade) / .84);   /* v29: no blur — the room behind still animates */
   opacity:0;
   transition:opacity 260ms var(--cw-ease);
 }
@@ -1015,11 +1034,11 @@ const CSS = `
   color:var(--cw-fg);
   border-radius:var(--cw-r-md);
   box-shadow:var(--cw-shadow-3), inset 0 0 0 1px var(--cw-line);
-  opacity:0; transform:translate3d(0,10px,0) scale(.985);
+  opacity:0; transform:translate(0,10px) scale(.985);
   transition:opacity 260ms var(--cw-ease), transform 260ms var(--cw-ease);
 }
 .ccc-chefmodal[data-shown="true"] .cw-panel{
-  opacity:1; transform:translate3d(0,0,0) scale(1);
+  opacity:1; transform:translate(0,0) scale(1);
 }
 
 /* Hardware, not a marshmallow: 40x40 at --r-sm with a brass hairline and a
@@ -1647,17 +1666,17 @@ function createScrollLock(win) {
       if (!locked || !saved) return;
       locked = false;
       const body = doc.body;
-      const root = doc.documentElement;
       body.style.position = saved.position;
       body.style.top = saved.top;
       body.style.left = saved.left;
       body.style.right = saved.right;
       body.style.width = saved.width;
       body.style.overflow = saved.overflow;
-      // Kill smooth scrolling for the restore so the page does not visibly fly.
-      root.style.scrollBehavior = 'auto';
-      win.scrollTo(0, saved.y);
-      root.style.scrollBehavior = saved.rootBehavior;
+      // Restore without a visible fly. v29: an explicit instant scroll instead
+      // of writing <html>'s scroll-behavior twice — each write restyled ~700
+      // elements (fix-round F1b measurement).
+      try { win.scrollTo({ top: saved.y, left: 0, behavior: 'instant' }); }
+      catch (e) { win.scrollTo(0, saved.y); }
       saved = null;
     },
     get isLocked() { return locked; }
@@ -1712,13 +1731,20 @@ function createModal(win, uid, photoBase) {
 
   const supportsInert = typeof HTMLElement !== 'undefined' && 'inert' in HTMLElement.prototype;
 
-  /** Mark everything outside the modal inert so AT cannot reach it. */
+  /** Mark everything outside the modal inert so AT cannot reach it.
+   *  v29 fix round (G1 D2): NEVER the tool viewer (.ccc-ov) or a body child
+   *  that asked to stay live (the Find palette, [data-ccc-keep-live], C4). A
+   *  tool arriving by Forward or a #/tool/ link while a portrait was open used
+   *  to open inside an inert viewer — a dead ✕ — and the viewer then saved that
+   *  inert as the state to restore, wedging the whole page after Escape. The
+   *  viewer and the palette run their own focus traps. */
   function setOutsideInert(on) {
     if (!supportsInert) return;
     if (on) {
       inerted = [];
       Array.prototype.forEach.call(doc.body.children, (child) => {
         if (child === rootEl || child.inert) return;
+        if (child.classList.contains('ccc-ov') || child.hasAttribute('data-ccc-keep-live')) return;
         child.inert = true;
         inerted.push(child);
       });
@@ -1767,6 +1793,10 @@ function createModal(win, uid, photoBase) {
   closeBtn.addEventListener('click', () => api.close());
   rootEl.addEventListener('mousedown', onPointerDown);
   doc.addEventListener('keydown', onKeydown, true);
+  // v29 fix round (G1 D2): a tool opening (Forward, a #/tool/ link, Find)
+  // takes the screen — the portrait gets out of its way at once.
+  const onViewerOpen = () => { if (open) api.close({ immediate: true }); };
+  doc.addEventListener('ccc:viewer-open', onViewerOpen);
 
   /** Render one chef's slide into the panel. */
   function render(chef) {
@@ -1888,30 +1918,36 @@ function createModal(win, uid, photoBase) {
       });
     },
 
-    close() {
+    close(opts) {
       if (!open) return;
       open = false;
       rootEl.setAttribute('data-shown', 'false');
       setOutsideInert(false);
 
-      const finish = () => {
+      const finish = (restoreFocus) => {
         rootEl.setAttribute('data-open', 'false');
         lock.unlock();                       // restores iOS scroll position
-        if (lastFocus && doc.contains(lastFocus)) {
+        if (restoreFocus && lastFocus && doc.contains(lastFocus)) {
           try { lastFocus.focus({ preventScroll: true }); } catch (_) {}
         }
         lastFocus = null;
       };
 
+      // Handing the screen to the tool viewer (below): no fade and no focus
+      // restore. The page must be un-inert and un-locked NOW, in the viewer's
+      // own open task, before it snapshots the page and takes its own lock.
+      if (opts && opts.immediate) { finish(false); return; }
+
       // Wait out the fade, but never hang if transitionend does not fire.
       let done = false;
-      const once = () => { if (done) return; done = true; finish(); };
+      const once = () => { if (done) return; done = true; finish(true); };
       panel.addEventListener('transitionend', once, { once: true });
       win.setTimeout(once, 320);
     },
 
     destroy() {
       doc.removeEventListener('keydown', onKeydown, true);
+      doc.removeEventListener('ccc:viewer-open', onViewerOpen);
       rootEl.removeEventListener('mousedown', onPointerDown);
       setOutsideInert(false);
       lock.unlock();

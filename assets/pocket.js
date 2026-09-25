@@ -84,6 +84,7 @@ import {
   initColdGate, setAdopt, coldTools, isFreezerUnlocked, sealedCount,
   onFreezerUnlock, openKeypad
 } from './coldgate.js';
+import { buildIndex, query as findQuery, touchesFreezer, readRecent, mountFind } from './find.js';
 
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -131,40 +132,20 @@ function indexTools(doc) {
 
 
 /* ─────────────────────────────────────────────────────────────────────────────
- * 2 · SEARCH
+ * 2 · SEARCH — find.js's matcher, the same one the desktop and iPad use
  *
- * 24 tools is more than anyone wants to scan on a phone, and this is the one
- * thing the pocket list has that the desktop C³ panel does not.
+ * The phone used to have its own: a folded substring AND over label + blurb,
+ * with no aliases and no punctuation folding, so the floor's own words failed
+ * — "dsr" found nothing, "tsheet" missed "T-Sheet", and "yc", "cli", "wtw" and
+ * "comp" all came back empty. It now asks find.js, which indexes the same array
+ * with the aliases from the tool list, folds "t-sheet" into "tsheet", and
+ * ranks — so a phone and a desk rank every query identically.
  *
- * Matching is a case- and diacritic-folded substring test over the tool's LABEL
- * and its BLURB, per query token. Tokens are ANDed — every word has to appear
- * somewhere in label+blurb — which is what makes a second word narrow the
- * result rather than widen it ("win weekend" finds the two boards; "weekend"
- * alone finds them plus anything whose blurb says weekend).
- *
- * The blurb is in the haystack on purpose, and it is why blurbs are shown on
- * matches: it is the half of the index that finds a tool by what it DOES rather
- * than what it is called. "trade-in" is in no tool's name and in two blurbs.
+ * Under a query the list is one ranked column, best first, each row its name
+ * and its room. The blurb is still searched ("trade-in" is in no tool's name)
+ * but no longer shown: the rest of the site dropped descriptions under titles,
+ * and a room is what tells a rep where the tool lives.
  * ────────────────────────────────────────────────────────────────────────── */
-
-/** Fold case and accents once, at index time, so keystrokes stay cheap. */
-function fold(s) {
-  return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-}
-
-function haystack(tool) {
-  return fold(`${tool.label} ${tool.blurb || ''}`);
-}
-
-function tokens(query) {
-  return fold(query).split(/\s+/).filter(Boolean);
-}
-
-function matches(tool, toks) {
-  if (!toks.length) return true;
-  const hay = tool._hay || (tool._hay = haystack(tool));
-  return toks.every((t) => hay.includes(t));
-}
 
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -220,6 +201,22 @@ function toolRow(tool) {
   return el('li', {}, [a]);
 }
 
+/** One ranked search result: the name, and the room it lives in. */
+function resultRow(tool, roomLabel) {
+  const a = el('a', {
+    class: 'tool-row pocket-row',
+    href: `#/tool/${encodeURIComponent(tool.slug)}`,
+    'data-tool': tool.slug,
+    'data-slug': tool.slug,
+    'aria-label': roomLabel ? `${tool.label}, ${roomLabel}` : tool.label
+  }, [
+    el('span', { class: 'tool-row-name', text: tool.label }),
+    // the second line of the row, which theme.css §19 shows while searching
+    roomLabel ? el('span', { class: 'tool-row-blurb', text: roomLabel }) : null
+  ]);
+  return el('li', {}, [a]);
+}
+
 /** The walk-in's one row while it is shut. It names a COUNT and nothing else:
  *  the thirteen labels are ciphertext until a code decrypts them, and this row
  *  is rendered from the envelope's public `count` field exactly as the C³
@@ -230,10 +227,11 @@ function lockRow(count) {
       type: 'button', class: 'tool-row pocket-row pocket-lock',
       'data-freezer-lock': '',
       // Same reason as the tool rows above: two sibling spans, no separator.
-      'aria-label': `Locked — ${count} manager tools. Keypad access.`
+      'aria-label': `Manager tools — enter code. ${count} in the Walk-In Freezer.`
     }, [
-      el('span', { class: 'tool-row-name', text: `Locked — ${count} manager tools` }),
-      el('span', { class: 'micro', text: 'Keypad access' })
+      // One wording for the one lock, everywhere (cinema.js LOCK_WORDS).
+      el('span', { class: 'tool-row-name', text: 'Manager tools — enter code' }),
+      el('span', { class: 'micro', text: `${count} in the Walk-In Freezer` })
     ])
   ]);
 }
@@ -359,7 +357,12 @@ export async function boot() {
     el('hr', { class: 'rule' }),
     // THE ESCAPE HATCH. A real link with a real href, so it works with JS half
     // dead and can be sent to someone; the click handler only adds the memory.
-    el('a', { class: 'pocket-escape', href: '?view=full' }, [
+    el('a', {
+      class: 'pocket-escape', href: '?view=full',
+      // Two sibling spans with no separator ran the name on
+      // ("…restaurantThe photographed…"); same fix as the rows.
+      'aria-label': 'View the full restaurant. The photographed walk-through. Heavier — best on wifi.'
+    }, [
       el('span', { text: 'View the full restaurant' }),
       el('span', { class: 'micro', text: 'The photographed walk-through. Heavier — best on wifi.' })
     ]),
@@ -385,38 +388,52 @@ export async function boot() {
 
   /* ---- rendering -------------------------------------------------------- */
   let query = '';
+  let index = buildIndex(data.tools, data.rooms);
 
   function render() {
-    const toks = tokens(query);
-    const searching = toks.length > 0;
+    const searching = query.trim().length > 0;
     const groups = [];
     let shown = 0;
+    const locked = !isFreezerUnlocked() && sealedCount() > 0;
 
-    for (const roomId of data.order) {
-      const meta = data.roomById.get(roomId) || { label: roomId };
-      const tools = (data.byRoom.get(roomId) || []).filter((t) => matches(t, toks));
-      const locked = roomId === 'freezer' && !isFreezerUnlocked() && sealedCount() > 0;
+    if (!searching) {
+      for (const roomId of data.order) {
+        const meta = data.roomById.get(roomId) || { label: roomId };
+        const tools = data.byRoom.get(roomId) || [];
+        // While the walk-in is shut its array is EMPTY — the thirteen are
+        // ciphertext — so it cannot be skipped for being empty or the locked
+        // row disappears with them.
+        const lockVisible = roomId === 'freezer' && locked;
+        if (!tools.length && !lockVisible) continue;
 
-      // While the walk-in is shut its array is EMPTY — the thirteen are
-      // ciphertext — so it cannot be skipped for being empty or the locked row
-      // disappears with them. Under a search, the locked row is matched against
-      // its own visible words and its room label ONLY. It never says anything
-      // about what is inside: a query that happens to name a manager tool
-      // behaves exactly like a query that names nothing.
-      const lockVisible = locked &&
-        (!searching || toks.every((t) => fold(`${meta.label} locked manager tools keypad`).includes(t)));
+        const headingId = `pocket-room-${roomId}`;
+        const items = tools.map(toolRow);
+        if (lockVisible) items.push(lockRow(sealedCount()));
+        shown += tools.length + (lockVisible ? 1 : 0);
 
-      if (!tools.length && !lockVisible) continue;
-
-      const headingId = `pocket-room-${roomId}`;
-      const items = tools.map(toolRow);
+        groups.push(el('section', { class: 'pocket-group', 'aria-labelledby': headingId }, [
+          el('h2', { class: 'kicker', id: headingId, text: meta.label }),
+          el('ul', {}, items)
+        ]));
+      }
+    } else {
+      // Ranked, best first. The locked row answers a query that reaches for
+      // the walk-in (its name, "manager", "keypad", "code"…) and never one
+      // that happens to name something inside it: while it is shut the index
+      // holds nothing from inside it.
+      const results = findQuery(index, query, { recent: readRecent() });
+      const items = results.map((r) => resultRow(r.tool, r.entry.room.label));
+      // A weak lock word ("locked out", "code") only counts when no tool
+      // answered — "locked out" is BP access, not the walk-in.
+      const lockVisible = locked && touchesFreezer(index, query, results);
       if (lockVisible) items.push(lockRow(sealedCount()));
-      shown += tools.length + (lockVisible ? 1 : 0);
-
-      groups.push(el('section', { class: 'pocket-group', 'aria-labelledby': headingId }, [
-        el('h2', { class: 'kicker', id: headingId, text: meta.label }),
-        el('ul', {}, items)
-      ]));
+      shown = items.length;
+      if (items.length) {
+        groups.push(el('section', { class: 'pocket-group', 'aria-labelledby': 'pocket-room-results' }, [
+          el('h2', { class: 'kicker', id: 'pocket-room-results', text: 'Best match first' }),
+          el('ul', {}, items)
+        ]));
+      }
     }
 
     fill(results, groups);
@@ -437,17 +454,20 @@ export async function boot() {
     const none = searching && shown === 0;
     empty.hidden = !none;
     if (none) {
+      /* No "manager tools are still in the walk-in" line here any more (v29
+         fix round, G2 M3): a query that reaches for the walk-in gets the lock
+         row above instead of this empty state, so under every other miss that
+         line only told a new hire that the flyer they wanted was locked away. */
       fill(empty, [
         el('p', { class: 'pocket-empty-line', text: `Nothing here is called “${query.trim()}”.` }),
-        sealed
-          ? el('p', { class: 'micro', text: `${sealed} manager tools are still in the walk-in — open it to search them too.` })
-          : null,
         el('button', { type: 'button', class: 'chip', 'data-act': 'clear', text: 'Clear search' })
       ]);
     }
     clear.hidden = !query;
+    // The count a rep can open, as in the header — not public + sealed (the
+    // footer said 42 under a header that said 29; G3 nit).
     foot.querySelector('.pocket-colophon').textContent =
-      `Cook County Cooks · ${open + sealed} tools across ${data.rooms.length} rooms · Blue Fox C³`;
+      `Cook County Cooks · ${open} tools across ${data.rooms.length} rooms · Blufox C³`;
 
   }
 
@@ -474,7 +494,18 @@ export async function boot() {
     if (isFreezerUnlocked()) return;
     openKeypad();
   });
-  onFreezerUnlock(() => render());
+  onFreezerUnlock(() => { index = buildIndex(data.tools, data.rooms); render(); });
+
+  /* `/` (and Ctrl-K / ⌘K) put a hardware keyboard in the search field, the
+     same keys that open Find on a desk. With a tool open over the list the
+     field is underneath it, so find.js puts its palette up instead — which is
+     also where the viewer's own Find button lands (contract C4). */
+  const focusField = () => {
+    if (overlayApi && overlayApi.isOpen()) return false;
+    try { search.focus({ preventScroll: true }); } catch { search.focus(); }
+    try { search.select(); } catch { /* noop */ }
+    return true;
+  };
 
   /* ---- keeping the links fresh ------------------------------------------
    * There is nothing to keep fresh any more. v12–v14 re-stamped every row's
@@ -519,6 +550,15 @@ export async function boot() {
     onRefused: (slug, { retry }) => { openKeypad().then((ok) => { if (ok) retry(); }); }
   });
 
+  mountFind({
+    data,
+    isLocked: () => !isFreezerUnlocked() && sealedCount() > 0,
+    onUnlock: onFreezerUnlock,
+    isViewing: () => !!(overlayApi && overlayApi.isOpen()),
+    closeViewer: () => { if (overlayApi) overlayApi.close(); },
+    onHotkey: () => focusField()
+  });
+
   /* A SLUG THE OVERLAY HAS NEVER HEARD OF STILL HAS TO REACH THE KEYPAD.
    * canOpen only runs for slugs that are IN the registry, and while the
    * walk-in is shut the sealed thirteen are not in it — they are ciphertext.
@@ -533,11 +573,22 @@ export async function boot() {
    * overlay cannot gate on a slug it does not have. An unknown slug and a
    * sealed one now behave identically: hash stripped, keypad up, and only a
    * correct code tells them apart. */
-  function catchSealedDeepLink() {
+  function catchSealedDeepLink(ev) {
     const m = /^#\/tool\/([^/?#]+)/.exec(location.hash || '');
     if (!m) return;
-    let slug; try { slug = decodeURIComponent(m[1]); } catch { slug = m[1]; }
-    if (data.bySlug.has(slug)) return;      // the overlay has this one
+    let raw; try { raw = decodeURIComponent(m[1]); } catch { raw = m[1]; }
+    // Contract C7: case-insensitive. `#/tool/NPS` is NPS, not the keypad.
+    const slug = raw.toLowerCase();
+    if (data.bySlug.has(slug)) {            // the overlay has this one
+      if (slug !== raw) {
+        try {
+          history.replaceState(history.state, '',
+            `${location.pathname}${location.search}#/tool/${encodeURIComponent(slug)}`);
+        } catch { /* noop */ }
+        if (ev && !overlayApi.isOpen()) overlayApi.open(slug, { history: false });
+      }
+      return;
+    }
     if (isFreezerUnlocked()) return;        // open, and genuinely unknown
     try { history.replaceState(null, '', location.pathname + location.search); }
     catch { /* noop */ }
@@ -550,6 +601,20 @@ export async function boot() {
   }
   window.addEventListener('hashchange', catchSealedDeepLink);
   catchSealedDeepLink();
+
+  /* A `#room-<id>` link (a shared ticket, a ⌘-clicked one from a desk) lands
+     on that room's group here, as it lands on the room in the cinema. The
+     scroll-padding in theme.css clears the sticky search bar. */
+  const goToRoomGroup = () => {
+    const m = /^#room-([a-z0-9_-]+)$/i.exec(location.hash || '');
+    if (!m || query) return;
+    const h = document.getElementById(`pocket-room-${m[1].toLowerCase()}`);
+    const g = h && (h.closest('.pocket-group') || h);
+    if (!g) return;
+    try { g.scrollIntoView({ block: 'start' }); } catch { g.scrollIntoView(); }
+  };
+  window.addEventListener('hashchange', goToRoomGroup);
+  goToRoomGroup();
 
   // A tiny handle for debugging in a store, matching the cinema's window.CCC.
   window.CCC = Object.assign(window.CCC || {}, { view: 'pocket', data, render });

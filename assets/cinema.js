@@ -26,6 +26,8 @@
  *   · It must never set transform on .plate-wrap.
  *   · It must never introduce a CSS class theme.css does not already style, and
  *     it must never turn on `scroll-behavior: smooth` (see NOTE 1 below).
+ *     (One exception, by design: the `find-*` classes and `#ticket-rail.has-find`
+ *     are styled by find.js, which injects its own sheet — see its §5.)
  *
  * NOTE 1 — the scroll-behavior land mine.
  *   theme.css §03 sets `html { scroll-behavior: smooth }`. engine.js implements
@@ -47,7 +49,7 @@
  * ========================================================================== */
 
 import { initEngine, scrollToRoom, onRoomChange } from './engine.js';
-import { initOverlay, openTool } from './overlay.js';
+import { initOverlay, openTool, closeTool } from './overlay.js';
 import { mountRoomScreens } from './screens.js';
 import { initChefWall } from './chefwall.js';
 import { initLabels } from './labels.js';
@@ -62,6 +64,33 @@ import {
 } from './coldgate.js';
 import { el, fill, $ } from './dom.js';
 import { ROOM_ORDER, HOTSPOTS, CHEF_FRAMES, FREEZER_DOOR } from '../rooms.js';
+
+/* THE TWO OPTIONAL MODULES (v29 fix round, G1 D10). motion.js (the tier's
+   probe and demotion, M2's arrival, M5's breath) and find.js (the Find
+   palette) used to be static imports, so a 404 or a parse error in either
+   failed this whole module graph and sent every visitor to the plain floor
+   list. They are import()ed instead — started HERE, as this module evaluates,
+   so they travel alongside the rest of boot — and awaited only where they are
+   first needed, for at most OPTIONAL_WAIT_MS; a late one is mounted when it
+   lands. Without motion.js the tier stays what index.html's first script set
+   and nothing is pre-hidden (M2 fails open); without find.js there is no
+   palette, and the C³ list still lists every tool. Each import() begins its
+   own line: build/fingerprint.mjs only rewrites a specifier that does. */
+function optional(name, pending) {
+  return pending.then((m) => m, (err) => {
+    console.error(`[cinema] ${name}.js did not load; the restaurant boots without it.`, err);
+    return null;
+  });
+}
+const MOTION_MODULE = optional('motion',
+  import('./motion.js'));
+const FIND_MODULE = optional('find',
+  import('./find.js'));
+const OPTIONAL_WAIT_MS = 1500;
+/** The module, null if it failed, or undefined if it is not here yet. */
+function within(pending, ms) {
+  return Promise.race([pending, new Promise((res) => setTimeout(() => res(undefined), ms))]);
+}
 
 
 /* §0 · TINY DOM HELPERS — el(), fill() and $() now live in dom.js, because the
@@ -135,7 +164,8 @@ function roomVars(art) {
          `--glow-x:${art.glowX || '62%'};--glow-y:${art.glowY || '30%'}`;
 }
 
-/** The generated plates are 2400x1340 (and 1400x781 for the @1400 cut). */
+/** The generated plates are 2400x1340 (and 1400x781 for the @1400 cut) — except the
+ *  two widened ones, whose files carry their own w/h (see WIDE_SIZES). */
 const PLATE_W = 2400;
 const PLATE_H = 1340;
 
@@ -342,6 +372,29 @@ const PLATE_SIZES =
   '(min-aspect-ratio: 2400/1340) 110vw, 197vh';
 
 /**
+ * v30 · THE TWO WIDENED PLATES (theme.css §06f).
+ *
+ * The Break Room and Back Office photographs run PAST the 2400x1340 frame the
+ * hotspots are measured in: the <img> is hung --bleed-* outside the cover box,
+ * so it is 1.125x (Break Room: 2400 + 300 px) and 1.035x (Office: 24 + 2400 +
+ * 60 px) the width of the box PLATE_SIZES describes. Their srcset descriptors
+ * are the files' TRUE widths (2700w / 2484w for the full cut), so `sizes` has
+ * to describe the <img>'s true box as well — PLATE_SIZES scaled by the same
+ * factor. The ratio descriptor : sizes is therefore exactly what it was, and
+ * every device picks the same tier it always did (iPad: the full cut; 1440x900
+ * DPR 1: @1800), just at the honest pixel counts. Keep these in step with
+ * PLATE_SIZES and with §06f's --bleed-l + --bleed-r.
+ */
+const WIDE_SIZES = {
+  breakroom: '(max-width: 500px) 495px, ' +
+             '(max-width: 1000px) and (max-height: 500px) 495px, ' +
+             '(min-aspect-ratio: 2400/1340) 124vw, 222vh',
+  office:    '(max-width: 500px) 455px, ' +
+             '(max-width: 1000px) and (max-height: 500px) 455px, ' +
+             '(min-aspect-ratio: 2400/1340) 114vw, 204vh'
+};
+
+/**
  * Every plate URL in the site, written out as literal strings.
  *
  * It used to be `plates/${room}.webp`. It is a table now because
@@ -359,8 +412,10 @@ const PLATES = {
   host:         { src: 'plates/host.webp',         srcset: 'plates/host@1400.webp 1400w, plates/host@1800.webp 1800w, plates/host.webp 2400w' },
   dining:       { src: 'plates/dining.webp',       srcset: 'plates/dining@1400.webp 1400w, plates/dining@1800.webp 1800w, plates/dining.webp 2400w' },
   prep:         { src: 'plates/prep.webp',         srcset: 'plates/prep@1400.webp 1400w, plates/prep@1800.webp 1800w, plates/prep.webp 2400w' },
-  office:       { src: 'plates/office.webp',       srcset: 'plates/office@1400.webp 1400w, plates/office@1800.webp 1800w, plates/office.webp 2400w' },
-  breakroom:    { src: 'plates/breakroom.webp',    srcset: 'plates/breakroom@1400.webp 1400w, plates/breakroom@1800.webp 1800w, plates/breakroom.webp 2400w' },
+  office:       { src: 'plates/office.webp',       srcset: 'plates/office@1400.webp 1449w, plates/office@1800.webp 1863w, plates/office.webp 2484w',
+                  w: 2484, h: 1656, sizes: WIDE_SIZES.office },
+  breakroom:    { src: 'plates/breakroom.webp',    srcset: 'plates/breakroom@1400.webp 1575w, plates/breakroom@1800.webp 2025w, plates/breakroom.webp 2700w',
+                  w: 2700, h: 1656, sizes: WIDE_SIZES.breakroom },
   freezer:      { src: 'plates/freezer.webp',      srcset: 'plates/freezer@1400.webp 1400w, plates/freezer@1800.webp 1800w, plates/freezer.webp 2400w' },
   'freezer-door': { src: 'plates/freezer-door.webp', srcset: 'plates/freezer-door@1400.webp 1400w, plates/freezer-door@1800.webp 1800w, plates/freezer-door.webp 2400w' }
 };
@@ -418,10 +473,10 @@ function buildPlate(room, index) {
   return el('img', {
     class: 'plate',
     srcset: art.srcset,
-    sizes: PLATE_SIZES,
+    sizes: art.sizes || PLATE_SIZES,
     src: art.src,
-    width: String(PLATE_W),
-    height: String(PLATE_H),
+    width: String(art.w || PLATE_W),
+    height: String(art.h || PLATE_H),
     alt: '',                              // decorative: the rail names the room
     decoding: 'async',
     loading: eager ? 'eager' : 'lazy',
@@ -719,8 +774,10 @@ function buildChip(tool, staged, i) {
  *
  * The client: "I want it to be abundantly clear that there are games there …
  * The reps won't notice it if we don't just point it out." The chip is the one
- * arcade affordance that is on screen at EVERY size (the cabinet hotspot is
- * 0% visible at 1180x820 — see the measurement table in rooms.js), so the chip
+ * arcade affordance that is on screen at EVERY size (the cabinet was 0%
+ * visible at 1180x820 on the old plate; since v30's widened plate its face is
+ * whole at every landscape size, but portrait and phones still have no
+ * cabinet — see rooms.js and theme.css §06f), so the chip
  * has to say what is behind it, and "C³ ARCADE" alone does not say "games".
  * "C³ ARCADE · 3 GAMES" does.
  *
@@ -801,6 +858,11 @@ function armArcadeChips() {
  * it, and takes `aria-haspopup="dialog"` so assistive tech warns that a dialog
  * is coming rather than a page.
  */
+/* ONE WORDING FOR THE ONE LOCK (v29 fix round, G2 n4 / G3): the freezer
+   chip, the C³ row, the footer button, the Find palette's row and the phone
+   list's row all say this, and the keypad they open echoes it. */
+const LOCK_WORDS = 'Manager tools — enter code';
+
 function buildLockChip(count) {
   const chip = el('button', {
     type: 'button',
@@ -808,10 +870,10 @@ function buildLockChip(count) {
     'data-freezer-lock': '',
     'data-locked': '',
     'aria-haspopup': 'dialog',
-    'aria-label': `Enter freezer code — ${count} manager tools are locked`
+    'aria-label': `${LOCK_WORDS}. ${count} are locked in the Walk-In Freezer.`
   });
   chip.insertAdjacentHTML('afterbegin', PADLOCK_SVG);
-  chip.append('Enter freezer code');
+  chip.append(LOCK_WORDS);
   return chip;
 }
 
@@ -876,6 +938,17 @@ function playUnlockBeat() {
       // happens once, on unlock, outside the engine's frame.
       void rail.offsetWidth;
       for (const chip of rail.children) chip.style.opacity = '1';
+      // v29 · S6: once the ripple is over, hand the chips back to the
+      // stylesheet. The inline `transition` would otherwise stand in for
+      // theme.css's for the rest of the session — every freezer chip's hover
+      // lift and press (§16) would snap instead of moving.
+      const n = rail.children.length;
+      setTimeout(() => {
+        for (const chip of rail.children) {
+          chip.style.removeProperty('transition');
+          chip.style.removeProperty('opacity');
+        }
+      }, 420 + n * 30 + 120);
     }
   }
 
@@ -903,17 +976,32 @@ let FREEZER_RAIL_META = null;
  *      of the sealed fourteen produce the same keypad; only a correct code
  *      tells them apart, and by then it does not matter.
  */
-function watchSealedDeepLink(data, freezer) {
+function watchSealedDeepLink(data, freezer, overlayApi) {
   const slugOf = () => {
     const m = /^#\/tool\/([^/?#]+)/.exec(location.hash || '');
     try { return m ? decodeURIComponent(m[1]) : null; } catch { return m ? m[1] : null; }
   };
 
-  const check = () => {
-    const slug = slugOf();
-    if (!slug) return;
-    if (isFreezerUnlocked()) return;      // overlay.js owns every slug now
-    if (data.bySlug.has(slug)) return;    // a public tool: overlay.js has it
+  const check = (ev) => {
+    const raw = slugOf();
+    if (!raw) return;
+    /* CONTRACT C7: slugs are case-insensitive. `#/tool/NPS` is NPS, not an
+       unknown slug and so not the keypad (which is what it used to be — a new
+       hire following a typed link got a manager lock). The address is put
+       back in canonical case in place; on a live hash change, if the viewer
+       did not already open it, it is opened here. */
+    const slug = raw.toLowerCase();
+    if (data.bySlug.has(slug)) {
+      if (slug !== raw) {
+        try {
+          history.replaceState(history.state, '',
+            `${location.pathname}${location.search}#/tool/${encodeURIComponent(slug)}`);
+        } catch { /* noop */ }
+        if (ev && overlayApi && !overlayApi.isOpen()) openTool(slug, { history: false });
+      }
+      return;                             // a known tool: overlay.js has it
+    }
+    if (isFreezerUnlocked()) return;      // open, and genuinely unknown
 
     try { history.replaceState(null, '', location.pathname + location.search); }
     catch { /* noop */ }
@@ -927,7 +1015,38 @@ function watchSealedDeepLink(data, freezer) {
   };
 
   window.addEventListener('hashchange', check);
-  check();
+  check(null);
+}
+
+/**
+ * A COLD `#room-<id>` LINK LANDS ON THAT ROOM.
+ *
+ * A bookmark, a shared link or a ⌘-click on a ticket (the rail lets modified
+ * clicks through, so "open in new tab" produces exactly this URL) used to load
+ * on the hero: the rooms are built by this file after the browser's own
+ * fragment scroll has already given up, and nothing here read the hash. Now
+ * boot() reads it once the engine has measured, and a later hash change is
+ * routed through the engine too, so the menu highlight and the cinema agree.
+ */
+function roomFromHash() {
+  const m = /^#room-([a-z0-9_-]+)$/i.exec(location.hash || '');
+  if (!m) return null;
+  const id = m[1].toLowerCase();
+  return id === 'hero' || ROOM_ORDER.includes(id) ? id : null;
+}
+
+function goToHashRoom(cold) {
+  const id = roomFromHash();
+  if (!id) return;
+  if (document.documentElement.classList.contains('ccc-locked')) return;   // viewer up
+  if (cold && id !== 'hero') {
+    // Land in one step, before the first engine frame paints the hero.
+    const sec = document.getElementById(`room-${id}`);
+    if (sec) window.scrollTo(0, Math.round(sec.getBoundingClientRect().top + window.scrollY));
+  }
+  // `instant`/`cut:false` ask a menu-jump dip (motion M4) to stand down; the
+  // 1 ms duration makes today's engine land on its next frame either way.
+  scrollToRoom(id, { offset: 0, duration: 1, instant: true, cut: false });
 }
 
 /** One polite live region for the whole page, created on first use. */
@@ -1143,7 +1262,7 @@ function buildTicketRail(data) {
 
 
 /* ─────────────────────────────────────────────────────────────────────────────
- * 5 · BLUE FOX C³ — the fixed button and the repo quick menu
+ * 5 · BLUFOX C³ — the fixed button and the every-tool menu
  *
  * The single approved exception to "no C³ logo inside the restaurant". It is
  * position:fixed (theme.css §12) and #ticket-rail reserves padding for it, so it
@@ -1162,12 +1281,55 @@ const FOX_SVG =
   '<path d="M3 3l3.6 3.2h10.8L21 3l-1 7.6a8 8 0 0 1-8 8 8 8 0 0 1-8-8z"/>' +
   '<path d="M9 11.2h.01M15 11.2h.01"/><path d="M12 14.2l-1.4 1.2h2.8z"/></svg>';
 
-function buildC3Menu(data) {
+/**
+ * @param {object} data
+ * @param {{api: object|null}} findRef  the Find palette, filled in by boot()
+ *        once it is mounted; the menu's search field hands its text to it.
+ */
+function buildC3Menu(data, findRef = { api: null }) {
   const button = el('button', {
     type: 'button', id: 'c3-button', 'aria-expanded': 'false',
-    'aria-controls': 'c3-menu', 'aria-label': 'Blue Fox C³ — every tool'
+    'aria-controls': 'c3-menu', 'aria-label': 'Blufox C³ — every tool'
   });
   button.innerHTML = FOX_SVG + '<span class="c3-mark">C³</span>';
+
+  /* THE COUNT SAYS WHAT THE LIST SHOWS. It used to be totalToolCount() — the
+     open tools plus the sealed ones — so the header read "42 tools" over a list
+     of 29 rows and one locked row. The walk-in's row ("Manager tools — enter
+     code", LOCK_WORDS) carries its own count in its accessible name; the
+     header counts the rows a rep can open, and grows when the door does. */
+  const countEl = el('span', { class: 'kicker', 'data-c3-count': '' });
+  const renderCount = () => {
+    const n = data.tools.length;
+    countEl.textContent = `${n} ${n === 1 ? 'tool' : 'tools'}`;
+  };
+  renderCount();
+
+  /* SEARCH EVERYWHERE, FROM HERE TOO. One list UI, not two: the field is a
+     front door to the Find palette. The first character typed closes this menu
+     and opens the palette with that text, focus and caret in its input, so the
+     next keystroke simply keeps typing. Unfocused on touch (no keyboard pops up
+     over the list); focused on open with a fine pointer. */
+  const search = el('input', {
+    type: 'text', class: 'find-c3-input', 'aria-label': 'Search every tool',
+    placeholder: 'Search every tool', autocomplete: 'off', autocorrect: 'off',
+    autocapitalize: 'off', spellcheck: 'false', inputmode: 'search', enterkeyhint: 'go'
+  });
+  // The field is the palette's front door, so it shows once find.js has
+  // mounted (it is loaded lazily and may be missing; see OPTIONAL modules).
+  const searchField = el('div', { class: 'find-c3-field', hidden: true }, [search]);
+  const enableSearch = (svg) => {
+    if (!searchField.hidden) return;
+    if (svg) {
+      const holder = el('span', {});
+      holder.innerHTML = svg;
+      if (holder.firstChild) {
+        holder.firstChild.setAttribute('class', 'find-c3-icon');
+        searchField.insertBefore(holder.firstChild, search);
+      }
+    }
+    searchField.hidden = false;
+  };
 
   const list = el('div', { class: 'c3-list' });
   const menu = el('div', {
@@ -1177,9 +1339,10 @@ function buildC3Menu(data) {
     // list is ever empty — same shape as chefwall.js's .cw-dialog
     tabindex: '-1'
   }, [
-    el('div', { id: 'c3-menu-head' }, [
+    el('div', { id: 'c3-menu-head', class: 'find-c3-head' }, [
       el('h2', { class: 't-sub', id: 'c3-menu-title', text: 'Every tool' }),
-      el('span', { class: 'kicker', 'data-c3-count': '', text: `${totalToolCount(data)} tools` })
+      countEl,
+      searchField
     ]),
     el('hr', { class: 'rule' }),
     list
@@ -1204,7 +1367,8 @@ function buildC3Menu(data) {
         // Gated: one row that opens the keypad instead of 14 rows of URLs.
         children.push(el('button', {
           type: 'button', class: 'c3-item', 'data-freezer-lock': '',
-          text: `Locked — ${sealedCount()} manager tools`
+          'aria-label': `${LOCK_WORDS}. ${sealedCount()} are locked in the Walk-In Freezer.`,
+          text: LOCK_WORDS
         }));
         continue;
       }
@@ -1223,7 +1387,7 @@ function buildC3Menu(data) {
     fill(list, children);
   }
   renderList();
-  onFreezerUnlock(renderList);
+  onFreezerUnlock(() => { renderList(); renderCount(); });
 
   /* ── open / close ─────────────────────────────────────────────────────────
      THE PANEL IS A MODAL DIALOG, AND NOW BEHAVES LIKE ONE.
@@ -1287,7 +1451,7 @@ function buildC3Menu(data) {
   const focusables = () => Array.from(menu.querySelectorAll(FOCUSABLE))
     .filter((n) => n.offsetParent !== null || n === document.activeElement);
 
-  const setOpen = (next) => {
+  const setOpen = (next, { restore = true } = {}) => {
     if (next === open) return;
     open = next;
     button.setAttribute('aria-expanded', String(open));
@@ -1297,11 +1461,16 @@ function buildC3Menu(data) {
       lastFocus = document.activeElement;
       setOutsideInert(true);
       const first = menu.querySelector('.c3-item');
-      (first || menu).focus();
+      let fine = false;
+      try { fine = matchMedia('(pointer: fine)').matches; } catch { /* noop */ }
+      (fine && !searchField.hidden ? search : (first || menu)).focus();
       return;
     }
 
+    search.value = '';
     setOutsideInert(false);
+    // Handing over to the Find palette: it takes focus straight from the field.
+    if (!restore) { lastFocus = null; return; }
     // Only take focus back if the panel still has it. A click on a tool row has
     // already handed the page to overlay.js by the time this runs, and yanking
     // focus out from under the viewer would undo its own focus management.
@@ -1355,11 +1524,33 @@ function buildC3Menu(data) {
   menu.addEventListener('click', (ev) => {
     if (ev.target.closest('.c3-item')) setOpen(false);
   });
+  // A tool that arrives some other way while the panel is up — Forward, a
+  // #/tool/ hash, the Find palette's hotkey — must not open under it (G1 D2):
+  // the panel would sit over the viewer with the viewer inerted by it. Close
+  // now, at the viewer's open start, and leave focus to the viewer.
+  document.addEventListener('ccc:viewer-open', () => {
+    if (open) setOpen(false, { restore: false });
+  });
+
+  // The hand-off. Synchronous, inside the input event, so iOS keeps the
+  // keyboard up as focus moves from this field to the palette's.
+  search.addEventListener('input', () => {
+    const text = search.value;
+    if (!text.trim() || !findRef.api) return;
+    search.value = '';
+    setOpen(false, { restore: false });
+    findRef.api.open({ text, opener: button });
+  });
+  search.addEventListener('keydown', (ev) => {
+    if (ev.key !== 'ArrowDown') return;
+    const first = menu.querySelector('.c3-item');
+    if (first) { ev.preventDefault(); first.focus(); }
+  });
 
   // Siblings, button first — that is what makes theme.css's
   // `#c3-button[aria-expanded="true"] ~ #c3-menu` fallback selector match.
   document.body.append(button, menu);
-  return { button, menu };
+  return { button, menu, close: () => setOpen(false), enableSearch };
 }
 
 
@@ -1402,7 +1593,7 @@ function buildFooter(data) {
         }));
         body.push(el('button', {
           type: 'button', class: 'chip', 'data-freezer-lock': '',
-          text: 'Enter freezer code'
+          text: LOCK_WORDS
         }));
       } else {
         body.push(el('ul', {}, tools.map((tool) => {
@@ -1460,7 +1651,7 @@ function buildFooter(data) {
     el('hr', { class: 'rule' }),
     el('p', {
       class: 'micro',
-      text: `Cook County Cooks · ${totalToolCount(data)} tools across ${data.rooms.length} rooms · Blue Fox C³`
+      text: `Cook County Cooks · ${totalToolCount(data)} tools across ${data.rooms.length} rooms · Blufox C³`
     })
   ]);
 
@@ -1487,6 +1678,22 @@ function buildFooter(data) {
  * ────────────────────────────────────────────────────────────────────────── */
 
 export async function boot() {
+  /* ---- −1. the motion tier -----------------------------------------------
+   * html[data-motion] is already on the page (index.html's first script);
+   * motion.js re-derives it, owns it from here (probe, demotion, the live
+   * reduced-motion listener) and arms M2's room arrival. It must run before the
+   * engine's first frame, which is what its probe and watchdog listen for. */
+  let motion = null;
+  const startMotion = (mod) => {
+    try { motion = mod.initMotion(); } catch (err) { console.error('[motion] init failed:', err); }
+    if (window.CCC) window.CCC.motion = motion;
+  };
+  {
+    const mod = await within(MOTION_MODULE, OPTIONAL_WAIT_MS);
+    if (mod) startMotion(mod);
+    else if (mod === undefined) MOTION_MODULE.then((late) => { if (late) startMotion(late); });
+  }
+
   /* NOTE 1, applied: kill the CSS smooth scroll before anything can scroll.
      See the header comment — this is what stops theme.css's
      `html { scroll-behavior: smooth }` from fighting the engine's tween. */
@@ -1551,7 +1758,34 @@ export async function boot() {
   // measures, and it changes no document height.
   initLabels();
   buildTicketRail(data);
-  buildC3Menu(data);
+  const findRef = { api: null };
+  const c3 = buildC3Menu(data, findRef);
+  /* SEARCH EVERYWHERE (design audit §3). The palette indexes data.tools — the
+     same array everything above rendered from, which adoptCold() grows on
+     unlock — and re-indexes when the door opens. Its trigger goes in the rail,
+     left of C³; `/`, Ctrl-K and ⌘K open it from anywhere, and the viewer's own
+     button reaches it through `ccc:find-open` (contract C4). */
+  const startFind = (mod) => {
+    try {
+      findRef.api = mod.mountFind({
+        data,
+        isLocked: () => !isFreezerUnlocked() && sealedCount() > 0,
+        onUnlock: onFreezerUnlock,
+        goToRoom: (id) => scrollToRoom(id, { offset: 0 }),
+        rail: $('#ticket-rail'),
+        beforeOpen: () => c3.close(),
+        closeViewer: () => closeTool()
+      });
+      c3.enableSearch(mod.SEARCH_SVG);
+    } catch (err) { console.error('[find] mount failed:', err); }
+    if (window.CCC) window.CCC.find = findRef.api;
+  };
+  {
+    // Awaited here, before the engine measures the rail the trigger sits in.
+    const mod = await within(FIND_MODULE, OPTIONAL_WAIT_MS);
+    if (mod) startFind(mod);
+    else if (mod === undefined) FIND_MODULE.then((late) => { if (late) startFind(late); });
+  }
   // After the rails exist, never awaited: see the note on the function. The
   // chip is fully usable before this resolves and stays usable if it never does.
   armArcadeChips();
@@ -1676,7 +1910,7 @@ export async function boot() {
    * keypad. It never confirms whether the slug is one of the fourteen: a wrong
    * slug and a real one behave identically right up until the code decrypts.
    */
-  watchSealedDeepLink(data, freezer);
+  watchSealedDeepLink(data, freezer, overlayApi);
 
   /* ---- 4. the cinema ------------------------------------------------------ */
   const engine = initEngine();
@@ -1716,6 +1950,10 @@ export async function boot() {
   // runway maths back in agreement with reality.
   engine.refresh();
 
+  /* ---- 8. a cold #room-<id> link ------------------------------------------ */
+  goToHashRoom(true);
+  window.addEventListener('hashchange', () => goToHashRoom(false));
+
   // The plates are lazy; a decode that lands late can change nothing about
   // layout (they are absolutely positioned with fixed intrinsic size) but the
   // fonts can. One refresh when the webfonts settle, then we are done.
@@ -1724,7 +1962,7 @@ export async function boot() {
   }
 
   // Expose a tiny handle for debugging in a store — never for other modules.
-  window.CCC = Object.assign(window.CCC || {}, { engine, data, openTool, freezer });
+  window.CCC = Object.assign(window.CCC || {}, { engine, data, openTool, freezer, find: findRef.api, motion });
 }
 
 /* NO SELF-START. app.js — the router — awaits the dynamic import of this module

@@ -81,7 +81,23 @@
  *   EXIT — see §5b. A rewrite this script silently misses is the one way it can
  *   ship a page that 404s while printing a confident "entry:" line.
  *
- * Usage:  node build/fingerprint.mjs [--clean]
+ * THE SHIPPED COPIES CARRY NO COMMENTS (v29) — see §2/§3. The hashed twin of
+ *   every .js and .css is written through build/strip-comments.mjs, so a
+ *   browser downloads code, not this codebase's prose (the cinema path went
+ *   from 414 KB to ~170 KB gzip; theme.css, which is render-blocking, from
+ *   104 KB to 16 KB). THE SOURCES ARE NEVER TOUCHED, and the hash is taken over
+ *   the stripped bytes, i.e. over exactly what ships. Every stripped module is
+ *   syntax-checked with `node --check` and every stripped stylesheet's braces
+ *   are balanced before anything is written; either failing stops the build.
+ *   `--keep-comments` emits unstripped copies (debugging only).
+ *
+ * index.html GETS THE CINEMA'S MODULEPRELOAD LIST (v29) — see §4. The first
+ *   inline <script> preloads every module cinema.js reaches by a static
+ *   import, full view only. The list names HASHED files, so it is computed
+ *   here from the same import graph §3 walks and written between the
+ *   `/*@cinema-graph*\/[` marker and its `]` on every run; §5c checks it.
+ *
+ * Usage:  node build/fingerprint.mjs [--clean] [--keep-comments]
  *         --clean  removes every previously-emitted *.<hash>.* file first —
  *                  BOTH generations — and starts the retention window over.
  *                  Use it to reset, never as part of a deploy: a --clean build
@@ -92,9 +108,12 @@ import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, readdirSync, statSync, unlinkSync } from 'node:fs';
 import { resolve, dirname, join, relative, extname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
+import { stripJs, stripCss } from './strip-comments.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CLEAN = process.argv.includes('--clean');
+const KEEP_COMMENTS = process.argv.includes('--keep-comments');
 
 /** 10 hex digits of SHA-256. 40 bits: collision-free for a few thousand files
  *  by any measure that matters, and short enough to read in a network tab. */
@@ -123,6 +142,7 @@ function listDir(dir, exts) {
  * plates            the whole point of the exercise
  * assets/*.js|css   the modules and the stylesheet
  * assets/*.mp3      the door sound
+ * assets/fonts/*    the self-hosted webfonts (v29; they were Google Fonts)
  * brand/*.png       the C³ mark
  * data/*.json       app.js's no-inline fallback; freezer.sealed.json changes
  *                   on every seal, so it must not be cached against an old one
@@ -138,6 +158,7 @@ function listDir(dir, exts) {
 const LEAF_ASSETS = [
   ...listDir('plates', ['.webp', '.jpg', '.png', '.avif']),
   ...listDir('assets', ['.mp3', '.wav', '.woff2', '.woff']),
+  ...listDir('assets/fonts', ['.woff2', '.woff']),
   ...listDir('brand',  ['.png', '.svg', '.jpg', '.webp']),
   ...listDir('data',   ['.json'])
 ];
@@ -158,7 +179,12 @@ const HTML_FILES = ['index.html', ...listDir('tools/printouts', ['.html']),
      manifest with no build step at all. (arcade/art/*.svg is gone as of the room
      rebuild: the cabinets are DRAWN from tint and title, so a new game needs no
      artwork and there is nothing left here to hash.) */
-  ...listDir('tools/arcade', ['.html'])];
+  ...listDir('tools/arcade', ['.html']),
+  /* tools/casino — since v29 its <head> names the self-hosted webfonts in
+     ../../assets/fonts/ (they were a render-blocking Google Fonts @import in its
+     style.css). Only those references are rewritten; the casino's own ./assets
+     and .mjs files are not keys in this build and are left exactly as written. */
+  ...listDir('tools/casino', ['.html'])];
 
 /* ── the rewriter ─────────────────────────────────────────────────────────── */
 
@@ -225,7 +251,10 @@ function unhash(text) {
       // reference was written with, and only accept a known one.
       const before = full.slice(Math.max(0, offset - 64), offset);
       const dir = (/([A-Za-z0-9@._-]*\/)*$/.exec(before) || [''])[0];
-      const candidate = (dir + stem + ext).replace(/^(\.\.\/)+/, '');
+      // `../` (station pages) and `./` (index.html's inline entry import,
+      // `import('./assets/app.<hash>.js')`) are both relative prefixes of a
+      // repo-relative key; strip either before looking it up.
+      const candidate = (dir + stem + ext).replace(/^(\.\.?\/)+/, '');
       return SOURCE_PATHS.has(candidate) ? stem + ext : whole;
     }
   );
@@ -246,7 +275,7 @@ for (const f of JS_ASSETS) if (f !== 'assets/app.js') PROSE_SKIP.add(f);
 /* ── --clean ──────────────────────────────────────────────────────────────── */
 if (CLEAN) {
   let removed = 0;
-  for (const dir of ['plates', 'assets', 'brand', 'data', '.']) {
+  for (const dir of ['plates', 'assets', 'assets/fonts', 'brand', 'data', '.']) {
     let names = [];
     try { names = readdirSync(p(dir)); } catch { continue; }
     for (const n of names) {
@@ -261,12 +290,75 @@ if (CLEAN) {
 /* ── 1 · leaves ───────────────────────────────────────────────────────────── */
 for (const f of LEAF_ASSETS) emit(f, readFileSync(p(f)));
 
+/* ── 1b · what ships: comments out, then prove nothing else went ─────────── *
+ * The stripper is a tokenizer, not a parser, so its output is checked here
+ * before a byte of it is written. Two checks, both dependency-free:
+ *   JS   the stripped module must parse as an ES module (`node --check` on it,
+ *        through stdin so nothing touches the disk). A tokenizer slip — a
+ *        regex literal read as a division, a `//` inside one read as a comment —
+ *        eats code, and eaten code does not parse. The SOURCE is parsed the same
+ *        way first: if the source itself does not parse as a module (it is not
+ *        one), stripping is skipped for that file rather than guessed at.
+ *   CSS  the stripped sheet's `{` and `}` must balance exactly as the sheet's
+ *        do with its comments removed by a naive regex (an independent referee).
+ * Either failure stops the build. The byte totals are printed at the end.   */
+const STRIP = { jsIn: 0, jsOut: 0, cssIn: 0, cssOut: 0, skipped: [] };
+
+function parsesAsModule(code) {
+  const r = spawnSync(process.execPath, ['--input-type=module', '--check'],
+    { input: code, encoding: 'utf8', maxBuffer: 64 << 20 });
+  return { ok: r.status === 0, err: (r.stderr || '').split('\n').slice(0, 6).join('\n') };
+}
+function braces(css) {
+  let depth = 0, min = 0;
+  for (const ch of css.replace(/"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'/g, '')) {
+    if (ch === '{') depth++;
+    else if (ch === '}') { depth--; if (depth < min) min = depth; }
+  }
+  return { depth, min };
+}
+function shipJs(f, code) {
+  if (KEEP_COMMENTS) return code;
+  const src = parsesAsModule(code);
+  // v29: a source that does not parse as a module is a real bug (the browser
+  // would refuse it too) — stop the build instead of shipping it with a note.
+  if (!src.ok) {
+    console.error(`fingerprint: ${f} does not parse as a module:\n${src.err}`);
+    process.exit(1);
+  }
+  const out = stripJs(code);
+  const chk = parsesAsModule(out);
+  if (!chk.ok) {
+    console.error(`fingerprint: stripping comments from ${f} produced code that does not parse ` +
+                  `(the source does). build/strip-comments.mjs misread something in it — the build ` +
+                  `stops rather than ship it. Fix the stripper, or pass --keep-comments.\n${chk.err}`);
+    process.exit(1);
+  }
+  STRIP.jsIn += Buffer.byteLength(code); STRIP.jsOut += Buffer.byteLength(out);
+  return out;
+}
+function shipCss(f, css) {
+  if (KEEP_COMMENTS) return css;
+  const out = stripCss(css);
+  // Compared against a naive, independent comment removal (CSS has no regex or
+  // template literals, so the naive regex is a fair referee here), because a
+  // comment may legitimately contain a stray brace in its prose.
+  const a = braces(css.replace(/\/\*[\s\S]*?\*\//g, ' ')), b = braces(out);
+  if (b.min < 0 || a.depth !== b.depth || a.min !== b.min) {
+    console.error(`fingerprint: stripping comments from ${f} unbalanced its braces ` +
+                  `(before ${a.depth}, after ${b.depth}). The build stops rather than ship it.`);
+    process.exit(1);
+  }
+  STRIP.cssIn += Buffer.byteLength(css); STRIP.cssOut += Buffer.byteLength(out);
+  return out;
+}
+
 /* ── 2 · CSS ──────────────────────────────────────────────────────────────── *
  * theme.css belongs to another agent. It is read, rewritten into a hashed copy,
- * and left untouched on disk.                                                 */
+ * and left untouched on disk. The copy is the stripped one (1b).              */
 for (const f of CSS_ASSETS) {
   const src = unhash(readFileSync(p(f), 'utf8'));
-  emit(f, Buffer.from(rewrite(src), 'utf8'));
+  emit(f, Buffer.from(shipCss(f, rewrite(src)), 'utf8'));
 }
 
 /* ── 3 · JS, in dependency order ──────────────────────────────────────────── *
@@ -323,13 +415,57 @@ for (const f of jsOrder) {
     return whole.replace(spec, nextSpec.replace(/^\.\/\.\.\//, '../'));
   });
   out = rewrite(out);
-  emit(f, Buffer.from(out, 'utf8'));
+  emit(f, Buffer.from(shipJs(f, out), 'utf8'));
 }
 
 /* ── 4 · HTML — rewritten in place, never hashed ──────────────────────────── */
+
+/**
+ * The cinema's module graph, for index.html's modulepreload list.
+ *
+ * Every module assets/cinema.js reaches by a STATIC import (import … from, or a
+ * bare side-effect import), breadth-first from cinema.js itself, as the hashed
+ * paths this build just emitted — relative to index.html, which sits at the
+ * root, so `MAP.get()` is already the right href. Dynamic import()s are left
+ * out on purpose: a module that is loaded lazily is lazy for a reason, and
+ * preloading it would undo that. app.js is not in it either — it is the
+ * page's own <script type="module" src>, which the preload scanner already
+ * finds; cinema.js is, because app.js reaches it through import().
+ */
+const GRAPH_ROOT = 'assets/cinema.js';
+const GRAPH_MARK = /\/\*@cinema-graph\*\/\[[^\]]*\]/;
+function staticImportsOf(file) {
+  const src = unhash(readFileSync(p(file), 'utf8'));
+  const here = dirname(file);
+  const out = [];
+  for (const m of src.matchAll(IMPORT_RE)) {
+    const spec = m[1] || m[3];                                 // not m[2]: import() is lazy
+    if (!spec || !spec.startsWith('.')) continue;
+    const resolved = rel(resolve(p(here), spec));
+    if (JS_ASSETS.includes(resolved) && !out.includes(resolved)) out.push(resolved);
+  }
+  return out;
+}
+function cinemaGraph() {
+  if (!JS_ASSETS.includes(GRAPH_ROOT)) return [];
+  const seenG = new Set([GRAPH_ROOT]), queue = [GRAPH_ROOT];
+  for (let i = 0; i < queue.length; i++) {
+    for (const dep of staticImportsOf(queue[i])) {
+      if (!seenG.has(dep)) { seenG.add(dep); queue.push(dep); }
+    }
+  }
+  return queue.map((f) => MAP.get(f)).filter(Boolean);
+}
+const PRELOAD = cinemaGraph();
+let preloadWritten = false;
+
 for (const f of HTML_FILES) {
   const src = readFileSync(p(f), 'utf8');
-  const out = rewrite(unhash(src));
+  let out = rewrite(unhash(src));
+  if (f === 'index.html' && GRAPH_MARK.test(out)) {
+    out = out.replace(GRAPH_MARK, `/*@cinema-graph*/${JSON.stringify(PRELOAD)}`);
+    preloadWritten = true;
+  }
   if (out !== src) writeFileSync(p(f), out);
 }
 
@@ -439,6 +575,59 @@ for (const entry of ['assets/app.js', 'assets/theme.css']) {
   }
   if (new RegExp(`(?<![\\w.-])${escapeRe(entry)}(?![\\w.-])`).test(html.replace(/<!--[\s\S]*?-->/g, ''))) {
     console.error(`fingerprint: index.html still references the un-hashed ${entry}`);
+    process.exit(1);
+  }
+}
+
+/* ── 5b′ · every hashed name index.html uses is one THIS build emitted ────── *
+ * The §5 check above only asks whether the new entry name appears SOMEWHERE in
+ * index.html. Since v29 the entry is named twice — a <link rel=modulepreload>
+ * and the inline entry's import() — so a rewrite that caught one and missed
+ * the other would pass it while the page imported a stale hash (which §6
+ * prunes two builds later: a blank page). So: every `<dir>/<name>.<10hex>.<ext>`
+ * in index.html whose un-hashed twin is a file this build fingerprints must be
+ * this generation's name for it.                                              */
+{
+  const current = new Set(MAP.values());
+  const html3 = readFileSync(p('index.html'), 'utf8');
+  // Anchored at a fingerprinted directory (or at a root file such as rooms.js),
+  // so an absolute URL — the og:image — is checked by its repo-relative tail.
+  const dirs = [...new Set([...SOURCE_PATHS].map((f) => dirname(f)).filter((d) => d !== '.'))]
+    .sort((a, b) => b.length - a.length).map(escapeRe).join('|');
+  const re = new RegExp(`(?<![A-Za-z0-9@_.-])(?:(?:${dirs})\\/)?[A-Za-z0-9@_-]+\\.[0-9a-f]{${HASH_LEN}}\\.[A-Za-z0-9]+`, 'g');
+  for (const m of html3.matchAll(re)) {
+    const name = m[0];
+    const twin = name.replace(new RegExp(`\\.[0-9a-f]{${HASH_LEN}}(\\.[A-Za-z0-9]+)$`), '$1');
+    if (!SOURCE_PATHS.has(twin)) continue;
+    if (!current.has(name)) {
+      console.error(`fingerprint: index.html still names ${name}, which is not this build's ` +
+                    `${MAP.get(twin)} — a reference the rewrite missed. It would 404 once pruned.`);
+      process.exit(1);
+    }
+  }
+}
+
+/* ── 5c · the modulepreload list names this build's files, and only those ─── *
+ * A stale or mistyped entry cannot break the page — the imports never read the
+ * list — but it is a wasted request on every iPad load, so the build does not
+ * ship one. A MISSING marker is only a warning: the page works without the
+ * preloads, it is just slower, and a deploy is not held for that.            */
+if (!preloadWritten) {
+  console.warn('! fingerprint: index.html has no /*@cinema-graph*/[…] marker — the cinema ' +
+               'modules will not be preloaded (the page still works; boot is ~0.5 s slower).');
+} else {
+  const html2 = readFileSync(p('index.html'), 'utf8');
+  const listed = JSON.parse(GRAPH_MARK.exec(html2)[0].replace('/*@cinema-graph*/', ''));
+  const emitted = new Set(MAP.values());
+  for (const href of listed) {
+    if (!emitted.has(href) || !fileExists(href)) {
+      console.error(`fingerprint: the modulepreload list in index.html names ${href}, ` +
+                    `which this build did not emit.`);
+      process.exit(1);
+    }
+  }
+  if (!listed.length || listed[0] !== MAP.get(GRAPH_ROOT)) {
+    console.error(`fingerprint: the modulepreload list does not start with ${MAP.get(GRAPH_ROOT) || GRAPH_ROOT}.`);
     process.exit(1);
   }
 }
@@ -579,5 +768,14 @@ console.log(`  retention: ${retained.length}/${KEEP_GENERATIONS} generations on 
             `${KEEP.size} hashed files kept${isRepeat ? ' (unchanged build — same generation)' : ''}`);
 console.log(`  imports verified: ${checkedSpecs} relative specifiers across ${checkedModules} emitted modules`);
 console.log(`  ${LEAF_ASSETS.length} media/data · ${CSS_ASSETS.length} css · ${jsOrder.length} js`);
+const kb = (n) => `${(n / 1024).toFixed(0)} KB`;
+console.log(KEEP_COMMENTS
+  ? '  comments: KEPT in the shipped copies (--keep-comments)'
+  : `  comments stripped from the shipped copies: js ${kb(STRIP.jsIn)} -> ${kb(STRIP.jsOut)}, ` +
+    `css ${kb(STRIP.cssIn)} -> ${kb(STRIP.cssOut)} (sources untouched)` +
+    (STRIP.skipped.length ? `; not parseable as modules, shipped as written: ${STRIP.skipped.join(', ')}` : ''));
+console.log(preloadWritten
+  ? `  modulepreload (full view): ${PRELOAD.length} modules from ${GRAPH_ROOT}`
+  : '  modulepreload: marker missing in index.html — not written');
 console.log(`  entry: ${MAP.get('assets/app.js')}`);
 console.log(`  theme: ${MAP.get('assets/theme.css')}  (source file untouched)`);

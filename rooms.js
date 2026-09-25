@@ -164,7 +164,12 @@ export const HOTSPOTS = {
        an --art-x of .70 / .90 for exactly this, with the measurements. If a
        width still cannot show `fall-off` (1180x820 cannot: the tools span
        88.5% of the plate and that frame shows 77%), fix the crop or accept
-       the chip — do not slide this box off its clipboard to make it fit. */
+       the chip — do not slide this box off its clipboard to make it fit.
+       v30: fixed in the art, not here. The plate was widened on all four sides
+       and theme.css §06f re-frames the room so all five tools — sheet to
+       fall-off — are inside the safe box at every landscape test size,
+       1024x768 included. The coordinates did not change: every % in this file
+       is still a % of the original 2400x1340 frame. */
     { slug:'printouts',        kind:'tool', x:78.1, y:35.0, w:7.9, h:17.2, label:'Print Outs', edge:'right' },
     { slug:'exception-report', kind:'tool', x:85.6, y:36.8, w:4.4, h:20.0, label:'Exception Report', edge:'right' },
     { slug:'fall-off',         kind:'tool', x:91.5, y:34.4, w:6.0, h:24.2, label:'Fall-Off Summary', edge:'right' },
@@ -205,11 +210,18 @@ export const HOTSPOTS = {
        a SHORT window they reached down into the chip rows — measured across the
        whole runway at five sizes, only 1512x751 clashed and it needed 3.29% of
        plate height. 22 gives it 4%. The doors still run y 42 -> 64 against art
-       that is unoccluded to 68, so nothing was lost but the overlap. */
-    { slug:'training-xfinity',      kind:'tool', x:18.2, y:42.0, w:3.1, h:22.0, label:'Xfinity Product Mastery' },
-    { slug:'training-straight-line',kind:'tool', x:21.6, y:42.0, w:3.3, h:22.0, label:'Sales Process 101' },
-    { slug:'training-tsheet',       kind:'tool', x:25.1, y:42.0, w:3.3, h:22.0, label:'The Plus-First Playbook' },
-    { slug:'training-pos',          kind:'tool', x:28.5, y:42.0, w:1.9, h:22.0, label:'Celestial Point of Sale' },
+       that is unoccluded to 68, so nothing was lost but the overlap.
+       v29 fix round (G3 M-6): 22 -> 16. At 1440x900 the doors' bracket feet
+       sat 8px above "COURSE SIX" and at 1180x820 ran through it into the
+       title; the target is the upper door (the vents and the name plate), so
+       y 42 -> 58 keeps a finger-sized box (≥ 44px tall at every landscape
+       size) and clears the kicker by ≥ 20px at 1180, 1440, 1512 and 1920 over
+       p 0-0.5 (f1a/railclash.py). engine.js flips a label above its object
+       wherever the label would land on a room's type. */
+    { slug:'training-xfinity',      kind:'tool', x:18.2, y:42.0, w:3.1, h:16.0, label:'Xfinity Product Mastery' },
+    { slug:'training-straight-line',kind:'tool', x:21.6, y:42.0, w:3.3, h:16.0, label:'Sales Process 101' },
+    { slug:'training-tsheet',       kind:'tool', x:25.1, y:42.0, w:3.3, h:16.0, label:'The Plus-First Playbook' },
+    { slug:'training-pos',          kind:'tool', x:28.5, y:42.0, w:1.9, h:16.0, label:'Celestial Point of Sale' },
 
     /* THE ARCADE CABINET — and it opens the ARCADE now, not one game.
        The client asked for "a Cook County Cooks Arcade section in the breakroom
@@ -253,7 +265,21 @@ export const HOTSPOTS = {
        only the slug moved, from `fox-run` to `arcade`. At the widths where it IS
        visible, clicking the cabinet now opens the arcade and the rep chooses a
        game, instead of being dropped into whichever game happened to be first. */
-    { slug:'arcade',                kind:'tool', x:89.5, y:30.0, w:10.5, h:62.0, label:'C\u00b3 Arcade \u00b7 Games', edge:'right' },
+    /* v30 · THE PLATE WAS WIDENED AND THE CABINET IS WHOLE (theme.css §06f).
+       The photograph now runs 300px past this frame's right edge and 312px
+       below it, so the cabinet is in the art to its base: front x 87.4 ->
+       ~104 (control panel from 87.4, marquee to 100.6), side panel to 115.5,
+       top of the side panel y 30.4, control panel's bottom edge 74.6, base
+       122 — all in % of the ORIGINAL 2400x1340 frame, which is still the
+       frame every number in this file is measured in (values past 100 are
+       simply in the new art). The box is the cabinet's FACE — marquee, screen
+       and controls, x 87.4 -> 101.0, y 30.4 -> 76.0 — because that is what is
+       on screen, whole, in every framing: §06f pans the room so it clears the
+       safe box at p 0-.5 on every test profile. Taking the box to the base
+       (122) or the back of the side panel (115.5) would need the room 13-23%
+       smaller on the desktops and still would not fit an iPad. The history
+       below is the art before v30. */
+    { slug:'arcade',                kind:'tool', x:87.4, y:30.4, w:13.6, h:45.6, label:'C\u00b3 Arcade \u00b7 Games', edge:'right' },
   ],
   freezer: [
     { kind:'lock', x:34.3, y:47.0, w:2.6, h:8.0, label:'Manager access' },

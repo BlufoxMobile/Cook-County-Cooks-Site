@@ -193,11 +193,19 @@ const CSS = `
   block-size: var(--frz-ch);
   inset-inline-start: calc((100cqw - var(--frz-cw)) * var(--focus-x, .5));
   inset-block-start:  calc((100svh - var(--frz-ch)) * var(--focus-y, .5));
+  /* v29: theme.css §01 registers the dolly numbers inherits:false (the
+     engine's fine tier), so the door takes them from the stage explicitly,
+     as .plate-wrap and .hotspots do. */
+  --plate-x: inherit;
+  --plate-y: inherit;
+  --plate-scale: inherit;
+  /* 2D, and no backface-visibility: a 3D transform promoted the whole door
+     assembly for the session whether the walk-in was on screen or not. The
+     sequence buys its own will-change while it runs (see promote()). */
   transform:
-    translate3d(calc(var(--plate-x) * 1cqw), calc(var(--plate-y) * 1svh), 0)
+    translate(calc(var(--plate-x) * 1cqw), calc(var(--plate-y) * 1svh))
     scale(calc(var(--plate-scale) * var(--overscan-k, 1.10)));
   transform-origin: 50% 50%;
-  backface-visibility: hidden;
 }
 
 /* the ground the narrow fit floats on — see §"THE NARROW FIT" in the module */
@@ -443,9 +451,13 @@ const CSS = `
   font: inherit;
   cursor: pointer;
   border-radius: var(--r-xs, 2px);
-  box-shadow:
-    0 0 0 1px color-mix(in oklab, var(--frz-lcd) 46%, transparent),
-    0 0 26px -4px color-mix(in oklab, var(--frz-lcd) 60%, transparent);
+  /* v29 (design audit P1-7): no hairline rectangle at rest. The pad and its
+     ring used to draw two concentric 1px teal boxes round the keypad, which
+     read as debug outlines on the one control in the room. At rest the pad
+     now only glows, the way a lit LCD does; the ring (below) carries the
+     "this is a control" mark as corner brackets, the same reticle language as
+     every other object on the site (theme.css §09). */
+  box-shadow: 0 0 26px -4px color-mix(in oklab, var(--frz-lcd) 46%, transparent);
   transition: box-shadow var(--dur-2, 190ms) var(--frz-out);
 }
 /* 44px minimum, kept centred on the object however small the art draws it */
@@ -467,11 +479,28 @@ const CSS = `
    in this module, so it stops the moment the sequence starts */
 .frz-pad__ring {
   position: absolute;
-  inset: -22%;
-  border-radius: var(--r-sm, 3px);
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--frz-lcd) 34%, transparent);
-  animation: frz-breathe 3.6s var(--ease-in-out, cubic-bezier(.65,0,.35,1)) infinite;
+  inset: -12%;
+  border-radius: var(--r-xs, 2px);
+  /* corner brackets, not a box: a 1px border masked to four 12px corners */
+  border: 1px solid color-mix(in oklab, var(--frz-lcd) 70%, transparent);
+  -webkit-mask:
+    linear-gradient(#000, #000) 0    0    / 12px 12px no-repeat,
+    linear-gradient(#000, #000) 100% 0    / 12px 12px no-repeat,
+    linear-gradient(#000, #000) 0    100% / 12px 12px no-repeat,
+    linear-gradient(#000, #000) 100% 100% / 12px 12px no-repeat;
+          mask:
+    linear-gradient(#000, #000) 0    0    / 12px 12px no-repeat,
+    linear-gradient(#000, #000) 100% 0    / 12px 12px no-repeat,
+    linear-gradient(#000, #000) 0    100% / 12px 12px no-repeat,
+    linear-gradient(#000, #000) 100% 100% / 12px 12px no-repeat;
+  /* v29 (design audit M6/G1): it breathes only while the walk-in owns the page
+     (engine.js's .is-owned, contract C2) and never under an open tool — at
+     rest it is one still ring, not a loop running seven rooms away. */
+  animation: frz-breathe 3.6s var(--ease-in-out, cubic-bezier(.65,0,.35,1)) infinite paused;
 }
+.room.is-owned .frz-pad__ring { animation-play-state: running; }
+html.is-viewing .room.is-owned .frz-pad__ring,
+html.ccc-locked .room.is-owned .frz-pad__ring { animation-play-state: paused; }
 .frz-pad__led {
   position: absolute;
   inset-block-start: -18%;
@@ -656,7 +685,7 @@ const CSS = `
     /* a damped parallax: enough life that it belongs to the room, not enough
        to walk the fit off the edge of the stage */
     transform:
-      translate3d(calc(var(--plate-x) * .32cqw), calc(var(--plate-y) * .32svh), 0)
+      translate(calc(var(--plate-x) * .32cqw), calc(var(--plate-y) * .32svh))
       scale(calc(1 + (var(--plate-scale) - 1) * .5));
   }
   /* the ground and the soft inner edge exist only for the letterboxed fit */

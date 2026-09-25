@@ -25,7 +25,7 @@
 
          THE FONT was fixed first: it moved to a media="print" <link> that
          flipped to `all` on load — downloaded, never render-blocking, the
-         same treatment as index.html <head> and assets/theme.a73825e539.css §00. It has
+         same treatment as index.html <head> and assets/theme.eac66f530d.css §00. It has
          since moved again, to a <link> appended AFTER `load` (the script
          below says why: a pending stylesheet still holds `load`, and the
          viewer waits on `load`).
@@ -36,7 +36,7 @@
          to be parser-inserted to do it — so it was replaced, not moved: the
          classes this page uses are compiled by build/porting-guide-css.mjs
          (Tailwind CLI, pinned to the 3.4.17 the CDN was serving) into
-         assets/porting-guide.af372c18d0.css, one same-origin file that build/fingerprint.mjs
+         assets/porting-guide.46fabd5ff5.css, one same-origin file that build/fingerprint.mjs
          hashes like every other asset and sw.js caches for offline. A/B'd
          against the CDN render at 390x844, 820x1180, 1180x820 and 1440x900:
          0 differing pixels. Re-measured with cdn.tailwindcss.com hung: the full
@@ -53,41 +53,23 @@
          If a class is added to this page, re-run build/porting-guide-css.mjs
          and then build/fingerprint.mjs, or the new class will not be styled.
 
-         THE CARRIER LOGOS from cdn.simpleicons.org are <img>, so they never
-         blocked the parser — but an eager <img> that never answers does hold
-         this document's `load` event, and that is what the site's viewer
-         (overlay.js) waits on before showing a framed tool. They are
-         loading="lazy" now; the note beside them in the script has the
-         measurement. -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <script>
-      /* INTER IS ASKED FOR AFTER `load`, NOT BEFORE IT. The media="print"
-         trick this replaced kept the font off the RENDER path, but a pending
-         <link rel="stylesheet"> — print media or not — still holds the
-         document's `load` event, and `load` is the signal the site's viewer
-         (overlay.js) waits on before it fades a framed tool in. Measured
-         2026-09-02 with fonts.googleapis.com hung: this page rendered in full,
-         readyState stuck at "interactive", and the viewer sat on "PortPro is
-         still loading" over it until its 30 s card. Appending the <link> once
-         `load` has fired costs nothing visible — with the logos lazy, `load`
-         is at ~40 ms, and display=swap was already swapping Inter in late — and
-         means no third-party host can hold this document's `load` at all. The
-         <noscript> copy is for the browser with scripts off, which is also
-         the browser that never runs the viewer. */
-      (function () {
-        var add = function () {
-          var l = document.createElement('link');
-          l.rel = 'stylesheet';
-          l.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap';
-          document.head.appendChild(l);
-        };
-        if (document.readyState === 'complete') add(); else addEventListener('load', add);
-      })();
-    </script>
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"></noscript>
+         THE CARRIER LOGOS are same-origin files in logos/ now (v29); they
+         were cdn.simpleicons.org, which 404s for 15 of the 18. They are
+         loading="lazy", so none of them can hold this document's `load`, which
+         the site's viewer (overlay.js) waits on; the note beside them in the
+         script has the history. -->
+    <!-- INTER IS SELF-HOSTED (v29). It used to be a Google Fonts <link> appended
+         after `load` — a pending third-party stylesheet holds the document's
+         `load`, which is what the site's viewer waits on, and on 2026-09-02 a
+         hung fonts.googleapis.com kept "PortPro is still loading" up for 30 s.
+         The Latin file Google serves (one variable woff2, all six weights) now
+         lives in assets/fonts/ and is declared in the <style> below, so there is
+         no third-party host on this page's `load` at all. OFL: assets/fonts/OFL.txt. -->
     <style>
-        
+        @font-face { font-family: 'Inter'; font-style: normal; font-weight: 300 800; font-display: swap;
+            src: url(../../assets/fonts/inter-latin.c940764593.woff2) format('woff2');
+            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f8fafc;
@@ -116,7 +98,7 @@
         details summary::-webkit-details-marker { display:none; }
     </style>
     <!-- compiled utilities — see the note at the top of <head>; stays BELOW the <style> above -->
-    <link rel="stylesheet" href="../../assets/porting-guide.af372c18d0.css">
+    <link rel="stylesheet" href="../../assets/porting-guide.46fabd5ff5.css">
 </head>
 <body class="text-slate-900">
 
@@ -264,7 +246,7 @@
             {
                 name: "AT&T",
                 tags: ["tier1"],
-                logoSlug: "att",
+                logoSlug: "",
                 logoColor: "00a8e0",
                 account: "• Prepaid: 12-digit | Postpaid: 9/12 digit",
                 port: "App: Profile → People & Permissions → Transfer Number → PIN\nPhone: Dial *PORT (*7678)\nNote: Prepaid uses 4-digit security PIN",
@@ -275,7 +257,7 @@
             {
                 name: "T-Mobile",
                 tags: ["tier1"],
-                logoSlug: "tmobile",
+                logoSlug: "",
                 logoColor: "e20074",
                 account: "• Found on bill or account dashboard",
                 port: "T-Life App: Manage → Gear → Permissions → Transfer PIN\n⚠ Toggle OFF 'Port Out Protection' first",
@@ -286,7 +268,7 @@
             {
                 name: "Sprint (Legacy)",
                 tags: ["tier1"],
-                logoSlug: "sprint",
+                logoSlug: "",
                 logoColor: "fee100",
                 account: "• Found on physical bill",
                 port: "Use T-Life App (same steps as T-Mobile)\nManage → Gear → Permissions → Transfer PIN",
@@ -297,7 +279,7 @@
             {
                 name: "Cricket Wireless",
                 tags: ["mvno"],
-                logoSlug: "cricketwireless",
+                logoSlug: "",
                 logoColor: "008752",
                 account: "• Found in the myCricket app",
                 port: "• Dial *PORT (*7678) or check App settings",
@@ -308,7 +290,7 @@
             {
                 name: "Metro by T-Mobile",
                 tags: ["mvno"],
-                logoSlug: "metropcs",
+                logoSlug: "",
                 logoColor: "4c2e91",
                 account: "• Bill or online account portal",
                 port: "• Call 611 or visit corporate store (Identity check required)",
@@ -330,7 +312,7 @@
             {
                 name: "Straight Talk / Tracfone",
                 tags: ["hard", "mvno"],
-                logoSlug: "straighttalk",
+                logoSlug: "",
                 logoColor: "f05a28",
                 account: "• IMEI (Text IMEI to 611611 for last 4 digits on file)\n• If fail: Use last 15 digits of SIM card",
                 port: "• Text NTP to 611611 (Do NOT text twice!)\n• ZIP fail? Try purchase zip or 33178",
@@ -341,7 +323,7 @@
             {
                 name: "Visible",
                 tags: ["mvno"],
-                logoSlug: "visible",
+                logoSlug: "",
                 logoColor: "0000ff",
                 account: "• Visible App → Account tab",
                 port: "• Toggle 'Line Lock' to Unlocked in app\n• Request PIN via email in Account section",
@@ -352,7 +334,7 @@
             {
                 name: "Google Voice",
                 tags: ["mvno"],
-                logoSlug: "googlevoice",
+                logoSlug: "",
                 logoColor: "34a853",
                 account: "• Provided on GV unlock page",
                 port: "• NUMBER IS LOCKED BY DEFAULT\n• Must manually unlock at google.com/voice/unlock ($3 fee)",
@@ -374,7 +356,7 @@
             {
                 name: "Mint Mobile",
                 tags: ["mvno"],
-                logoSlug: "mintmobile",
+                logoSlug: "",
                 logoColor: "00d8b4",
                 account: "• Top right of bill or online portal",
                 port: "• App: Support → Chat → Ask 'Fox bot' for Account/PIN",
@@ -396,7 +378,7 @@
             {
                 name: "Xfinity Mobile",
                 tags: ["cable"],
-                logoSlug: "xfinity",
+                logoSlug: "",
                 logoColor: "ee3224",
                 account: "• Found in Xfinity app",
                 port: "• Call support for PIN: 888-936-4968",
@@ -407,7 +389,7 @@
             {
                 name: "Google Fi",
                 tags: ["mvno"],
-                logoSlug: "googlefi",
+                logoSlug: "",
                 logoColor: "4285f4",
                 account: "• Provided during 'Leave' flow in App",
                 port: "• Account → Manage Plan → Leave Fi → Transfer\n• 5-digit Account + 5-digit PIN",
@@ -451,7 +433,7 @@
             {
                 name: "Ting Mobile",
                 tags: ["mvno"],
-                logoSlug: "ting",
+                logoSlug: "",
                 logoColor: "00adef",
                 account: "• Settings → Port out or cancel service",
                 port: "• Select 'Porting out?' for Account # and PIN",
@@ -473,7 +455,7 @@
             {
                 name: "US Cellular",
                 tags: ["mvno"],
-                logoSlug: "uscellular",
+                logoSlug: "",
                 logoColor: "003366",
                 account: "• Found on invoice or online profile",
                 port: "• Call 888-944-9400 or visit store for PIN",
@@ -484,7 +466,7 @@
             {
                 name: "Optimum Mobile",
                 tags: ["cable"],
-                logoSlug: "alticeusa",
+                logoSlug: "",
                 logoColor: "000000",
                 account: "• Found in online account portal",
                 port: "• Account # and PIN both found online",
@@ -495,7 +477,7 @@
             {
                 name: "Cox Mobile",
                 tags: ["cable"],
-                logoSlug: "cox",
+                logoSlug: "",
                 logoColor: "005495",
                 account: "• Found in online account portal",
                 port: "• Disable 'Number Lock' first in portal\n• PIN available online",
@@ -522,18 +504,25 @@
 
             grid.innerHTML = filtered.map(c => {
                 // Determine if we should show an image or an initial
-                /* loading="lazy" IS NOT A PERFORMANCE NICETY HERE. These 18 logos
-                   come from cdn.simpleicons.org, and an eager <img> that never
-                   answers holds this document's `load` event open — which is the
-                   event overlay.js waits on before it fades the viewer in. So a
-                   hung logo host meant "Still loading PortPro…" over a page that
-                   had in fact rendered, then the 30 s card. Measured 2026-09-02
-                   with cdn.simpleicons.org hung: eager, the viewer never showed;
-                   lazy, it showed in 370 ms, because a lazy image does not
-                   delay `load` (the page itself fired it at 39 ms). Above the
-                   fold they still fetch immediately; the rest fetch on scroll. */
+                /* THE LOGOS ARE SELF-HOSTED (v29), in logos/ beside this page.
+                   They came from cdn.simpleicons.org, which has since removed 15
+                   of these 18 brands — T-Mobile, AT&T, Sprint, Cricket, Metro,
+                   Straight Talk, Visible, Google Voice, Mint, Xfinity, Google Fi,
+                   Ting, US Cellular, Altice and Cox all 404'd on every open (links
+                   audit, 2026-09-24) and fell back to the letter tile. Those
+                   carriers now have logoSlug "" and render the letter tile
+                   directly, which is what reps already saw, minus the failed
+                   requests. The three that still exist (Verizon, Boost,
+                   Spectrum) were saved in the colours this page asked the CDN
+                   for, so a logo is now a same-origin file and no third-party
+                   host is left on this page at all. To add one, drop
+                   logos/<logoSlug>.svg in and set the carrier's logoSlug.
+                   loading="lazy" stays: below the fold there is no reason to
+                   fetch them before the reader scrolls, and a lazy image can
+                   never hold this document's `load`, which the site's viewer
+                   waits on. The onerror letter fallback stays too. */
                 const logoHtml = c.logoSlug 
-                    ? `<img loading="lazy" src="https://cdn.simpleicons.org/${c.logoSlug}/${c.logoColor || '334155'}" 
+                    ? `<img loading="lazy" src="logos/${c.logoSlug}.svg" 
                              alt="${c.name}" class="w-full h-full object-contain" 
                              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                        <span class="hidden w-full h-full items-center justify-center text-xl font-black text-slate-400 bg-slate-50 uppercase">${c.name[0]}</span>`

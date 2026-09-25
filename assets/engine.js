@@ -139,7 +139,7 @@ const M_RUNWAY  = 3; // HEIGHT - STAGE_H, i.e. how far the stage stays pinned
 const M_DIR_X   = 4; // +1 / -1, alternates so adjacent rooms drift opposite ways
 
 /* Live values — written by the loop. */
-const V_STRIDE   = 8;
+const V_STRIDE   = 9;
 const V_P        = 0;
 const V_SCALE    = 1;
 const V_X        = 2;
@@ -148,9 +148,27 @@ const V_ENTER    = 4; // smoothed
 const V_BLOOM    = 5; // smoothed
 const V_ENTER_T  = 6; // target, straight from scroll
 const V_BLOOM_T  = 7; // target, straight from scroll
+const V_EXIT     = 8; // M3 lights-down, pure function of p (not smoothed)
 
 /* Last values actually pushed to the DOM, for write de-duplication. */
-const W_STRIDE = 6;
+const W_STRIDE = 7;
+
+/* ── M3 · LIGHTS DOWN, THEN LIGHTS UP (v29) ──────────────────────────────────
+ * The outgoing room's --exit-fine ramps 0 → 1 across this window of its own
+ * progress, smoothstepped. The incoming stage becomes visible at p ≈ .56 of
+ * the outgoing room (§05's --dissolve floor at the 220/58svh geometry) and is
+ * ~75% opaque by .74, so the outgoing plate is already on its way down when the
+ * incoming one appears and fully down before the two are at equal weight — and
+ * the incoming room arrives on its own dark twin (theme.css §06b). Dark over
+ * dark: the double exposure the design audit measured (P1-3) goes below
+ * perception. theme.css §06 turns the number into the grade. The last room has
+ * no successor and never exits. Lite and off tiers skip it (C5). */
+const EXIT_FROM = 0.50;
+const EXIT_TO   = 0.74;
+
+/** How much of a stage height a room with a successor takes to leave. See
+ *  computeFrame(): the departure is fully occluded by the incoming stage. */
+const EXIT_RUN_K = 0.35;
 
 /* ────────────────────────────────────────────────────────────────────────────
  * Easing.
@@ -188,6 +206,11 @@ function easeOutQuint(t) {
  *  the drift never "starts" or "stops" on a visible frame. */
 function smootherstep(t) {
   return t * t * t * (t * (t * 6 - 15) + 10);
+}
+
+/** 3t² − 2t³. The M3 lights-down ramp. */
+function smoothstep(t) {
+  return t * t * (3 - 2 * t);
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -235,6 +258,28 @@ const state = {
   activeIndex: -1,
   roomChangeCbs: new Set(),
 
+  // C2 · ownership (v29). The room whose `.is-owned` class is on, or -1. It
+  // follows the room whose --cut is open (ownerCandidate) after a short dwell
+  // so a fling does not hand every room it passes the class, and it is -1 for
+  // the whole of an M4 cut.
+  ownedIndex: -1,
+  ownTimer: 0,
+  ownCand: -1,          // the room whose --cut is open (see ownerCandidate)
+  cutZ: 0.6433,         // theme.css §02/§17 --cut-z / --cut-k, read in measure()
+  cutK: 100,
+  cutting: false,
+  cutEl: null,
+
+  // C1 · the tool viewer (v29). While html.is-viewing / ccc-locked is on, the
+  // engine is parked and the lock's scroll jump is ignored; one sync after.
+  viewing: false,
+  viewSyncOwed: false,
+  classMO: null,
+
+  // C3 · first frame (v29): dispatched once, after the first real frame paints.
+  firstFrameSent: false,
+  firstFramePending: false,
+
   // Layer promotion — indices of the (at most two) rooms currently carrying
   // will-change. Decoupled from the IO live set on purpose; see updatePromotions().
   promoA: -1,
@@ -274,6 +319,13 @@ const state = {
 
   // Environment
   reduceMotion: false,
+  // C5 · the motion tier, html[data-motion] ∈ full | lite | off (S6 sets it;
+  // absent = full). 'off' is treated exactly like prefers-reduced-motion;
+  // 'lite' keeps the scrub but drops M3's lights-down and always cuts on a
+  // menu jump. See readMotionTier().
+  motion: 'full',
+  motionMO: null,
+  motionMQ: null,
   io: null,
   listeners: [],        // [target, type, fn, opts] for clean teardown
   resizeTimer: 0,
@@ -444,6 +496,17 @@ function measure() {
   state.measures++;
   state.lastMeasureAt = nowMs();
 
+  // C2's hand-over point (ownerCandidate) is theme.css §05's --cut, whose exit
+  // constants are solved per breakpoint on :root. Media-query constants, not
+  // geometry: safe to read here, never in the loop.
+  try {
+    const rs = getComputedStyle(document.documentElement);
+    const z = parseFloat(rs.getPropertyValue('--cut-z'));
+    const k = parseFloat(rs.getPropertyValue('--cut-k'));
+    if (Number.isFinite(z) && z > 0) state.cutZ = z;
+    if (Number.isFinite(k) && k > 0) state.cutK = k;
+  } catch (_) { /* keep the §02 defaults */ }
+
   // If the LAYOUT geometry actually moved — not merely the visual viewport, so
   // not an iOS toolbar, but a rotation, a Split View drag, a font settling, a
   // late plate changing the document height — then every --enter now in flight
@@ -463,6 +526,11 @@ function measure() {
   // observer close the curtain again once the page has stopped moving.
   openCurtain();
   armCurtain();
+
+  // The course menu's pill positions are layout too; this is the place for
+  // them (see M4 · THE SLIDING TICKET).
+  measureTickets();
+  scheduleOffstageCheck();
 
   wake();
 }
@@ -496,6 +564,9 @@ function geometrySignature() {
 
 function wake() {
   if (state.reduceMotion || state.destroyed) return;
+  // C1: nothing on the page is visible under the viewer, so nothing is worth a
+  // frame. The owed sync runs when the lock comes off (exitViewing).
+  if (state.viewing) { state.viewSyncOwed = true; return; }
   state.idleFrames = 0;
   if (!state.running) {
     state.running = true;
@@ -533,11 +604,125 @@ function tick(now) {
 
   if (serviceFrame(now, dt, snap, false, false)) {
     state.idleFrames = 0;
+    if (!state.firstFrameSent) scheduleFirstFrame();
     return;
   }
+  if (!state.firstFrameSent) scheduleFirstFrame();
 
   // Nothing to compute. This is the cheapest possible frame.
-  if (++state.idleFrames > IDLE_FRAMES_BEFORE_PARK) park();
+  if (++state.idleFrames > IDLE_FRAMES_BEFORE_PARK) { park(); checkOffstage(); }
+}
+
+/* ── v29 fix round (G2 m1) · AN OBJECT MOSTLY OFF SCREEN TAKES NO TAP ────────
+ * Where no crop can hold a room's objects (the Back Office's clipboards on a
+ * 4:3 iPad, the arcade cabinet at the plate's edge — theme.css §06d), the part
+ * of a hotspot left at the screen's edge was still a live target: a tap at the
+ * right edge of an iPad in the Back Office opened a tool whose object the rep
+ * could not see. A hotspot whose visible area (inside the viewport, below the
+ * course menu) is under half of its box is made `inert` — no tap, no Tab stop,
+ * out of the accessibility tree — and marked data-offstage so theme.css drops
+ * its reticle; the room's chip for the same tool is untouched. The same pass
+ * keeps objects off the room's type (G3 M-6): brackets that would cross the
+ * title card are not drawn at rest (data-over-rail), and a name label that
+ * would hang onto the type hangs above its object instead (data-label-up).
+ * Checked for the owned room when the engine parks (the page is still, its
+ * style is clean, so the rect reads cost no layout), on ownership and after a
+ * re-measure. */
+const OFFSTAGE_MIN_VISIBLE = 0.5;
+
+function checkOffstage() {
+  if (state.destroyed || state.viewing || !state.rooms.length) return;
+  const i = state.ownedIndex >= 0 ? state.ownedIndex : state.activeIndex;
+  const room = state.rooms[i];
+  if (!room) return;
+  const vw = window.innerWidth || 0, vh = window.innerHeight || 0;
+  if (!vw || !vh) return;
+  let top = 0;
+  try {
+    const bar = document.getElementById('ticket-rail');
+    if (bar) top = Math.max(0, bar.getBoundingClientRect().bottom);
+  } catch (_) { /* noop */ }
+  let list, type;
+  try {
+    list = room.el.querySelectorAll('.hotspots > .hotspot');
+    type = room.el.querySelectorAll('.rail-kicker, .rail-title, .rail-chips > .chip');
+  } catch (_) { return; }
+  // the room's own type: nothing of an object may be drawn over it (G3 M-6)
+  const text = [];
+  for (const t of type) {
+    const tr = t.getBoundingClientRect();
+    if (tr.width >= 2 && tr.height >= 2) text.push(tr);
+  }
+  const hits = (a, t, rr, b) => {
+    for (const q of text) if (a < q.right && rr > q.left && t < q.bottom && b > q.top) return true;
+    return false;
+  };
+  for (const h of list) {
+    const r = h.getBoundingClientRect();
+    let off = false;
+    if (r.width >= 2 && r.height >= 2) {
+      const w = Math.max(0, Math.min(r.right, vw) - Math.max(r.left, 0));
+      const hh = Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, top));
+      off = (w * hh) / (r.width * r.height) < OFFSTAGE_MIN_VISIBLE;
+    }
+    if (off !== h.hasAttribute('data-offstage')) {
+      if (off) {
+        h.setAttribute('data-offstage', '');
+        if ('inert' in h) h.inert = true;
+      } else {
+        h.removeAttribute('data-offstage');
+        if ('inert' in h) h.inert = false;
+      }
+    }
+    if (off || r.width < 2) continue;
+    // an object whose box runs into the title card keeps its tap but loses
+    // its resting brackets there (theme.css), so no line crosses the type
+    setFlag(h, 'data-over-rail', hits(r.left, r.top, r.right, r.bottom));
+    // …and its name hangs ABOVE it when hanging below would land on the type
+    // (or off the bottom of the screen). The label is laid out even while
+    // hidden, so its size is known; both placements are tried from the box.
+    const lab = h.querySelector('.hotspot-label');
+    if (lab) {
+      const lr = lab.getBoundingClientRect();
+      // the label's own nudge (below) is already in lr; take it back out
+      const k = h.offsetWidth ? r.width / h.offsetWidth : 1;
+      const prev = (parseFloat(lab.dataset.nudge) || 0) * k;
+      const L = lr.left - prev, R = lr.right - prev;
+      const lh = lr.height;
+      const downT = r.bottom + 10, upB = r.top - 10;
+      const downBad = hits(L, downT, R, downT + lh) || downT + lh > vh - 4;
+      const upBad = hits(L, upB - lh, R, upB) || upB - lh < top + 4;
+      setFlag(h, 'data-label-up', downBad && !upBad);
+      // …and it stays on screen sideways: an object at the plate's edge (the
+      // arcade, the clipboards) hung its name half off the glass.
+      let dx = 0;
+      if (R > vw - 8) dx = (vw - 8) - R;
+      if (L + dx < 8) dx = 8 - L;
+      const nudge = Math.round(dx / (k || 1));
+      if (nudge !== (parseFloat(lab.dataset.nudge) || 0)) {
+        lab.dataset.nudge = String(nudge);
+        lab.style.translate = nudge ? `${nudge}px 0` : '';
+      }
+    }
+  }
+}
+
+function setFlag(el, name, on) {
+  if (on === el.hasAttribute(name)) return;
+  if (on) el.setAttribute(name, ''); else el.removeAttribute(name);
+}
+
+function scheduleOffstageCheck() {
+  clearTimeout(state.offstageTimer);
+  // v29 final: check once right after ownership moves, even while the engine is
+  // still running — M2's reticles fade in from 360 ms, and waiting for the park
+  // (45 idle frames) let a locker bracket sit on "Break Room" for ~1.5 s
+  // (verifier V2 m1). One off-frame read per ownership change; the park check
+  // below still settles the final positions.
+  state.offstageTimer = setTimeout(() => {
+    state.offstageTimer = 0;
+    checkOffstage();
+  }, 60);
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -617,6 +802,7 @@ function serviceFrame(now, dt, snapIn, resolve, fromFallback) {
   flushWrites();
   updatePromotions(scrollY);
   updateActiveRoom(scrollY);
+  updateOwnerCandidate();
   // AFTER updatePromotions and updateActiveRoom: the curtain's "never hide the
   // room being read, or its neighbours" rule reads both of them, so computing
   // it first would spend a frame acting on the previous position's answer.
@@ -650,6 +836,16 @@ function fallbackTick() {
   // and this must not touch anything. Two compares; no DOM, no allocation.
   const now = nowMs();
   if (now - state.lastRafAt < RAF_STALE_MS) return;
+
+  // v29: A SLOW FRAME IS NOT AN OCCLUDED WINDOW. The fallback exists for a page
+  // the browser has stopped scheduling — a hidden tab, a window behind the POS.
+  // It also used to fire whenever one frame took over RAF_STALE_MS, i.e. during
+  // exactly the long tool-open stalls (audit/perf.md §3.2/§3.9: 303 firings in
+  // one slow 112 s scroll), where it re-ran serviceFrame and churned the rAF
+  // request on a main thread that was already drowning. A visible, focused
+  // document is being scheduled; rAF will come.
+  const focused = (typeof document.hasFocus !== 'function') || document.hasFocus();
+  if (!isHidden() && focused) return;
 
   const dt = state.lastFallbackAt
     ? Math.min(FALLBACK_DT_CAP, now - state.lastFallbackAt)
@@ -703,6 +899,13 @@ function computeFrame(scrollY, dt, snap) {
   // very ghost we are there to remove.
   const k = snap ? 1 : (1 - Math.exp(-dt / DISSOLVE_TAU));
 
+  // v29 fix round (G3 M-3): lite dims the outgoing room too. Its hand-over was
+  // the muddiest state on the site — a plain cross-dissolve of two lit rooms,
+  // screens and all — and the lights-down is one number on a filter and a
+  // screen opacity that are already there (no new layer, no new pass).
+  const exitOn = state.motion === 'full' || state.motion === 'lite';
+  const lastRoom = rooms.length - 1;
+
   let anyInFlight = false;
 
   for (let i = 0; i < rooms.length; i++) {
@@ -735,13 +938,29 @@ function computeFrame(scrollY, dt, snap) {
     // into view) and back 1→0 across the viewport-height of departure. Two rooms
     // are therefore mid-dissolve at once, which is exactly the cross-fade.
     const enterIn = clamp01((scrollY - (top - stageH)) / stageH);
-    const enterOut = 1 - clamp01((scrollY - (top + runway)) / stageH);
+    // v29: a room with a successor leaves over EXIT_RUN_K of a stage, not a
+    // whole one. Its departure starts only once the next room is fully opaque
+    // over it (at every breakpoint --dissolve-run >= 0.396 x --pin-lead, which
+    // is where the incoming stage reaches opacity 1 — §05), so the fade was
+    // always invisible; at a full stage it kept a whole occluded layer stack
+    // alive for most of the next room and, in iPad portrait, overlapped the
+    // room after that — no scroll position held one clean room (design audit
+    // P1-4). At 0.35 the hold is >= 0.57 vh at every breakpoint (portrait
+    // 170/42svh: 57.5svh). The last room has nothing over it and keeps the
+    // full, visible ramp.
+    const exitRun = i < lastRoom ? stageH * EXIT_RUN_K : stageH;
+    const enterOut = 1 - clamp01((scrollY - (top + runway)) / exitRun);
     const enterTarget = easeOutQuint(Math.min(enterIn, enterOut));
 
     // --- bloom ---
     // Lights come up over the first ~55% of the room, then hold. Gated by enter
     // so an off-screen room never glows.
     const bloomTarget = easeOutQuint(clamp01(p / 0.55)) * enterTarget;
+
+    // --- M3 lights-down (full tier only; see EXIT_FROM) ---
+    const exit = (exitOn && i < lastRoom)
+      ? smoothstep(clamp01((p - EXIT_FROM) / (EXIT_TO - EXIT_FROM)))
+      : 0;
 
     // Smoothed toward target. Scale/x/y are NOT smoothed — they must be locked
     // to the finger or the whole thing feels like input lag.
@@ -763,6 +982,7 @@ function computeFrame(scrollY, dt, snap) {
     V[v + V_BLOOM] = nextBloom;
     V[v + V_ENTER_T] = enterTarget;
     V[v + V_BLOOM_T] = bloomTarget;
+    V[v + V_EXIT] = exit;
   }
 
   state.dissolveInFlight = anyInFlight;
@@ -789,7 +1009,17 @@ function flushWrites() {
   }
 }
 
-/** Write the six vars for one room, skipping any that have not moved. */
+/**
+ * Write the vars for one room, skipping any that have not moved.
+ *
+ * v29: these are the FINE tier (theme.css §01) — registered `inherits: false`,
+ * so a write restyles the stage and, through explicit `inherit`, its direct
+ * children (.plate-wrap, .hotspots, the walk-in door), and nothing deeper. The
+ * public, inherited --p / --enter / --bloom / --cut / --lit that everything
+ * else in a room reads are DERIVED from these in CSS (§05), quantised, so the
+ * rest of the room restyles only when one of them crosses a visible step.
+ * This was 14-18ms of style per frame on an iPad (audit/perf.md §3.3).
+ */
 function writeRoom(style, V, W, v, w) {
   const p     = round(V[v + V_P], 4);
   const scale = round(V[v + V_SCALE], 5);
@@ -797,13 +1027,15 @@ function writeRoom(style, V, W, v, w) {
   const y     = round(V[v + V_Y], 3);
   const enter = round(V[v + V_ENTER], 3);
   const bloom = round(V[v + V_BLOOM], 3);
+  const exit  = round(V[v + V_EXIT], 3);
 
-  if (W[w + 0] !== p)     { W[w + 0] = p;     style.setProperty('--p', p); }
+  if (W[w + 0] !== p)     { W[w + 0] = p;     style.setProperty('--p-fine', p); }
   if (W[w + 1] !== scale) { W[w + 1] = scale; style.setProperty('--plate-scale', scale); }
   if (W[w + 2] !== x)     { W[w + 2] = x;     style.setProperty('--plate-x', x); }
   if (W[w + 3] !== y)     { W[w + 3] = y;     style.setProperty('--plate-y', y); }
-  if (W[w + 4] !== enter) { W[w + 4] = enter; style.setProperty('--enter', enter); }
-  if (W[w + 5] !== bloom) { W[w + 5] = bloom; style.setProperty('--bloom', bloom); }
+  if (W[w + 4] !== enter) { W[w + 4] = enter; style.setProperty('--enter-fine', enter); }
+  if (W[w + 5] !== bloom) { W[w + 5] = bloom; style.setProperty('--bloom-fine', bloom); }
+  if (W[w + 6] !== exit)  { W[w + 6] = exit;  style.setProperty('--exit-fine', exit); }
 }
 
 /** Quantise. Rounding kills sub-perceptual churn, which kills wasted style work. */
@@ -894,6 +1126,7 @@ function settleDormant(i) {
   V[v + V_BLOOM] = 0;
   V[v + V_ENTER_T] = 0;
   V[v + V_BLOOM_T] = 0;
+  V[v + V_EXIT] = 0;
 
   writeRoom(state.rooms[i].stage.style, V, state.W, v, i * W_STRIDE);
 }
@@ -1319,10 +1552,26 @@ function applyResidency() {
 
   const now = nowMs();
   const a = state.activeIndex, pa = state.promoA, pb = state.promoB;
+  const M = state.M;
+  const y = state.lastScrollY >= 0 ? state.lastScrollY : (window.scrollY || window.pageYOffset || 0);
   let mask = 0;
 
   for (let i = 0; i < rooms.length && i < 31; i++) {
+    // v29 BELT AND BRACES, now that the curtain is on every breakpoint
+    // (theme.css §06e): the stage of a room with top T, height H and stage
+    // height S is on the viewport for scrollY in (T - 2S, T + H + S) — §05 pins
+    // it a --pin-lead early and releases it a --pin-lead late. Widened by one
+    // more S each way, that span keeps a room resident whatever the observer
+    // says. Additive only: it can keep a room painted, never hide one. The
+    // cache it reads can be stale, which is exactly why it is not the rule —
+    // it is the floor under the rule.
+    const o = i * M_STRIDE;
+    const S = M ? M[o + M_STAGE_H] : 0;
+    const T = M ? M[o + M_TOP] : 0;
+    const geomNear = !M || S <= 0 ||
+      (y > T - 3 * S && y < T + M[o + M_HEIGHT] + 2 * S);
     const resident =
+      geomNear ||
       state.paintSeen[i] === 0 ||                       // never observed: unknown ⇒ visible
       state.paintNear[i] === 1 ||                       // the browser says it is in band
       now < state.paintHold[i] ||                       // still inside its dwell
@@ -1480,6 +1729,7 @@ function updateActiveRoom(scrollY) {
   }
 
   if (best === -1 || best === state.activeIndex) return;
+  const first = state.activeIndex === -1;
   state.activeIndex = best;
 
   const room = rooms[best];
@@ -1490,6 +1740,405 @@ function updateActiveRoom(scrollY) {
     try { cb(payload); }
     catch (err) { console.error('[engine] onRoomChange callback threw:', err); }
   }
+
+  scheduleOwnership(first);
+  placeTicketIndicator(tix.lead || room.name, first);
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * M4 · THE SLIDING TICKET (v29, design audit §5.4).
+ *
+ * One `.ticket-ind` pill inside the course menu's strip, moved with transform
+ * only when the room changes (theme.css §11 has the look). The positions are
+ * read from layout in measureTickets() — which runs from measure() and from a
+ * ResizeObserver on the strip, never from the frame loop — so moving the pill
+ * in the frame that changes rooms costs no layout. If the strip is not there
+ * (the phone list, a failed boot) this is inert, and the menu keeps its old
+ * per-ticket gold ground.
+ *
+ * v29 fix round (G3 M-2) · THE TYPE ON THE PILL IS NEVER BONE ON GOLD. The
+ * label used to turn dark 360 ms after the pill set off (a delayed colour
+ * swap), so for most of every move — and for all of a cut, and indefinitely on
+ * a device that dropped the frames the delayed transition needed to start —
+ * the pill carried bone type or slid under it. Now no real label ever changes
+ * colour. `.ticket-ink` is a dark copy of every label on its own gold ground,
+ * laid over the strip and clipped to exactly the pill's rectangle, so type is
+ * dark wherever the gold is and bone everywhere else, at every instant of the
+ * slide. The clip is two nested overflow boxes that each translate by one
+ * edge of the pill (left, then right) with the copy counter-translated inside
+ * them — translations only, each linear in the same eased progress as the
+ * pill's own translate/scale, so the four transform transitions (pill, left
+ * edge, right edge, copy) stay locked together on the compositor with no
+ * main-thread work during the slide. The copy is positioned and typeset from
+ * the real labels' measured boxes and computed fonts (at measure time), so it
+ * follows every breakpoint's ticket styling without restating any of it.
+ *
+ * AND THE PILL LEADS. A menu jump moves the pill at the click (tix.lead), not
+ * when the page arrives, so the menu answers in the frame the rep taps — the
+ * tween or the cut then brings the room to it. aria-current still follows the
+ * room (cinema.js's onRoomChange), which is what a screen reader should hear.
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+const tix = { nav: null, ind: null, pos: null, current: '', ro: null,
+  ink: null, inkL: null, inkR: null, inkC: null, inkW: 0, lead: '' };
+
+function mountTicketIndicator() {
+  let nav = null;
+  try { nav = document.querySelector('#ticket-rail .tickets'); } catch (_) { /* noop */ }
+  if (!nav) return false;
+  if (tix.nav === nav && tix.ind && tix.ind.isConnected && tix.ink && tix.ink.isConnected) return true;
+  if (tix.ind) { try { tix.ind.remove(); } catch (_) { /* noop */ } }
+  if (tix.ink) { try { tix.ink.remove(); } catch (_) { /* noop */ } }
+  const ind = document.createElement('span');
+  ind.className = 'ticket-ind is-snap';
+  ind.setAttribute('aria-hidden', 'true');
+  nav.insertBefore(ind, nav.firstChild);
+  // The ink layer: clipper (sized to the strip's content, so it adds no
+  // scrollable overflow) > left edge > right edge > the dark copy.
+  const ink = document.createElement('span');
+  ink.className = 'ticket-ink is-snap';
+  ink.setAttribute('aria-hidden', 'true');
+  const l = document.createElement('span'); l.className = 'ticket-ink__l';
+  const r = document.createElement('span'); r.className = 'ticket-ink__r';
+  const c = document.createElement('span'); c.className = 'ticket-ink__c';
+  r.appendChild(c); l.appendChild(r); ink.appendChild(l);
+  nav.appendChild(ink);
+  tix.nav = nav;
+  tix.ind = ind;
+  tix.ink = ink; tix.inkL = l; tix.inkR = r; tix.inkC = c;
+  tix.pos = null;
+  if (tix.ro) { try { tix.ro.disconnect(); } catch (_) { /* noop */ } }
+  if (typeof ResizeObserver === 'function') {
+    // Fires after layout, before paint: the one place outside measure() where
+    // reading offsets is free. Catches a font swap, a rotated strip, or the
+    // top bar gaining a control after we measured.
+    tix.ro = new ResizeObserver(() => measureTickets());
+    try {
+      tix.ro.observe(nav);
+      for (const t of nav.querySelectorAll('.ticket')) tix.ro.observe(t);
+    } catch (_) { /* noop */ }
+  }
+  return true;
+}
+
+/** The typography of a label, copied onto its dark twin (measure time only). */
+const INK_FONT_PROPS = ['font-family', 'font-size', 'font-weight', 'font-style', 'font-stretch',
+  'font-variation-settings', 'font-optical-sizing', 'font-feature-settings', 'letter-spacing',
+  'text-transform', 'line-height', 'word-spacing'];
+
+function measureTickets() {
+  if (state.destroyed) return;
+  if (!tix.nav || !tix.nav.isConnected || !tix.ind || !tix.ind.isConnected ||
+      !tix.ink || !tix.ink.isConnected) {
+    if (!mountTicketIndicator()) return;
+  }
+  const nav = tix.nav;
+  const nr = nav.getBoundingClientRect();
+  const ox = nr.left + nav.clientLeft - nav.scrollLeft;
+  const oy = nr.top + nav.clientTop - nav.scrollTop;
+  const pos = new Map();
+  const frag = document.createDocumentFragment();
+  let contentW = 0, maxW = 0, maxH = 0;
+  for (const t of nav.querySelectorAll('.ticket[data-goto]')) {
+    const tr = t.getBoundingClientRect();
+    if (!tr.width || !tr.height) continue;
+    const box = [tr.left - ox, tr.top - oy, tr.width, tr.height];
+    pos.set(t.dataset.goto, box);
+    contentW = Math.max(contentW, box[0] + box[2]);
+    maxW = Math.max(maxW, box[2]);
+    maxH = Math.max(maxH, box[1] + box[3]);
+    // the dark twin of each visible label, at the label's own box and font
+    for (const part of t.children) {
+      const pr = part.getBoundingClientRect();
+      if (!pr.width || !pr.height) continue;   // e.g. a numeral hidden at this width
+      const cs = getComputedStyle(part);
+      const s = document.createElement('span');
+      s.className = part.classList.contains('ticket-no') ? 'ticket-ink__no' : 'ticket-ink__name';
+      s.textContent = part.textContent;
+      let css = `left:${(pr.left - ox).toFixed(2)}px;top:${(pr.top - oy).toFixed(2)}px;`;
+      for (const k of INK_FONT_PROPS) {
+        const v = cs.getPropertyValue(k);
+        if (v) css += `${k}:${v};`;
+      }
+      s.style.cssText = css;
+      frag.appendChild(s);
+    }
+  }
+  tix.pos = pos;
+  if (tix.inkC) {
+    tix.inkC.replaceChildren(frag);
+    const w = Math.ceil(Math.max(contentW, nav.clientWidth));
+    const h = Math.ceil(Math.max(maxH, nav.clientHeight));
+    tix.inkW = Math.ceil(maxW) + 2;
+    tix.ink.style.width = w + 'px';
+    tix.ink.style.height = h + 'px';
+    tix.inkL.style.width = tix.inkW + 'px';
+    tix.inkR.style.width = tix.inkW + 'px';
+    tix.inkC.style.width = w + 'px';
+    tix.inkC.style.height = h + 'px';
+    // The strip's edge fade is for a strip that overflows; over one that fits
+    // it only smudged the first and last tickets (G3 nit, theme.css §11).
+    nav.classList.toggle('is-overflowing', contentW > nav.clientWidth + 1);
+  }
+  placeTicketIndicator(tix.current, true);
+}
+
+function placeTicketIndicator(name, snap) {
+  tix.current = name || '';
+  const ind = tix.ind, nav = tix.nav, ink = tix.ink;
+  if (!ind || !nav || !tix.pos) return;
+  const r = tix.pos.get(tix.current);
+  if (!r || !r[2] || !r[3]) {
+    ind.classList.remove('is-on');
+    if (ink) ink.classList.remove('is-on');
+    nav.classList.remove('has-ind');
+    return;
+  }
+  // A first placement, a re-measure or a pill that was hidden jumps; only a
+  // room change on a visible pill slides.
+  const jump = snap || state.reduceMotion || !ind.classList.contains('is-on');
+  ind.classList.toggle('is-snap', jump);
+  const x = r[0], y = r[1], w = r[2], h = r[3];
+  ind.style.transform =
+    `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px) scale(${(w / 100).toFixed(4)}, ${(h / 40).toFixed(4)})`;
+  ind.classList.add('is-on');
+  if (ink && tix.inkL) {
+    // left edge at x; right edge at x + w; the copy back at the strip's origin
+    const W = tix.inkW, R = x + w;
+    ink.classList.toggle('is-snap', jump);
+    tix.inkL.style.height = h.toFixed(2) + 'px';
+    tix.inkR.style.height = h.toFixed(2) + 'px';
+    tix.inkL.style.transform = `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px)`;
+    tix.inkR.style.transform = `translate(${(R - x - W).toFixed(2)}px, 0px)`;
+    tix.inkC.style.transform = `translate(${(W - R).toFixed(2)}px, ${(-y).toFixed(2)}px)`;
+    ink.classList.add('is-on');
+  }
+  nav.classList.add('has-ind');
+  if (jump && typeof requestAnimationFrame === 'function') {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (tix.ind === ind) ind.classList.remove('is-snap');
+      if (ink && tix.ink === ink) ink.classList.remove('is-snap');
+    }));
+  }
+}
+
+/** The pill's room: the one a menu jump is heading for, else the active one. */
+function ticketRoomName() {
+  if (tix.lead) return tix.lead;
+  const a = state.activeIndex;
+  return a >= 0 && state.rooms[a] ? state.rooms[a].name : '';
+}
+
+/** A menu jump starts: the pill sets off for `name` now (see the note above). */
+function leadTicket(name) {
+  // Only a room with a ticket leads (the brand's jump to the hero does not:
+  // with no pill the old ticket would fall back to its static gold ground).
+  if (!name || !tix.pos || !tix.pos.has(name)) { if (tix.lead) releaseTicket(); return; }
+  tix.lead = name;
+  placeTicketIndicator(tix.lead, false);
+}
+
+/** A menu jump is over (arrived, interrupted or superseded). */
+function releaseTicket() {
+  if (!tix.lead) return;
+  tix.lead = '';
+  placeTicketIndicator(ticketRoomName(), false);
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * C2 · OWNERSHIP — `.is-owned` + `ccc:room-owned` (v29).
+ *
+ * Exactly one `.room` carries `.is-owned` once the page has settled: the room
+ * whose --cut is open, i.e. the one whose chips and objects are live (see
+ * ownerCandidate(); the ticket rail still lights the most-overlapping room,
+ * which changes hands later). It follows a change after OWN_DWELL_MS, so a
+ * fling or a tween through four rooms does not hand the class to each one in
+ * turn: screens.js keys live boards on it and the phase-2 arrival choreography
+ * keys on it, and neither wants to start for a room that is only being passed.
+ * During an M4 cut NO room owns the page; the target takes it on arrival.
+ * `.is-dormant` (the curtain) is untouched and independent.
+ *
+ * The event is `document`-level `ccc:room-owned`, detail { id, elId, index,
+ * el }, where `id` is the room's data-room name ('pass', 'office', …).
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+const OWN_DWELL_MS = 140;
+
+/* v29 integrate · THE OWNER IS THE ROOM WHOSE --cut IS OPEN.
+ * "Most viewport overlap" (activeIndex, the ticket rail's rule) changes hands
+ * a long way after the picture does: measured at 1440x900, the Host Stand was
+ * fully opaque with its chips and objects live (--cut 1) for ~570 px of scroll
+ * while the Pass still owned the page — and screens.js keys its power-on and
+ * its boards on .is-owned, so the Host TV sat black through the whole arrival.
+ * theme.css §05's --cut is the page's own answer to "who owns the affordances"
+ * (roomOwnsPage() reads it too); this is the same arithmetic over the values
+ * this frame just wrote — --cut rounds to >= 0.1 once enter passes
+ * 0.578 + 0.05/34 and p stays under --cut-z - 0.05/--cut-k (the last room has
+ * no exit half). Only the active room and its neighbours are considered, and
+ * only live ones (a dormant room's values are frozen). In the ~30 px gap where
+ * neither room's --cut is open, the previous candidate holds. Reduced motion
+ * pins every room open, so there it is activeIndex, as before. */
+const OWN_ENTER_MIN = 0.578 + 0.05 / 34;
+
+function ownerCandidate() {
+  const a = state.activeIndex;
+  if (a < 0 || state.reduceMotion || !state.V || !state.liveFlags) return a;
+  const V = state.V, live = state.liveFlags, last = state.rooms.length - 1;
+  const pMax = state.cutZ - 0.05 / state.cutK;
+  let best = -1;
+  for (let i = Math.max(0, a - 1); i <= Math.min(last, a + 1); i++) {
+    if (!live[i]) continue;
+    const v = i * V_STRIDE;
+    if (V[v + V_ENTER] > OWN_ENTER_MIN && (i === last || V[v + V_P] < pMax)) best = i;
+  }
+  if (best >= 0) return best;
+  const prev = state.ownCand;
+  return (prev >= 0 && Math.abs(prev - a) <= 1) ? prev : a;
+}
+
+function updateOwnerCandidate() {
+  const c = ownerCandidate();
+  if (c === state.ownCand) return;
+  state.ownCand = c;
+  // The dwell is for rooms a fling passes through. The room a menu jump is
+  // heading for is not being passed: it takes the page as soon as its --cut
+  // opens, so its arrival overlaps the end of the dissolve (G3 M-5).
+  const target = !!(state.tween && state.tween.target === c);
+  scheduleOwnership((state.ownedIndex === -1 || target) && !state.cutting);
+}
+
+function ownerTarget() {
+  if (state.reduceMotion || state.ownCand < 0) return state.activeIndex;
+  return state.ownCand;
+}
+
+function scheduleOwnership(immediate) {
+  clearTimeout(state.ownTimer);
+  state.ownTimer = 0;
+  if (state.destroyed || state.cutting) return;
+  if (immediate) { applyOwnership(ownerTarget()); return; }
+  state.ownTimer = setTimeout(() => {
+    state.ownTimer = 0;
+    if (!state.destroyed && !state.cutting) applyOwnership(ownerTarget());
+  }, OWN_DWELL_MS);
+}
+
+function applyOwnership(i) {
+  const rooms = state.rooms;
+  if (i === state.ownedIndex || !rooms.length) return;
+  const prev = state.ownedIndex;
+  state.ownedIndex = i;
+  if (prev >= 0 && rooms[prev]) {
+    try { rooms[prev].el.classList.remove('is-owned'); } catch (_) { /* noop */ }
+  }
+  if (i < 0 || !rooms[i]) return;
+  const room = rooms[i];
+  try { room.el.classList.add('is-owned'); } catch (_) { /* noop */ }
+  scheduleOffstageCheck();
+  try {
+    document.dispatchEvent(new CustomEvent('ccc:room-owned', {
+      detail: { id: room.name, elId: room.id, index: i, el: room.el }
+    }));
+  } catch (_) { /* CustomEvent unavailable: the class alone still carries it */ }
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * C3 · FIRST FRAME — `ccc:first-frame` (v29).
+ *
+ * Dispatched once, after the engine's first real frame has been painted, so
+ * index.html's static curtain (S5) can lift onto a page that is already the
+ * right picture. "Painted" means: the frame that wrote the vars has gone to
+ * the screen (the next animation frame), AND the plate of the room on screen
+ * has decoded — lifting a curtain onto an undecoded plate would swap a picture
+ * for a black stage. The decode wait is capped: S5's curtain has its own
+ * safety timeout, and this one must never be the reason a page stays covered.
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+const FIRST_FRAME_DECODE_CAP_MS = 1200;
+
+function scheduleFirstFrame() {
+  if (state.firstFrameSent || state.firstFramePending) return;
+  state.firstFramePending = true;
+  const i = state.activeIndex >= 0 ? state.activeIndex : 0;
+  const room = state.rooms[i];
+  const img = room && room.stage ? room.stage.querySelector('.plate') : null;
+  let decoded = Promise.resolve();
+  try {
+    if (img && !img.complete && typeof img.decode === 'function') {
+      decoded = Promise.race([
+        img.decode().catch(() => {}),
+        new Promise((r) => setTimeout(r, FIRST_FRAME_DECODE_CAP_MS))
+      ]);
+    }
+  } catch (_) { /* noop */ }
+  decoded.then(() => {
+    const send = () => {
+      if (state.firstFrameSent) return;
+      state.firstFrameSent = true;
+      try { document.dispatchEvent(new Event('ccc:first-frame')); } catch (_) { /* noop */ }
+    };
+    // One more frame: the one that wrote the vars must have been presented.
+    if (typeof requestAnimationFrame === 'function' && !isHidden()) {
+      requestAnimationFrame(() => setTimeout(send, 0));
+    } else {
+      send();
+    }
+  });
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * C1 · THE TOOL VIEWER — park, ignore the lock's jump, one sync after (v29).
+ *
+ * overlay.js locks background scroll with body{position:fixed; top:-scrollY},
+ * which collapses the document and clamps scrollY to 0, and then puts it back.
+ * The engine used to read both as jumps: open the curtain, forget and
+ * re-observe every stage (8 unobserve/observe pairs, which screens.js's
+ * observer turns into a reconcile() with forced layout), snap-compute the rooms
+ * for scrollY 0 behind an opaque viewer, and do it all again on the way out
+ * (audit/perf.md §3.7). Nothing behind the viewer can be seen, so the engine
+ * simply stops: while html.is-viewing (S1 holds it for the viewer's whole life)
+ * or the lock class is on, scroll events are ignored, the loop is parked and
+ * no frame is requested. When both are gone, one pass runs at the restored
+ * position — normally a no-op, because the unlock puts scrollY back to the
+ * pixel the engine last computed.
+ *
+ * Driven by the classes rather than by the events, so a missed event cannot
+ * strand the engine parked: the events only prompt a re-check.
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+function viewingNow() {
+  try {
+    const h = document.documentElement, b = document.body;
+    return h.classList.contains('is-viewing') || h.classList.contains('ccc-locked') ||
+           !!(b && b.classList.contains('ccc-locked'));
+  } catch (_) { return false; }
+}
+
+function checkViewing() {
+  if (state.destroyed) return;
+  const v = viewingNow();
+  if (v && !state.viewing) enterViewing();
+  else if (!v && state.viewing) exitViewing();
+}
+
+function enterViewing() {
+  state.viewing = true;
+  cancelTween('cancelled');
+  park();
+}
+
+function exitViewing() {
+  state.viewing = false;
+  if (state.reduceMotion) return;
+  // A measurement owed from inside the lock (a resize under the viewer) is
+  // taken now that the rooms are back in the flow.
+  retryDeferredMeasure();
+  if (state.viewSyncOwed) {
+    state.viewSyncOwed = false;
+    state.dirty = true;
+  }
+  state.lastFrameTime = 0;   // do not integrate the time the viewer was up
+  wake();
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -1506,12 +2155,13 @@ function applyReducedMotion() {
   for (let i = 0; i < state.rooms.length; i++) {
     const r = state.rooms[i];
     const s = r.stage.style;
-    s.setProperty('--p', 0);
+    s.setProperty('--p-fine', 0);
     s.setProperty('--plate-scale', 1);
     s.setProperty('--plate-x', 0);
     s.setProperty('--plate-y', 0);
-    s.setProperty('--enter', 1);
-    s.setProperty('--bloom', 1);
+    s.setProperty('--enter-fine', 1);
+    s.setProperty('--bloom-fine', 1);
+    s.setProperty('--exit-fine', 0);
     // Promote nothing: the loop never runs, so there is nothing to promote for.
     // The static rule this replaced promoted sixteen layers to animate nothing.
     setRoomPromotion(r, false);
@@ -1527,6 +2177,7 @@ function applyReducedMotion() {
     state.W[w + 3] = 0;
     state.W[w + 4] = 1;
     state.W[w + 5] = 1;
+    state.W[w + 6] = 0;
   }
 
   // Reduced motion means the loop never runs, so updateResidency() would never
@@ -1564,7 +2215,12 @@ function cancelTween(reason) {
   for (const type of TAKEOVER_EVENTS) {
     window.removeEventListener(type, onTakeover, { capture: true });
   }
-  if (t.resolve) t.resolve(reason || 'cancelled');
+  // A superseding jump sets its own lead right after this; anything else —
+  // arrived, interrupted by a hand on the page — hands the pill back to the
+  // room the page is actually in.
+  const superseded = reason === 'superseded';
+  if (!superseded && !state.cutting) releaseTicket();
+  if (t.resolve) t.resolve(superseded ? 'cancelled' : (reason || 'cancelled'));
 }
 
 /* ── Takeover detection ──────────────────────────────────────────────────────
@@ -1685,11 +2341,178 @@ function onTakeoverWheel(e, t) {
 function stepTween(now) {
   const t = state.tween;
   const k = clamp01((now - t.start) / t.dur);
-  const y = t.from + (t.to - t.from) * easeInOutCubic(k);
+  const y = t.path ? t.path(k) : t.from + (t.to - t.from) * easeInOutCubic(k);
 
   window.scrollTo(0, y);
 
   if (k >= 1) cancelTween('done');
+}
+
+/* ── v29 fix round (G3 M-5) · THE NEXT-ROOM JUMP DISSOLVES, IT DOES NOT STALL ──
+ * The tween used to ease the whole distance on one easeInOutCubic. Between two
+ * adjacent rooms the visible hand-over (the incoming stage going 0 → 1) is only
+ * ~35svh of a ~162svh trip, and it sits at the END of the path — so a click
+ * bought ~450 ms of near-still push-in, then the entire dissolve in ~100 ms,
+ * then a bare room. Measured by the gauntlet on a quiet runner: nothing on
+ * screen for ~0.6 s after the click, then a snap.
+ *
+ * Now the path is cut where the picture changes, and each piece gets the time
+ * it is worth:
+ *   · RUNWAY — the part of the outgoing room still ahead of the hand-over (its
+ *     push-in and lights). Continuous but quick: JUMP_RUN_SVH_PER_MS, capped.
+ *   · BAND — the dissolve, parameterised by the incoming stage's actual
+ *     opacity (§05's --dissolve, inverted through the engine's easeOutQuint),
+ *     so equal time buys equal fade: JUMP_BAND_MS for a whole one.
+ *   · TAIL — the incoming room already opaque and pinned at p 0, nothing
+ *     visible changes: a few frames, below the jump detector's half-viewport.
+ * Runway + band share ONE ease-out over their combined time, so the camera
+ * moves in the first frame, never stops between them and lands softly;
+ * downward it is runway → band → tail, upward the mirror (tail → band →
+ * runway). The menu pill has already moved at the click (leadTicket), and the
+ * target takes the page the moment its --cut opens rather than after the
+ * ownership dwell (updateOwnerCandidate), so its arrival plays under the end
+ * of the dissolve instead of after a bare room. */
+const JUMP_BAND_MS = 420;          // a whole dissolve, 0 → 1
+const JUMP_TAIL_MS = 80;           // the invisible remainder (≤ ~12svh a frame)
+const JUMP_RUN_SVH_PER_MS = 0.6;   // runway speed: ~67svh (a room's approach) in ~110 ms
+const JUMP_RUN_MIN_MS = 60;
+const JUMP_RUN_MAX_MS = 180;
+
+/** §05: the incoming stage's opacity for a raw enter progress u. */
+function bandOpacity(u) {
+  return clamp01((easeOutQuint(clamp01(u)) - 0.22) * 1.43);
+}
+/** …and back: the raw progress at which that opacity is reached. */
+function bandProgress(d) {
+  const e = Math.min(0.999999, clamp01(d) / 1.43 + 0.22);
+  return 1 - Math.pow(1 - e, 1 / 5);
+}
+
+/**
+ * The time-remapped path between two ADJACENT rooms (see above), or null when
+ * the geometry is not the ordinary two-rooms-overlapping case (then the caller
+ * keeps the plain tween). Returns { dur, path(k) → scrollY }.
+ */
+function adjacentJumpPath(a, i, from, to) {
+  const M = state.M;
+  if (!M || a < 0 || Math.abs(i - a) !== 1) return null;
+  const hi = Math.max(a, i);
+  const topHi = M[hi * M_STRIDE + M_TOP];
+  const sH = M[hi * M_STRIDE + M_STAGE_H];
+  if (!(sH > 0)) return null;
+  const at = (u) => topHi - sH + u * sH;           // scrollY at incoming progress u
+  const uOf = (y) => (y - (topHi - sH)) / sH;
+  const b0 = at(bandProgress(0));
+  const b1 = at(bandProgress(1));
+  const down = to > from;
+  const runMs = (len) => Math.max(JUMP_RUN_MIN_MS,
+    Math.min(JUMP_RUN_MAX_MS, Math.abs(len) / (JUMP_RUN_SVH_PER_MS * sH / 100)));
+
+  // pieces in travel order: { kind, y0, y1, ms }
+  const pieces = [];
+  if (down) {
+    if (from < b0) pieces.push({ kind: 'run', y0: from, y1: Math.min(b0, to) });
+    const s0 = Math.max(from, b0);
+    if (s0 < b1 && s0 < to) pieces.push({ kind: 'band', y0: s0, y1: Math.min(b1, to) });
+    const t0 = Math.max(from, b1);
+    if (t0 < to) pieces.push({ kind: 'tail', y0: t0, y1: to });
+  } else {
+    const t0 = Math.min(from, topHi);
+    if (from > topHi) pieces.push({ kind: 'run', y0: from, y1: Math.max(topHi, to) });
+    if (t0 > b1 && t0 > to) pieces.push({ kind: 'tail', y0: t0, y1: Math.max(b1, to) });
+    const s0 = Math.min(from, b1);
+    if (s0 > b0 && s0 > to) pieces.push({ kind: 'band', y0: s0, y1: Math.max(b0, to) });
+    const r0 = Math.min(from, b0);
+    if (r0 > to) pieces.push({ kind: 'run', y0: r0, y1: to });
+  }
+  if (!pieces.length) return null;
+  for (const pc of pieces) {
+    if (pc.kind === 'run') pc.ms = runMs(pc.y1 - pc.y0);
+    else if (pc.kind === 'tail') pc.ms = JUMP_TAIL_MS;
+    else {
+      pc.d0 = bandOpacity(uOf(pc.y0));
+      pc.d1 = bandOpacity(uOf(pc.y1));
+      pc.ms = Math.max(120, JUMP_BAND_MS * Math.abs(pc.d1 - pc.d0));
+    }
+  }
+  // the eased group: every run/band piece; tails stay linear at their end
+  const lead = pieces[0].kind === 'tail' ? pieces[0] : null;
+  const trail = pieces[pieces.length - 1].kind === 'tail' && pieces.length > 1 ? pieces[pieces.length - 1] : null;
+  const group = pieces.filter((pc) => pc !== lead && pc !== trail);
+  const gMs = group.reduce((n, pc) => n + pc.ms, 0);
+  const dur = gMs + (lead ? lead.ms : 0) + (trail ? trail.ms : 0);
+  const place = (pc, f) => {
+    if (pc.kind !== 'band') return pc.y0 + (pc.y1 - pc.y0) * f;
+    return at(bandProgress(pc.d0 + (pc.d1 - pc.d0) * f));
+  };
+  const path = (k) => {
+    let ms = k * dur;
+    if (lead) {
+      if (ms < lead.ms) return place(lead, ms / lead.ms);
+      ms -= lead.ms;
+    }
+    if (gMs > 0 && ms < gMs) {
+      // one easing across the group, then located piece by piece
+      let g = easeOutQuad(ms / gMs) * gMs;
+      for (const pc of group) {
+        if (g <= pc.ms) return place(pc, pc.ms > 0 ? g / pc.ms : 1);
+        g -= pc.ms;
+      }
+      return group.length ? group[group.length - 1].y1 : to;
+    }
+    ms -= gMs;
+    if (trail && ms < trail.ms) return place(trail, ms / trail.ms);
+    return to;
+  };
+  return { dur, path };
+}
+
+function easeOutQuad(t) { return 1 - (1 - t) * (1 - t); }
+
+/* ── v29 fix round (G2 M1) · A KEYBOARD JUMP LANDS FOCUS IN THE ROOM ─────────
+ * After Enter on a course-menu ticket, focus used to stay in the menu: seven
+ * Tabs from "01 PASS" to the 6th Gen chip. Now a keyboard-initiated jump (and
+ * only that — a mouse or a tap never moves focus) puts focus on the landed
+ * room's title (made programmatically focusable, tabindex -1), so the next Tab
+ * is the room's first control and a screen reader announces where it is. */
+function onMenuClickCapture(ev) {
+  const t = ev.target;
+  if (!t || typeof t.closest !== 'function') return;
+  const link = t.closest('#ticket-rail [data-goto]');
+  // detail 0 alone is also every scripted .click(); a real keyboard
+  // activation has an Enter / Space keydown right before it.
+  const kbd = !!link && ev.detail === 0 && nowMs() - (state.menuKeyAt || -1e9) < 600;
+  state.kbdJumpAt = kbd ? nowMs() : 0;
+}
+
+function onMenuKeyCapture(ev) {
+  if (ev.key === 'Enter' || ev.key === ' ' || ev.key === 'Spacebar') state.menuKeyAt = nowMs();
+  // Keyboard mode (theme.css §06e's curtain): the first Tab lifts the curtain
+  // off the non-painting neighbours' rails and objects so the walk visits
+  // them in order; the next pointer or touch puts the saving back.
+  if (ev.key === 'Tab' && !state.kbdMode) {
+    state.kbdMode = true;
+    try { document.documentElement.classList.add('ccc-kbd'); } catch (_) { /* noop */ }
+  }
+}
+
+function onPointerModeCapture() {
+  if (!state.kbdMode) return;
+  state.kbdMode = false;
+  try { document.documentElement.classList.remove('ccc-kbd'); } catch (_) { /* noop */ }
+}
+
+function focusRoomHeading(i) {
+  const room = state.rooms[i];
+  if (!room || state.viewing || state.destroyed) return;
+  const h = room.el.querySelector('.rail-title') || room.el.querySelector('h2, h1');
+  if (!h) return;
+  // Only if focus is still where the jump left it (the menu, or nowhere): a
+  // rep who has already Tabbed on, or opened something, keeps their place.
+  const a = document.activeElement;
+  if (a && a !== document.body && !(a.closest && a.closest('#ticket-rail'))) return;
+  if (!h.hasAttribute('tabindex')) h.setAttribute('tabindex', '-1');
+  try { h.focus({ preventScroll: true }); } catch (_) { /* noop */ }
 }
 
 /**
@@ -1700,7 +2523,9 @@ function stepTween(now) {
  * @param {object}   [opts]
  * @param {number}   [opts.offset=0]    px to stop short (e.g. a fixed header).
  * @param {number}   [opts.duration]    override the distance-derived duration.
- * @returns {Promise<'done'|'interrupted'|'cancelled'|'unknown-room'|'reduced-motion'>}
+ * @param {boolean}  [opts.cut]         false: never the M4 dip, always the tween.
+ * @param {boolean}  [opts.instant]     land in one step: no dip, no tween.
+ * @returns {Promise<'done'|'interrupted'|'cancelled'|'unknown-room'|'reduced-motion'|'instant'>}
  */
 export function scrollToRoom(target, opts) {
   const options = opts || {};
@@ -1711,8 +2536,22 @@ export function scrollToRoom(target, opts) {
     return Promise.resolve('unknown-room');
   }
 
+  // A keyboard-activated menu click in this same dispatch (see above).
+  const kbd = !!state.kbdJumpAt && nowMs() - state.kbdJumpAt < 400;
+  state.kbdJumpAt = 0;
+  const result = scrollToRoomInner(i, options);
+  if (kbd) {
+    result.then((r) => {
+      if (r === 'done' || r === 'reduced-motion' || r === 'instant') focusRoomHeading(i);
+    }, () => {});
+  }
+  return result;
+}
+
+function scrollToRoomInner(i, options) {
+
   // Any in-flight jump is superseded.
-  cancelTween('cancelled');
+  cancelTween('superseded');
 
   const maxY = Math.max(0, document.documentElement.scrollHeight - (window.innerHeight || 0));
   const to = Math.max(0, Math.min(maxY, state.M[i * M_STRIDE + M_TOP] - (options.offset || 0)));
@@ -1732,13 +2571,46 @@ export function scrollToRoom(target, opts) {
     return Promise.resolve('done');
   }
 
-  const dur = options.duration != null
-    ? Math.max(1, options.duration)
-    : Math.max(TWEEN_MIN_MS, Math.min(TWEEN_MAX_MS, distance / TWEEN_PX_PER_MS));
+  // opts.instant (cinema.js's cold / hashchange `#room-` links): land in one
+  // step — no M4 dip, no tween — with the same treatment a keyboard jump gets
+  // (bringRoomToReadingPosition): curtain open, a snapped frame before paint.
+  if (options.instant) {
+    try { window.scrollTo({ top: to, left: 0, behavior: 'instant' }); }
+    catch (_) { window.scrollTo(0, to); }
+    if (!state.viewing) {
+      openCurtain();
+      armCurtain();
+      syncNow();
+      wake();
+    }
+    return Promise.resolve('instant');
+  }
+
+  // M4 · the cut. Two rooms or more (lite tier: any jump) dips to black and
+  // lands instead of scrubbing through every room in between. Adjacent rooms
+  // keep the tween below, which reads as a dolly. opts.cut === false opts out.
+  const hops = state.activeIndex >= 0 ? Math.abs(i - state.activeIndex) : 2;
+  leadTicket(state.rooms[i] && state.rooms[i].name);
+  if (state.cutting ||
+      (options.cut !== false && options.duration == null &&
+       (hops >= 2 || state.motion === 'lite'))) {
+    return cutToRoom(i, to);
+  }
+
+  // An adjacent room: the dissolve-shaped path (G3 M-5). A caller-supplied
+  // duration, or geometry that is not two rooms overlapping, keeps the plain
+  // distance-timed tween.
+  const shaped = options.duration == null ? adjacentJumpPath(state.activeIndex, i, from, to) : null;
+  const dur = shaped ? shaped.dur
+    : options.duration != null
+      ? Math.max(1, options.duration)
+      : Math.max(TWEEN_MIN_MS, Math.min(TWEEN_MAX_MS, distance / TWEEN_PX_PER_MS));
 
   return new Promise((resolve) => {
     state.tween = {
       from, to, dur,
+      target: i,
+      path: shaped ? shaped.path : null,
       start: nowMs(),
       resolve,
       // Wheel-takeover envelope. lastWheelAt/streamStart start at 0 so a first
@@ -1754,6 +2626,160 @@ export function scrollToRoom(target, opts) {
       window.addEventListener(type, onTakeover, { capture: true, passive: true });
     }
     wake();
+  });
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * M4 · THE CUT (v29, design audit §5.4).
+ *
+ * Office → Pass used to be an 1100ms scrub through Prep, Dining and Host:
+ * three dissolves, three plate decodes and three layer stacks on the heaviest
+ * path in the site, reading as fast-forward rather than a cut (P1-5). Now:
+ *
+ *   1. a fixed ink layer (#ccc-cut, theme.css §11, below the top bar so the
+ *      course menu stays up) fades in over --m-t-2 on --m-ease-in;
+ *   2. the page jumps — instantly, under the black — and lands one coherent
+ *      frame for the new position, with the curtain thrown open exactly as any
+ *      jump does;
+ *   3. the target room's plate is given up to CUT_DECODE_CAP_MS to decode;
+ *   4. the layer fades out over --m-t-4 on --m-ease-out.
+ * No room owns the page during the cut (C2); the target takes ownership on the
+ * way out, which is what starts its arrival choreography. Lite: 120 / 240ms.
+ * The layer's opacity is a Web Animation, i.e. compositor-driven, and the
+ * layer is removed from the tree between cuts. A second jump during a cut
+ * simply retargets it.
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+const CUT_DECODE_CAP_MS = 250;
+let cutSeq = 0;
+
+function cutEasing(name, fallback) {
+  try {
+    const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return v || fallback;
+  } catch (_) { return fallback; }
+}
+
+function cutLayer() {
+  let el = state.cutEl;
+  if (!el || !el.isConnected) {
+    el = document.getElementById('ccc-cut') || document.createElement('div');
+    el.id = 'ccc-cut';
+    el.setAttribute('aria-hidden', 'true');
+    state.cutEl = el;
+  }
+  if (!el.isConnected) document.body.appendChild(el);
+  return el;
+}
+
+function fadeCut(el, from, to, ms, easing) {
+  if (typeof el.animate !== 'function') {
+    el.style.opacity = String(to);
+    return Promise.resolve();
+  }
+  let anim;
+  try {
+    // one animation at a time on the layer: a retargeted or re-used cut must
+    // not stack forwards-filled opacities from an earlier one
+    if (typeof el.getAnimations === 'function') el.getAnimations().forEach((a) => a.cancel());
+    anim = el.animate([{ opacity: from }, { opacity: to }], { duration: ms, easing, fill: 'forwards' });
+  } catch (_) {
+    el.style.opacity = String(to);
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => {
+    let done = false;
+    const finish = () => { if (!done) { done = true; resolve(); } };
+    anim.finished.then(finish, finish);
+    setTimeout(finish, ms + 120);   // a throttled timeline must not strand the cut
+  });
+}
+
+function cutToRoom(i, to) {
+  const seq = ++cutSeq;
+  const lite = state.motion === 'lite';
+  // v29 fix round (G3 M-5): 120 / 280 ms at full (was 160 / 360) — the dip is
+  // a cut, not a scene change; lite keeps its 120 / 240.
+  const inMs = 120;
+  const outMs = lite ? 240 : 280;
+  const el = cutLayer();
+  const wasCutting = state.cutting;
+  state.cutting = true;
+  clearTimeout(state.ownTimer);
+  state.ownTimer = 0;
+  applyOwnership(-1);
+
+  // A retarget mid-cut starts from wherever the layer is (it may already be
+  // on its way out) and is back to black quickly; a fresh cut dips normally.
+  let from = 0;
+  if (wasCutting) {
+    try { from = parseFloat(getComputedStyle(el).opacity) || 0; } catch (_) { from = 1; }
+  }
+  const fadeIn = (wasCutting && from > 0.98)
+    ? Promise.resolve()
+    : fadeCut(el, from, 1, wasCutting ? 90 : inMs, cutEasing('--m-ease-in', 'cubic-bezier(.5,0,.75,0)'));
+
+  return fadeIn.then(() => {
+    if (seq !== cutSeq || state.destroyed) return 'cancelled';
+    if (state.viewing) {
+      // A tool opened during the dip. Do not scroll under the viewer's lock;
+      // put the page back as it was and let the viewer own the screen.
+      state.cutting = false;
+      try { el.remove(); } catch (_) { /* noop */ }
+      releaseTicket();
+      scheduleOwnership(true);
+      return 'cancelled';
+    }
+    // Land. The same treatment bringRoomToReadingPosition() gives a keyboard
+    // jump: curtain open, snapped frame, before anything paints.
+    const maxY = Math.max(0, document.documentElement.scrollHeight - (window.innerHeight || 0));
+    const y = Math.max(0, Math.min(maxY, to));
+    try { window.scrollTo({ top: y, left: 0, behavior: 'instant' }); }
+    catch (_) { window.scrollTo(0, y); }
+    openCurtain();
+    armCurtain();
+    syncNow();
+    wake();
+    const room = state.rooms[i];
+    const img = room && room.stage ? room.stage.querySelector('.plate') : null;
+    let ready = Promise.resolve();
+    try {
+      // decode() on a complete image too: `complete` says the bytes arrived,
+      // not that a decoded bitmap is ready to paint (G3 m-10).
+      if (img && typeof img.decode === 'function') {
+        ready = Promise.race([img.decode().catch(() => {}),
+          new Promise((r) => setTimeout(r, CUT_DECODE_CAP_MS))]);
+      }
+    } catch (_) { /* noop */ }
+    // …and then one painted frame of the landed room under the black before
+    // it takes the page, so its type never comes up over a plate that is not
+    // on screen yet (G3 m-10). Two rAFs = the frame after the next paint;
+    // capped, because a throttled timeline must not strand the cut.
+    ready = ready.then(() => new Promise((r) => {
+      const cap = setTimeout(r, 80);
+      if (typeof requestAnimationFrame !== 'function') { clearTimeout(cap); r(); return; }
+      requestAnimationFrame(() => requestAnimationFrame(() => { clearTimeout(cap); r(); }));
+    }));
+    return ready.then(() => {
+      if (seq !== cutSeq || state.destroyed) return 'cancelled';
+      // v29 · S6: the target takes the page AS THE BLACK LIFTS, as the note
+      // above says — not 140 ms after it has gone. Waiting left the room on
+      // screen bare for ~0.4 s (no type, terminals dark) before its arrival
+      // (M2, theme.css §09b) and the screens' power-on could start; now they
+      // play under the fade-out. `cutting` stays true until the fade ends, so
+      // no frame can hand the page to anyone else meanwhile, and the
+      // scheduleOwnership() below lands on this same room (a no-op).
+      if (!state.viewing) applyOwnership(i);
+      return fadeCut(el, 1, 0, outMs, cutEasing('--m-ease-out', 'cubic-bezier(.22,.61,.24,1)'))
+        .then(() => {
+          if (seq !== cutSeq || state.destroyed) return 'cancelled';
+          state.cutting = false;
+          try { el.remove(); } catch (_) { /* noop */ }
+          releaseTicket();
+          scheduleOwnership(true);
+          return 'done';
+        });
+    });
   });
 }
 
@@ -2001,8 +3027,24 @@ function onFocusIn(ev) {
   state.lastRoomFocusY = y;
 
   if (state.reduceMotion) return;         // §18 un-clips everything; nothing to do
+  // v29 · CHEAPER (audit/perf.md §3.9). This used to run a full synchronous
+  // engine frame, a getComputedStyle and an ancestor walk of computed styles
+  // and scroll sizes on EVERY focus — which in Chromium is every button click,
+  // and every focus the viewer hands back on close. Two cases need none of it:
+  //   · a focus RESTORE (see above): since C1 the engine ignores the viewer's
+  //     lock entirely, so the vars under a closing viewer are already the
+  //     ones for this exact scroll position;
+  //   · a focus that is not :focus-visible, i.e. a pointer press. A pointer
+  //     can only press what is painted and hit-testable, which is to say a
+  //     control in a room that already owns the page — the §05 clip makes
+  //     every other room's controls unreachable to it.
+  // What is left is keyboard (and programmatic-after-keyboard) focus, which is
+  // exactly the case the ownership rule was written for.
+  if (restore || state.viewing) return;
+  let visible = true;
+  try { visible = t.matches(':focus-visible'); } catch (_) { visible = true; }
+  if (!visible) return;
   syncNow();
-  if (restore) return;
   if (!roomOwnsPage(state.rooms[i])) bringRoomToReadingPosition(i);
   revealWithinRoom(t, state.rooms[i].stage);
 }
@@ -2101,12 +3143,22 @@ function revealWithinRoom(el, stage) {
 const JUMP_FRACTION = 0.5;
 
 function onScroll() {
+  // C1: the viewer's lock and unlock are not the reader moving. Ignore them
+  // entirely; exitViewing() runs the one owed pass. (Re-checked here as well as
+  // by the class observer, so a stale flag can never swallow real scrolling.)
+  if (state.viewing || viewingNow()) {
+    checkViewing();
+    if (state.viewing) { state.viewSyncOwed = true; return; }
+  }
   // The viewer's unlock is a scrollTo() back to where the page was, and it is
   // the one event guaranteed to follow the rooms returning to the scroll flow.
   // A measurement owed from inside the lock is taken here, once; on a healthy
   // page this is a boolean test. See roomsOutOfFlow().
   retryDeferredMeasure();
   const y = window.scrollY || window.pageYOffset || 0;
+  // Reduced motion never runs the loop, so the menu and ownership would never
+  // hear about a scroll. The active-room test is pure arithmetic on the cache.
+  if (state.reduceMotion) { updateActiveRoom(y); return; }
   if (state.lastScrollY >= 0 &&
       Math.abs(y - state.lastScrollY) > (window.innerHeight || 800) * JUMP_FRACTION) {
     state.snapNext = true;
@@ -2239,11 +3291,30 @@ function wireEvents() {
   on(window, 'pageshow', onGeometryEvent, { passive: true });
   on(document, 'visibilitychange', onVisibilityChange);
 
+  // v29 fix round (G2 M1): a menu jump made from the KEYBOARD takes focus to
+  // the room it lands in. A keyboard-activated link click has detail 0; a
+  // pointer click has 1+. Capture phase, so this is noted before cinema.js's
+  // own handler calls scrollToRoom() in the same dispatch.
+  on(document, 'keydown', onMenuKeyCapture, true);
+  on(document, 'pointerdown', onPointerModeCapture, { capture: true, passive: true });
+  on(document, 'click', onMenuClickCapture, true);
+
   // Sequential focus is a scroll input like any other — see the FOCUS
   // OWNERSHIP block above for what it is for and what it measured. focusin,
   // not focus, because focus does not bubble and every control on this page is
   // built by another module into a room this one only knows by its .room class.
   on(document, 'focusin', onFocusIn);
+
+  // C1 · the viewer. The events prompt a re-check; the classes decide.
+  on(document, 'ccc:viewer-open', checkViewing);
+  on(document, 'ccc:viewer-close', checkViewing);
+  if (typeof MutationObserver === 'function') {
+    state.classMO = new MutationObserver(checkViewing);
+    try {
+      state.classMO.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+      if (document.body) state.classMO.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    } catch (_) { /* noop */ }
+  }
 
   if (window.visualViewport) {
     on(window.visualViewport, 'resize', onVisualViewportChange, { passive: true });
@@ -2258,30 +3329,66 @@ function wireEvents() {
   if (document.fonts && document.fonts.ready && typeof document.fonts.ready.then === 'function') {
     document.fonts.ready.then(() => { if (!state.destroyed) onGeometryEvent(); }).catch(() => {});
   }
+  // …and a face that lands later retypesets the course menu's dark labels
+  // (their fonts are copied at measure time, §M4 above).
+  if (document.fonts && typeof document.fonts.addEventListener === 'function') {
+    on(document.fonts, 'loadingdone', () => { if (!state.destroyed) measureTickets(); });
+  }
+}
+
+/** C5 · html[data-motion]. Anything but 'lite' or 'off' — including absent,
+ *  which is every page until S6's motion.js lands — is 'full'. */
+function readMotionTier() {
+  let t = '';
+  try { t = document.documentElement.getAttribute('data-motion') || ''; }
+  catch (_) { /* noop */ }
+  return (t === 'lite' || t === 'off') ? t : 'full';
 }
 
 function wireReducedMotion() {
-  if (typeof window.matchMedia !== 'function') return null;
-  const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-  state.reduceMotion = !!mq.matches;
+  state.motion = readMotionTier();
+  const mq = (typeof window.matchMedia === 'function')
+    ? window.matchMedia('(prefers-reduced-motion: reduce)')
+    : null;
+  state.motionMQ = mq;
+  state.reduceMotion = !!(mq && mq.matches) || state.motion === 'off';
 
+  // One handler for both inputs: the OS preference and the tier attribute.
+  // Either can change at runtime (S6 demotes to lite on a slow device; a rep
+  // can flip the OS setting), and the engine answers the same way to both.
   const handler = () => {
-    state.reduceMotion = !!mq.matches;
+    const wasReduced = state.reduceMotion;
+    state.motion = readMotionTier();
+    state.reduceMotion = !!(state.motionMQ && state.motionMQ.matches) || state.motion === 'off';
     if (state.reduceMotion) {
       cancelTween('cancelled');
       applyReducedMotion();
     } else {
       state.dirty = true;
-      state.lastScrollY = -1;   // force a full recompute
-      measure();
+      state.lastScrollY = -1;   // force a full recompute (a tier change moves --exit-fine)
+      if (wasReduced) {
+        // Booted reduced: the observers were never set up (initEngine returns
+        // before them), so the loop would have nothing marked live to compute.
+        if (!state.io) { setupObserver(); setupPaintObserver(); primeLiveNeighbourhood(); armCurtain(); }
+        state.snapNext = true;
+        measure();
+      } else { wake(); }
     }
   };
 
-  if (typeof mq.addEventListener === 'function') {
-    mq.addEventListener('change', handler);
-    state.listeners.push([mq, 'change', handler, undefined]);
-  } else if (typeof mq.addListener === 'function') {
-    mq.addListener(handler);   // Safari < 14
+  if (mq) {
+    if (typeof mq.addEventListener === 'function') {
+      mq.addEventListener('change', handler);
+      state.listeners.push([mq, 'change', handler, undefined]);
+    } else if (typeof mq.addListener === 'function') {
+      mq.addListener(handler);   // Safari < 14
+    }
+  }
+  if (typeof MutationObserver === 'function') {
+    state.motionMO = new MutationObserver(handler);
+    try {
+      state.motionMO.observe(document.documentElement, { attributes: true, attributeFilter: ['data-motion'] });
+    } catch (_) { state.motionMO = null; }
   }
   return mq;
 }
@@ -2400,10 +3507,12 @@ export function initEngine(root) {
   wireReducedMotion();
   measure();
   wireEvents();
+  state.viewing = viewingNow();   // a deep link can have the viewer up before we boot
 
   if (state.reduceMotion) {
     // Requirement 7: never start the loop at all.
     applyReducedMotion();
+    scheduleFirstFrame();
     return publicApi();
   }
 
@@ -2440,6 +3549,15 @@ export function initEngine(root) {
   // every back-navigation. Measured after a goBack to y=5449: two frames with
   // zero coverage on all thirteen sample rows. Land on the values instead.
   state.snapNext = true;
+
+  if (state.viewing) {
+    // Booted under the viewer: land one coherent frame for what is behind it
+    // (the lock stashed the load's own scroll position, so this is right), and
+    // stay parked until it closes. The static curtain still has to hear.
+    syncNow();
+    scheduleFirstFrame();
+    return publicApi();
+  }
 
   wake();
   return publicApi();
@@ -2516,6 +3634,25 @@ export function destroyEngine() {
   clearTimeout(state.dwellTimer);   state.dwellTimer = 0;
   if (state.io) { state.io.disconnect(); state.io = null; }
   if (state.paintIO) { state.paintIO.disconnect(); state.paintIO = null; }
+  if (state.motionMO) { state.motionMO.disconnect(); state.motionMO = null; }
+  if (state.classMO) { state.classMO.disconnect(); state.classMO = null; }
+  clearTimeout(state.ownTimer); state.ownTimer = 0;
+  clearTimeout(state.offstageTimer); state.offstageTimer = 0;
+  if (state.ownedIndex >= 0 && state.rooms[state.ownedIndex]) {
+    try { state.rooms[state.ownedIndex].el.classList.remove('is-owned'); } catch (_) { /* noop */ }
+  }
+  state.ownedIndex = -1;
+  state.ownCand = -1;
+  state.viewing = false;
+  state.cutting = false;
+  if (tix.ro) { try { tix.ro.disconnect(); } catch (_) { /* noop */ } tix.ro = null; }
+  if (tix.ind) { try { tix.ind.remove(); } catch (_) { /* noop */ } }
+  if (tix.ink) { try { tix.ink.remove(); } catch (_) { /* noop */ } }
+  if (tix.nav) { try { tix.nav.classList.remove('has-ind', 'is-overflowing'); } catch (_) { /* noop */ } }
+  tix.nav = tix.ind = tix.pos = null;
+  tix.ink = tix.inkL = tix.inkR = tix.inkC = null;
+  tix.lead = '';
+  if (state.cutEl) { try { state.cutEl.remove(); } catch (_) { /* noop */ } state.cutEl = null; }
   state.byStage.clear();
   offAll();
   for (const r of state.rooms) {

@@ -1,305 +1,117 @@
-/* =============================================================================
- * Cook County Cooks — v4 "Alive"
- * assets/screens.js  ·  the room screens
- * -----------------------------------------------------------------------------
- * This module owns every screen, monitor, TV and tablet in the restaurant. It
- * takes that job over from the second half of overlay.js, which now owns only
- * the full-screen tool viewer (openTool / closeTool). The two still meet in one
- * place and one place only: every screen's hit target carries `data-tool`, so
- * overlay.js's delegated handler opens the tool — which means the freezer gate,
- * the deep-link router and the focus-return all keep working untouched.
- *
- * FIVE MODES. A screen declares one with `data-screen-mode`:
- *
- *   title  the three Pass tablets. Too small to render a web page at any zoom,
- *          so they render the ONE thing that matters — the tool's name, set in
- *          the site's display face and auto-fitted to the glass — plus a quiet
- *          "Tap to open". Live glass, not a label: glow, scanlines, a refresh
- *          shimmer and a CRT power-on that rides the engine.
- *
- *   image  the Host Stand TV. The daily promo card straight out of the Daily
- *          Sales Report's own data directory, cache-busted in the same 10-minute
- *          buckets the source app uses. Held frozen — no rotation. Fitted with a
- *          blurred same-image backdrop so a 1.40 card in a 1.52 screen goes edge
- *          to edge instead of sitting in two black bars.
- *
- *   feed   the Back Office monitor. `nps-detractor-streaks.json`, rendered as a
- *          rotating board, ONE DISTRICT PER SLIDE, big numerals, 30-day goal
- *          meters, and real celebration for a met goal or a new personal record.
- *
- *   live   the two Dining boards. Real iframes of the Win the Weekend decks,
- *          rendered into a virtual viewport and scaled down. The decks are
- *          FLUID, so the number that decides everything is that viewport's
- *          HEIGHT: tall enough for the deck's tallest slide or the slide is
- *          cut off, no taller than that or the scale factor — and with it
- *          every glyph on the glass — is smaller than it needs to be. Each
- *          board runs at its own measured floor. See LIVE_MIN_VIRTUAL_H.
- *
- *   report the Break Room television. The Daily Sales Report's own numbers,
- *          composed natively for a 297px screen and cycled like a TV. It
- *          exists because that panel CANNOT iframe the deck: the deck is a
- *          fixed 1920x1080 canvas that scales itself, so its type lands at
- *          panelWidth/1920 whatever viewport it is handed — 4.3px store names
- *          on an 18.4%-of-plate television. See the MODE: report block in §3
- *          for the whole measurement.
- *
- * NARROW VIEWPORTS. Below `(max-width: 900px), (max-aspect-ratio: 8/7)` a 16:9
- * plate cover-cropped into a 3:4 viewport throws away a third of the frame, and
- * a screen mounted in the art stops being readable. So the screens LEAVE the
- * art: each room's panels relocate into a full-width band pinned under the top
- * bar (`.ccc-scr-layer`), sized so the whole set fits above the rail. Nothing
- * about the page layout is assumed — see `narrowHost` in mountRoomScreens() and
- * the class-hook list at the bottom of this file.
- *
- * CONTRACT NOTES (SPEC.md + SPEC-v4.md)
- *   · Plain ES module, no dependencies, no build step.
- *   · No second rAF loop. Every power-on, glow and dissolve is composed in CSS
- *     from the engine's own `--enter` / `--bloom` / `--p`.
- *   · Only transform / opacity / filter animate.
- *   · Never blocks first paint; both feeds fail soft to a branded holding card.
- *   · prefers-reduced-motion: no shimmer, no scanline travel, no slide
- *     animation — the feed still advances, plainly.
- *
- * EXPORTS
- *   mountScreen(cfg)            -> handle { destroy, refresh, host, slug, mode }
- *   mountRoomScreens(root, opt) -> handle[]
- *   registerTools(tools)        -> void         (url/label lookup)
- *   refreshScreens()            -> void         (re-measure everything)
- *   SCREEN_MODES, NARROW_MEDIA, PROMO_CARD_URL, STREAKS_URL, EXCEL_URL
- * ========================================================================== */
 
-/* -----------------------------------------------------------------------------
- * 0 · Constants
- * -------------------------------------------------------------------------- */
 
-/** The two public, CORS-open data files behind the Host Stand and Back Office. */
-import { freshUrl } from './overlay.2404daeb1c.js';
-/* Same reason as overlay.js §6: an iframe's `load` fires for a 404, a 500, an
-   error page and a refused frame alike, so a live board that 404s was being
-   revealed as the board. preflight.js carries the twelve-shape measurement. */
-import { preflight, preflightCopy } from './preflight.8a6e597fbb.js';   // shared fresh-load cache buster
+
+
+
+
+ 
+import { freshUrl } from './overlay.dbf3839ea2.js';
+
+
+import { preflight, preflightCopy } from './preflight.3928c43470.js';   
 
 export const PROMO_CARD_URL =
   'https://raw.githubusercontent.com/BlufoxMobile/Daily-Sales-Report/main/data/promo-card.jpg';
 export const STREAKS_URL =
   'https://raw.githubusercontent.com/BlufoxMobile/Daily-Sales-Report/main/data/nps-detractor-streaks.json';
-/** The third one, and the heavy one: the workbook every number in the deck is
- *  computed from. Read ONLY by `report`, and only once a report panel arms. */
+
+
 export const EXCEL_URL =
   'https://raw.githubusercontent.com/BlufoxMobile/Daily-Sales-Report/main/data/Sales%20Report.xlsx';
 
-/** Ten-minute buckets — exactly what the source app does. */
+
+
 const BUCKET_MS = 600000;
 
-/** Floor for the virtual desktop WIDTH a `live` iframe renders at before it is
- *  scaled down. rooms.js may raise it per panel with `width`; nothing lowers
- *  it. In practice LIVE_MIN_VIRTUAL_H below is what decides, because the decks
- *  are height-bound, not width-bound. */
-const LIVE_RENDER_WIDTH = 960;
 
-/** ⚠ THE ONE NUMBER THE DINING BOARDS TURN ON.
- *
- *  A `live` panel renders its deck into a virtual viewport and scales that
- *  uniformly into the glass. The viewport takes the PANEL'S OWN ASPECT — width
- *  `round(H * aspect)`, height `H` — so the scaled frame covers the glass
- *  corner to corner with no bars and no crop. That has never been the bug.
- *
- *  What the number decides is SIZE. Both Win-the-Weekend decks are FLUID, not
- *  fixed-canvas: `.s{min-height:100vh; display:flex; justify-content:safe
- *  center; overflow-y:auto}`, one slide at a time on their own 7s timer, laid
- *  out against whatever viewport they are handed and cut by the body when it
- *  does not fit. So `H` is a two-sided constraint: too small and slides are
- *  cut off (the client, twice); too large and the scale factor `panelW / vw`
- *  is smaller than it needs to be and every glyph on the glass shrinks with it
- *  (the client, once he saw 960).
- *
- *  ── WHY THE BOARDS LOOK EMPTY, WHICH IS NOT THE SAME QUESTION ─────────────
- *  Most of the black on a Top-5 board is the DECK'S own margin, not our scale.
- *  Measured at the 1703x960 the boards shipped at: `.t5{max-width:900px;
- *  margin:0 auto}` puts that card in 900 of 1703px, so 47% of the glass width
- *  is the deck centring itself; `justify-content:safe center` then centres its
- *  656px of content in 960px and spends another 32% of the height. The widest
- *  thing either deck ever draws is `.dg{max-width:1400px}`. None of that is
- *  reachable from here: the crop would have to be uniform, and HEIGHT is
- *  already the binding dimension, so trimming width buys exactly nothing.
- *
- *  ── WHY NOT JUST HAND THEM A NARROW VIEWPORT ──────────────────────────────
- *  Because their type is `clamp(min_rem, k*vw, max_rem)` and at any width at
- *  or above ~1010px every vw-driven size is already pinned at its MAX cap —
- *  `.hd h2` 3.8rem/60.8px, `.t5p` 2.6rem/41.6px, `.t5v` 2.4rem/38.4px, `.t5nm`
- *  2.2rem/35.2px — measured identical at vw 1300, 1500, 1703 and 2200. The
- *  knee where narrowing would start to pay is at vw ~1010 and we can never
- *  reach it: below vw 1300 the store-rankings table is cut off SIDEWAYS inside
- *  `.tw{overflow:auto; max-width:1300px}` with its nowrap cells — measured
- *  -37px at vw 1250 and -172px at vw 1100. Height is the only lever there is.
- *
- *  ── THE CURVE, MEASURED ───────────────────────────────────────────────────
- *  Each deck driven slide by slide at `round(aspect*H) x H`, with its own row
- *  animations parked at their end state first — the decks start their rows on
- *  a translateY, so an unsettled scrollHeight over-reports by 20-40px and an
- *  unsettled rect under-reports the NPS boards, which self-fit — and a slide
- *  counted as cut when any painted or text box lands outside the viewport or
- *  outside a scroll-clipping ancestor:
- *
- *      H     vw(chi)  Chicago (17)        vw(bs)  Big South (18)
- *      541    960     9 cut, worst -904    956    11 cut, worst -362
- *      721   1279     1 cut, worst -728   1275     3 cut, worst -189
- *      811   1439     1 cut, worst  -43   1434     1 cut, worst  -99
- *      853   1513     0 cut               1508     1 cut, worst  -57
- *      880   1561     0 cut  ← SHIPPED    1556     1 cut, worst  -30
- *      902   1600     0 cut               1595     1 cut, worst   -8
- *      910   1614     0 cut               1609     0 cut
- *      935   1659     0 cut               1653     0 cut  ← SHIPPED
- *      960   1703     0 cut               1697     0 cut  (both, before)
- *
- *  The floor is ONE SLIDE in each deck, and it is a different slide, which is
- *  why this is per board and not one shared number. Every other slide clears
- *  its deck's floor by a mile:
- *
- *      Chicago   853  District Ranker   (next tallest: Top 5 Money Makers 721,
- *                                        the other Top 5 boards 687, Store
- *                                        Rankings 510, Top 10 NPS 488)
- *      Big South 910  Top 10 NPS        (next tallest: District Ranker 758,
- *                                        Head Chef 743, Store Rankings 718,
- *                                        the Top 5 boards 533-575)
- *
- *  Below 811 a second cliff opens: the District Ranker's
- *  `repeat(auto-fit,minmax(320px,1fr))` grid needs vw >= 1416 to keep its four
- *  districts on one row, and the aspect-locked vw falls under that at H < 799.
- *
- *  ── WHAT IS SHIPPED, AND WHAT IT COSTS ────────────────────────────────────
- *  880 and 935: each deck's measured floor plus ~3%. That is +9.1% of scale on
- *  Chicago and +2.7% on Big South against the 960 both were running at, and it
- *  spends headroom to get it — Chicago 107px down to 27px, Big South 51px to
- *  25px. 3% is the honest margin here, not a round number chosen to look safe:
- *  neither deck's growth quantum fits in ANY margin we could afford (one more
- *  metric tile row on a District Ranker card is +85px, one more NPS row is
- *  +81px), so the margin can only absorb sub-row drift — a font metric, a
- *  longer label, a border — and 960 never covered a row either.
- *
- *  The ceiling, for whoever asks next: the absolute floors 853/910 with zero
- *  margin are +12.5% and +5.6%. That is ALL the size that exists in an iframe
- *  of these decks. At 1440 it moves a Top-5 store name from 7.9 rendered CSS
- *  px to 8.9 at best. If these boards have to be legible rather than merely
- *  whole, the answer is the one the Back Office and the Break Room already
- *  took: render the numbers natively at the panel's own scale (`feed` and
- *  `report`), and stop iframing a 1400px deck into 350px of glass.
- *
- *  The Daily Sales Report is indifferent to all of this: it is a fixed
- *  1920x1080 canvas that scales itself with `Math.min(innerWidth/1920,
- *  innerHeight/1080)`, so its size on the glass is panelWidth/1920 whatever we
- *  hand it — which is exactly why the break-room television is on `report` and
- *  not here. Anything that arrives in `live` mode without a measured floor
- *  gets LIVE_MIN_VIRTUAL_H, which stays at the value both boards used to run
- *  at rather than borrowing a floor that was measured against another deck. */
-const LIVE_MIN_VIRTUAL_H = 960;
 
-/** The measured floor, per board. Keys are `rec.slug`. A board with no entry
- *  falls back to LIVE_MIN_VIRTUAL_H above. Re-measure — do not nudge — if a
- *  deck's slide set changes: the value is the tallest slide's own height plus
- *  ~3%, and the tallest slide is named in the table above. */
-const LIVE_MIN_VIRTUAL_H_BY_SLUG = {
-  'wtw-chicago':   880,   // floor 853, District Ranker
-  'wtw-big-south': 935    // floor 910, Top 10 NPS
+const PROMO_CHECK_MS = 10 * 60 * 1000;
+
+
+
+const SETTLE_MS = 180;
+const RESUME_MS = 1500;
+const IDLE_TIMEOUT_MS = 1000;
+
+
+
+const IO_MARGIN = {
+  title: '150% 0px 150% 0px',
+  live: '40% 0px 40% 0px',
+  image: '50% 0px 50% 0px',
+  feed: '50% 0px 50% 0px',
+  report: '50% 0px 50% 0px'
 };
 
-/** Hard ceiling on simultaneous `live` iframes. iPads are real. Cheap modes
- *  (title / image / feed) are not counted — they cost a few DOM nodes.
- *
- *  ONE ON A PHONE, TWO EVERYWHERE ELSE (2026-08-28). A `live` panel is a whole
- *  extra document: fit() lays each one out in a 1703x960 CSS virtual viewport
- *  and scales it down to the 346x195 band panel, so two of them are two full
- *  sub-documents with their own DOM, style, layout and timers. Measured on a
- *  390x844 DPR-3 profile, both of the Dining room's boards were mounted and
- *  live from scrollY 591 to 7092 — essentially the entire runway, because there
- *  are only two live candidates on the page and a budget of two, so nothing
- *  ever evicted either one. That is two documents' worth of memory carried
- *  through every room on the device that was running out of it.
- *
- *  One is not a dead rectangle: reconcile() hands the unbudgeted board its
- *  branded holding card ("Tap to open this board full screen"), which is the
- *  same card every mode already falls back to and is still the client's
- *  requirement that the screen show what it is and stay clickable. §17's
- *  "the screens are exempt, do not fold them back in" note is about iPads, and
- *  iPads are untouched: PHONE_MEDIA cannot match one. */
+
+
+const LIVE_RENDER_WIDTH = 960;
+
+
+
+const LIVE_MIN_VIRTUAL_H = 960;
+
+
+
+const LIVE_MIN_VIRTUAL_H_BY_SLUG = {
+  'wtw-chicago':   880,   
+  'wtw-big-south': 935    
+};
+
+
+
 const MAX_LIVE_FRAMES = 2;
 const MAX_LIVE_FRAMES_PHONE = 1;
 
-/** How long one district holds the Back Office board. Slow on purpose. */
+ 
 const FEED_SLIDE_MS = 9000;
 
-/** How long a SUCCESSFUL streaks fetch is reused. */
+ 
 const FEED_TTL_MS = 10 * 60 * 1000;
 
-/** How long a FAILED one is remembered before the next screen may try again.
- *  Long enough to stop a stampede when several panels arm at once, short enough
- *  that one blip does not cost the board the rest of the session. */
+
+
 const FEED_RETRY_MS = 20 * 1000;
 
-/** A request that never answers is a failure that never fail-softs. Both feeds
- *  get a deadline, after which the screen falls to its holding state and the
- *  retry clock starts. Without this the board sits on an EMPTY stage for as long
- *  as the socket stays open, which is the shape the live bug took. */
+
+
 const FEED_TIMEOUT_MS = 10 * 1000;
 const IMAGE_TIMEOUT_MS = 10 * 1000;
 
-/** The workbook's own deadline, and the library's. Both are longer than the
- *  feeds' 10s for the same reason: the streak JSON is 16KB, `Sales Report.xlsx`
- *  is ~1.1MB and SheetJS is ~900KB, and a store's wifi is a store's wifi. They
- *  are still HARD deadlines — an unanswered request has to reach the retry
- *  clock rather than hang, which is the whole lesson of FEED_TIMEOUT_MS. */
+
+
 const BOOK_TIMEOUT_MS = 25 * 1000;
 const SHEETJS_TIMEOUT_MS = 15 * 1000;
 
-/** How long one card holds the break-room television. The source app runs 15s
- *  a slide on a 1920px wall; this board carries a quarter of the content per
- *  card, so it moves faster — but still slower than the eye, because nobody
- *  reads a break-room TV on purpose. */
+
+
 const REPORT_SLIDE_MS = 10 * 1000;
 
-/** The source app's CONFIG.PROMO_EVERY_N, and its rule: a promo card every N
- *  slides, and the rotation always ends on one. */
+
+
 const PROMO_EVERY_N = 4;
 
-/** How often an on-screen panel that has never had data tries again, and how
- *  many times before it settles for the holding card. */
+
+
 const RETRY_EVERY_MS = 20 * 1000;
 const RETRY_LIMIT = 5;
 
-/** THE BACKOFF, and the arithmetic behind the floor.
- *
- *  A store iPad is parked on a room and left on all day. A retry that never
- *  gets slower is a retry that costs 3 requests a minute for as long as the
- *  device is awake — 4,320 a day against a URL that is not answering, which is
- *  the shape a dead feed URL takes on that iPad. Doubling from the same 20s
- *  start and stopping at a five-minute floor costs 20s, 40s, 80s, 160s and then
- *  288 requests a day, and still recovers within five minutes of the network
- *  coming back, which a hard cap does not do at all: the old RETRY_LIMIT of 5
- *  gave up after 100 seconds and the board then stayed on its holding card for
- *  the rest of the day even after the wifi came back. Slower AND more durable.
- */
+
+
 const RETRY_MAX_MS = 5 * 60 * 1000;
 const retryDelay = (attempt) =>
   Math.min(RETRY_MAX_MS, RETRY_EVERY_MS * Math.pow(2, Math.max(0, attempt)));
 
-/** The same two conditions theme.css uses for its portrait takeover. Exported
- *  so the layout owner can key off one string instead of a second copy. */
+
+
 export const NARROW_MEDIA = '(max-width: 900px), (max-aspect-ratio: 8 / 7)';
 
-/** THE PHONE, AND ONLY THE PHONE — the same pair app.js's PLATE_SIZES and
- *  theme.css §06b's tier 0 use, kept identical on purpose.
- *
- *    (max-width: 500px)                            every iPhone in portrait
- *    (max-width: 1000px) and (max-height: 500px)   every iPhone in landscape
- *
- *  Deliberately NOT NARROW_MEDIA: that one catches iPad Pro portrait by aspect
- *  and iPad mini portrait by width, and the iPads are the device this module's
- *  live boards were budgeted for and the device that works today. Anything
- *  gated on THIS constant is a phone-only concession. */
+
+
 export const PHONE_MEDIA =
   '(max-width: 500px), (max-width: 1000px) and (max-height: 500px)';
 
-/** Default mode per slug, used when the host carries no `data-screen-mode`. */
+ 
 export const SCREEN_MODES = {
   'quote-6th-gen':  'title',
   'quote-upgrade':  'title',
@@ -311,25 +123,18 @@ export const SCREEN_MODES = {
 
 const MODES = new Set(['title', 'image', 'feed', 'live', 'report']);
 
-/** Aspect ratios (as plain numbers) the panels take in the narrow band. */
-/** Aspect ratios (as plain numbers) the panels take in the narrow band.
- *  `feed` is deliberately taller than the 4/3 it used to be: the band's height
- *  budget is set by `--scr-band-h` and a single-screen room was leaving ~180px
- *  of it unused, while the board's own rows were the thing running out of space.
- *  `image` stays the promo card's own 2000x1429 — `object-fit: contain` means
- *  any other number just letterboxes it. */
-/*  `report` takes 4/3 rather than the feed's 6/5: its cards are ROWS, and a
- *  row's width is what decides whether a store name ellipsises, so the band
- *  spends its height budget on width instead. At a 390px viewport that gives a
- *  346x260 panel — 6 rows to the card, the widest this board ever gets. */
+ 
+
+
+
+
 const NARROW_AR = { title: 4, image: 2000 / 1429, feed: 6 / 5, live: 16 / 9, report: 4 / 3 };
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-/* -----------------------------------------------------------------------------
- * 1 · Tiny helpers
- * -------------------------------------------------------------------------- */
+
+
 
 const noop = () => {};
 
@@ -347,17 +152,49 @@ function el(tag, props = {}, children = []) {
 
 const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : null);
 
+let reduceMQ = null;
 function reduceMotion() {
-  try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
-  catch { return false; }
+  try {
+    if (!reduceMQ) reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+    return reduceMQ.matches;
+  } catch { return false; }
 }
 
-/** 'YYYY-MM-DD' -> 'Aug 26'. Parsed by hand: `new Date('2026-08-26')` is UTC
- *  midnight and prints as the 25th anywhere west of Greenwich. */
-/* hostOf() is gone. It put the board's hostname into the holding card's note
- * on a failed preflight ("blufoxmobile.github.io says this tool is not there
- * any more"); the client wants reps never to see where the boards are hosted,
- * and preflightCopy() names the board instead now. */
+
+
+function motionTier() {
+  if (reduceMotion()) return 'off';
+  const t = document.documentElement.getAttribute('data-motion');
+  return t === 'lite' || t === 'off' ? t : 'full';
+}
+
+ 
+let viewerOpen = false;
+
+
+
+function pageViewing() {
+  if (viewerOpen) return true;
+  const root = document.documentElement;
+  if (root.classList.contains('is-viewing') || root.classList.contains('ccc-locked')) return true;
+  return !!(document.body && document.body.classList.contains('ccc-locked'));
+}
+
+
+
+function onIdle(fn, timeout = IDLE_TIMEOUT_MS) {
+  if (typeof window.requestIdleCallback === 'function') {
+    const id = window.requestIdleCallback(fn, { timeout });
+    return () => window.cancelIdleCallback(id);
+  }
+  const id = window.setTimeout(fn, 32);
+  return () => window.clearTimeout(id);
+}
+
+
+
+
+
 
 function shortDate(iso) {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ''));
@@ -366,29 +203,11 @@ function shortDate(iso) {
   return month ? `${month} ${Number(m[3])}` : '';
 }
 
-/**
- * Current cache-busted promo URL.
- *
- * `?t=` is the source app's own ten-minute bucket and nothing may change it —
- * inside one bucket the URL is byte-identical, which is the whole point.
- * `retry` is appended ONLY on a recovery attempt after a failed load, because
- * assigning an <img> the src string it already has is a no-op in every engine:
- * without a distinct URL a card that failed once could never be re-requested
- * until the bucket rolled, up to ten minutes later.
- */
-function promoSrc(retry = 0) {
-  const base = `${PROMO_CARD_URL}?t=${Math.floor(Date.now() / BUCKET_MS)}`;
-  return retry > 0 ? `${base}&r=${retry}` : base;
-}
 
-/* -----------------------------------------------------------------------------
- * 2 · Tool registry
- *
- * Screens need a url and a label. app.js already has both, so it hands them
- * over; if it does not, we fall back to whatever `window.CCC.data` is holding
- * and finally to the slug itself. We never fetch tools.json ourselves — a
- * screen must never be the reason the page waits on the network.
- * -------------------------------------------------------------------------- */
+
+
+
+
 
 const registry = new Map();
 
@@ -405,13 +224,8 @@ function getTool(slug) {
   return null;
 }
 
-/* -----------------------------------------------------------------------------
- * 3 · Stylesheet
- *
- * Injected once, prefixed `ccc-scr`, every colour and face read through a
- * `var(--ccc-…, fallback)` so assets/theme.a73825e539.css owns the look. Nothing here
- * animates anything but transform / opacity / filter.
- * -------------------------------------------------------------------------- */
+
+
 
 const STYLES = `
 /* ── the panel ───────────────────────────────────────────────────────────── */
@@ -437,7 +251,51 @@ const STYLES = `
      alive rather than acquiring them a viewport later. */
   --scr-on: clamp(0, calc((var(--enter, 1) - 0.42) * 5.2), 1);
   --scr-ar: 1.7778;
+
+  /* M2's power-on scales about the middle of the GLASS, not of the host box —
+     a quad screen's host is the whole plate. applyGeometry() writes both. */
+  transform-origin: var(--scr-ox, 50%) var(--scr-oy, 50%);
 }
+
+/* ── M2 · THE POWER-ON, KEYED TO OWNERSHIP (v29) ─────────────────────────
+   A screen whose room does not own the page yet is OFF; the moment the room
+   becomes owned (C2: .room.is-owned) it comes up — opacity 0 -> 1 and a
+   scaleY(.985 -> 1) settle, 240 ms, 200 ms behind the room's own arrival.
+   Time-based on a BINARY state, never on a per-frame custom property (G3),
+   and only transform/opacity move.
+
+   FAIL-OPEN. data-power is written by JS and ONLY once the ownership
+   contract has actually spoken (see onOwnership() in §9). No attribute — no
+   engine, no C2, reduced motion, motion tier 'off' — means no pre-state at
+   all: the screen is simply on, exactly as before v29.
+
+   A screen is NOT switched off when its room loses the page. It stays on and
+   leaves with its photograph (M3: the stage's --dissolve carries it out), and
+   it is only reset to OFF, instantly and unseen, once the owner is two or more
+   rooms away — so walking back into a room you just left does not replay it. */
+.ccc-scr[data-power] {
+  /* With the ownership power-on in charge, the scroll-driven ramp above stands
+     down: theme.css derives --enter in 0.1 steps since v29, so --scr-on off
+     --enter stepped the glass through ~4 visible levels while the room came
+     in. The panel is at opacity 0 until its room is owned anyway. */
+  --scr-on: 1;
+  transition:
+    opacity   var(--m-t-3, 240ms) var(--m-ease-out, cubic-bezier(.22,.61,.24,1)) 200ms,
+    transform var(--m-t-3, 240ms) var(--m-ease-cine, cubic-bezier(.16,1,.3,1)) 200ms;
+}
+.ccc-scr[data-power="off"] {
+  opacity: 0;
+  transform: scaleY(.985);
+  transition: none;                  /* going OFF is always instant, and unseen */
+}
+/* lite: opacity only. off / reduced motion never gets a data-power at all, and
+   this is the belt to that pair of braces. */
+:root[data-motion="lite"] .ccc-scr[data-power] { transition-property: opacity; }
+:root[data-motion="lite"] .ccc-scr[data-power="off"] { transform: none; }
+:root[data-motion="off"] .ccc-scr[data-power] { opacity: 1; transform: none; transition: none; }
+/* off: no scroll-driven ramp either (it steps on the quantised --enter) —
+   the screen is simply on, as under reduced motion below. */
+:root[data-motion="off"] .ccc-scr { --scr-on: 1; }
 
 .ccc-scr__plane {
   position: absolute; inset: 0;
@@ -448,27 +306,48 @@ const STYLES = `
 /* Perspective mode: JS writes width/height in px and a matrix3d here. */
 .ccc-scr--quad .ccc-scr__plane { inset: auto; top: 0; left: 0; }
 
-/* the halo the panel throws onto the wall behind it */
+/* the halo the panel throws onto the wall behind it.
+   PRE-PAINTED (v29). It was this gradient under a filter: blur(12px), i.e. an
+   offscreen render pass per screen, re-rastered every frame its --scr-on or
+   --bloom moved. The blur only ever did one thing — soften the gradient's
+   last stops and the 40% corner radius — so the softening is now IN the
+   gradient: the old two stops, plus an eased tail that reaches transparent
+   inside the box (80% of a 58% radius is 46% < the box's 50% half-width), so
+   no corner radius is needed to hide an edge. Opacity is still the only thing
+   that moves. */
 .ccc-scr__glow {
   position: absolute; inset: -18%;
   z-index: 0; pointer-events: none;
-  border-radius: 40%;
   background: radial-gradient(58% 58% at 50% 50%,
-    rgba(154,196,255,.46), rgba(120,158,255,.16) 46%, rgba(0,0,0,0) 72%);
-  filter: blur(12px);
+    rgba(154,196,255,.42) 0%,
+    rgba(140,180,255,.29) 22%,
+    rgba(120,158,255,.16) 44%,
+    rgba(120,158,255,.08) 57%,
+    rgba(120,158,255,.03) 68%,
+    rgba(120,158,255,0) 80%);
   opacity: calc(var(--scr-on) * (0.30 + 0.55 * var(--bloom, 0)));
 }
 
-/* the black glass itself */
+/* the black glass itself.
+   v29: no translateZ(0) — it promoted every glass to its own layer for the
+   whole session, on every breakpoint but the phone (the phone had already
+   dropped it; that rule is now the rule). And no filter: the power-on dim was
+   brightness()/saturate() on the glass, a filter pass per screen that moved
+   every frame of an arrival. It is now the ::after below — a black sheet
+   whose OPACITY is 0.84 x (1 - --scr-on), which is what brightness(0.16 ->
+   1) was, drawn without a render pass. Identical at rest (--scr-on 1: the
+   sheet is fully transparent). */
 .ccc-scr__glass {
   position: absolute; inset: 0;
   z-index: 1; overflow: hidden;
   pointer-events: none;
   background: linear-gradient(163deg, #0b0e14 0%, #04060a 55%, #080a10 100%);
-  transform: translateZ(0);
-  filter:
-    brightness(calc(0.16 + 0.84 * var(--scr-on)))
-    saturate(calc(0.30 + 0.70 * var(--scr-on)));
+}
+.ccc-scr__glass::after {
+  content: ""; position: absolute; inset: 0;
+  pointer-events: none;
+  background: #000;
+  opacity: calc(0.84 * (1 - var(--scr-on)));
 }
 
 .ccc-scr__content {
@@ -497,12 +376,26 @@ const STYLES = `
   background: repeating-linear-gradient(0deg,
     rgba(0,0,0,.20) 0 1px, rgba(0,0,0,0) 1px 3px);
 }
+/* The slow refresh bar. M6 (v29): it runs ONLY on the screens of the room
+   that owns the page (.ccc-scr--owned, written by §9 from C2 or, without
+   it, from the settled scroll), and never under the tool viewer. Everywhere
+   else it is display:none — no layer, no loop. It used to run on all eight
+   screens for the whole session, 7,000 px from the reader and under an open
+   tool alike. */
 .ccc-scr__scan::after {
   content: ""; position: absolute; inset: -60% 0;
+  display: none;
   background: linear-gradient(180deg,
     rgba(0,0,0,0) 0%, rgba(178,214,255,.13) 47%, rgba(0,0,0,0) 100%);
+}
+.ccc-scr--owned .ccc-scr__scan::after {
+  display: block;
   animation: ccc-scr-refresh 7.5s linear infinite;
 }
+:root.is-viewing .ccc-scr__scan::after,
+:root.ccc-locked .ccc-scr__scan::after,
+:root[data-motion="lite"] .ccc-scr__scan::after,
+:root[data-motion="off"] .ccc-scr__scan::after { display: none; animation: none; }
 @keyframes ccc-scr-refresh {
   from { transform: translate3d(0, -34%, 0); }
   to   { transform: translate3d(0,  68%, 0); }
@@ -532,8 +425,6 @@ const STYLES = `
   min-block-size: 44px;
   background: rgba(0,0,0,0); color: inherit;
   cursor: pointer;
-  transition: box-shadow .25s var(--ccc-ov-ease, cubic-bezier(.22,.61,.36,1)),
-              background-color .25s ease;
   pointer-events: auto;
 
   /* THE OWNERSHIP GATE. theme.css §05 declares --cut-clip on .stage: it is
@@ -551,10 +442,26 @@ const STYLES = `
      as it was. */
   clip-path: inset(var(--cut-clip, -24px));
 }
-.ccc-scr__hit:hover {
+/* HOVER IS A PRE-PAINTED GLOW, FADED (v29 fix round, G3 m-11). It used to
+   ease box-shadow and background-color over 250 ms — paint properties, and a
+   cool blue glow at 42% that barely read — on the site's primary CTAs, while
+   every other object fades a brass bloom in on opacity. The same bloom is
+   painted here once, on ::before, and only its opacity moves (--m-t-2).
+   Pointer-only, like the hotspots: a tap on an iPad leaves no stuck hover. */
+.ccc-scr__hit::before {
+  content: ""; position: absolute; inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
   background: rgba(255,255,255,.045);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.20),
-              0 0 34px -6px rgba(180,210,255,.42);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--ccc-accent-hi, #ebce93) 62%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--ccc-accent, #c8973f) 30%, transparent),
+    0 0 22px 2px color-mix(in oklab, var(--ccc-accent, #c8973f) 46%, transparent);
+  opacity: 0;
+  transition: opacity var(--m-t-2, 160ms) var(--m-ease-out, cubic-bezier(.22,.61,.24,1));
+}
+@media (hover: hover) {
+  .ccc-scr__hit:hover::before { opacity: 1; }
 }
 .ccc-scr__hit:focus-visible {
   outline: 2px solid var(--ccc-focus, #ebce93);
@@ -669,19 +576,16 @@ const STYLES = `
   color: var(--ccc-accent-hi, #ebce93);
   white-space: nowrap;
 }
-/* the connection light. Opacity only — the perf contract allows no other
-   property to animate, and a pulsing dot is the cheapest "this is running"
-   signal a still photograph can carry. */
+/* the connection light. HELD LIT (v29, M6). It used to blink on a 3.4 s
+   infinite loop on all three tablets — three more compositor animations that
+   ran whether or not anyone was in The Pass. The owned room's refresh sweep
+   already says "this screen is running"; a second loop saying it again was
+   redundant, so the pip is simply on. */
 .ccc-scr-title__pip {
   inline-size: .62em; block-size: .62em;
   border-radius: 50%;
   background: var(--ccc-accent-hi, #ebce93);
   box-shadow: 0 0 .5em color-mix(in oklab, var(--ccc-accent-hi, #ebce93) 70%, transparent);
-  animation: ccc-scr-pip 3.4s ease-in-out infinite;
-}
-@keyframes ccc-scr-pip {
-  0%, 62%, 100% { opacity: 1; }
-  76%           { opacity: .28; }
 }
 
 /* ── 2 · the subject ─────────────────────────────────────────────────────── */
@@ -757,13 +661,91 @@ const STYLES = `
    not press — the panel's own :hover / :focus-visible states are untouched and
    the focus ring is unaffected. Transform + filter only, per the perf contract. */
 .ccc-scr-title__key {
-  transition: filter .22s var(--ccc-ov-ease, cubic-bezier(.22,.61,.36,1)),
-              transform .22s var(--ccc-ov-ease, cubic-bezier(.22,.61,.36,1));
+  transition: transform .22s var(--ccc-ov-ease, cubic-bezier(.22,.61,.36,1));
 }
 .ccc-scr--title:has(.ccc-scr__hit:is(:hover, :focus-visible)) .ccc-scr-title__key {
-  filter: brightness(1.09);
-  transform: translate3d(0, 1px, 0);
+  transform: translate(0, 1px);
 }
+/* The key brightens under the finger by a pre-painted plate faded on opacity
+   (was filter: brightness(1.09) eased over 220 ms — a paint property, G3
+   m-11). The label and chevron sit above the plate (position: relative), so
+   the ink type is not washed. */
+.ccc-scr-title__key::before {
+  content: ""; position: absolute; inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.06));
+  opacity: 0;
+  transition: opacity var(--m-t-2, 160ms) var(--m-ease-out, cubic-bezier(.22,.61,.24,1));
+}
+.ccc-scr-title__cta, .ccc-scr-title__chev { position: relative; }
+.ccc-scr--title:has(.ccc-scr__hit:focus-visible) .ccc-scr-title__key::before { opacity: 1; }
+@media (hover: hover) {
+  .ccc-scr--title:has(.ccc-scr__hit:hover) .ccc-scr-title__key::before { opacity: 1; }
+}
+/* v29 · S6 · the shared press (theme.css §16): the key goes down under a
+   finger, .98 in 90 ms, and comes back on the press ease. */
+.ccc-scr--title:has(.ccc-scr__hit:active) .ccc-scr-title__key {
+  transform: translate(0, 1px) scale(var(--m-press, .98));
+  transition-duration: var(--m-t-1, 90ms);
+}
+
+/* v29 · S6 · M6 — THE KEY CATCHES THE LIGHT.
+   A bar of light crosses each "Tap to open" key, and because the three
+   terminals start 300 ms apart (data-station, written from the station
+   number in makeTitle) it travels across the Pass left to right: ~300 ms on
+   each key, then stillness, on a 7 s cycle. It is a transform + opacity
+   on one pre-painted pseudo-element per key — compositor work — and it runs
+   only on the terminals of the room that owns the page, in the full tier,
+   with no tool open. Everywhere else it is display:none: no layer, no loop.
+   Lite, off, reduced motion and the phone band never draw it.
+
+   NO CLIP (v29 fix round, G1 D3). The bar used to start and end OUTSIDE the
+   key, hidden by overflow:hidden on the rounded key — and a rounded clip
+   around an animated composited layer costs the compositor a mask pass per
+   key: 8.1-8.9 render passes per frame at The Pass, 2.0-2.2 without the clip,
+   on every frame a rep stands there. Now the bar never leaves the key: its
+   lit band is the middle 28% of a key-sized box, travelling from -36% to
+   +36% so the band runs from the key's left edge to its right edge, and it
+   fades in over the first sixth of the run and out over the last. The same
+   bar crossing the same key at the same pace, with nothing to clip. */
+.ccc-scr-title__key { position: relative; }
+.ccc-scr-title__key::after {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  display: none;
+  background: linear-gradient(105deg,
+    rgba(255,255,255,0) 36%, rgba(255,255,255,.46) 48%,
+    rgba(255,250,236,.16) 55%, rgba(255,255,255,0) 64%);
+  opacity: 0;
+  transform: translate(-36%, 0);
+}
+:root[data-motion="full"] .ccc-scr--owned .ccc-scr-title__key::after {
+  display: block;
+  animation: ccc-scr-key-sheen 7s var(--m-ease-inout, cubic-bezier(.65,0,.35,1)) infinite;
+}
+/* an attribute, not a custom property: a custom property declared on the key
+   would be re-created whenever the key is restyled and drag its subtree along
+   (theme.css §09b's note on the stagger) */
+.ccc-scr-title__key[data-station="2"]::after { animation-delay: 300ms; }
+.ccc-scr-title__key[data-station="3"]::after { animation-delay: 600ms; }
+.ccc-scr-title__key[data-station="4"]::after { animation-delay: 900ms; }
+:root.is-viewing .ccc-scr-title__key::after,
+:root.ccc-locked .ccc-scr-title__key::after { display: none; animation: none; }
+/* 315 ms on the key (4.5% of 7 s): the old bar spent 900 ms travelling but
+   was over the key for only ~200 ms of it, so this keeps its tempo. */
+@keyframes ccc-scr-key-sheen {
+  0%         { transform: translate(-36%, 0); opacity: 0; }
+  0.7%       { opacity: 1; }
+  3.8%       { opacity: 1; }
+  4.5%, 100% { transform: translate(36%, 0); opacity: 0; }
+}
+/* One "this screen is live" signal per terminal: on the Pass it is the key's
+   sheen, so the slow refresh bar stands down on the title panels (the TVs in
+   the other rooms keep theirs). Three fewer loops in the room with the most. */
+.ccc-scr--title .ccc-scr__scan::after,
+.ccc-scr--owned.ccc-scr--title .ccc-scr__scan::after { display: none; animation: none; }
 
 /* ── the panel chrome, re-weighted for a screen that is ON ────────────────
    Everything below overrides a shared rule further up this sheet. Each one is
@@ -772,16 +754,25 @@ const STYLES = `
 
 /* THE SPILL. 'inset' is asymmetric: more room below the glass than above it,
    because the counter is below and that is where the light actually lands.
-   The blur is static — nothing animates it, per the perf contract. */
+   Pre-painted like the shared glow above (v29): the blur(15px) that softened
+   these two gradients is now an eased tail on each of them, so the spill
+   costs no render pass. The lower one's 76% x 64% ellipse centred at 64%
+   meets the box's bottom edge at 56% of its radius — the blur and the 46%
+   corner radius used to hide that edge — so it now reaches transparent by 54%
+   and never draws one. */
 .ccc-scr--title .ccc-scr__glow {
   inset: -24% -19% -38% -19%;
-  border-radius: 46%;
   background:
     radial-gradient(48% 42% at 50% 40%,
-      rgba(206,230,255,.50), rgba(206,230,255,0) 72%),
+      rgba(206,230,255,.46) 0%,
+      rgba(206,230,255,.24) 30%,
+      rgba(206,230,255,.08) 54%,
+      rgba(206,230,255,0) 74%),
     radial-gradient(76% 64% at 50% 64%,
-      rgba(146,186,255,.26), rgba(120,158,255,0) 76%);
-  filter: blur(15px);
+      rgba(146,186,255,.26) 0%,
+      rgba(146,186,255,.14) 24%,
+      rgba(120,158,255,.05) 40%,
+      rgba(120,158,255,0) 54%);
   opacity: calc(var(--scr-on) * (0.40 + 0.46 * var(--bloom, 0)));
 }
 
@@ -843,11 +834,18 @@ const STYLES = `
 
 /* ══ MODE: image ═════════════════════════════════════════════════════════ */
 .ccc-scr-art { position: absolute; inset: 0; overflow: hidden; }
+/* THE BACKDROP IS A 24 x 17 THUMBNAIL, NOT A SECOND COPY OF THE CARD (v29).
+   It was a second <img> of the same 2000 x 1429 JPEG at 116% under
+   filter: blur(22px) saturate(1.15) brightness(.62): a second decode (at
+   1000 x 715 on an iPad, measured, beside the card's own 500 x 358) and a
+   blur pass, to paint two slivers of ambient colour either side of the card.
+   makeImage() now decodes the card's bytes off the main thread straight to
+   24 x 17, once per new card, pre-darkened, and the browser's own bilinear
+   upscale does the blurring. No filter, no second bitmap. */
 .ccc-scr-art__bg {
   position: absolute; inset: -8%;
   inline-size: 116%; block-size: 116%;
   object-fit: cover;
-  filter: blur(22px) saturate(1.15) brightness(.62);
   opacity: .85;
 }
 .ccc-scr-art__fg {
@@ -869,6 +867,23 @@ const STYLES = `
   pointer-events: none;
 }
 .ccc-scr.is-live .ccc-scr__frame { opacity: 1; }
+/* OUT OF RENDERING, STILL MOUNTED (v29). While a tool is up, or once the
+   board's room has handed the page on, an arrived board's frame is
+   display:none until it is woken or unmounted. MEASURED in Chromium with the
+   frames in-process (the iPad model), 5 s windows, the board's own rAF count
+   and the renderer main thread:
+                           Win the Weekend          Daily Sales Report
+     on screen             14 rAF/s   18 ms/s       81 rAF/s  102 ms/s
+     under an opaque cover 16         20            75        101
+     opacity: 0            71         82            72        106
+     visibility: hidden    68         38            71         69
+     display: none          0          0.1           0          4.6
+     parent content-visibility:hidden   0 / 0.1       0 / 1.5
+   Covering it (the viewer's scrim) saves nothing, and neither does opacity or
+   visibility. display:none stops it outright, keeps the document, fires no
+   resize at it (its viewport stays 1561x880 / 1920x1080) and works in every
+   engine this site supports; content-visibility would too but is Safari 18+. */
+.ccc-scr-live.is-suspended .ccc-scr__frame { display: none; }
 
 /* ── THE HOLDING CARD AS A LID, NOT AS AN ALTERNATIVE ─────────────────────
    THE DEFECT. On a 393x852 phone the Break Room's Daily Sales Report panel
@@ -922,7 +937,9 @@ const STYLES = `
   padding: .85em 1em .7em;
   min-block-size: 0;
   opacity: 0;
-  transform: translate3d(0, .45em, 0);
+  /* 2D, on every breakpoint (v29) — see the phone block at the foot of this
+     sheet for the measurement that first moved it off translate3d. */
+  transform: translate(0, .45em);
   transition: opacity .62s var(--ccc-ov-ease, cubic-bezier(.22,.61,.36,1)),
               transform .62s var(--ccc-ov-ease, cubic-bezier(.22,.61,.36,1));
   pointer-events: none;
@@ -1058,7 +1075,8 @@ const STYLES = `
   letter-spacing: .09em; text-transform: uppercase;
   color: #857d72;
 }
-.ccc-scr-feed__foot > :last-child { text-align: end; }
+/* keyed to a class, not '> :last-child' (universal bucket, theme.css §03) */
+.ccc-scr-feed__stamp { text-align: end; }
 
 /* STALE — the board is showing the last good data because the feed is not
    answering. loadStreaks() resolves to cached data on failure on purpose
@@ -1199,12 +1217,19 @@ const STYLES = `
   padding: .72em .8em .5em;
   min-block-size: 0;
   opacity: 0;
-  transform: translate3d(0, .4em, 0);
+  transform: translate(0, .4em);     /* 2D everywhere (v29), see the phone block */
   transition: opacity .55s var(--ccc-ov-ease, cubic-bezier(.22,.61,.36,1)),
               transform .55s var(--ccc-ov-ease, cubic-bezier(.22,.61,.36,1));
   pointer-events: none;              /* the hit button above owns every tap */
 }
 .ccc-scr-rpt__slide.is-current { opacity: 1; transform: none; }
+/* v29 final (verifier V2 m2): the lite tier cross-fades slides on opacity only —
+   two animations per change instead of four, inside lite's budget of 2. */
+html[data-motion="lite"] .ccc-scr-feed__slide,
+html[data-motion="lite"] .ccc-scr-rpt__slide {
+  transform: none;
+  transition: opacity .62s var(--ccc-ov-ease, cubic-bezier(.22,.61,.36,1));
+}
 /* the promo card is a photograph: it goes edge to edge, no chrome, no padding */
 .ccc-scr-rpt__slide.is-art { padding: 0; grid-template-rows: minmax(0, 1fr); }
 
@@ -1274,7 +1299,9 @@ const STYLES = `
     color-mix(in oklab, var(--ccc-accent, #c8973f) 14%, transparent));
   pointer-events: none;
 }
-.ccc-scr-rpt__row > :not(.ccc-scr-rpt__fill) { position: relative; z-index: 1; }
+/* keyed to the four text classes rptRow() makes, not '> :not(__fill)' */
+.ccc-scr-rpt__rank, .ccc-scr-rpt__name,
+.ccc-scr-rpt__sub, .ccc-scr-rpt__val { position: relative; z-index: 1; }
 
 .ccc-scr-rpt__rank {
   flex: 0 0 auto;
@@ -1441,7 +1468,11 @@ const STYLES = `
   block-size: auto;
   aspect-ratio: var(--scr-ar, 1.7778);
   border-radius: 3px;
-  filter: drop-shadow(0 14px 34px rgba(0,0,0,.55));
+  /* A box-shadow, not filter: drop-shadow() (v29). The panel is an opaque
+     rounded rectangle, so the two draw the same shadow — but the filter was an
+     offscreen pass re-rendered every time a slide turned inside the panel,
+     on the iPad-portrait band that shows these panels all day. */
+  box-shadow: 0 14px 34px rgba(0,0,0,.55);
 }
 .ccc-scr--narrow .ccc-scr__plane { inset: 0; transform: none; }
 .ccc-scr--narrow .ccc-scr__glow { inset: -14%; }
@@ -1455,8 +1486,9 @@ const STYLES = `
    So the glass and every layer that dresses it stop short of it. */
 .ccc-scr__cap { display: none; }
 .ccc-scr--narrow .ccc-scr__plane { --scr-cap-h: calc(var(--scr-u, 12px) * 2); }
-.ccc-scr--narrow :is(.ccc-scr__glass, .ccc-scr__scan, .ccc-scr__crt,
-                     .ccc-scr__sheen, .ccc-scr__bezel) {
+.ccc-scr--narrow .ccc-scr__glass, .ccc-scr--narrow .ccc-scr__scan,
+.ccc-scr--narrow .ccc-scr__crt, .ccc-scr--narrow .ccc-scr__sheen,
+.ccc-scr--narrow .ccc-scr__bezel {
   inset-block-end: var(--scr-cap-h);
 }
 .ccc-scr--narrow .ccc-scr__cap {
@@ -1481,9 +1513,16 @@ const STYLES = `
 /* A title card is already its own caption — and a zero-height flex row does not
    hide its text, it spills it into the panel below. */
 .ccc-scr--narrow.ccc-scr--title .ccc-scr__cap { display: none; }
+/* The name WRAPS to a second line rather than losing its end to an ellipsis
+   ("DAYS SINCE THE LAST BAD NPS SUR…" at 820x1180; v29 fix round, G3 m-4).
+   Two lines of .86u caps at line-height 1 fit the 2u rail with air above
+   and below; balanced, so a long name breaks in the middle instead of
+   leaving one word on the second line. */
 .ccc-scr__cap b {
   font-weight: 600; min-inline-size: 0;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  white-space: normal; overflow-wrap: anywhere;
+  line-height: 1; text-wrap: balance;
+  max-block-size: 2em; overflow: hidden;
 }
 .ccc-scr__cap i {
   font-style: normal; flex: 0 0 auto;
@@ -1492,11 +1531,17 @@ const STYLES = `
 
 /* ══ reduced motion ══════════════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
-  .ccc-scr__scan::after { animation: none; opacity: 0; }
+  /* Spelled with the owned-room selector too: that rule is more specific than
+     a bare .ccc-scr__scan::after and would otherwise win here. */
+  .ccc-scr__scan::after,
+  .ccc-scr--owned .ccc-scr__scan::after { display: none; animation: none; }
   .ccc-scr__crt { display: none; }
-  /* the terminal's connection light holds lit rather than blinking */
-  .ccc-scr-title__pip { animation: none; opacity: 1; }
-  .ccc-scr-title__key { transition: none; }
+  .ccc-scr-title__key, .ccc-scr-title__key::before, .ccc-scr__hit::before { transition: none; }
+  .ccc-scr-title__key::after,
+  .ccc-scr--owned .ccc-scr-title__key::after { display: none; animation: none; }
+  /* M2's power-on is a state switch here, never a fade — and §9 never writes a
+     data-power under reduced motion at all; this holds even if one lingers. */
+  .ccc-scr[data-power] { opacity: 1; transform: none; transition: none; }
   /* No power-on ramp, and no scroll-driven fade on the band — theme.css §18
      pins .hotspots to opacity 1 for exactly this reason and the band is that
      layer's narrow-viewport counterpart. */
@@ -1531,11 +1576,12 @@ const STYLES = `
    thumbnail every 7.5 seconds. The scanline texture on __scan itself — the
    thing that actually reads as a screen — is a static background and stays.
 
-   __glass carries a transform of translateZ(0), which promotes it to hold a flat
-   two-stop gradient and a filter that only moves when a board powers on. The
-   promotion is worth having on an iPad, where the panels are large, warped onto
-   a wall plane and composited against a moving photograph. In the phone band
-   they are small, axis-aligned and in a static band under the plate.
+   __glass carried a transform of translateZ(0), which promoted it to hold a flat
+   two-stop gradient and a filter that only moved when a board powered on. It
+   was thought worth having on an iPad; the v29 perf audit measured it (layer
+   tree + render passes, iPad 1180x820 @2x) and it was not, so since v29 the
+   glass carries neither the transform nor the filter on ANY breakpoint and the
+   line that used to live here is the rule in the sheet above.
 
    The reduced-motion block above already switches the sweep off by exactly this
    route, and has since v3; this is the same concession spent on a different
@@ -1543,8 +1589,10 @@ const STYLES = `
    band — an iPad Pro portrait matches the narrow band and must not be touched
    here. Keep it identical to PHONE_MEDIA, theme.css §06b TIER 0 and §06e. */
 @media (max-width: 500px), (max-width: 1000px) and (max-height: 500px) {
-  .ccc-scr__scan::after { display: none; }
-  .ccc-scr__glass { transform: none; }
+  .ccc-scr__scan::after,
+  .ccc-scr--owned .ccc-scr__scan::after { display: none; animation: none; }
+  .ccc-scr-title__key::after,
+  .ccc-scr--owned .ccc-scr-title__key::after { display: none; animation: none; }
 
   /* AND THE BAND OF A ROOM THAT DOES NOT OWN THE PAGE.
      .ccc-scr-layer's opacity is var(--cut), which theme.css §05 resolves to
@@ -1581,9 +1629,13 @@ const STYLES = `
      nine-card rotation: 9 always, to at most 2 while a card is turning.
 
      The .is-current rule above needs no change: a transform of none is not a
-     3D transform and was never promoting anything. */
-  .ccc-scr-rpt__slide  { transform: translate(0, .4em); }
-  .ccc-scr-feed__slide { transform: translate(0, .45em); }
+     3D transform and was never promoting anything.
+
+     v29: this was phone-only and is now the base rule of both rotators on
+     every breakpoint (the perf audit measured the same promotion on iPad and
+     desktop). The two declarations that lived here are gone — they had also
+     been quietly out-ranking the reduced-motion block's transform: none on a
+     phone, because they came later in the sheet. */
 }
 
 /* ══ forced colours ══════════════════════════════════════════════════════ */
@@ -1598,24 +1650,16 @@ function injectStyles() {
   document.head.append(el('style', { id: 'ccc-screens-css', text: STYLES }));
 }
 
-/* -----------------------------------------------------------------------------
- * 4 · Perspective maths
- *
- * Lifted, deliberately unchanged, from the version of this code that lived in
- * overlay.js: it is solved, reviewed and correct, and the Host Stand TV depends
- * on it. An 8-DOF projective transform maps our flat W x H panel onto the four
- * measured corners of a screen photographed at an angle, emitted as a CSS
- * matrix3d so the browser warps it on the GPU and hit-testing follows.
- * -------------------------------------------------------------------------- */
 
-/** Gaussian elimination with partial pivoting. Returns null when singular —
- *  a NaN inside a transform blanks the element, which is far worse than a
- *  quiet fallback to the axis-aligned box. */
+
+
+
+
 function solveLinearSystem(A, b) {
   const n = b.length;
 
-  // Relative pivot tolerance: the matrix mixes pixels (~1e3) with their
-  // products (~1e6), so a fixed epsilon is meaningless.
+  
+  
   let magnitude = 0;
   for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
     const v = Math.abs(A[r][c]);
@@ -1652,7 +1696,7 @@ function solveLinearSystem(A, b) {
   return x;
 }
 
-/** Two linear rows per correspondence, h8 pinned to 1 → an 8x8 system. */
+ 
 function computeHomography(src, dst) {
   const A = [];
   const b = [];
@@ -1668,9 +1712,8 @@ function computeHomography(src, dst) {
   return h;
 }
 
-/** matrix3d is column-major. The transform lives in z=0, so h6/h7 become the
- *  perspective terms in the w row. Ten significant figures, NOT toFixed(6):
- *  h6/h7 are around 1e-4 and would round away to nothing. */
+
+
 function homographyToMatrix3d(h) {
   const m = [h[0], h[3], 0, h[6],
              h[1], h[4], 0, h[7],
@@ -1687,7 +1730,7 @@ function validQuad(quad) {
     Number.isFinite(Number(pt[0])) && Number.isFinite(Number(pt[1])));
 }
 
-/** Convexity + area, on the resolved pixel quad — catches collinear input. */
+ 
 function isSaneQuad(pts) {
   let area = 0;
   let sign = 0;
@@ -1705,7 +1748,7 @@ function isSaneQuad(pts) {
 
 const dist2d = (a, b) => Math.hypot(b[0] - a[0], b[1] - a[1]);
 
-/** `data-screen-quad`: eight numbers TL,TR,BR,BL in % of the plate, or JSON. */
+ 
 function parseQuadAttr(raw) {
   if (!raw) return null;
   const text = String(raw).trim();
@@ -1720,39 +1763,13 @@ function parseQuadAttr(raw) {
   return [[nums[0], nums[1]], [nums[2], nums[3]], [nums[4], nums[5]], [nums[6], nums[7]]];
 }
 
-/* -----------------------------------------------------------------------------
- * 5 · The streaks feed — one fetch, shared by every feed screen
- * -------------------------------------------------------------------------- */
+
+
 
 let feedCache = { at: 0, promise: null, data: null, failed: false, inflight: false };
 
-/**
- * Fetch the streak board, at most once per window, shared by every feed screen.
- *
- * ⚠ THE BUG THIS FUNCTION EXISTS TO NOT HAVE, TWICE OVER.
- *
- * 1. THE MEMO USED TO CACHE THE FAILURE FOR THE FULL TTL. The resolved promise
- *    — `null`, from the catch — was stored in `feedCache.promise` under the same
- *    ten-minute guard as a success, and `feedCache.failed` was written but never
- *    read by anything. So the first failure poisoned every later attempt for ten
- *    minutes: a second feed panel arming, a tab returning to the foreground, a
- *    reconnected laptop, all got the memoised `null` back instantly without a
- *    request ever leaving the page. Nothing in the module called it with
- *    `force`, so in practice the board was dead for the life of the session.
- *    A SUCCESS is worth memoising for the TTL. A FAILURE is worth memoising only
- *    long enough to stop several panels stampeding the same dead URL.
- *
- * 2. THERE WAS NO DEADLINE. `fetch()` has no timeout of its own, so a connection
- *    that opened and then hung left this promise pending forever — and the feed
- *    renderer, which only paints when the promise settles, left the glass on an
- *    empty `.ccc-scr-feed__stage`: not the board, and not the holding card
- *    either. A fail-soft path that is never reached is not a fail-soft path.
- *
- * On failure this resolves to the LAST GOOD DATA when there is any, so a screen
- * that has been up all day keeps showing this morning's board through a blip
- * rather than dropping to a holding card, and only resolves `null` when there
- * has never been anything to show.
- */
+
+
 function loadStreaks({ force = false } = {}) {
   const now = Date.now();
 
@@ -1767,7 +1784,7 @@ function loadStreaks({ force = false } = {}) {
   feedCache.at = now;
   feedCache.inflight = true;
 
-  // AbortController is everywhere we ship, but a missing one must not throw.
+  
   const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
   const deadline = ctrl
     ? window.setTimeout(() => ctrl.abort(), FEED_TIMEOUT_MS)
@@ -1792,18 +1809,15 @@ function loadStreaks({ force = false } = {}) {
       console.warn('[screens] detractor streaks unavailable:', err && err.message);
       feedCache.failed = true;
       feedCache.inflight = false;
-      // Stale beats blank; null only when there has never been anything.
+      
       return feedCache.data;
     });
 
   return feedCache.promise;
 }
 
-/**
- * Group the flat store list into one entry per district, in the order the feed
- * itself declares (`districts[]`), falling back to first-appearance order.
- * Stores sort best-first; a store with no surveys sinks to the bottom.
- */
+
+
 function groupByDistrict(data) {
   const goal = num(data.goalDays) || 30;
   const meta = new Map();
@@ -1822,7 +1836,7 @@ function groupByDistrict(data) {
     bucket.get(key).push(store);
   }
 
-  // Prefer the feed's own district order when it covers what we found.
+  
   const declared = Array.isArray(data.districts)
     ? data.districts.map((d) => d && (d.label || d.key)).filter((k) => bucket.has(k))
     : [];
@@ -1840,47 +1854,15 @@ function groupByDistrict(data) {
   });
 }
 
-/* -----------------------------------------------------------------------------
- * 5b · The sales workbook — one fetch and one parse, shared by every report
- *      screen
- *
- * The Daily Sales Report is driven from `data/Sales Report.xlsx` in its own
- * repo, parsed client-side with SheetJS. The break-room television renders the
- * same numbers natively (see the MODE: report block in §3 for why it cannot
- * iframe them), so it reads the same workbook with the same parser shapes and
- * the same vocabulary — this is meant to be the same product on a smaller
- * screen, not a lookalike.
- *
- * THE COSTS, STATED HONESTLY. This is the only thing on the site that pulls a
- * ~900KB library and a ~1.1MB workbook. Both are therefore paid ONLY when a
- * `report` panel actually arms — i.e. when the Break Room is within one and a
- * half viewports — never at boot, never for any other mode, and never twice:
- * the library is one <script> guarded by an id, and the workbook is one fetch
- * memoised for the same ten minutes the source app refreshes on.
- *
- * THE DISCIPLINE IS §5's, DELIBERATELY COPIED. Every rule that block exists to
- * enforce applies here for the same reasons:
- *   · a real deadline on the fetch, because `fetch()` has none of its own and a
- *     socket that opens and hangs is a screen that never fail-softs;
- *   · a SUCCESS is memoised for the TTL, a FAILURE only for FEED_RETRY_MS —
- *     long enough to stop a stampede, far too short to settle what the board
- *     shows for the rest of the session;
- *   · on failure resolve LAST GOOD DATA when there is any, and `null` only
- *     when there has never been anything.
- * -------------------------------------------------------------------------- */
 
-/** The market this site belongs to. The workbook is the whole company; every
- *  row whose RSD is not this one belongs to somebody else's break room. The
- *  source app spells it `RSD_NAME: 'Jeffrey Bilbrey'` and tests it with
- *  `String(rsd).includes('Bilbrey')` — same test, same surname. */
+
+
+
+
 const RSD_SURNAME = 'Bilbrey';
 
-/** The market's districts, copied from the source app's own DISTRICTS table so
- *  a store lands in the same district on this wall as it does on the deck.
- *  `dmMatch` is a DM-surname substring from the Store Rank sheet; storeMatch /
- *  storeExclude are the hand-placed exceptions (Cicero reports to the East DM
- *  but belongs to Chicago North on the org chart). The 'all' row is dropped —
- *  this board never filters. */
+
+
 const REPORT_DISTRICTS = [
   { key: 'north',     label: 'Chicago North', dmMatch: ['dhorajiwala'], storeMatch: ['cicero'] },
   { key: 'south',     label: 'Chicago South', dmMatch: ['carrillo'] },
@@ -1889,26 +1871,26 @@ const REPORT_DISTRICTS = [
   { key: 'big-south', label: 'Big South',     dmMatch: ['brooks'] }
 ];
 
-/** The two regions this market sits inside, for the region standings card.
- *  The source app's CONFIG.OUR_REGIONS, unchanged. */
+
+
 const OUR_REGIONS = ['Greater Chicago', 'Big South'];
 
-/** Sheet names, the source app's CONFIG values. */
+ 
 const SHEET_STORE  = 'Store Rank';
 const SHEET_ZERO   = 'Zero';
 const SHEET_DM     = 'District Rank';
 const SHEET_REGION = 'Region Rank';
 
-/* ── format helpers, the deck's own ──────────────────────────────────────── */
+ 
 
-/** `$79,118` / `-$3,051`. Verbatim from the source app's fmtMoney. */
+ 
 const fmtMoney = (n) => (n < 0 ? '-$' : '$') + Math.abs(Math.round(n)).toLocaleString();
-/** `0.1291` -> `12.9%`. The source app's pctStr. */
+ 
 const pctStr = (v) => `${(v * 100).toFixed(1)}%`;
-/** Whole percent. A tenth of a point is noise on a goal meter read at 18px. */
+ 
 const pctWhole = (v) => `${Math.round(v * 100)}%`;
 
-/** The source app's storeMatchesDistrict, minus the catch-all branch. */
+ 
 function storeInDistrict(store, dist) {
   const name = String(store.name || '').toLowerCase();
   if (dist.storeExclude && dist.storeExclude.some((m) => name.includes(m))) return false;
@@ -1917,32 +1899,16 @@ function storeInDistrict(store, dist) {
   return dist.dmMatch.some((m) => dm.includes(m));
 }
 
-/* ── SheetJS, loaded lazily and never twice ──────────────────────────────── */
+ 
 
-/** Pinned, exactly the build the source app loads. It is NOT run through
- *  freshUrl(): the two data URLs below are, because the client's requirement is
- *  fresh NUMBERS, but this is an immutable version-pinned library on a CDN and
- *  a rolling query string on it would defeat the only cache that matters and
- *  re-download 900KB for nothing. */
+
+
 const SHEETJS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
 
 let sheetJsPromise = null;
 
-/**
- * Resolve to `window.XLSX`, or to `null` if the library never arrives.
- *
- * Three things this has to get right:
- *   1. ONE <script>, however many report panels arm in the same frame. The id
- *      guard plus the shared promise does that; a second panel awaits the
- *      first one's tag instead of injecting another 900KB.
- *   2. A DEADLINE. A <script> that neither loads nor errors — a captive portal,
- *      a CDN blocked by a store's filter — otherwise leaves the board waiting
- *      forever on a promise that never settles, which is the exact shape of the
- *      `live` bug this whole mode replaces.
- *   3. A FAILURE IS NOT MEMOISED. On failure the promise AND the dead tag are
- *      both dropped, so the next retry tick genuinely re-injects. Caching the
- *      failure would settle the board's contents for the session.
- */
+
+
 function ensureSheetJS() {
   if (window.XLSX && typeof window.XLSX.read === 'function') {
     return Promise.resolve(window.XLSX);
@@ -1957,7 +1923,7 @@ function ensureSheetJS() {
       window.clearTimeout(deadline);
       const lib = ok && window.XLSX && typeof window.XLSX.read === 'function' ? window.XLSX : null;
       if (!lib) {
-        // Drop both memos so a later retry is a real one.
+        
         sheetJsPromise = null;
         const dead = document.getElementById('ccc-sheetjs');
         if (dead) dead.remove();
@@ -1985,28 +1951,19 @@ function ensureSheetJS() {
   return sheetJsPromise;
 }
 
-/* ── the workbook itself ─────────────────────────────────────────────────── */
+ 
 
 let bookCache = { at: 0, promise: null, data: null, failed: false, inflight: false };
 
-/** `XLSX.utils.sheet_to_json(sheet, {header:1})` on a named sheet, or null. */
+ 
 function sheetRows(XLSX, wb, name) {
   const sheet = wb.Sheets[name];
   if (!sheet) return null;
   return XLSX.utils.sheet_to_json(sheet, { header: 1, defval: null, raw: true });
 }
 
-/**
- * `Store Rank` -> this market's stores.
- *
- * Header discovery and every column lookup are the source app's parseWorkbook,
- * kept row for row: the header row is the first of the top 15 carrying both a
- * cell equal to 'Rank' and a cell containing 'Store'; columns are found by
- * case-insensitive substring so a renamed "Net Target GP $" still resolves.
- * Two columns are matched EXACTLY rather than by substring, and both for the
- * source app's reasons: 'GP $ Trend' would otherwise be eaten by
- * 'GP $ Est Net Trend', and 'Fiscal NPS' by 'Last Month Fiscal NPS'.
- */
+
+
 function parseStoreRank(aoa) {
   let headerRow = -1;
   for (let i = 0; i < Math.min(15, aoa.length); i++) {
@@ -2030,7 +1987,7 @@ function parseStoreRank(aoa) {
   const out = [];
   for (let i = headerRow + 1; i < aoa.length; i++) {
     const row = aoa[i];
-    if (!row || !row[iRank]) break;                 // the sheet ends at its first gap
+    if (!row || !row[iRank]) break;                 
     if (!String(row[iRSD] || '').includes(RSD_SURNAME)) continue;
     out.push({
       rank:   Number(row[iRank]) || 0,
@@ -2050,13 +2007,8 @@ function parseStoreRank(aoa) {
   return out;
 }
 
-/**
- * `Zero` -> yesterday's walk-ins and mobile sales, by store name.
- * The source app's parseZeroSheet, unchanged: header row is the one whose
- * first cell reads 'Store Name'; column 2 is TTL Mobile, 7 is Yesterday MCR %,
- * 8 is Yesterday Traffic. MCR arrives as either a fraction or a percentage
- * depending on how the sheet was last saved, so it is normalised the same way.
- */
+
+
 function parseZeroSheet(aoa) {
   let headerIdx = -1;
   for (let i = 0; i < Math.min(10, aoa.length); i++) {
@@ -2081,12 +2033,8 @@ function parseZeroSheet(aoa) {
   return out;
 }
 
-/**
- * `District Rank` / `Region Rank` -> the national standings.
- * The source app's parseRankSheet: the header row is the one of the top six
- * whose first cell is exactly 'Rank'; column 2 is Avg GP Trend $ and column 32
- * is NPS%. Only the columns this board actually shows are kept.
- */
+
+
 function parseRankSheet(aoa) {
   let headerIdx = -1;
   for (let i = 0; i < Math.min(aoa.length, 6); i++) {
@@ -2110,7 +2058,7 @@ function parseRankSheet(aoa) {
   return rows;
 }
 
-/** Everything the report cards need, in one plain object. */
+ 
 function buildSalesModel(XLSX, wb) {
   const storeAoa = sheetRows(XLSX, wb, SHEET_STORE);
   const stores = storeAoa ? parseStoreRank(storeAoa) : [];
@@ -2124,10 +2072,10 @@ function buildSalesModel(XLSX, wb) {
   const dmRanks = dmAoa ? parseRankSheet(dmAoa) : [];
   const regionRanks = regionAoa ? parseRankSheet(regionAoa) : [];
 
-  // Yesterday, rolled up per district and for the market. The deck prints the
-  // same three numbers per row plus a DISTRICT TOTAL; this board has room for
-  // one row per district and one MARKET total, which is the same table with
-  // the market's five districts standing in for one district's five stores.
+  
+  
+  
+  
   const districts = REPORT_DISTRICTS.map((d) => {
     const own = stores.filter((s) => storeInDistrict(s, d));
     const y = own.reduce((acc, s) => {
@@ -2149,10 +2097,10 @@ function buildSalesModel(XLSX, wb) {
   market.stores = stores.length;
   market.atGoal = stores.filter((s) => s.target > 0 && s.gpTrend >= s.target).length;
 
-  // Our own district managers, looked up in the national District Rank table.
-  // Matched the way the deck matches them: a DM name off our store rows,
-  // compared loosely in both directions so "Matt Brooks" still finds
-  // "Matthew Brooks".
+  
+  
+  
+  
   const ourDMs = new Set(stores.map((s) => String(s.dm || '').toLowerCase().trim()).filter(Boolean));
   const isOurDM = (name) => {
     const n = String(name).toLowerCase().trim();
@@ -2169,15 +2117,8 @@ function buildSalesModel(XLSX, wb) {
   return { stores, zero, districts, market, dmRanks, dmMine, dmTotal, regionRanks, regionMine };
 }
 
-/**
- * Fetch + parse the workbook, at most once per window, shared by every report
- * screen. Resolves the model, the last good model, or null.
- *
- * The deadline is longer than the feeds' because the payload is: the streak
- * JSON is 16KB and the workbook is ~1.1MB, and a store's wifi is a store's
- * wifi. It is still a hard deadline — an unanswered request is a failure like
- * any other and must reach the retry clock rather than hang.
- */
+
+
 function loadWorkbook({ force = false } = {}) {
   const now = Date.now();
 
@@ -2195,8 +2136,8 @@ function loadWorkbook({ force = false } = {}) {
   const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
   const deadline = ctrl ? window.setTimeout(() => ctrl.abort(), BOOK_TIMEOUT_MS) : 0;
 
-  // The library and the bytes are fetched together: neither is useful alone and
-  // starting them in series would add a whole round trip to a cold board.
+  
+  
   bookCache.promise = Promise.all([
     ensureSheetJS(),
     fetch(freshUrl(EXCEL_URL, BUCKET_MS), {
@@ -2209,16 +2150,16 @@ function loadWorkbook({ force = false } = {}) {
     .then(([XLSX, buf]) => {
       if (deadline) window.clearTimeout(deadline);
       if (!XLSX) throw new Error('SheetJS unavailable');
-      // `sheets` is the whole reason this parse is affordable on a phone.
-      // buildSalesModel() reads FOUR sheets by exact name and nothing else, and
-      // without this option SheetJS materialises every sheet in a ~1.1MB
-      // workbook as a cell-per-key object graph — tens of megabytes of transient
-      // JS objects, allocated in the one room (the Break Room) that a phone
-      // reaches last, with the whole runway's plates already resident. Naming
-      // the four keeps the graph to what is actually read. The names are the
-      // same constants sheetRows() then looks up in wb.Sheets, so a workbook
-      // that renames a tab fails exactly as it did before: a missing sheet, a
-      // null AoA and the holding card, not a wrong number.
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       const model = buildSalesModel(XLSX, XLSX.read(buf, {
         type: 'array',
         sheets: [SHEET_STORE, SHEET_ZERO, SHEET_DM, SHEET_REGION]
@@ -2233,23 +2174,17 @@ function loadWorkbook({ force = false } = {}) {
       console.warn('[screens] sales workbook unavailable:', err && err.message);
       bookCache.failed = true;
       bookCache.inflight = false;
-      return bookCache.data;             // stale beats blank; null only if never
+      return bookCache.data;             
     });
 
   return bookCache.promise;
 }
 
-/* -----------------------------------------------------------------------------
- * 6 · Mode renderers
- *
- * Every renderer returns a small controller:
- *   { node, resize(rec), activate(rec), deactivate(rec), destroy() }
- * `activate` runs when the screen comes within range, `deactivate` when it
- * leaves — that is where timers stop and iframes die.
- * -------------------------------------------------------------------------- */
 
-/** The calm branded card every mode falls back to. Never a spinner, never a
- *  broken image, never a stack trace. */
+
+
+
+
 function holdingCard(title, note) {
   return el('div', { class: 'ccc-scr-holding' }, [
     el('span', { class: 'ccc-scr-holding__mark', text: 'Cook County Cooks' }),
@@ -2258,51 +2193,42 @@ function holdingCard(title, note) {
   ]);
 }
 
-/* ── title ────────────────────────────────────────────────────────────────── */
+ 
 
-/** Rooms, as a terminal's chrome would name them. Falls back to the house
- *  name, so a `title` screen mounted in a room this map has never heard of
- *  still gets a plausible station id rather than a blank rail. */
+
+
 const ROOM_TITLES = {
   pass: 'The Pass', host: 'Host Stand', dining: 'Dining Room', prep: 'Prep',
   office: 'Back Office', breakroom: 'Break Room', freezer: 'Walk-In'
 };
 
-/** "THE PASS · 02" — the station id in the chrome rail. The number is the
- *  panel's position among the screen hosts of its own room, in DOM order, so
- *  the three tablets read 01/02/03 left to right without anything in rooms.js
- *  having to say so. Derived, never hand-set. */
-function stationLabel(rec) {
-  const { room, roomId } = roomOf(rec.host);
+
+
+function stationNumber(rec) {
+  const { room } = roomOf(rec.host);
   const scope = room || document;
   let n = 1;
   try {
     const hosts = Array.from(scope.querySelectorAll('[data-screen]'));
     const i = hosts.indexOf(rec.host);
     if (i >= 0) n = i + 1;
-  } catch { /* a detached host is still worth a station id */ }
+  } catch {   }
+  return n;
+}
+
+function stationLabel(rec) {
+  const { roomId } = roomOf(rec.host);
   const place = ROOM_TITLES[roomId] || 'Cook County Cooks';
-  return `${place} · ${String(n).padStart(2, '0')}`;
+  return `${place} · ${String(stationNumber(rec)).padStart(2, '0')}`;
 }
 
 function makeTitle(rec) {
-  /* A <p>, NOT an <h3>, and that is a fix rather than a preference.
-     A screen host lives in `.hotspots`, which theme.css §09 puts BEFORE the
-     rail in the stage — so the three panels in the Pass emitted "6th Gen Quote
-     Sheet / Upgrade / Internet" as h3s before the room's own
-     <h2 class="rail-title"> ("The Pass") had appeared at all. A heading walk
-     therefore entered every room three levels deep and jumped h1 -> h3, which
-     is what axe reports as `heading-order`.
-     Demoting rather than re-ordering is the honest call: this caption is not a
-     section heading, it is the visible label of the one control the panel IS
-     (`.ccc-scr__hit`, whose accessible name is already "Open <the same
-     words>"). Nothing outside this function knows or cares about the tag —
-     .ccc-scr-title__name carries every style, `margin: 0` included, and
-     applyRecord() finds the node by that class. */
+  
+
   const name = el('p', { class: 'ccc-scr-title__name', text: rec.headline });
 
-  /* Row 1 — the chrome. aria-hidden throughout: the button's accessible name is
-     already "Open <tool>", and a screen reader has no use for set dressing. */
+  
+
   const bar = el('div', { class: 'ccc-scr-title__bar', 'aria-hidden': 'true' }, [
     el('span', { class: 'ccc-scr-title__term', text: stationLabel(rec) }),
     el('span', { class: 'ccc-scr-title__stat' }, [
@@ -2311,57 +2237,56 @@ function makeTitle(rec) {
     ])
   ]);
 
-  /* Row 2 — the one subject on the screen. */
-  /* No second brass rule under the name: the chrome rail's own hairline is
-     the rule now, and at 150px of glass a third brass element competes with
-     the key for the eye instead of structuring anything. */
+   
+  
+
   const body = el('div', { class: 'ccc-scr-title__body' }, [name]);
 
-  /* Row 3 — the primary key. Not a button: the whole panel is already one
-     <button>, and nesting a second interactive element inside a control is
-     invalid and would hand the tab order a duplicate. This is the KEY CAP the
-     panel-wide button presses. */
+  
+
   const key = el('div', { class: 'ccc-scr-title__key', 'aria-hidden': 'true' }, [
     el('span', { class: 'ccc-scr-title__cta', text: 'Tap to open' }),
     el('span', { class: 'ccc-scr-title__chev', text: '›' })
   ]);
+  
+  key.setAttribute('data-station', String(stationNumber(rec)));
 
   const node = el('div', { class: 'ccc-scr-title' }, [bar, body, key]);
 
   return {
     node,
     resize(r) {
-      // ── THE AUTO-FIT ───────────────────────────────────────────────────
-      // Two numbers come out of one solve, and both are pure functions of the
-      // glass box: a tablet 15% of frame width and a full-width phone strip
-      // are the same problem with different numbers, so there is one solve
-      // rather than a table of breakpoints.
-      //
-      //   --scr-pos-fs   the chrome unit. Everything in the rail and the key
-      //                  is an em of it, so paying for the chrome is a single
-      //                  multiplication rather than a stack of guesses.
-      //   --scr-title-fs the subject. Solved from what is LEFT after the
-      //                  chrome, which is the whole reason the terminal
-      //                  layout does not squeeze the name off the glass.
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       const w = r.planeW, h = r.planeH;
       if (!w || !h) return;
       const narrow = r.narrow;
 
-      // The chrome unit. Capped on both axes so a very wide strip does not get
-      // a rail out of proportion to its height, and floored at 7px because
-      // below that uppercase tracking stops resolving at all.
+      
+      
+      
       const u = Math.max(7, Math.min(h * (narrow ? 0.13 : 0.093), w * 0.040));
 
-      // What the chrome actually costs, in the same em terms the CSS uses:
-      //   rail = 1 line + .62em padding + the hairline
-      //   key  = 1.06em cap-line + .78em + .74em padding + the 2px shadow lip
+      
+      
+      
       const railH = u * 1.0 + u * 0.62 + 1;
       const keyH  = Math.max(narrow ? 44 : 0, u * 1.06 + u * 1.36 + 2);
       const padY  = h * (narrow ? 0.08 : 0.09);
       const gaps  = h * (narrow ? 0.03 : 0.08);
 
-      // The name's own box. In the narrow strip the key sits BESIDE the
-      // subject rather than under it, so it costs width, not height.
+      
+      
       const bw = (w - w * (narrow ? 0.09 : 0.11)) * (narrow ? 0.62 : 1);
       const bh = narrow
         ? Math.max(14, h - railH - padY - gaps)
@@ -2370,8 +2295,8 @@ function makeTitle(rec) {
       const text = (rec.headline || '').replace(/\s+/g, ' ').trim();
       const chars = Math.max(8, text.length);
       let fs = Math.sqrt((bw * bh * 0.42) / chars) * 1.42;
-      // Cap on both axes: bh*0.46 leaves room for two lines of the name,
-      // bw*0.34 keeps the longest single word inside the glass.
+      
+      
       fs = Math.min(fs, bh * 0.46, bw * 0.34);
       fs = Math.max(fs, 10);
 
@@ -2384,32 +2309,52 @@ function makeTitle(rec) {
   };
 }
 
-/* ── image ────────────────────────────────────────────────────────────────── */
+ 
+
+
+
+const PROMO_FETCH_TIMEOUT_MS = 30 * 1000;
+
+
+
+async function fingerprint(blob) {
+  const buf = await blob.arrayBuffer();
+  try {
+    if (window.crypto && window.crypto.subtle) {
+      const d = new Uint8Array(await window.crypto.subtle.digest('SHA-1', buf));
+      let s = '';
+      for (let i = 0; i < d.length; i++) s += d[i].toString(16).padStart(2, '0');
+      return `sha1:${s}`;
+    }
+  } catch {   }
+  const b = new Uint8Array(buf);
+  let h = 0x811c9dc5;
+  for (let i = 0; i < b.length; i++) { h ^= b[i]; h = Math.imul(h, 0x01000193); }
+  return `fnv:${b.length}:${(h >>> 0).toString(16)}`;
+}
 
 function makeImage(rec) {
   const node = el('div', { class: 'ccc-scr-art' });
-  let bucket = -1;
-  let timer = 0;
-  let deadline = 0;
+  let timer = 0;          
+  let deadline = 0;       
   let retries = 0;
-  let ok = false;
+  let ok = false;         
   let holding = null;
+  let inflight = false;
+  let lastCheck = 0;      
+  let shownPrint = '';    
+  let objUrl = '';        
+  let prevUrl = '';       
 
-  // The blurred copy behind the fitted card is what takes a 1.40 promo card
-  // edge to edge inside a 1.52 screen. Two black bars would read as a broken
-  // mount; an ambient backdrop reads as a screen.
-  const bg = el('img', { class: 'ccc-scr-art__bg', alt: '', 'aria-hidden': 'true', decoding: 'async' });
+  
+  
+  const bg = el('canvas', { class: 'ccc-scr-art__bg', width: '24', height: '17', 'aria-hidden': 'true' });
   const fg = el('img', { class: 'ccc-scr-art__fg', alt: '', 'aria-hidden': 'true', decoding: 'async' });
 
-  const NOTE = 'Today\u2019s promo card has not landed yet. Tap to open the Daily Sales Report.';
+  const NOTE = 'Today’s promo card has not landed yet. Tap to open the Daily Sales Report.';
 
-  /* ⚠ THE HOLDING CARD GOES OVER THE IMAGES, NEVER INSTEAD OF THEM.
-     It used to be `node.replaceChildren(holdingCard(...))`, which took both
-     <img> elements out of the document. Every later load therefore succeeded
-     against elements nothing could see, `.is-live` went on a panel with no
-     picture in it, and the TV showed its holding card for the rest of the
-     session however many good cards arrived afterwards. `.ccc-scr-holding` is
-     `position:absolute; inset:0`, so it is already an overlay — use it as one. */
+  
+
   function showHolding() {
     if (holding) return;
     holding = holdingCard(rec.title || 'Daily promo card', NOTE);
@@ -2427,86 +2372,144 @@ function makeImage(rec) {
     if (deadline) { window.clearTimeout(deadline); deadline = 0; }
   }
 
-  /**
-   * @param {boolean} force  re-request even inside the current bucket. Used by
-   *                         the recovery path; a healthy card is HELD, not
-   *                         re-fetched, until the ten-minute bucket rolls.
-   */
-  function load({ force = false } = {}) {
-    const next = Math.floor(Date.now() / BUCKET_MS);
-    if (!force && next === bucket && ok) return;
-    if (force && !ok) retries++;
-    if (next !== bucket) { bucket = next; retries = 0; }
+  
 
-    const src = promoSrc(ok ? 0 : retries);
+  function paintBackdrop(blob) {
+    if (typeof window.createImageBitmap !== 'function') return;
+    window.createImageBitmap(blob, { resizeWidth: bg.width, resizeHeight: bg.height, resizeQuality: 'low' })
+      .then((bmp) => {
+        try {
+          if (rec.destroyed) return;
+          const ctx = bg.getContext('2d', { alpha: false });
+          if (!ctx) return;
+          ctx.drawImage(bmp, 0, 0, bg.width, bg.height);
+          ctx.fillStyle = 'rgba(0,0,0,.38)';
+          ctx.fillRect(0, 0, bg.width, bg.height);
+        } finally {
+          if (bmp && bmp.close) bmp.close();
+        }
+      })
+      .catch(() => {   });
+  }
+
+  
+
+  function check({ force = false } = {}) {
+    if (inflight || rec.destroyed) return;
+    const now = Date.now();
+    if (ok && !force && now - lastCheck < PROMO_CHECK_MS) return;
+    lastCheck = now;
+    inflight = true;
+
     stopDeadline();
-    // An <img> that never errors and never loads is the same dead screen as one
-    // that 404s, and only this timer tells them apart.
-    deadline = window.setTimeout(() => {
-      deadline = 0;
-      if (!ok) showHolding();
-    }, IMAGE_TIMEOUT_MS);
+    
+    
+    if (!ok) {
+      deadline = window.setTimeout(() => {
+        deadline = 0;
+        if (!ok) showHolding();
+      }, IMAGE_TIMEOUT_MS);
+    }
 
-    fg.src = src;
-    bg.src = src;
+    const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+    const stop = ctrl ? window.setTimeout(() => ctrl.abort(), PROMO_FETCH_TIMEOUT_MS) : 0;
+
+    fetch(PROMO_CARD_URL, {
+      credentials: 'omit',
+      mode: 'cors',
+      cache: retries > 0 && !ok ? 'no-cache' : 'default',
+      signal: ctrl ? ctrl.signal : undefined
+    })
+      .then((res) => (res.ok ? res.blob() : Promise.reject(new Error(`HTTP ${res.status}`))))
+      .then(async (blob) => {
+        if (stop) window.clearTimeout(stop);
+        if (!blob || !blob.size) throw new Error('empty card');
+        const print = await fingerprint(blob);
+        inflight = false;
+        if (rec.destroyed) return;
+        if (ok && print === shownPrint) return;   
+        shownPrint = print;
+        if (objUrl) prevUrl = objUrl;
+        objUrl = URL.createObjectURL(blob);
+        fg.src = objUrl;                          
+        paintBackdrop(blob);
+      })
+      .catch((err) => {
+        if (stop) window.clearTimeout(stop);
+        inflight = false;
+        if (rec.destroyed) return;
+        console.warn('[screens] promo card unavailable:', err && err.message);
+        if (!ok) { stopDeadline(); showHolding(); }
+        
+      });
   }
 
   fg.addEventListener('error', () => {
     stopDeadline();
+    if (prevUrl) { URL.revokeObjectURL(prevUrl); prevUrl = ''; }
     ok = false;
+    shownPrint = '';
     showHolding();
   });
   fg.addEventListener('load', () => {
     stopDeadline();
     ok = true;
     retries = 0;
+    if (prevUrl) { URL.revokeObjectURL(prevUrl); prevUrl = ''; }
     clearHolding();
     rec.panel.classList.add('is-live');
   });
 
   node.append(bg, fg);
 
+  function stopTimer() {
+    if (timer) { window.clearInterval(timer); timer = 0; }
+  }
+
   return {
     node,
     resize: noop,
     activate() {
-      load({ force: !ok });
-      // Re-check on the 10-minute boundary, but only while the screen is in
-      // range and the tab is visible. The card is HELD, not rotated — this is a
-      // refresh, not a slideshow. While it has never arrived the same tick is
-      // the retry, capped so a permanently dead URL is not polled forever.
-      //
-      // ⚠ This used to read `failed = false; load();` — and `load()` began with
-      // `if (next === bucket && !failed) return;`, so clearing the flag one line
-      // early guaranteed the early return and the retry never fired at all.
-      // The intent is an explicit argument, not a flag mutated around the call.
+      check({ force: !ok });
+      
+      
+      
+      
+      
+      
       if (!timer) {
         timer = window.setInterval(() => {
-          if (document.visibilityState === 'hidden') return;
-          if (!ok && retries >= RETRY_LIMIT) return;
-          load({ force: !ok });
+          if (document.visibilityState === 'hidden' || pageViewing()) return;
+          if (!ok) {
+            if (retries >= RETRY_LIMIT) return;
+            retries++;
+            check({ force: true });
+          } else {
+            check();
+          }
         }, RETRY_EVERY_MS);
       }
     },
     deactivate() {
       stopDeadline();
-      if (timer) { window.clearInterval(timer); timer = 0; }
+      stopTimer();
     },
-    /** A tab returning to the foreground gets a fresh card. */
+     
     refresh() {
       retries = 0;
-      load({ force: true });
+      check({ force: true });
     },
     destroy() {
       stopDeadline();
-      if (timer) { window.clearInterval(timer); timer = 0; }
+      stopTimer();
       fg.removeAttribute('src');
-      bg.removeAttribute('src');
+      if (objUrl) { URL.revokeObjectURL(objUrl); objUrl = ''; }
+      if (prevUrl) { URL.revokeObjectURL(prevUrl); prevUrl = ''; }
     }
   };
 }
 
-/* ── feed ─────────────────────────────────────────────────────────────────── */
+ 
 
 function buildStoreTile(store, goal) {
   const days = num(store.days);
@@ -2537,7 +2540,7 @@ function buildStoreTile(store, goal) {
     el('i', { style: `--fill:${fill.toFixed(3)}` })
   ]));
 
-  // The two things worth celebrating, in the source app's own terms.
+  
   if (goalMet) tile.append(el('span', { class: 'ccc-scr-feed__flag', text: 'Goal met' }));
   else if (record) tile.append(el('span', { class: 'ccc-scr-feed__flag', text: 'Record' }));
 
@@ -2551,9 +2554,8 @@ function buildSlide(district, data, index, total) {
 
   const head = el('div', { class: 'ccc-scr-feed__head' }, [
     el('p', { class: 'ccc-scr-feed__eyebrow', text: 'Days since the last bad NPS survey' }),
-    /* <p> for the same reason as .ccc-scr-title__name above: the district name
-       is the subject of one slide inside a control, not a section heading, and
-       as an h3 it landed in the outline before the Back Office's own h2. */
+    
+
     el('p', { class: 'ccc-scr-feed__district', text: district.label }),
     el('p', { class: 'ccc-scr-feed__goal', text: `Goal ${goal} days` })
   ]);
@@ -2569,26 +2571,15 @@ function buildSlide(district, data, index, total) {
     Array.from({ length: total }, (_, i) =>
       el('span', { class: i === index ? 'is-current' : '' })));
 
-  /* ⚠ SAY WHEN IT IS OLD. loadStreaks() resolves to the LAST GOOD DATA when a
-     fetch fails ("stale beats blank", §5) — which is right, and was silent: a
-     board that last succeeded at eight this morning sat on the Back Office wall
-     all day reading exactly like a board that succeeded a minute ago. The date
-     was already printed here, but a date on its own is not a warning; a store
-     manager reads "Aug 28" as a label, not as a problem.
+  
 
-     streaksFresh() is the source app's own rule (more than three days old is
-     not shown at all) and it existed in this file with no caller. It is the
-     caller now: past it, the foot says so in words and the slide carries
-     .is-stale so theme.css can grey the figures. The numbers on this board are
-     "days since the last bad survey", and a counter that has stopped counting
-     is the exact failure the rule was written for. */
   const fresh = streaksFresh(data);
   const stamp = shortDate(data.asOf);
   const foot = el('div', { class: 'ccc-scr-feed__foot' }, [
     el('span', { text: bestLabel }),
     dots,
     el('span', {
-      class: fresh ? '' : 'ccc-scr-feed__stale',
+      class: fresh ? 'ccc-scr-feed__stamp' : 'ccc-scr-feed__stamp ccc-scr-feed__stale',
       text: fresh
         ? (avg !== null ? `District avg ${avg} · ${stamp}` : stamp)
         : `Last updated ${stamp} — not today's numbers`
@@ -2617,12 +2608,8 @@ function makeFeed(rec) {
   const WAITING = 'Bringing up the streak board\u2026 tap to open the Daily Sales Report.';
   const OFFLINE = 'The streak board is not reachable right now. Tap to open the Daily Sales Report.';
 
-  /* ⚠ THE GLASS IS NEVER EMPTY. The board used to paint nothing at all until the
-     fetch settled, so a slow or hanging request left a lit, correctly warped,
-     completely blank `.ccc-scr-feed__stage` on the office wall — which is what
-     the live site was showing. A screen with nothing on it is a broken screen
-     whatever the network is doing, so the branded card is the RESTING state and
-     the board replaces it, not the other way round. Never a spinner. */
+  
+
   function showHolding(note) {
     node.replaceChildren(holdingCard(TITLE(), note));
     rec.panel.classList.remove('is-live');
@@ -2638,13 +2625,13 @@ function makeFeed(rec) {
   }
 
   function applyColumns() {
-    // Column count is a function of how wide the glass actually is, not of the
-    // viewport: the same board is 790px across on a wall and 350px on a phone.
-    // Two rows is the target — a district is five or six stores, and two rows of
-    // three carries a far bigger numeral than three rows of two.
-    // Three columns wherever three fit: two rows of three carries a numeral
-    // half again as big as three rows of two, and the store names still clear
-    // an ellipsis at ~100px of tile. Below that a phone gets two columns.
+    
+    
+    
+    
+    
+    
+    
     const wide = rec.planeW >= 320;
     for (let i = 0; i < slides.length; i++) {
       const grid = slides[i].querySelector('.ccc-scr-feed__grid');
@@ -2653,7 +2640,7 @@ function makeFeed(rec) {
       const cols = wide ? Math.min(3, Math.max(2, Math.ceil(n / 2))) : 2;
       const rows = Math.max(1, Math.ceil(n / cols));
       grid.style.setProperty('--scr-cols', String(cols));
-      // Three rows in the same box means a smaller numeral, or it clips.
+      
       grid.style.setProperty('--scr-num', rows >= 3 ? '2.15' : (rows === 2 ? '3.05' : '4.2'));
     }
   }
@@ -2665,7 +2652,9 @@ function makeFeed(rec) {
   function startTimer() {
     if (timer || slides.length < 2 || !active) return;
     timer = window.setInterval(() => {
-      if (document.visibilityState === 'hidden') return;
+      
+      
+      if (document.visibilityState === 'hidden' || pageViewing()) return;
       tick();
     }, FEED_SLIDE_MS);
   }
@@ -2678,16 +2667,8 @@ function makeFeed(rec) {
     if (retryTimer) { window.clearTimeout(retryTimer); retryTimer = 0; }
   }
 
-  /**
-   * Keep asking while the board is on screen and has still never had data —
-   * but ask more slowly each time. See RETRY_MAX_MS for the arithmetic.
-   *
-   * A self-rescheduling setTimeout rather than a setInterval, because the
-   * delay changes every pass. A tick that lands while the tab is hidden does
-   * not spend the attempt: it reschedules at the SAME delay, so a board that
-   * was backgrounded for an hour does not come back at a five-minute cadence
-   * for something it has only tried twice.
-   */
+  
+
   function startRetry() {
     if (retryTimer || loaded || !active) return;
     const arm = () => {
@@ -2703,16 +2684,8 @@ function makeFeed(rec) {
     arm();
   }
 
-  /**
-   * One request, at most one in flight per panel.
-   *
-   * ⚠ This used to be a one-shot `started` latch around a single
-   *   `loadStreaks().then(render)`. Between that latch and the memo in §5
-   *   caching its own failure, ONE bad fetch — at any point in the session,
-   *   including before the room had ever been looked at — permanently settled
-   *   what this screen would show. There is now exactly one thing that can
-   *   retire the retry: data actually arriving.
-   */
+  
+
   function pull({ force = false } = {}) {
     if (pending) return;
     pending = true;
@@ -2740,7 +2713,7 @@ function makeFeed(rec) {
     startTimer();
   }
 
-  // The resting state, in the DOM from the moment the panel mounts.
+  
   showHolding(WAITING);
 
   return {
@@ -2756,7 +2729,7 @@ function makeFeed(rec) {
       stopTimer();
       stopRetry();
     },
-    /** A tab returning to the foreground gets a board no older than the TTL. */
+     
     refresh() {
       retries = 0;
       pull({ force: !loaded });
@@ -2770,71 +2743,23 @@ function makeFeed(rec) {
   };
 }
 
-/* ── live ─────────────────────────────────────────────────────────────────── */
+ 
 
-/** How long after an iframe's `load` the deck inside it is given to paint its
- *  own content before the branded holding card is lifted off it.
- *
- *  IT IS A SETTLE, NOT A SIGNAL, AND THAT IS NOT A SHORTCUT — it is the whole
- *  of what a cross-origin frame will tell you UNLESS THE DECK SPEAKS: the
- *  Daily Sales Report now posts its own `ready`, and for it this settle is
- *  retired the moment it does — see BOARD_READY_CAP_MS below. For every
- *  board that stays silent, what follows is still true. `load` fires when the deck's
- *  document is done, which for every one of these boards is before it has
- *  fetched its workbook and drawn a slide; nothing after that is observable
- *  from out here (no same-origin DOM, no resource timing for its subresources,
- *  no message it sends). So the choice is between revealing early and showing
- *  the deck's white loading screen — the defect the client photographed — and
- *  revealing late and showing a branded, correct, tappable card for a moment
- *  longer than strictly necessary. Late is the right way to be wrong: the card
- *  says "Tap to open this board full screen", which is true the entire time it
- *  is up, and on a phone it is the same card two of the three boards are
- *  showing anyway because MAX_LIVE_FRAMES is 1.
- *
- *  3200ms is the deck's own budget with room for a cold cellular fetch of the
- *  1.15 MB workbook it renders from. The 12s watchdog below is still the
- *  backstop for a frame that never loads at all, and it now rewrites the note
- *  on this same card instead of swapping the card for another one. */
+
+
 const LIVE_REVEAL_MS = 3200;
+const LIVE_REVEAL_MS_BY_SLUG = {
+  'wtw-chicago':   1200,
+  'wtw-big-south': 1200
+};
 
-/* ── THE READY HANDSHAKE — a board that says when it has drawn ─────────────
-   LIVE_REVEAL_MS above is a guess about a deck we cannot see into, and the
-   Break Room TV showed what a guess costs. Observed in the client's own
-   Chrome (2026-09-03): the lid lifted 3.2 s after the Daily Sales Report's
-   `load`, but the report only draws after ITS OWN workbook fetch + parse —
-   5-15 s on store wifi, never when the fetch stalls — so the rep saw the
-   report's white "Loading Sales Report…" screen for that whole window
-   (white at 8:12 PM, real data at 8:22 PM). `load` is a poor proxy in BOTH
-   directions: it is held back by a 365 KB promo-card probe and a Google
-   Fonts sheet, so on a fast link it fires before the content and on a slow
-   one after it.
 
-   So the report now tells us. From inside the frame it posts
-     { source:'ccc-board', board:'daily-sales', state:'loading'|'ready'|'error' }
-   `loading` when its spinner goes up (every load, retries included), `ready`
-   at the exact line that hides that spinner after the first slide is drawn,
-   `error` when its "Failed to fetch — Retry" screen shows. Trust is by
-   IDENTITY, not by origin string: a message is taken only when
-   `event.source === frame.contentWindow` — the element we mounted is the
-   only thing that can speak for it, whatever origin it was served from.
 
-   A board that never posts (both Win-the-Weekend decks, anything older) is
-   not changed at all: nothing above disarms the `load` + LIVE_REVEAL_MS
-   reveal until the first ccc-board message arrives, and the report posts
-   `loading` from its inline script — during parse, before `load` can fire —
-   so the two paths never race on the one board that speaks.
-
-   BOARD_READY_CAP_MS is for the third case: a board that said `loading` and
-   then went quiet (the workbook request hung with no error — the shape the
-   8:12-to-8:22 stall took). The lid HOLDS — the alternative is the white
-   screen this exists to end — and after the cap the note becomes the same
-   "not reachable" sentence the preflight uses, and the frame is re-mounted
-   with a fresh stamp on the retryDelay() backoff (20 s, 40 s… five-minute
-   floor; see RETRY_MAX_MS for the arithmetic). 45 s is the report's OWN cap
-   on its slowest feed (loadTSheetCounts: normal answers take 12.7-16.7 s,
-   measured 2026-09-02), so anything that has not drawn by then is not slow,
-   it is stuck, and a fresh request is the only thing that will move it. */
 const BOARD_READY_CAP_MS = 45 * 1000;
+
+
+
+const WAKE_SETTLE_MS = 400;
 const BOARD_UNREACHABLE = 'This board is not reachable right now. It will try again on its own — or tap to open it full screen.';
 
 function makeLive(rec) {
@@ -2843,25 +2768,27 @@ function makeLive(rec) {
   let cover = null;
   let watchdog = 0;
   let revealT = 0;
-  let bucket = 0;        // which 5-minute stamp the mounted frame is carrying
-  let dead = false;      // the preflight said the board is not there
-  let speaks = false;    // THIS frame has posted a ccc-board message — it owns the reveal
-  let failed = false;    // the board said `error`, or BOARD_READY_CAP_MS ran out
-  let capT = 0;          // the ready cap, armed by the first `loading`
-  let retryT = 0;        // the backoff re-mount after a failure
-  let attempt = 0;       // consecutive failures, drives retryDelay(); reset by `ready`
-  let onMessage = null;  // the window listener for the mounted frame
-  let wantFresh = false; // retry() asks the next mount() for a unique stamp
+  let bucket = 0;        
+  let dead = false;      
+  let speaks = false;    
+  let failed = false;    
+  let capT = 0;          
+  let retryT = 0;        
+  let attempt = 0;       
+  let onMessage = null;  
+  let wantFresh = false; 
+  let suspended = false; 
+  let revealOnWake = false; 
 
-  /** The board did not come back. Say so on the lid rather than lifting it off
-   *  a grey rectangle, and drop the frame — there is nothing behind it. */
+  
+
   function refuse(note) {
     window.clearTimeout(revealT);
     revealT = 0;
-    // The preflight's word is final for this mount: no ready cap and no
-    // backoff re-mount on top of it. A dead board comes back the way it
-    // always has — refresh() when the 5-minute stamp moves, or the room
-    // scrolling out of range and back.
+    
+    
+    
+    
     window.clearTimeout(capT); capT = 0;
     window.clearTimeout(retryT); retryT = 0;
     if (cover) {
@@ -2875,22 +2802,22 @@ function makeLive(rec) {
     rec.panel.classList.add('is-live');
   }
 
-  /** Fade the lid off and take it out of the DOM. Idempotent. */
+  
+
   function uncover() {
     revealT = 0;
+    if (suspended) { revealOnWake = true; return; }
     if (!cover) return;
     const lid = cover;
     cover = null;
     lid.classList.add('is-gone');
-    // after the .55s transition in the sheet above; removing rather than
-    // leaving an opacity-0 box is what keeps this off the compositor.
+    
+    
     window.setTimeout(() => { if (lid.parentNode) lid.remove(); }, 700);
   }
 
-  /** Put the lid back on (or leave it on) over the frame with these words.
-   *  The frame stays behind it: this is the branded card as a LID, exactly as
-   *  mount() lays it, so a board that goes back to `loading` after it has
-   *  been uncovered gets the same card the next viewer would. */
+  
+
   function armLid(words) {
     if (cover) {
       const n = cover.querySelector('.ccc-scr-holding__note');
@@ -2902,8 +2829,8 @@ function makeLive(rec) {
     node.append(cover);
   }
 
-  /** `ready`: the deck has drawn. Every clock that was waiting for it stops,
-   *  and the lid comes off NOW rather than on a timer. */
+  
+
   function arrived() {
     window.clearTimeout(watchdog);
     window.clearTimeout(capT); capT = 0;
@@ -2911,15 +2838,13 @@ function makeLive(rec) {
     window.clearTimeout(revealT); revealT = 0;
     attempt = 0;
     failed = false;
-    rec.deckArrived = true;                       // read by liveWanted(), not by CSS
+    rec.deckArrived = true;                       
     rec.panel.classList.add('is-live');
     uncover();
   }
 
-  /** `error`, or the cap ran out: keep the lid, change its words, and put a
-   *  fresh request on the backoff clock. deckArrived goes false on purpose —
-   *  a board with nothing drawn is the one liveWanted() is allowed to drop
-   *  while the viewer is up, because it has nothing to lose. */
+  
+
   function fail(words) {
     failed = true;
     window.clearTimeout(watchdog);
@@ -2927,17 +2852,23 @@ function makeLive(rec) {
     window.clearTimeout(revealT); revealT = 0;
     rec.deckArrived = false;
     armLid(words);
-    rec.panel.classList.add('is-live');           // a lit card, not black glass
+    rec.panel.classList.add('is-live');           
     window.clearTimeout(retryT);
     retryT = window.setTimeout(retry, retryDelay(attempt));
     attempt += 1;
   }
 
-  /** Re-mount with a fresh stamp — a unique URL, not the 5-minute bucket, so
-   *  a request the network left hanging cannot be handed back from cache. */
+  
+
   function retry() {
     retryT = 0;
-    if (rec.destroyed || !frame) return;         // held or unmounted: nothing to redo
+    if (rec.destroyed || !frame) return;         
+    
+    
+    if (suspended || pageViewing()) {
+      retryT = window.setTimeout(retry, RESUME_MS);
+      return;
+    }
     dead = false;
     unmount();
     wantFresh = true;
@@ -2947,14 +2878,14 @@ function makeLive(rec) {
   function handleBoard(d) {
     if (!speaks) {
       speaks = true;
-      // the board owns its own reveal from here: the settle timer is a guess
-      // it has just made unnecessary.
+      
+      
       window.clearTimeout(revealT); revealT = 0;
     }
     if (d.state === 'ready') { arrived(); return; }
     if (d.state === 'error') {
-      // the reason is for the console, never for the rep — see hostOf()'s
-      // epitaph above: nothing on the glass names where the boards come from.
+      
+      
       console.warn(`[screens] ${rec.slug}: board reported an error:`, typeof d.reason === 'string' ? d.reason.slice(0, 120) : '');
       fail(BOARD_UNREACHABLE);
       return;
@@ -2980,11 +2911,11 @@ function makeLive(rec) {
     wantFresh = false;
     speaks = false;
     failed = false;
-    // A fresh mount gets a fresh verdict: `dead` belongs to the frame that was
-    // refused, not to the board. Without this reset a board the preflight
-    // declared dead once stayed dead for the life of the page even after the
-    // deck came back, because the new frame's `load` listener bailed on a flag
-    // set for the old one.
+    
+    
+    
+    
+    
     dead = false;
     const url = rec.url;
     if (!url) {
@@ -2993,8 +2924,8 @@ function makeLive(rec) {
     }
     frame = el('iframe', {
       class: 'ccc-scr__frame',
-      // Decorative: it is a picture of a TV, not content. The button above it
-      // is the only thing assistive tech ever sees.
+      
+      
       'aria-hidden': 'true',
       tabindex: '-1',
       scrolling: 'no',
@@ -3002,90 +2933,64 @@ function makeLive(rec) {
       referrerpolicy: 'no-referrer-when-downgrade'
     });
     frame.setAttribute('role', 'presentation');
-    /* ⚠ THE FIRST `load` AN INSERTED IFRAME FIRES IS FOR about:blank, AND IT
-       FIRES SYNCHRONOUSLY ON INSERTION. This listener used to be `{ once:
-       true }` and was attached BEFORE the frame went into the DOM with no src,
-       so the about:blank load consumed it: `is-live` went on 7 ms after mount
-       (measured in Chromium, deck still in flight), the reveal timer lifted
-       the lid 3.2 s later off a frame whose deck had not arrived, and the 12 s
-       watchdog — which checks for `is-live` — never fired at all. On a slow
-       store connection that is the deck's own white loading screen on the
-       Dining Room wall: the exact photograph this cover was built to end.
+    
 
-       Two defences. The src is set BEFORE insertion, so the first navigation
-       is the deck's and no about:blank load is fired (measured: no load event
-       within 4 s on a 2 Mbps link, then the real one); and the listener is
-       persistent and IGNORES any load whose document is still readable and
-       still about:blank — a cross-origin deck throws on that read, which is
-       the "a real document from another origin is here" signal overlay.js's
-       looksBlocked() is built on. */
-    const mounted = frame;                        // this element, not whatever `frame` is later
+    const mounted = frame;                        
     frame.addEventListener('load', () => {
       if (rec.destroyed || dead || mounted !== rec.liveFrame) return;
       let blank = false;
       try { blank = mounted.contentWindow && mounted.contentWindow.location.href === 'about:blank'; }
-      catch { blank = false; }                    // cross-origin: the deck is there
+      catch { blank = false; }                    
       if (blank) return;
-      /* A board that has already spoken (see BOARD_READY_CAP_MS) owns its own
-         reveal: its document being here says nothing about whether it has
-         drawn, so `load` lights the glass behind the lid and does nothing
-         else. deckArrived stays false until `ready` — a deck still pulling
-         its workbook IS the download liveWanted() wants to drop under the
-         viewer's scrim — and the 12 s watchdog keeps its clock, because
-         "taking a while" is the true sentence for a report on store wifi. */
+      
+
       if (speaks) { rec.panel.classList.add('is-live'); return; }
       window.clearTimeout(watchdog);
-      rec.deckArrived = true;                     // read by liveWanted(), not by CSS
-      // the glass powers on now — the deck behind the lid is still white.
+      rec.deckArrived = true;                     
+      
       rec.panel.classList.add('is-live');
       window.clearTimeout(revealT);
-      revealT = window.setTimeout(uncover, LIVE_REVEAL_MS);
+      revealT = window.setTimeout(uncover, LIVE_REVEAL_MS_BY_SLUG[rec.slug] || LIVE_REVEAL_MS);
     });
     rec.liveFrame = frame;
-    /* THE HANDSHAKE LISTENER — see BOARD_READY_CAP_MS. One per mounted frame,
-       on window (postMessage targets the parent window, not the element),
-       attached BEFORE the src is set so the report's `loading` — posted from
-       its inline script, during parse — cannot be missed. The identity test
-       is `event.source === mounted.contentWindow`: not the origin string,
-       which any page can claim and which changes if the client moves the
-       tool, but the WindowProxy of the element THIS mount put in the DOM.
-       `contentWindow` is null once the frame is out of the document, so a
-       message from a torn-down frame can never match a live one. */
-    if (onMessage) window.removeEventListener('message', onMessage);   // never two for one board
+    
+
+    if (onMessage) window.removeEventListener('message', onMessage);   
     onMessage = (event) => {
       if (rec.destroyed || dead || mounted !== rec.liveFrame) return;
       if (!mounted.contentWindow || event.source !== mounted.contentWindow) return;
       const d = event.data;
-      if (!d || typeof d !== 'object' || d.source !== 'ccc-board') return;
-      handleBoard(d);
+      if (!d || typeof d !== 'object') return;
+      if (d.source === 'ccc-board') {
+        
+        
+        if (suspended) postToBoard('pause');
+        handleBoard(d); return;
+      }
+      
+      
+      if (d.source === 'ccc-tool' && d.state === 'painted') handleBoard({ state: 'ready' });
     };
     window.addEventListener('message', onMessage);
-    // 5-minute bucket, not a per-mount stamp: these boards mount and unmount
-    // as the room scrolls in and out, and a unique URL each time would refetch
-    // the whole deck on every pass. Five minutes is well inside "today's
-    // numbers" while still picking up a push within one coffee break.
-    // The one exception is a retry() after the board failed: that mount asks
-    // for a unique stamp, because the bucket URL is the one the network just
-    // left hanging and the cache would hand it straight back.
+    
+    
+    
+    
+    
+    
+    
     const BUCKET = 5 * 60 * 1000;
     bucket = Math.floor(Date.now() / BUCKET);
-    frame.src = fresh ? freshUrl(url) : freshUrl(url, BUCKET);   // before insertion — see above
-    // The lid goes on WITH the frame, not instead of it. See the
-    // .ccc-scr-holding--cover note in the sheet above for the defect this is.
+    frame.src = fresh ? freshUrl(url) : freshUrl(url, BUCKET);   
+    
+    
     cover = holdingCard(rec.title, 'Tap to open this board full screen.');
     cover.classList.add('ccc-scr-holding--cover');
     node.replaceChildren(frame, cover);
     fit();
 
-    /* ⚠ ASK THE SERVER WHETHER THE BOARD IS THERE.
-       The `load` listener above is the same trap overlay.js was in: it fires
-       for a 404, a 500, an empty body and an error page exactly as it does for
-       the deck, so `is-live` went on and LIVE_REVEAL_MS lifted the branded
-       holding card off a grey rectangle 3.2 seconds later. Confirmed for 404,
-       an empty body and an error page; only the hang path (the 12s watchdog
-       below) behaved. One GET, cancelled at the headers — see preflight.js —
-       answers it, and a definite failure keeps the lid ON with the note
-       rewritten, which is the state this screen already knows how to be. */
+    
+
     preflight(url).then((v) => {
       if (rec.destroyed || frame === null) return;
       if (v.verdict !== 'gone' && v.verdict !== 'unreachable' && v.verdict !== 'empty') return;
@@ -3094,15 +2999,8 @@ function makeLive(rec) {
       refuse(preflightCopy(v, rec.title) + ' Tap to open it full screen.');
     });
 
-    /* A deck that has not arrived by now gets a truer sentence on its lid —
-       and KEEPS ITS FRAME. This used to drop the frame at 12 s, and until v15
-       that was harmless because the about:blank bug above meant it never ran.
-       Now that it can run, dropping the frame would throw away a 5.6 MB deck
-       at second 12 of a 22-second download (4 Mbps) — the same mistake
-       overlay.js's old 6 s watchdog made with the quote sheets. A genuinely
-       dead board is the preflight's call (refuse(), above); this clock only
-       ever changes the words. The lid stays on, the frame stays behind it,
-       and the load listener uncovers the deck whenever it lands. */
+    
+
     watchdog = window.setTimeout(() => {
       if (rec.destroyed || rec.deckArrived) return;
       const words = 'This board is taking a while to load. Tap to open it full screen.';
@@ -3112,18 +3010,13 @@ function makeLive(rec) {
       } else {
         node.replaceChildren(holdingCard(rec.title, words));
       }
-      // The glass "powers on" so the lid reads as a lit card, not black glass.
+      
       rec.panel.classList.add('is-live');
     }, 12000);
   }
 
-  /**
-   * The no-frame state: this board is in range but the live-iframe ration is
-   * spent (see MAX_LIVE_FRAMES / liveBudget()). Shows the mode's own holding
-   * card rather than leaving the glass empty. Idempotent — reconcile() calls it
-   * on every observer callback — and it never fights mount(): a board that
-   * later wins a frame goes through activate(), which replaces these children.
-   */
+  
+
   function hold() {
     if (frame) return;
     if (node.firstElementChild &&
@@ -3132,10 +3025,48 @@ function makeLive(rec) {
     rec.panel.classList.add('is-live');
   }
 
+  
+
+  
+
+  function postToBoard(action) {
+    try {
+      if (frame && frame.contentWindow) frame.contentWindow.postMessage({ source: 'ccc-site', action }, '*');
+    } catch (e) {   }
+  }
+
+  function suspend() {
+    if (!frame || suspended) return;
+    suspended = true;
+    node.classList.add('is-suspended');
+    postToBoard('pause');
+    if (revealT) { window.clearTimeout(revealT); revealT = 0; revealOnWake = true; }
+    armLid('Tap to open this board full screen.');
+  }
+
+  
+
+  function resume() {
+    if (!suspended) return;
+    suspended = false;
+    node.classList.remove('is-suspended');
+    if (!frame) return;
+    postToBoard('resume');
+    const settle = revealOnWake ? (LIVE_REVEAL_MS_BY_SLUG[rec.slug] || LIVE_REVEAL_MS) : WAKE_SETTLE_MS;
+    if (rec.deckArrived || revealOnWake) {
+      revealOnWake = false;
+      window.clearTimeout(revealT);
+      revealT = window.setTimeout(uncover, settle);
+    }
+  }
+
   function unmount() {
     window.clearTimeout(watchdog);
     window.clearTimeout(revealT);
     revealT = 0;
+    suspended = false;
+    revealOnWake = false;
+    node.classList.remove('is-suspended');
     window.clearTimeout(capT); capT = 0;
     window.clearTimeout(retryT); retryT = 0;
     if (onMessage) { window.removeEventListener('message', onMessage); onMessage = null; }
@@ -3143,10 +3074,10 @@ function makeLive(rec) {
     cover = null;
     rec.panel.classList.remove('is-live');
     if (frame) {
-      // Just remove it. Removing an <iframe> destroys its browsing context on
-      // the spot AND pushes nothing onto session history — navigating it to
-      // about:blank first would stack entries that closeTool()'s history.back()
-      // then has to unwind.
+      
+      
+      
+      
       frame.remove();
       frame = null;
     }
@@ -3155,35 +3086,23 @@ function makeLive(rec) {
     node.replaceChildren();
   }
 
-  /**
-   * Size the frame to the glass.
-   *
-   * The virtual viewport keeps the panel's own aspect — that is what makes the
-   * scaled frame land corner to corner with no bars and no crop — and is made
-   * big enough that the deck inside it lays a whole slide out rather than
-   * clipping one, and NO bigger, because every px of height above that floor
-   * is a px of scale taken off every glyph on the glass. See
-   * LIVE_MIN_VIRTUAL_H for the measurements behind 880 and 935.
-   *
-   * The scale is uniform, so nothing is distorted, and the frame is positioned
-   * at the plane's top-left with `transform-origin: top left`, so the scaled
-   * box starts exactly where the glass starts.
-   */
+  
+
   function fit() {
     if (!frame) return;
     const w = rec.planeW, h = rec.planeH;
     if (!w || !h) return;
 
-    const aspect = w / h;                       // the panel's, as measured
-    // Derived, not hand-tuned: the height THIS deck was measured to need, the
-    // panel's own aspect, and whatever floor rooms.js asked for. Per slug
-    // because the two decks' tallest slides are different slides and 57px
-    // apart — see LIVE_MIN_VIRTUAL_H_BY_SLUG.
+    const aspect = w / h;                       
+    
+    
+    
+    
     const minH = LIVE_MIN_VIRTUAL_H_BY_SLUG[rec.slug] || LIVE_MIN_VIRTUAL_H;
     const vw = Math.max(rec.renderWidth, Math.round(minH * aspect));
     const vh = Math.max(1, Math.round(vw / aspect));
 
-    const scale = w / vw;                       // uniform: no distortion
+    const scale = w / vw;                       
     frame.style.width = `${vw}px`;
     frame.style.height = `${vh}px`;
     frame.style.transform = `scale(${scale.toFixed(5)})`;
@@ -3196,34 +3115,11 @@ function makeLive(rec) {
     deactivate: unmount,
     destroy: unmount,
     hold,
-    /**
-     * A STORE iPAD PARKED ON THE DINING ROOM SHOWED THE LEADERBOARD FROM
-     * PAGE-LOAD TIME FOR EVER. This mode exposed no refresh(), so the
-     * visibilitychange handler at the foot of this file — which asks every
-     * active screen for one — skipped it, and the only thing that ever
-     * re-navigated these frames was the room scrolling out of range and back.
-     * On a device left on one room, that never happens.
-     *
-     * Re-mount only when the 5-minute stamp has actually moved on, so a rep
-     * flicking between apps does not make the wall reload a 1.15 MB deck every
-     * time; and only when a frame is genuinely mounted, so a board holding the
-     * branded card because the live-frame ration is spent stays as it is.
-     * A board the preflight declared dead retries here too: `dead` is cleared,
-     * so a deck that comes back is picked up on the next foreground.
-     *
-     * A board that FAILED the handshake (said `error`, or never said `ready`
-     * inside BOARD_READY_CAP_MS) does not wait for the bucket: it is showing
-     * a "not reachable" card with nothing behind it worth keeping, and a tab
-     * coming to the foreground is the best moment to ask again — with a
-     * fresh stamp, for the reason retry() gives.
-     *
-     * THE LID IS RE-ARMED BY THIS RE-MOUNT, not merely restored: mount() lays
-     * a new cover WITH the new frame and, for a board that speaks, keeps it
-     * there until `ready` — so the 5-minute refresh never flashes the
-     * report's loading screen either. Measured: a refresh is a full workbook
-     * fetch on the report's side (it stamps its own `?t=`), i.e. the same
-     * 5-15 s the first load takes.
-     */
+    suspend,
+    resume,
+    get isSuspended() { return suspended; },
+    
+
     refresh() {
       if (!frame) return;
       const stale = Math.floor(Date.now() / (5 * 60 * 1000)) !== bucket;
@@ -3238,16 +3134,10 @@ function makeLive(rec) {
   };
 }
 
-/* ── report ───────────────────────────────────────────────────────────────── */
+ 
 
-/** Money compacted for a 297px screen: `$1.63M`, `$107k`, `$8,009`.
- *  The deck prints fmtMoney() everywhere because it has 1920px to print it in.
- *  Here a nine-character figure would take a third of the row and push the
- *  store name — the thing the card is ABOUT — into an ellipsis, so anything
- *  over ten thousand is rounded. Measured: `$107,467` is 62px at 1.24em/1440
- *  and `$107k` is 38px, which is the difference between a 19-character and a
- *  15-character store name in the same row. Below $10,000 nothing is rounded,
- *  because that is the range where the last three digits are the news. */
+
+
 function fmtMoneyShort(n) {
   const sign = n < 0 ? '-$' : '$';
   const abs = Math.abs(n);
@@ -3256,30 +3146,8 @@ function fmtMoneyShort(n) {
   return fmtMoney(n);
 }
 
-/**
- * How many rows one card can carry.
- *
- * The only decision on this board that a percentage cannot make. Every SIZE is
- * a fraction of the panel's width (see MODE: report in §3), but the row COUNT
- * depends on the panel's height measured in those units — and at a 1024
- * viewport the 11.2px floor under --rpt-u makes the same box relatively
- * shorter, so the same board honestly holds one row fewer.
- *
- * The two constants are the card's own chrome and one row, both in units and
- * both read straight off the CSS above:
- *   chrome 4.1u = slide padding (.72 + .5) + header rail (1.15em x 1.15 line
- *                 + .34 padding + 1px rule) + the body gap + the 2px tick
- *   row    2.5u = 1.62em name x 1.06 line + .44 padding + .34 gap
- *
- * Measured against the panel as it actually lays out:
- *   1024  143 / 11.20 = 12.8u  ->  3 rows
- *   1440  167 / 11.29 = 14.8u  ->  4 rows
- *   1920  201 / 13.53 = 14.9u  ->  4 rows
- *   2560  268 / 18.05 = 14.8u  ->  4 rows
- *   narrow band (390px viewport)  ->  6 rows
- * The clamp is there so a mis-measured plane cannot produce a one-row card or
- * a hundred-row one.
- */
+
+
 function reportRows(rec) {
   const w = rec.planeW || 300;
   const h = rec.planeH || 170;
@@ -3287,25 +3155,15 @@ function reportRows(rec) {
   return Math.max(2, Math.min(8, Math.floor((h / u - 4.1) / 2.5)));
 }
 
-/**
- * Is this panel too narrow to carry a secondary column?
- *
- * The board's SIZES are a percentage of the panel, so a 253px panel and a
- * 475px one are the same picture - except at 1024, where --rpt-u hits its
- * 11.2px floor and the type stops shrinking with the box. Measured in units
- * the panel is 26.3u wide at 1440, 1920, 2560 AND in the narrow band, and only
- * 22.6u at 1024. Below 24u the money column costs more than it is worth: at
- * 1024 it took the store-name column down to ~13 characters, which put
- * "Evergreen Park" and "Round Lake Beach" - the name is what the row is ABOUT
- * - into an ellipsis. Dropping it gives the name ~17 characters back.
- */
+
+
 function reportDense(rec) {
   const w = rec.planeW || 300;
   return w / Math.max(11.2, w * 0.038) < 24;
 }
 
-/** Split a list into as few pages as `per` allows, then even them out, so 5
- *  districts over a 4-row card come out 3 + 2 rather than 4 + 1. */
+
+
 function paginate(list, per) {
   const pages = Math.max(1, Math.ceil(list.length / Math.max(1, per)));
   const size = Math.ceil(list.length / pages);
@@ -3314,9 +3172,8 @@ function paginate(list, per) {
   return out;
 }
 
-/** The source app's own staleness rule, and its reason: "a wrong counter on a
- *  store TV is worse than no counter at all". A streak board more than three
- *  days old is dropped from the rotation rather than shown. */
+
+
 function streaksFresh(data) {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String((data && data.asOf) || ''));
   if (!m) return false;
@@ -3324,7 +3181,7 @@ function streaksFresh(data) {
   return (Date.now() - asOf.getTime()) / 86400000 <= 3;
 }
 
-/** One data row. `fill` (0..1) paints the meter behind the type. */
+ 
 function rptRow(spec) {
   const kids = [
     el('i', { class: 'ccc-scr-rpt__fill', style: `--fill:${(spec.fill || 0).toFixed(3)}` })
@@ -3336,7 +3193,7 @@ function rptRow(spec) {
   return el('div', { class: `ccc-scr-rpt__row${spec.cls ? ' ' + spec.cls : ''}` }, kids);
 }
 
-/** The frame every card shares: header rail, body, slide clock. */
+ 
 function rptSlide(kick, meta, body, extra) {
   return el('div', { class: `ccc-scr-rpt__slide${extra ? ' ' + extra : ''}` }, [
     el('div', { class: 'ccc-scr-rpt__head' }, [
@@ -3350,37 +3207,19 @@ function rptSlide(kick, meta, body, extra) {
 
 const rptBody = (kids) => el('div', { class: 'ccc-scr-rpt__body' }, kids);
 
-/**
- * The rotation.
- *
- * Card order follows the deck's own buildSlides(): the market first, then
- * store performance, then yesterday's conversion, then the standings — with
- * the promo card interleaved every PROMO_EVERY_N slides and always last,
- * which is the source app's rule and its number.
- *
- * WHAT IS DELIBERATELY NOT HERE. The Back Office monitor already runs
- * district-by-district "days since last detractor" across all 27 stores. This
- * board takes ONE different slice of the same feed — a market-wide leaderboard
- * of the longest clean streaks, top N only — so the two screens in the
- * building never show the same card.
- *
- * @param {object|null} model    the parsed workbook, or null if it never came
- * @param {object|null} streaks  nps-detractor-streaks.json, or null
- * @param {number} rows          rows this panel can carry, from reportRows()
- * @param {boolean} promoOk      false once the promo card has 404'd
- * @param {boolean} dense        drop the secondary column; see reportDense()
- */
+
+
 function buildReportCards(model, streaks, rows, promoOk, dense) {
   const cards = [];
 
   if (model) {
     cards.push({ kind: 'pulse' });
 
-    // Store overview / profit-goal tracking, best-tracking first. The deck
-    // pages these in national-rank order; on a board this size a monotonic
-    // meter is what makes the card readable at a glance from across the room,
-    // so the sort is % of goal and the national rank is not shown here (it is
-    // one tap away in the deck itself).
+    
+    
+    
+    
+    
     const goal = model.stores.slice().sort((a, b) => {
       const pa = a.target > 0 ? a.gpTrend / a.target : -1;
       const pb = b.target > 0 ? b.gpTrend / b.target : -1;
@@ -3389,14 +3228,14 @@ function buildReportCards(model, streaks, rows, promoOk, dense) {
     paginate(goal, rows).forEach((page, i, all) =>
       cards.push({ kind: 'goal', page, i, n: all.length, dense }));
 
-    // Yesterday's conversion: one row per district plus the MARKET total, the
-    // same table the deck draws per district with its DISTRICT TOTAL row.
+    
+    
     const conv = model.districts.slice()
       .sort((a, b) => (b.traffic ? b.mobile / b.traffic : 0) - (a.traffic ? a.mobile / a.traffic : 0));
-    // The MARKET total is paginated as an ITEM rather than bolted onto the
-    // last page: 5 districts + 1 total over a 4-row card pages 3 + 3, both
-    // full, where 5 districts alone paged 3 + 2 and left the first card a row
-    // short of its own rule.
+    
+    
+    
+    
     const convItems = conv.concat([Object.assign({ total: true }, model.market)]);
     paginate(convItems, rows).forEach((page, i, all) =>
       cards.push({ kind: 'yesterday', page, i, n: all.length, dense }));
@@ -3424,14 +3263,14 @@ function buildReportCards(model, streaks, rows, promoOk, dense) {
     }
   }
 
-  // Nothing from either feed, but the promo card may still be there — and
-  // "today's deals to lead with" is real content, not a placeholder. If that
-  // 404s too, promoOk goes false, this returns empty and the caller falls to
-  // the branded holding card.
+  
+  
+  
+  
   if (!cards.length) return promoOk === false ? [] : [{ kind: 'promo' }];
 
-  // The source app's interleave, verbatim in shape: a promo every N cards, and
-  // the rotation always ends on one.
+  
+  
   if (promoOk !== false) {
     const woven = [];
     for (let i = 0; i < cards.length; i++) {
@@ -3468,28 +3307,30 @@ function makeReport(rec) {
 
   node.style.setProperty('--rpt-slide', `${REPORT_SLIDE_MS}ms`);
 
-  /* The glass is never empty — the same rule §6's feed learned the hard way.
-     The branded card is the RESTING state and the board replaces it. */
+  
+
   function showHolding(note) {
     node.replaceChildren(holdingCard(TITLE(), note));
     rec.panel.classList.remove('is-live');
   }
 
-  /** The promo card, built out of `image` mode's own two-layer art so a 1.40
-   *  card in a 1.77 screen goes edge to edge instead of sitting in two bars. */
+  
+
   function promoNode() {
     const art = el('div', { class: 'ccc-scr-art' });
-    const src = promoSrc();
-    const bg = el('img', { class: 'ccc-scr-art__bg', alt: '', 'aria-hidden': 'true', decoding: 'async' });
+    const bg = el('canvas', { class: 'ccc-scr-art__bg', width: '24', height: '17', 'aria-hidden': 'true' });
     const fg = el('img', { class: 'ccc-scr-art__fg', alt: '', 'aria-hidden': 'true', decoding: 'async' });
-    // A promo card that has not been uploaded yet must not become a broken
-    // slide in the rotation — the source app drops the slide, so this does too.
+    
+    
     fg.addEventListener('error', () => {
       if (rec.destroyed || promoOk === false) return;
       promoOk = false;
       build();
     }, { once: true });
-    fg.src = src; bg.src = src;
+    
+    
+    
+    fg.src = PROMO_CARD_URL;
     art.append(bg, fg);
     return el('div', { class: 'ccc-scr-rpt__slide is-art' }, [
       art, el('div', { class: 'ccc-scr-rpt__tick', 'aria-hidden': 'true' }, [el('i')])
@@ -3507,9 +3348,9 @@ function makeReport(rec) {
         el('div', { class: 'ccc-scr-rpt__hero' }, [
           el('span', { class: 'ccc-scr-rpt__num', text: pctWhole(pct) }),
           el('span', { class: 'ccc-scr-rpt__cap', text: 'of this month’s profit goal' }),
-          // Two short lines rather than one long one: measured at 1440 the
-          // combined line ran past 276px of usable row and ellipsised its own
-          // last clause away. The close rate has a whole card of its own.
+          
+          
+          
           el('span', { class: 'ccc-scr-rpt__line',
             text: `${fmtMoneyShort(m.trend)} trend · ${fmtMoneyShort(m.target)} goal` }),
           el('span', { class: 'ccc-scr-rpt__line',
@@ -3539,9 +3380,9 @@ function makeReport(rec) {
       const kids = card.page.map((d) => {
         const cr = d.traffic ? d.mobile / d.traffic : 0;
         return rptRow({
-          // The MARKET row is the deck's own DISTRICT TOTAL one level up:
-          // same columns, lit rule, and no meter, because a total has nothing
-          // to race against.
+          
+          
+          
           name: d.total ? 'Market' : d.label,
           cls: d.total ? 'is-total' : '',
           sub: card.dense ? null : `${d.traffic.toLocaleString()} → ${d.mobile}`,
@@ -3567,19 +3408,19 @@ function makeReport(rec) {
         })));
     }
 
-    // card.kind === 'rank'
+    
     const isDM = card.of === 'dm';
-    // Kickers are kept under ~22 characters on purpose: measured at 1440 the
-    // header rail has 276px, and at 1.15em with .085em of tracking that is
-    // about where a nowrap kicker starts eating its own tail.
+    
+    
+    
     return rptSlide(isDM ? 'District managers' : 'Region rankings',
       `of ${card.total}`,
       rptBody(card.page.map((r) => rptRow({
         rank: `#${r.rank}`,
         name: r.name,
-        // On a dense panel the rank and the name are the story; the average GP
-        // trend is what gets dropped, because "Imaad Dhorajiwala" truncated to
-        // "Imaad Dhoraj..." is a worse card than one carrying no dollar figure.
+        
+        
+        
         val: card.dense ? null : fmtMoneyShort(r.avgGpTrend),
         fill: card.total > 0 ? Math.max(0, 1 - (r.rank - 1) / card.total) : 0,
         cls: (r.rank <= 3 ? 'is-podium' : '') +
@@ -3611,16 +3452,15 @@ function makeReport(rec) {
   function startTimer() {
     if (timer || slides.length < 2 || !active) return;
     timer = window.setInterval(() => {
-      if (document.visibilityState === 'hidden') return;
+      if (document.visibilityState === 'hidden' || pageViewing()) return;
       show(index + 1);
     }, REPORT_SLIDE_MS);
   }
   function stopTimer() { if (timer) { window.clearInterval(timer); timer = 0; } }
   function stopRetry() { if (retryTimer) { window.clearInterval(retryTimer); retryTimer = 0; } }
 
-  /** Keep asking while the board is on screen and the WORKBOOK has still never
-   *  arrived — a board running on the streak feed alone is showing something
-   *  real, but it is not yet the sales report the client asked for. */
+  
+
   function startRetry() {
     if (retryTimer || model || !active) return;
     retryTimer = window.setInterval(() => {
@@ -3631,14 +3471,8 @@ function makeReport(rec) {
     }, RETRY_EVERY_MS);
   }
 
-  /**
-   * One round of fetching, at most one in flight per panel.
-   *
-   * Both sources are asked together and NEITHER can take the other down: each
-   * loader swallows its own failure and resolves last-good-or-null, and the
-   * extra .catch() here is belt and braces for a synchronous throw inside one
-   * of them. Whatever arrives is rendered; whatever did not is retried.
-   */
+  
+
   function pull({ force = false } = {}) {
     if (pending) return;
     pending = true;
@@ -3650,23 +3484,22 @@ function makeReport(rec) {
       if (rec.destroyed) return;
       if (s) streaks = s;
       if (m) { model = m; stopRetry(); }
-      // build() unconditionally, even with nothing from either feed: the promo
-      // card may still be up, and buildReportCards() falls back to it before it
-      // falls back to the holding card. build() shows the holding card itself
-      // when there is genuinely nothing, so there is no second code path here.
+      
+      
+      
+      
       build();
       if (!model) startRetry();
     });
   }
 
-  // The resting state, in the DOM from the moment the panel mounts.
+  
   showHolding(WAITING);
 
   return {
     node,
-    /** Re-page only when the panel's height in units has actually crossed a
-     *  row boundary. Every SIZE on the board is a container percentage and
-     *  needs no help from here. */
+    
+
     resize() {
       const next = reportRows(rec);
       const nextDense = reportDense(rec);
@@ -3687,8 +3520,8 @@ function makeReport(rec) {
       stopTimer();
       stopRetry();
     },
-    /** A tab returning to the foreground gets a board no older than the TTL —
-     *  and never re-downloads 1.1MB just because someone changed windows. */
+    
+
     refresh() {
       retries = 0;
       pull({ force: !model });
@@ -3707,23 +3540,20 @@ const RENDERERS = {
   title: makeTitle, image: makeImage, feed: makeFeed, live: makeLive, report: makeReport
 };
 
-/* -----------------------------------------------------------------------------
- * 7 · The record set + narrow-mode relocation
- * -------------------------------------------------------------------------- */
+
+
 
 const records = new Set();
 let narrowMQ = null;
 let isNarrow = false;
 let narrowHostResolver = null;
 
-/* The phone band is watched separately from the narrow band because it is a
-   different question with a different answer: the narrow band decides WHERE a
-   panel is drawn, the phone band decides how many of them may be a whole extra
-   document. A phone matches both; an iPad matches only the first. */
+
+
 let phoneMQ = null;
 let isPhone = false;
 
-/** How many `live` iframes may run at once, right now. */
+ 
 function liveBudget() {
   return isPhone ? MAX_LIVE_FRAMES_PHONE : MAX_LIVE_FRAMES;
 }
@@ -3744,8 +3574,8 @@ function initNarrowWatch() {
 
   phoneMQ = window.matchMedia(PHONE_MEDIA);
   isPhone = phoneMQ.matches;
-  // Rotating a phone crosses this boundary, so the budget has to be re-applied
-  // rather than sampled once at boot. reconcile() is idempotent.
+  
+  
   const onPhoneChange = () => {
     const next = phoneMQ.matches;
     if (next === isPhone) return;
@@ -3756,7 +3586,7 @@ function initNarrowWatch() {
   else if (phoneMQ.addListener) phoneMQ.addListener(onPhoneChange);
 }
 
-/** The room this host belongs to, and its stage. */
+ 
 function roomOf(host) {
   const stage = host.closest ? host.closest('.stage') : null;
   const room = host.closest ? host.closest('[data-room]') : null;
@@ -3767,17 +3597,8 @@ function roomOf(host) {
   };
 }
 
-/**
- * Where a panel goes when the viewport is too narrow for the art.
- *
- * Resolution order, most specific first:
- *   1. the `narrowHost` callback passed to mountRoomScreens / mountScreen
- *   2. an element the page provides:  [data-screens-narrow] inside the room
- *   3. our own band: `.ccc-scr-layer`, inserted into `.stage` before `.rail`
- *
- * 1 and 2 exist so the owner of the mobile page layout can put the screens
- * wherever the mobile composition wants them without editing this file.
- */
+
+
 function narrowHostFor(rec) {
   const { stage, room, roomId } = roomOf(rec.host);
   if (typeof rec.narrowHostFn === 'function') {
@@ -3801,7 +3622,7 @@ function narrowHostFor(rec) {
   return layer;
 }
 
-/** Move one panel between the art and the narrow band. */
+ 
 function relocate(rec) {
   if (rec.destroyed) return;
   const wantNarrow = isNarrow;
@@ -3818,10 +3639,12 @@ function relocate(rec) {
       band.style.setProperty('--scr-count', String(band.children.length));
     }
     rec.panel.style.setProperty('--scr-ar', String(NARROW_AR[rec.mode] || 1.7778));
-    // Drop the perspective: a warped panel in a flat band is nonsense.
+    
     rec.plane.style.width = '';
     rec.plane.style.height = '';
     rec.plane.style.transform = '';
+    rec.panel.style.removeProperty('--scr-ox');
+    rec.panel.style.removeProperty('--scr-oy');
     rec.panel.classList.remove('ccc-scr--quad');
   } else {
     rec.host.append(rec.panel);
@@ -3839,27 +3662,11 @@ function relocate(rec) {
   applyGeometry(rec);
 }
 
-/* -----------------------------------------------------------------------------
- * 8 · Geometry
- * -------------------------------------------------------------------------- */
 
-/**
- * Resolve the quad's percentages into host-local, UNTRANSFORMED pixels.
- *
- * ⚠ THE BUG THIS FUNCTION EXISTS TO NOT HAVE. The host lives inside
- * `.hotspots`, which theme.css scales by `--plate-scale * --overscan-k` and
- * drifts with the parallax. `getBoundingClientRect()` reports that transformed
- * box — so resolving a percentage against it produces a LAYOUT offset that is
- * already ~10% too large, which the ancestor transform then scales a second
- * time. The error is proportional to distance from the layer's centre, so the
- * left tablet lands 39px right of its glass and the right one 121px: a screen
- * that is subtly, progressively wrong across the frame.
- *
- * offsetWidth / offsetHeight are the layout box, before any transform, which is
- * the coordinate space the plane is actually positioned in. Use them. `k` undoes
- * the ancestor scale for the one case that genuinely needs a rect — a `quadRef`
- * that is a different element from the host.
- */
+
+
+
+
 function resolveQuadPx(rec, hostRect, k) {
   const ref = rec.quadRef;
   let ox = 0, oy = 0;
@@ -3878,14 +3685,8 @@ function resolveQuadPx(rec, hostRect, k) {
   return isSaneQuad(pts) ? pts : null;
 }
 
-/**
- * Size the plane, warp it if it hangs at an angle, then tell the mode.
- *
- * The plane is given a flat W x H pixel box — W and H from the averaged
- * opposing edges of the target quad, so the pre-warp render resolution is close
- * to the on-screen size and text stays crisp — and then mapped onto the
- * measured corners. `transform-origin: 0 0` is what makes the solve valid.
- */
+
+
 function applyGeometry(rec) {
   if (rec.destroyed || !rec.plane) return;
 
@@ -3893,13 +3694,13 @@ function applyGeometry(rec) {
   let W = 0, H = 0;
 
   if (rec.narrow) {
-    // The band is not inside the transformed plate layer, so the layout box is
-    // the on-screen box.
+    
+    
     W = rec.panel.offsetWidth; H = rec.panel.offsetHeight;
   } else {
     const hostRect = rec.host.getBoundingClientRect();
-    if (!hostRect.width || !hostRect.height) return;     // not laid out yet
-    // The ancestor scale, as a number that undoes it. See resolveQuadPx().
+    if (!hostRect.width || !hostRect.height) return;     
+    
     const k = rec.host.offsetWidth ? rec.host.offsetWidth / hostRect.width : 1;
 
     if (rec.quad) {
@@ -3915,6 +3716,12 @@ function applyGeometry(rec) {
           rec.plane.style.transform = matrix;
           W = w; H = h;
           applied = true;
+          
+          
+          const ox = (dst[0][0] + dst[1][0] + dst[2][0] + dst[3][0]) / 4;
+          const oy = (dst[0][1] + dst[1][1] + dst[2][1] + dst[3][1]) / 4;
+          rec.panel.style.setProperty('--scr-ox', `${ox.toFixed(1)}px`);
+          rec.panel.style.setProperty('--scr-oy', `${oy.toFixed(1)}px`);
         }
       }
       if (!applied && !rec.quadWarned) {
@@ -3927,8 +3734,10 @@ function applyGeometry(rec) {
       rec.plane.style.width = '';
       rec.plane.style.height = '';
       rec.plane.style.transform = '';
-      // Layout size again, not the rect: an axis-aligned screen's iframe scale
-      // is computed from this, and inside a scaled layer the rect is ~10% wide.
+      rec.panel.style.removeProperty('--scr-ox');
+      rec.panel.style.removeProperty('--scr-oy');
+      
+      
       W = rec.host.offsetWidth; H = rec.host.offsetHeight;
     }
   }
@@ -3938,177 +3747,409 @@ function applyGeometry(rec) {
   rec.planeH = H;
   rec.panel.classList.toggle('ccc-scr--quad', applied);
 
-  // The one number every mode's internal type scale is expressed in em of.
-  // 1/40th of the glass width, floored so a tiny tablet is not sub-pixel.
+  
+  
   rec.plane.style.setProperty('--scr-w', W.toFixed(1));
   rec.plane.style.setProperty('--scr-h', H.toFixed(1));
-  // The narrow band is read at arm's length on a small panel, the art at room
-  // distance on a large one, so the unit is bigger relative to the box.
-  //
-  // W/27 rather than W/32: on a 390px phone the band panel is 346px of glass, and
-  // at /32 the streak board's store names came out at 8.4 CSS px and its "days
-  // clean" caption at 5.8 — smaller than any system text style, i.e. below the
-  // client's one standing requirement for these screens ("large enough that we
-  // can read them on a mobile device"). /27 puts the names at 10.2px and the
-  // numerals at 39px with the grid still clearing its tiles; see NARROW_AR.feed,
-  // which was opened up at the same time to give those rows the height back.
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   rec.plane.style.setProperty('--scr-u', `${Math.max(9, W / (rec.narrow ? 27 : 40)).toFixed(2)}px`);
 
   if (rec.api && rec.api.resize) rec.api.resize(rec);
 }
 
-/* -----------------------------------------------------------------------------
- * 9 · Mount budget
- * -------------------------------------------------------------------------- */
+
+
+
+ 
+const rooms = [];
+let roomsObs = null;
+
+
+
+let c2Live = false;
+ 
+let ownedRoom = null;
+ 
+let fallbackOwner = null;
+ 
+let ownershipDirty = false;
+
+let scrolling = false;
+let settleT = 0;
+let cancelBoards = null;   
+let cancelSweep = null;    
+let resumeAt = 0;          
+let resumeT = 0;
+
+function roomIndex(roomEl) { return roomEl ? rooms.indexOf(roomEl) : -1; }
+
+
+
+function isOwned(rec) {
+  if (!rec.roomEl) return true;
+  if (c2Live) return rec.roomEl.classList.contains('is-owned');
+  return rec.roomEl === fallbackOwner;
+}
+
+
+
+function geometryOwner() {
+  let best = null, bestOv = 0;
+  const vh = window.innerHeight;
+  for (const r of rooms) {
+    const b = r.getBoundingClientRect();
+    const ov = Math.min(b.bottom, vh) - Math.max(b.top, 0);
+    if (ov > bestOv) { bestOv = ov; best = r; }
+  }
+  return best;
+}
+
+function stageOf(roomEl) {
+  return roomEl ? (roomEl.querySelector(':scope > .stage') || roomEl) : null;
+}
+
+
+
+function roomVisible(roomEl) {
+  const st = stageOf(roomEl);
+  if (!st) return true;
+  const vh = window.innerHeight;
+  const r = st.getBoundingClientRect();
+  if (!r.width || r.bottom <= 0 || r.top >= vh) return false;
+  const cs = getComputedStyle(st);
+  if (cs.visibility === 'hidden' || cs.display === 'none' || parseFloat(cs.opacity) < 0.01) return false;
+  const i = rooms.indexOf(roomEl);
+  if (i < 0) return true;
+  for (let j = i + 1; j < rooms.length && j <= i + 2; j++) {
+    const s2 = stageOf(rooms[j]);
+    if (!s2) continue;
+    const r2 = s2.getBoundingClientRect();
+    if (r2.top > 0.5 || r2.bottom < vh - 0.5) continue;
+    const c2 = getComputedStyle(s2);
+    if (c2.visibility !== 'hidden' && parseFloat(c2.opacity) >= 0.99) return false;
+  }
+  return true;
+}
+
+
+
+function panelDist(rec) {
+  const r = (rec.narrow ? rec.panel : rec.plane).getBoundingClientRect();
+  return Math.abs((r.top + r.height / 2) - window.innerHeight / 2);
+}
+
+ 
+function residentOk(rec) {
+  return !isPhone || !rec.roomEl || !rec.roomEl.classList.contains('is-dormant');
+}
+
+ 
+
+
+
+function applyPower({ arming = false } = {}) {
+  const tier = motionTier();
+  const owner = c2Live ? ownedRoom : fallbackOwner;
+  const oi = roomIndex(ownedRoom);
+  for (const rec of records) {
+    if (rec.destroyed) continue;
+    const p = rec.panel;
+    p.classList.toggle('ccc-scr--owned', !rec.roomEl || rec.roomEl === owner);
+    if (!c2Live || !rec.roomEl || tier === 'off') {
+      if (p.hasAttribute('data-power')) p.removeAttribute('data-power');
+      continue;
+    }
+    const i = roomIndex(rec.roomEl);
+    if (i < 0) continue;
+    if (rec.roomEl === ownedRoom) {
+      if (p.getAttribute('data-power') !== 'on') p.setAttribute('data-power', 'on');
+    } else if (arming && !p.hasAttribute('data-power')) {
+      p.setAttribute('data-power', 'off');
+    } else if (ownedRoom && oi >= 0 && Math.abs(i - oi) >= 2) {
+      
+      
+      
+      if (p.getAttribute('data-power') !== 'off') p.setAttribute('data-power', 'off');
+    }
+  }
+}
+
+function currentOwned(hint) {
+  for (const r of rooms) if (r.classList.contains('is-owned')) return r;
+  const any = document.querySelector('.room.is-owned');
+  if (any) return any;
+  if (hint) {
+    try { return document.querySelector(`.room[data-room="${CSS.escape(String(hint))}"]`) || null; }
+    catch { return null; }
+  }
+  return null;
+}
+
+
+
+function onOwnership(hint) {
+  const owned = currentOwned(hint);
+  const arming = !c2Live && (owned !== null || hint !== undefined);
+  if (arming) c2Live = true;
+  if (!c2Live) { scheduleBoards(); return; }
+  if (pageViewing()) {
+    
+    
+    ownershipDirty = true;
+    return;
+  }
+  ownershipDirty = false;
+  if (owned !== ownedRoom || arming) {
+    ownedRoom = owned;
+    applyPower({ arming });
+  }
+  sweepSoon();
+  scheduleBoards();
+}
+
+function trackRooms(roomEl) {
+  if (!roomEl || !roomEl.parentElement) return;
+  let added = false;
+  for (const r of roomEl.parentElement.children) {
+    if (!r.classList || !r.classList.contains('room') || rooms.includes(r)) continue;
+    rooms.push(r);
+    added = true;
+    if (typeof MutationObserver === 'function') {
+      if (!roomsObs) roomsObs = new MutationObserver(() => onOwnership());
+      roomsObs.observe(r, { attributes: true, attributeFilter: ['class'] });
+    }
+  }
+  if (added) {
+    rooms.sort((a, b) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1));
+    if (!c2Live && currentOwned()) onOwnership();
+  }
+}
+
+document.addEventListener('ccc:room-owned', (e) => {
+  const id = e && e.detail && e.detail.id;
+  onOwnership(id === undefined ? null : id);
+});
+
+
+
+if (typeof MutationObserver === 'function') {
+  new MutationObserver(() => applyPower()).observe(document.documentElement,
+    { attributes: true, attributeFilter: ['data-motion'] });
+}
+try {
+  const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const onRm = () => applyPower();
+  if (mq.addEventListener) mq.addEventListener('change', onRm);
+  else if (mq.addListener) mq.addListener(onRm);
+} catch {   }
+
+ 
+
+function onScrollish() {
+  scrolling = true;
+  if (settleT) window.clearTimeout(settleT);
+  settleT = window.setTimeout(() => {
+    settleT = 0;
+    scrolling = false;
+    scheduleBoards();
+  }, SETTLE_MS);
+}
+window.addEventListener('scroll', onScrollish, { passive: true });
+window.addEventListener('resize', onScrollish, { passive: true });
+
+
+
+function scheduleBoards() {
+  if (cancelBoards || scrolling) return;
+  cancelBoards = onIdle(reconcileBoards);
+}
+
+
+
+function sweepSoon() {
+  if (cancelSweep) return;
+  cancelSweep = onIdle(() => { cancelSweep = null; sweepBoards(); }, 700);
+}
+
+function liveRecs() {
+  const out = [];
+  for (const rec of records) if (!rec.destroyed && rec.mode === 'live') out.push(rec);
+  return out;
+}
+
+function deactivateBoard(rec) {
+  rec.active = false;
+  rec.api.deactivate(rec);
+}
+
+
+
+function sweepBoards() {
+  if (pageViewing()) return;
+  const gone = [];
+  for (const rec of liveRecs()) {                                  
+    if (!rec.active || isOwned(rec)) continue;
+    if (!rec.wantsMount || !residentOk(rec) || !roomVisible(rec.roomEl)) gone.push(rec);
+  }
+  for (const rec of gone) deactivateBoard(rec);                    
+  if (gone.length) holdBoards();
+}
+
+ 
+function holdBoards() {
+  for (const rec of liveRecs()) {
+    if (rec.wantsMount && !rec.active && rec.api.hold) rec.api.hold(rec);
+  }
+}
+
+
+
+function suspendBoards() {
+  if (cancelBoards) { cancelBoards(); cancelBoards = null; }
+  for (const rec of liveRecs()) {
+    if (!rec.active) continue;
+    if (rec.deckArrived && rec.api.suspend) rec.api.suspend();
+    else deactivateBoard(rec);
+  }
+  holdBoards();
+}
+
+
+
+function reconcileBoards() {
+  cancelBoards = null;
+  if (scrolling) return;                               
+  if (pageViewing()) {
+    suspendBoards();
+    
+    if (!viewerOpen) window.setTimeout(scheduleBoards, 500);
+    return;
+  }
+  const wait = resumeAt - Date.now();
+  if (wait > 0) {
+    if (!resumeT) resumeT = window.setTimeout(() => { resumeT = 0; scheduleBoards(); }, wait);
+    return;
+  }
+  
+  
+  let repower = false;
+  if (ownershipDirty) {
+    ownershipDirty = false;
+    ownedRoom = currentOwned();
+    repower = true;
+  }
+
+  const live = liveRecs();
+
+  
+  if (!c2Live) {
+    const owner = geometryOwner();
+    if (owner !== fallbackOwner) { fallbackOwner = owner; repower = true; }
+  }
+  const info = live.map((rec) => {
+    const owned = isOwned(rec);
+    return {
+      rec,
+      owned,
+      want: rec.wantsMount && owned && residentOk(rec),
+      d: rec.wantsMount ? panelDist(rec) : Infinity,
+      visible: rec.active && !owned ? roomVisible(rec.roomEl) : true
+    };
+  });
+
+  
+  const budget = liveBudget();
+  const wanted = info.filter((x) => x.want).sort((a, b) => a.d - b.d).slice(0, budget);
+  const keep = new Set(wanted);
+  
+  
+  let slots = budget - wanted.length;
+  const leaving = info.filter((y) => y.rec.active && !keep.has(y) && y.visible &&
+                                     y.rec.wantsMount && residentOk(y.rec))
+                      .sort((a, b) => a.d - b.d);
+  for (const x of leaving) {
+    if (slots <= 0) break;
+    keep.add(x);
+    slots--;
+  }
+
+  
+  if (repower) applyPower();
+  for (const x of info) {
+    if (x.rec.active && !keep.has(x)) deactivateBoard(x.rec);
+  }
+  let mounted = 0;
+  let more = false;
+  for (const x of wanted) {
+    const { rec } = x;
+    if (rec.active) {
+      if (rec.api.isSuspended) rec.api.resume();
+      if (rec.refreshWanted) { rec.refreshWanted = false; if (rec.api.refresh) rec.api.refresh(rec); }
+      continue;
+    }
+    
+    
+    if (mounted >= 1) { more = true; continue; }
+    rec.active = true;
+    rec.refreshWanted = false;
+    rec.api.activate(rec);
+    mounted++;
+  }
+  for (const x of info) {
+    if (keep.has(x) && !wanted.includes(x) && x.rec.api.isSuspended) x.rec.api.resume();
+  }
+  holdBoards();
+  if (more) scheduleBoards();
+}
+
+
 
 function reconcile() {
-  const all = Array.from(records).filter((r) => !r.destroyed);
-
-  // 1. Everything cheap follows its observer exactly.
-  for (const rec of all) {
-    if (rec.mode === 'live') continue;
+  if (pageViewing()) {
+    
+    
+    
+    suspendBoards();
+    return;
+  }
+  for (const rec of records) {
+    if (rec.destroyed || rec.mode === 'live') continue;
     if (rec.wantsMount && !rec.active) { rec.active = true; rec.api.activate(rec); }
     else if (!rec.wantsMount && rec.active) { rec.active = false; rec.api.deactivate(rec); }
   }
-
-  // 2. Live iframes are rationed, nearest-to-the-viewport first.
-  const live = all.filter((r) => r.mode === 'live');
-  for (const rec of live) {
-    if (!liveWanted(rec) && rec.active) { rec.active = false; rec.api.deactivate(rec); }
-  }
-
-  const mid = window.innerHeight / 2;
-  // A layout read, yes — but only ever inside an IntersectionObserver callback
-  // or a media change, never inside the engine's rAF loop.
-  const dist = (rec) => {
-    const r = (rec.narrow ? rec.panel : rec.plane).getBoundingClientRect();
-    return Math.abs((r.top + r.height / 2) - mid);
-  };
-
-  const budget = liveBudget();
-  let running = live.filter((r) => r.active);
-
-  // The budget can SHRINK under us — a phone rotating out of landscape, where
-  // (max-height: 500px) stops matching, goes 2 -> 1 with two frames already up.
-  // Evict the furthest until the budget is met, or the ration is a ceiling that
-  // only ever applies to boards that had not mounted yet.
-  while (running.length > budget) {
-    let worst = null, worstD = -1;
-    for (const rec of running) { const d = dist(rec); if (d > worstD) { worstD = d; worst = rec; } }
-    if (!worst) break;
-    worst.active = false;
-    worst.api.deactivate(worst);
-    running = running.filter((r) => r !== worst);
-  }
-
-  const waiting = live.filter((r) => liveWanted(r) && !r.active)
-    .map((r) => ({ rec: r, d: dist(r) }))
-    .sort((a, b) => a.d - b.d);
-
-  for (const cand of waiting) {
-    if (running.length >= budget) {
-      let worst = null, worstD = -1;
-      for (const rec of running) { const d = dist(rec); if (d > worstD) { worstD = d; worst = rec; } }
-      if (!worst || worstD <= cand.d) break;
-      worst.active = false;
-      worst.api.deactivate(worst);
-      running = running.filter((r) => r !== worst);
-    }
-    cand.rec.active = true;
-    cand.rec.api.activate(cand.rec);
-    running.push(cand.rec);
-  }
-
-  // WHAT THE UNBUDGETED BOARD SHOWS. Not black glass. A `live` panel that is in
-  // range but did not win a frame gets the same branded holding card the mode
-  // already falls back to when a deck will not load — it names the board and
-  // says "tap to open it full screen", and the button over the glass is
-  // untouched, so the client's rule (every screen readable and clickable the
-  // whole time its room is on screen) still holds with one iframe instead of
-  // two. hold() is idempotent; reconcile() runs on every observer callback.
-  for (const rec of live) {
-    if (rec.wantsMount && !rec.active && rec.api && rec.api.hold) rec.api.hold(rec);
-  }
+  holdBoards();
+  sweepSoon();
+  scheduleBoards();
 }
 
-/* ── WHEN A PHONE IS ALLOWED TO HOLD A LIVE DOCUMENT ──────────────────────
- * MAX_LIVE_FRAMES_PHONE caps live iframes at one. It does not say for how
- * long, and on this page that turned out to be "essentially always": the lazy
- * gate above is an IntersectionObserver with rootMargin 150%, and the panel it
- * observes lives inside a STICKY stage that theme.css §05 pins to the viewport
- * a full --pin-lead early and releases a --pin-lead late. A pinned panel's rect
- * sits at the top of the viewport and stops moving, so the observer keeps
- * reporting it as intersecting for the whole of its room's runway and a
- * viewport and a half either side of that. Measured at 393x852: the Dining
- * boards were mounted from scrollY 591 to 7092 out of 8230 — a whole extra
- * document, laid out in a 1703x960 virtual viewport, carried through five rooms
- * that do not contain it. (The Win-the-Weekend deck is 5.6 MB of HTML.)
- *
- * theme.css §06e's curtain already knows exactly when a room is not being
- * looked at, and engine.js publishes it as one class. So on a phone a live
- * iframe additionally requires its own room to be resident. Nothing changes
- * anywhere else: `is-dormant` is only ever set by engine.js, it is set on every
- * breakpoint, and this is the only place outside theme.css §06e that reads it.
- *
- * ON AN iPAD AND A DESKTOP THIS FUNCTION IS `rec.wantsMount`, EXACTLY AS
- * BEFORE. isPhone cannot match an iPad — see PHONE_MEDIA — and a panel with no
- * room element (a standalone mount) is never gated.
- *
- * WHAT THE UNBUDGETED BOARD SHOWS IS UNCHANGED: hold() below still gives it the
- * branded holding card, still names the board, and the button over the glass is
- * still live, so "every screen readable and clickable the whole time its room
- * is on screen" holds — the room this defers is a room that is not on screen.
- */
-function liveWanted(rec) {
-  if (!rec.wantsMount) return false;
-  /* WHILE THE TOOL VIEWER IS UP, A DECK THAT HAS NOT ARRIVED YET IS NOT
-     WANTED. The viewer's scrim hides the whole room, and a 5 MB deck still
-     coming down behind it is on the same HTTP/2 connection — same host — as
-     the tool the rep is now waiting for. Measured at a 4 Mbps shared link,
-     opening Win the Weekend from the Dining Room while its boards were still
-     loading: 33.6 s to the deck's slides (v14), 12.4 s once the in-flight
-     boards were dropped for the duration; the Daily Sales Report from the same
-     spot, 15.7 s to its first slide (v14), 7.3 s. A board that HAS arrived is
-     left alone: it costs no network to keep and 5 MB to bring back, and it is
-     showing again the instant the viewer closes. The dropped ones re-mount on `ccc:viewer-close` through
-     the ordinary reconcile(), from the HTTP cache when the same 5-minute
-     bucket is still current.
-     `deckArrived`, not the `is-live` class: hold() puts is-live on a board
-     that is showing its holding card with no frame at all, and reading the
-     class here re-mounted every dropped board on the next observer callback
-     — measured as the decks downloading TWICE under the scrim (26 MB). */
-  if (viewerOpen && !rec.deckArrived) return false;
-  if (!isPhone || !rec.roomEl) return true;
-  return !rec.roomEl.classList.contains('is-dormant');
-}
+document.addEventListener('ccc:viewer-open', () => {
+  viewerOpen = true;
+  suspendBoards();
+});
+document.addEventListener('ccc:viewer-close', () => {
+  viewerOpen = false;
+  
+  
+  
+  resumeAt = Date.now() + RESUME_MS;
+  if (resumeT) window.clearTimeout(resumeT);
+  resumeT = window.setTimeout(() => {
+    resumeT = 0;
+    if (ownershipDirty && c2Live) onOwnership();
+    reconcile();
+  }, RESUME_MS);
+});
 
-/** True between overlay.js's `ccc:viewer-open` and `ccc:viewer-close`. */
-let viewerOpen = false;
-document.addEventListener('ccc:viewer-open', () => { viewerOpen = true; reconcile(); });
-document.addEventListener('ccc:viewer-close', () => { viewerOpen = false; reconcile(); });
-
-/* liveWanted() reads a class that nothing in this module writes, so nothing in
- * this module would ever notice it change: reconcile() runs on observer
- * callbacks and media changes, and a curtain lifting is neither. Without this
- * watch a board would go dark when its room went dormant and never come back.
- *
- * One MutationObserver for the whole page, attributeFilter'd to `class`, on the
- * handful of .room elements that actually contain a live panel. engine.js
- * touches those classes a few times per full-page scroll (updateResidency()
- * early-outs on an unchanged bitmask), so this fires about as often as the room
- * label in the top bar changes. reconcile() is idempotent. */
-let residencyObs = null;
-const residencyWatched = new WeakSet();
-
-function watchResidency(roomEl) {
-  if (!roomEl || residencyWatched.has(roomEl)) return;
-  if (typeof MutationObserver !== 'function') return;
-  if (!residencyObs) residencyObs = new MutationObserver(() => reconcile());
-  residencyWatched.add(roomEl);
-  residencyObs.observe(roomEl, { attributes: true, attributeFilter: ['class'] });
-}
-
-/** Pull url/title off the registry once it exists. */
+ 
 function applyMeta(rec) {
   const tool = getTool(rec.slug);
   if (tool) {
@@ -4127,28 +4168,11 @@ function applyMeta(rec) {
   }
 }
 
-/* -----------------------------------------------------------------------------
- * 10 · mountScreen()
- * -------------------------------------------------------------------------- */
 
-/**
- * Mount one screen.
- *
- * @param {object}  cfg
- * @param {Element} cfg.host        the positioned box the room layout produced.
- *                                  With `quad` it is the PERCENT REFERENCE BOX
- *                                  and should be full-bleed over the plate.
- * @param {string}  cfg.slug        tool slug — drives the click-through
- * @param {'title'|'image'|'feed'|'live'|'report'} [cfg.mode]  default: SCREEN_MODES[slug] or 'title'
- * @param {Array<[number,number]>}  [cfg.quad]  TL,TR,BR,BL in % of the reference box
- * @param {Element} [cfg.quadRef]   measure the % against this instead of host
- * @param {string}  [cfg.url]       default: the tool's url
- * @param {string}  [cfg.title]     default: the tool's label
- * @param {string}  [cfg.headline]  display name for `title` mode (default: title)
- * @param {number}  [cfg.width]     virtual render width for `live`
- * @param {Function}[cfg.narrowHost] ({slug,mode,room,host}) => Element
- * @returns {{destroy:Function, refresh:Function, host:Element, slug:string, mode:string}}
- */
+
+
+
+
 export function mountScreen(cfg = {}) {
   const { host, slug } = cfg;
   if (!host || !host.nodeType) {
@@ -4161,17 +4185,20 @@ export function mountScreen(cfg = {}) {
   const mode = MODES.has(cfg.mode) ? cfg.mode : (SCREEN_MODES[slug] || 'title');
 
   if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
+  
+
+  host.style.pointerEvents = 'none';
 
   const glass = el('div', { class: 'ccc-scr__glass' });
   const label = el('span', { class: 'ccc-sr-only' });
   const hit = el('button', { class: 'ccc-scr__hit', type: 'button' }, [label]);
-  hit.setAttribute('data-tool', slug);        // overlay.js's delegated handler
+  hit.setAttribute('data-tool', slug);        
 
-  // Everything visible lives inside ONE wrapper, so in perspective mode the
-  // single matrix3d carries glass, glow, reflection, bezel AND the hit target
-  // onto the wall plane together — the reflection stays welded to the screen,
-  // and the browser's own hit-testing follows the transform, so a click on a
-  // slanted corner lands where it looks like it should.
+  
+  
+  
+  
+  
   const capName = el('b', { text: '' });
   const cap = el('div', { class: 'ccc-scr__cap', 'aria-hidden': 'true' }, [
     capName, el('i', { text: 'Tap to open' })
@@ -4201,12 +4228,14 @@ export function mountScreen(cfg = {}) {
     planeW: 0, planeH: 0,
     narrow: null,
     band: null,
-    // The .room this panel lives in, cached at registration. reconcile() reads
-    // its `is-dormant` class to decide whether a live iframe is allowed — see
-    // liveWanted(). Null for a panel mounted outside a room.
+    
+    
+    
+    
     roomEl: roomOf(host).room,
     active: false,
     wantsMount: false,
+    refreshWanted: false,                      
     destroyed: false,
     content: null,
     api: null,
@@ -4218,7 +4247,7 @@ export function mountScreen(cfg = {}) {
     console.warn(`[screens] "${slug}": malformed quad, using the host box`);
   }
 
-  applyMeta(rec);                              // headline before the renderer
+  applyMeta(rec);                              
   rec.api = RENDERERS[mode](rec);
   rec.content = el('div', { class: 'ccc-scr__content' }, [rec.api.node]);
   glass.append(rec.content);
@@ -4226,21 +4255,25 @@ export function mountScreen(cfg = {}) {
   host.append(panel);
   records.add(rec);
 
-  relocate(rec);                               // places it and measures it
-  applyMeta(rec);                              // and now the caption/label
+  relocate(rec);                               
+  applyMeta(rec);                              
 
-  /* --- lazy gate -----------------------------------------------------------
-     A screen comes to life about one and a half viewports out. Anything
-     further away is not worth an iframe or a fetch on an iPad. */
-  // Only `live` panels are rationed by residency, so only their rooms are
-  // watched — see liveWanted() and watchResidency().
-  if (mode === 'live') watchResidency(rec.roomEl);
+  
+
+  trackRooms(rec.roomEl);
+  if (c2Live && rec.roomEl) {
+    const owned = rec.roomEl.classList.contains('is-owned');
+    panel.classList.toggle('ccc-scr--owned', owned);
+    if (motionTier() !== 'off') panel.setAttribute('data-power', owned ? 'on' : 'off');
+  }
+
+  
 
   if ('IntersectionObserver' in window) {
     rec.io = new IntersectionObserver((entries) => {
       for (const entry of entries) rec.wantsMount = entry.isIntersecting;
       reconcile();
-    }, { root: null, rootMargin: '150% 0px 150% 0px', threshold: 0 });
+    }, { root: null, rootMargin: IO_MARGIN[mode] || IO_MARGIN.image, threshold: 0 });
     rec.io.observe(panel);
   } else {
     rec.wantsMount = true;
@@ -4249,7 +4282,7 @@ export function mountScreen(cfg = {}) {
 
   if ('ResizeObserver' in window) {
     rec.resizeObs = new ResizeObserver(() => {
-      // Coalesce: a band resize fires for every panel in it.
+      
       if (rec.resizeRaf) return;
       rec.resizeRaf = requestAnimationFrame(() => {
         rec.resizeRaf = 0;
@@ -4280,27 +4313,11 @@ export function mountScreen(cfg = {}) {
   };
 }
 
-/* -----------------------------------------------------------------------------
- * 11 · mountRoomScreens()
- * -------------------------------------------------------------------------- */
 
-/**
- * Mount every `[data-screen="<slug>"]` box found under `root`.
- *
- * Attributes read off the host:
- *   data-screen        the tool slug (required)
- *   data-screen-mode   title | image | feed | live | report  (default: SCREEN_MODES)
- *   data-screen-title  accessible / caption name     (default: the tool label)
- *   data-screen-name   short display name for a title card
- *   data-screen-quad   TL,TR,BR,BL in % of the plate — eight numbers or JSON
- *   data-screen-url    override the tool url
- *   data-screen-width  virtual render width for a live iframe
- *
- * @param {ParentNode} [root=document]
- * @param {object}   [opts]
- * @param {Array}    [opts.tools]       tools.json rows, for url/label lookup
- * @param {Function} [opts.narrowHost]  see mountScreen
- */
+
+
+
+
 export function mountRoomScreens(root = document, opts = {}) {
   if (opts.tools) registerTools(opts.tools);
   injectStyles();
@@ -4321,82 +4338,32 @@ export function mountRoomScreens(root = document, opts = {}) {
     }));
 }
 
-/** Re-measure every screen. Cheap and rare — call it after a layout change. */
+ 
 export function refreshScreens() {
   for (const rec of records) applyGeometry(rec);
   reconcile();
 }
 
-/* Orientation changes on an iPad move every plane at once. */
+ 
 window.addEventListener('orientationchange', () => {
   setTimeout(refreshScreens, 200);
 });
 
-/* A tab coming back from the background gets a fresh promo card and, if the
-   streak data has aged past its TTL, a fresh board — without a second loop.
-   The board half of that sentence used to be a comment and nothing else: only
-   `image` was refreshed, and the tear-down/set-up pair it used dropped the
-   image's own retry timer on the floor. Both modes now expose `refresh()` and
-   this asks for it; every other mode is left alone. */
+
+
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState !== 'visible') return;
+  let boards = false;
   for (const rec of records) {
     if (rec.destroyed || !rec.active || !rec.api) continue;
-    if (typeof rec.api.refresh === 'function') rec.api.refresh(rec);
+    if (typeof rec.api.refresh !== 'function') continue;
+    
+    
+    if (rec.mode === 'live') { rec.refreshWanted = true; boards = true; continue; }
+    if (!pageViewing()) rec.api.refresh(rec);
   }
+  if (boards) scheduleBoards();
 });
 
-/* =============================================================================
- * CLASS HOOKS — the contract with assets/theme.a73825e539.css
- * -----------------------------------------------------------------------------
- * Structure (one per screen):
- *   .ccc-scr[data-screen-panel="<slug>"]      the panel
- *     .ccc-scr--title|--image|--feed|--live|--report   its mode
- *     .ccc-scr--quad                          a solved perspective warp is on
- *     .ccc-scr--narrow                        it is in the narrow band
- *     .is-live                                its content has arrived
- *     .ccc-scr__plane   > __glow __glass __scan __crt __sheen __bezel __cap __hit
- *     .ccc-scr__content > one of:
- *         .ccc-scr-title  (__bar __term __stat __pip __body __name
- *                          __key __cta __chev)
- *         .ccc-scr-art    (__bg __fg)
- *         .ccc-scr-feed   (__stage __slide __head __eyebrow __district __goal
- *                          __grid __store __days __unit __name __meter __flag
- *                          __foot __dots)
- *         .ccc-scr-live
- *         .ccc-scr-rpt    (__stage __slide __head __kick __meta __body __row
- *                          __fill __rank __name __sub __val __hero __num
- *                          __cap __line __tick;  row states .is-podium
- *                          .is-hit .is-miss .is-total .is-mine;  slide state
- *                          .is-art, which carries an .ccc-scr-art promo card)
- *         .ccc-scr-holding (__mark __title __note)
- *
- * Narrow band:
- *   .ccc-scr-layer[data-screens-layer="<room>"]  one per room, inside .stage,
- *                                                inserted before .rail
- *   .ccc-scr-layer--<room>                       per-room hook
- *   --scr-count / --scr-gap / --scr-band-h       the band's sizing knobs
- *   .stage[data-ccc-screens="narrow|wide"]       page-level hook
- *   Supply `[data-screens-narrow]` inside a room, or pass `narrowHost`, and
- *   this module puts the panels there instead of building its own band.
- *
- * Custom properties JS writes on `.ccc-scr__plane`:
- *   --scr-w --scr-h      the glass size in px, PRE-warp (unitless numbers)
- *   --scr-u              the type unit: max(9px, width / 40), or / 32 when narrow.
- *                        Every size inside a feed or holding card is an em of it.
- *   --scr-title-fs       the solved subject size for `title` mode
- *   --scr-pos-fs         the solved chrome unit for `title` mode — the rail,
- *                        the key and the chevron are all ems of it
- * and on the panel: --scr-ar (narrow aspect ratio, a plain number).
- * CSS-side, `.ccc-scr--narrow .ccc-scr__plane` defines --scr-cap-h (the caption
- * rail's height); set it to 0px to reclaim that strip for the glass.
- * The feed's grid carries --scr-cols and --scr-num (the numeral's em size),
- * both solved from the glass width and the store count.
- * The report board carries --rpt-u (its one type unit — max(11.2px, 3.8cqw),
- * with a --scr-w-derived fallback for engines without container queries) and
- * --rpt-slide (the slide clock's duration, written by JS from
- * REPORT_SLIDE_MS). Its row COUNT is solved in JS by reportRows().
- *
- * Custom properties JS READS (all from the engine, all @property-registered):
- *   --enter --bloom --p
- * ========================================================================== */
+
+
