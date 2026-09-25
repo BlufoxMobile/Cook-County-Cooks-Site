@@ -148,6 +148,15 @@ jobs:
         # 2026-09-14 while retuning the thresholds above.
         uses: actions/checkout@v5
         with:
+          # THE BRANCH TIP, NOT THE EVENT'S COMMIT (2026-09-25). By default
+          # checkout takes github.sha, which is fixed when the event is CREATED.
+          # A run that waited in the concurrency queue behind another run then
+          # starts from the tree BEFORE that run's commit, rebuilds the same
+          # wall with different clocks, and collides with it on push. That is
+          # exactly what happened at 8:39 on 9/25: the Big South push and the
+          # 5-minute Friday cron fired together, the cron committed first, the
+          # dispatch run failed and emailed a red X over a wall that was fine.
+          ref: ${{ github.ref_name }}
           # Shallow is fine: this job only ever adds one commit on top of HEAD.
           fetch-depth: 1
           persist-credentials: true
@@ -367,16 +376,38 @@ jobs:
           ')
           git commit -m "headchefs: follow the decks" -m "$NAMES"
 
-          # A deploy or another agent may have pushed while we were fetching five
-          # megabytes of deck. Rebase onto them and retry; never force.
+          # A deploy, another agent or another run of this job may have pushed
+          # while we were fetching the decks. Never force.
+          #
+          # DO NOT REBASE. headchefs.json is GENERATED and every run stamps its
+          # own clocks into it, so two runs that read the same decks still edit
+          # the same lines differently — a rebase conflicts every time, leaves
+          # conflict markers in the file, and the Summary step then dies on
+          # invalid JSON (9/25, run #94). Instead: take their commit as the new
+          # base and re-run the parser on top of it. If their commit already
+          # carries this wall there is nothing left to do, and that is success.
           for attempt in 1 2 3; do
             if git push; then
               echo "pushed on attempt $attempt"
               exit 0
             fi
-            echo "push rejected; rebasing onto origin (attempt $attempt)"
+            echo "push rejected (attempt $attempt): someone else pushed first."
+            echo "Rebuilding the wall on top of their commit instead of rebasing a generated file."
             git fetch --depth=20 origin "${GITHUB_REF_NAME}"
-            git rebase "origin/${GITHUB_REF_NAME}"
+            git reset -q --hard "origin/${GITHUB_REF_NAME}"
+            node build/pull-headchefs.mjs
+            if [ -z "$(git status --porcelain -- headchefs)" ]; then
+              echo "Their commit already shows this wall. Nothing left to push."
+              exit 0
+            fi
+            git add -A -- headchefs
+            NAMES=$(node -e '
+              const d = require("./headchefs/headchefs.json");
+              const on = d.headchefs.filter(c => c.name)
+                .map(c => `${c.district_short}: ${c.name}`).join(", ");
+              process.stdout.write(on || "no head chefs on file");
+            ')
+            git commit -q -m "headchefs: follow the decks" -m "$NAMES"
           done
           echo "::error::could not push headchefs after 3 attempts"
           exit 1
