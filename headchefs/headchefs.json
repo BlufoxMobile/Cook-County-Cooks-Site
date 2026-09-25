@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-11T15:34:36.946Z",
+  "generated_at": "2026-09-25T13:39:44.961Z",
   "generator": "build/pull-headchefs.mjs",
   "note": "GENERATED FILE — do not hand-edit. Rebuilt from the Win-The-Weekend decks by .github/workflows/headchefs.yml every 30 minutes.",
   "policy": {
@@ -31,8 +31,8 @@
       "label": "Big South",
       "page": "https://blufoxmobile.github.io/Win-The-Weekend---Big-South/",
       "raw": "https://raw.githubusercontent.com/BlufoxMobile/Win-The-Weekend---Big-South/main/index.html",
-      "fetched_at": "2026-09-11T15:34:37.571Z",
-      "bytes": 2857840,
+      "fetched_at": "2026-09-25T13:39:45.933Z",
+      "bytes": 5607314,
       "head_chef_slides": 1,
       "districts": [
         "Big South"
@@ -43,7 +43,7 @@
       "label": "Chicago",
       "page": "https://blufoxmobile.github.io/Win-The-Weekend---Chicago/",
       "raw": "https://raw.githubusercontent.com/BlufoxMobile/Win-The-Weekend---Chicago/main/index.html",
-      "fetched_at": "2026-09-11T15:34:37.985Z",
+      "fetched_at": "2026-09-25T13:39:46.851Z",
       "bytes": 2502684,
       "head_chef_slides": 5,
       "districts": [
@@ -61,11 +61,11 @@
       "district_short": "Big South",
       "source_deck": "big-south",
       "source_url": "https://blufoxmobile.github.io/Win-The-Weekend---Big-South/",
-      "slide_title": "Head Chef Of The Week — Big South",
+      "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-09-11T15:34:36.946Z",
-      "last_changed": "2026-09-11T13:29:08.756Z",
+      "last_confirmed": "2026-09-25T13:39:44.961Z",
+      "last_changed": "2026-09-25T13:39:44.961Z",
       "days_since_confirmed": 0
     },
     "west-side": {
@@ -76,7 +76,7 @@
       "slide_title": "Head Chef Of The Week — West Side",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-09-11T15:34:36.946Z",
+      "last_confirmed": "2026-09-25T13:39:44.961Z",
       "last_changed": "2026-09-11T15:34:36.946Z",
       "days_since_confirmed": 0
     },
@@ -88,7 +88,7 @@
       "slide_title": "Head Chef Of The Week — Outlawz",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-09-11T15:34:36.946Z",
+      "last_confirmed": "2026-09-25T13:39:44.961Z",
       "last_changed": "2026-09-11T15:34:36.946Z",
       "days_since_confirmed": 0
     },
@@ -100,7 +100,7 @@
       "slide_title": "Head Chef Of The Week — North Side",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-09-11T15:34:36.946Z",
+      "last_confirmed": "2026-09-25T13:39:44.961Z",
       "last_changed": "2026-09-11T15:34:36.946Z",
       "days_since_confirmed": 0
     },
@@ -112,7 +112,7 @@
       "slide_title": "Head Chef Of The Week — The South Side",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-09-11T15:34:36.946Z",
+      "last_confirmed": "2026-09-25T13:39:44.961Z",
       "last_changed": "2026-09-11T15:34:36.946Z",
       "days_since_confirmed": 0
     },
@@ -124,7 +124,7 @@
       "slide_title": "⭐ Xfinity Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-26T04:16:23.645Z",
-      "last_confirmed": "2026-09-11T15:34:36.946Z",
+      "last_confirmed": "2026-09-25T13:39:44.961Z",
       "last_changed": "2026-09-11T15:34:36.946Z",
       "days_since_confirmed": 0
     }
@@ -135,42 +135,42 @@
       "district_key": "big-south",
       "district_short": "Big South",
       "region_deck": "Big South",
-      "slide_title": "Head Chef Of The Week — Big South",
+      "slide_title": "Head Chef Of The Week",
       "slide_index": 0,
-      "name": "Joshua Jones",
-      "store_role": "Johnson City • Sales Representative",
+      "name": "Jared Reaves",
+      "store_role": "Greeneville • Sales Representative",
       "stats": [
         {
-          "value": "$2,815",
+          "value": "$10,991",
           "label": "GP $"
         },
         {
-          "value": "50%",
+          "value": "82%",
           "label": "Plus"
         },
         {
-          "value": "100%",
+          "value": "44%",
           "label": "GIG Attach"
         },
         {
-          "value": "$9.43",
+          "value": "$4.71",
           "label": "Accy $/Box"
         }
       ],
-      "writeup": "This guy leaves no stone left unturned. Always has a great attitude and in his manager’s absence he has stepped up in a major way and owned the success of the store as though it were his own.",
+      "writeup": "Always stays disciplined with following the process start to finish\nTop of the market in t-sheets for fiscal September\nLeading the market in gross profit\nOver 80% in plus lines\nContest winner for last weekend in his store with the mobile lines in the entire market\nAlways an absolute joy to be around!",
       "is_xfinity": false,
       "is_store": false,
       "vacant": false,
       "has_photo": true,
       "photo_file": "photos/big-south.webp",
       "photo_w": 384,
-      "photo_h": 375,
-      "photo_bytes": 13682,
-      "photo_sha": "a0c62cf6c38c0c8d060fb17ba7a796155a825624fa3f3d0541977e0c368b8c5f",
-      "photo_file_sha": "13e56957b3c2c7019b450dfabbb7d187121f6d2eebaca1fb983c8ea7123dabed",
-      "photo_low_quality": true,
-      "last_confirmed": "2026-09-11T15:34:36.946Z",
-      "last_changed": "2026-09-11T13:29:08.756Z",
+      "photo_h": 496,
+      "photo_bytes": 31856,
+      "photo_sha": "b250dbb84af4fcb7f1b71b977fdff19c8823057a6c6e62ff9f9a33c1918eddbe",
+      "photo_file_sha": "7273524596df3ae0b0e13db489ff8508c3dfddffad3923600a827959caa75ea1",
+      "photo_low_quality": false,
+      "last_confirmed": "2026-09-25T13:39:44.961Z",
+      "last_changed": "2026-09-25T13:39:44.961Z",
       "days_since_confirmed": 0,
       "stale": false
     },
@@ -213,7 +213,7 @@
       "photo_sha": null,
       "photo_file_sha": null,
       "photo_low_quality": false,
-      "last_confirmed": "2026-09-11T15:34:36.946Z",
+      "last_confirmed": "2026-09-25T13:39:44.961Z",
       "last_changed": "2026-09-11T15:34:36.946Z",
       "days_since_confirmed": 0,
       "stale": false
@@ -257,7 +257,7 @@
       "photo_sha": "5abcd71ae7e515c5973445fa01fc9cb4a8a094c67728ca823cc6df4371a37678",
       "photo_file_sha": "004aa7d561174172d28594b52fe6f81e18fa9ca44b01811ddd33c4f3f9ab8189",
       "photo_low_quality": true,
-      "last_confirmed": "2026-09-11T15:34:36.946Z",
+      "last_confirmed": "2026-09-25T13:39:44.961Z",
       "last_changed": "2026-09-11T15:34:36.946Z",
       "days_since_confirmed": 0,
       "stale": false
@@ -284,7 +284,7 @@
       "photo_sha": "91ac8dad26fb0b04bd7ddc60cfd2f64653c5b7ac180eda7507e894c6e2f9047b",
       "photo_file_sha": "1cac867117eb8f3666cb8343753dc0410dd517d8bcbcc15d0c9b5ffd7d0cc888",
       "photo_low_quality": true,
-      "last_confirmed": "2026-09-11T15:34:36.946Z",
+      "last_confirmed": "2026-09-25T13:39:44.961Z",
       "last_changed": "2026-09-11T15:34:36.946Z",
       "days_since_confirmed": 0,
       "stale": false
@@ -328,7 +328,7 @@
       "photo_sha": "cf2e12e4925e6189f1af7173a429bfbdbd13f0fc798a448330804e0a8b38399e",
       "photo_file_sha": "c7d0f0332ffe9d7cbfef8e40d1d3052563d9ff483f73c83c614f700b27578c07",
       "photo_low_quality": true,
-      "last_confirmed": "2026-09-11T15:34:36.946Z",
+      "last_confirmed": "2026-09-25T13:39:44.961Z",
       "last_changed": "2026-09-11T15:34:36.946Z",
       "days_since_confirmed": 0,
       "stale": false
@@ -355,7 +355,7 @@
       "photo_sha": null,
       "photo_file_sha": null,
       "photo_low_quality": false,
-      "last_confirmed": "2026-09-11T15:34:36.946Z",
+      "last_confirmed": "2026-09-25T13:39:44.961Z",
       "last_changed": "2026-09-11T15:34:36.946Z",
       "days_since_confirmed": 0,
       "stale": false
