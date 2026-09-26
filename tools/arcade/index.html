@@ -163,9 +163,9 @@ body{font-family:var(--ar-grot);-webkit-font-smoothing:antialiased;-webkit-tap-h
   -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 18px,#000 calc(100% - 26px),transparent 100%);
           mask-image:linear-gradient(180deg,transparent 0,#000 18px,#000 calc(100% - 26px),transparent 100%)}
 .ar-list{list-style:none;margin:0;padding:8px 0;transition:transform 420ms var(--ar-ease)}
-.ar-row{margin:0 0 10px}
+.ar-row{margin:0 0 var(--ar-row-gap,10px)}
 .ar-link{position:relative;display:grid;grid-template-columns:70px minmax(0,1fr) 34px;align-items:center;
-  min-height:96px;padding:0 20px 0 22px;border-radius:8px;text-decoration:none;color:var(--bone-3);
+  min-height:var(--ar-row-min,96px);padding:0 20px 0 22px;border-radius:8px;text-decoration:none;color:var(--bone-3);
   border:1px solid transparent;outline:none;cursor:pointer;
   transition:background 260ms ease,border-color 260ms ease,color 200ms ease}
 .ar-link::before{content:"";position:absolute;left:0;top:18px;bottom:18px;width:5px;border-radius:3px;background:var(--row-tint);opacity:.55;transition:opacity 200ms, top 260ms var(--ar-ease), bottom 260ms var(--ar-ease)}
@@ -2921,7 +2921,7 @@ function createArcadeIntro() {
       var focused = document.activeElement;
       (compact ? dock : listWrap).appendChild(list);
       if (hadFocus && focused && focused.focus) focused.focus({ preventScroll: true });
-      if (!compact && rows && rows.length) fitNames();
+      if (rows && rows.length) { fitRows(); if (!compact) fitNames(); scrollList(); }
     }
     if (compact) {
       var s = fm.s;
@@ -2979,6 +2979,7 @@ function createArcadeIntro() {
         + '</a></li>';
     }).join('');
     rows = Array.prototype.slice.call(list.querySelectorAll('.ar-link'));
+    fitRows();
     fitNames();
     try { document.fonts.ready.then(fitNames); } catch (err) { /* no FontFaceSet */ }
     rows.forEach(function (a) {
@@ -2995,6 +2996,33 @@ function createArcadeIntro() {
         play(GAMES[i]);
       });
     });
+  }
+
+  /* EVERY GAME ON THE GLASS (2026-09-26). The rows were a fixed 96 + 10 px, which
+     is exactly five on the screen. The sixth cabinet (Windy City Derby) sat below
+     the fade with nothing to say it was there: it only slid into view once the
+     selection reached row 05, which a new hire with a mouse never does. So, up to
+     eight games, the rows get shorter until they all fit inside the fade (never
+     below 72 px, still a comfortable 44 px+ target once the canvas is scaled);
+     past that the list scrolls with the selection exactly as before. The dock
+     (portrait phones) is its own grid and is left alone. */
+  function fitRows() {
+    var wrap = list.parentNode;
+    list.style.removeProperty('--ar-row-min');
+    list.style.removeProperty('--ar-row-gap');
+    ROW_H = 106;
+    if (compact || !wrap || !GAMES.length) return;
+    var visible = wrap.clientHeight;
+    if (!visible) return;
+    var room = visible - 16 - 18 - 26;          // list padding, top fade, bottom fade
+    if (GAMES.length * 106 <= room + 10) return; // fits at full size
+    var gap = 8;
+    var h = Math.floor(room / GAMES.length) - gap;
+    if (h < 72) return;                          // too many to fit: scroll instead
+    h = Math.min(96, h);
+    list.style.setProperty('--ar-row-min', h + 'px');
+    list.style.setProperty('--ar-row-gap', gap + 'px');
+    ROW_H = h + gap;
   }
 
   /* One line per name on the 1280 canvas: a name wider than its column is

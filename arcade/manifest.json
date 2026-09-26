@@ -43,6 +43,13 @@
    "blurb": "Seven 3D tables, one fox in a tuxedo. Blackjack, hold'em, roulette, baccarat, craps, slots and video poker. Play chips only.",
    "url": "tools/casino/",
    "tint": "#8ef0d0"
+  },
+  {
+   "slug": "windy-city-derby",
+   "title": "WINDY CITY DERBY",
+   "blurb": "Pick your fox, step in at Wrigley or Rate Field and put one on the street. Ten outs a round, plus a daily challenge on the company board.",
+   "url": "https://blufoxmobile.github.io/Windy-City-Derby/",
+   "tint": "#dbe8ef"
   }
  ]
 }

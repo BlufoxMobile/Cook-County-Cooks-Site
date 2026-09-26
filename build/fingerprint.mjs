@@ -179,12 +179,15 @@ const HTML_FILES = ['index.html', ...listDir('tools/printouts', ['.html']),
      manifest with no build step at all. (arcade/art/*.svg is gone as of the room
      rebuild: the cabinets are DRAWN from tint and title, so a new game needs no
      artwork and there is nothing left here to hash.) */
-  ...listDir('tools/arcade', ['.html']),
-  /* tools/casino — since v29 its <head> names the self-hosted webfonts in
-     ../../assets/fonts/ (they were a render-blocking Google Fonts @import in its
-     style.css). Only those references are rewritten; the casino's own ./assets
-     and .mjs files are not keys in this build and are left exactly as written. */
-  ...listDir('tools/casino', ['.html'])];
+  ...listDir('tools/arcade', ['.html'])];
+  /* tools/casino is NOT in this list any more (2026-09-26). v29 put it here because
+     its <head> named the SITE's fonts as ../../assets/fonts/*.woff2. Casino v2
+     (9/25) ships its own copies at tools/casino/assets/fonts/ and names them
+     `assets/fonts/bodoni-moda-latin.woff2` etc. — relative to tools/casino/, but
+     spelled exactly like the site's own keys. The literal rewriter cannot tell the
+     two apart: it rewrote them to the site's hashed names, which do not exist under
+     tools/casino/, and every casino font would have 404'd. The casino owns its
+     assets like every other sub-app; leave its HTML alone. */
 
 /* ── the rewriter ─────────────────────────────────────────────────────────── */
 
