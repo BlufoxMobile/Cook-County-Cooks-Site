@@ -1164,12 +1164,24 @@ function ui_status(text) {
  *  v29 `allow` (links audit #2): BLUFOX OVERDRIVE steers by tilt and, opened
  *  outside the arcade cabinet, logged "accelerometer is not allowed in this
  *  document". Motion sensors, autoplay and gamepad join the original three;
- *  the browser's own permission prompts still apply. */
+ *  the browser's own permission prompts still apply.
+ *
+ *  web-share (2026-09-27): the quote sheets' "Email PDF" calls
+ *  navigator.share() with the PDF attached. Without this token a framed
+ *  document is refused the share sheet (NotAllowedError), so reps inside the
+ *  viewer only ever got the download + mailto fallback. The share sheet still
+ *  needs the rep's tap; this only stops the frame from vetoing it. It is
+ *  listed only where the browser has navigator.share: a browser without the
+ *  API (desktop Chromium on Linux, Firefox) does not know the feature name
+ *  and logs "Unrecognized feature: 'web-share'" for every open. */
+const STAGE_ALLOW = 'clipboard-write; fullscreen; geolocation; accelerometer; gyroscope; magnetometer; autoplay; gamepad' +
+  ((typeof navigator !== 'undefined' && 'share' in navigator) ? '; web-share' : '');
+
 function makeStageFrame() {
   return el('iframe', {
     class: 'ccc-ov__frame',
     title: 'Tool',
-    allow: 'clipboard-write; fullscreen; geolocation; accelerometer; gyroscope; magnetometer; autoplay; gamepad',
+    allow: STAGE_ALLOW,
     referrerpolicy: 'no-referrer-when-downgrade'
   });
 }
