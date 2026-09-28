@@ -34,6 +34,7 @@ js/core/tables.mjs               table builder (felt canvas printing, rail, apro
 js/core/props.mjs                cards (canvas atlas), chips, chip piles, dice, pucks
 js/core/textures.mjs             every printed surface drawn in code (cards, chips, dice, felt)
 js/core/hud.mjs                  HTML overlay: rack, buttons, 3D-anchored labels, banners
+js/core/bigcards.mjs             big upright HTML twins of the table cards (Hold'em board, blackjack, baccarat hands)
 js/core/economy.mjs              Bank (localStorage), daily bonus, challenges
 js/core/board.mjs                leaderboard client (never blocks play)
 js/core/audio.mjs                WebAudio foley + synthesised effects; lofi-engine.mjs = the score

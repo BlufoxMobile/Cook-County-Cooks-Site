@@ -14,6 +14,7 @@ import { fmt, esc, floatText } from '../core/hud.mjs';
 import { TablePoker, tableBotAction, PLAYERS, LEVELS, bestHand, best, describe, shortName, holeName, draws, rankName } from '../rules/holdem.mjs';
 import { ChipField, denomsFor } from './holdem-chips.mjs';
 import { CSS, seatHTML, cardImg, helpHTML } from './holdem-ui.mjs';
+import { BigCards, bigCardHTML } from '../core/bigcards.mjs';
 import { makeLayout, paintFelt, VIEW } from './holdem-layout.mjs';
 
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
@@ -33,6 +34,7 @@ export default class Holdem extends Game {
     this.level = Math.max(0, Math.min(4, bank.setting('heLevel') ?? 1));
     this.stakeIdx = Math.max(0, Math.min(2, bank.setting('heStakes') ?? 0));
     this.backdrop.setRoom('dealer');
+    this.big = new BigCards(this.hud);          // the community cards, large and upright (core/bigcards.mjs)
     this.lay = makeLayout(stage.portrait);
     this.buildScene();
     this.keySave = { pos: stage.key.position.clone(), tgt: stage.key.target.position.clone(), angle: stage.key.angle, dist: stage.key.distance };
@@ -102,6 +104,7 @@ export default class Holdem extends Game {
     }
     this.potStack.pos.copy(lay.pot); this.field.dirty = true; this.potTag();
     (this.boardObjs || []).forEach((o, k) => { const b = lay.board(k); o.position.x = b.x; o.position.z = b.z; o.scale.setScalar(lay.boardScale); });
+    this.showBoard();
     this.burnObjs.forEach((o, k) => { o.position.x = lay.burn.x; o.position.z = lay.burn.z; });
     this.muckObjs.forEach(o => { o.position.x = lay.muck.x; o.position.z = lay.muck.z; });
     this.deck.position.copy(lay.deal).setY(0);
@@ -277,6 +280,7 @@ export default class Holdem extends Game {
     this.handStart = this.stacks[0];
     const p = this.p = new TablePoker([...this.stacks], bb, this.button);
     this.disp = { stack: [...this.stacks], bet: [0, 0, 0, 0, 0, 0], pot: 0 };
+    this.big?.hide('board', { fade: false });
     this.boardObjs = []; this.handObjs = []; this.held = null; this.strengthOn = false; this.shownStreet = 0; this.burnN = 0;
     for (const s of this.seats) { s.objs = []; s.revealed = false; s.el?.classList.remove('act', 'won', 'fold', 'bust'); this.seatAct(s.i, ''); if (s.elShow) { s.elShow.className = 'he-show'; s.elShow.innerHTML = ''; } this.stackLabel(s.i); }
     this.positions();
@@ -467,12 +471,25 @@ export default class Holdem extends Game {
         if (!this.alive) return;
       }
       if (!this.ff) await this.wait(.08);
-      for (const [j, o] of objs.entries()) { this.sound.card(); await flipCard(this.tw, o, { dur: this.ff ? .16 : .3, lift: .03 }); if (!this.ff && j < objs.length - 1) await this.wait(.03); }
+      for (const [j, o] of objs.entries()) { this.sound.card(); await flipCard(this.tw, o, { dur: this.ff ? .16 : .3, lift: .03 }); this.showBoard(); if (!this.ff && j < objs.length - 1) await this.wait(.03); }
       const st = p.board.length >= 5 && k0 === 4 ? 'river' : k0 === 3 ? 'turn' : 'flop';
       this.say(st === 'flop' ? `The flop: ${p.board.slice(0, 3).map(c => rankLabel(c)).join(', ')}.` : `The ${st}: ${cardWords(p.board[k0])}.`);
       this.strength();
       if (!this.ff) await this.wait(.25);
     }
+  }
+
+  /* The board, readable. The 3D cards lie flat in the middle of the felt and
+     the camera sees them at a glancing angle — ~30px on a laptop, ~20px on a
+     phone. Their upright HTML twins (core/bigcards.mjs) sit over the same spot,
+     as large as the screen allows; the slots still to come are outlined so the
+     strip never shifts as the turn and river arrive. */
+  showBoard() {
+    const objs = (this.boardObjs || []).filter(o => o.userData.faceUp);
+    if (!objs.length || !this.big) { this.big?.hide('board', { fade: false }); return; }
+    const cards = objs.map(o => o.userData.card);
+    while (cards.length < 5) cards.push({ ghost: true });
+    this.big.show('board', V(0, .01, this.lay.boardZ + (this.lay.portrait ? .02 : .0)), cards, { size: 'lg' });
   }
 
   // ── chips on the move ──────────────────────────────────────────────────
@@ -545,7 +562,7 @@ export default class Holdem extends Game {
       if (i === 0) continue;             // yours stay up in your hand, large and readable
       this.sound.card();
       await Promise.all(s.objs.map((o, k) => this.wait(k * .06).then(() => flipCard(this.tw, o, { dur: this.ff ? .18 : .32, lift: .035 }))));
-      if (s.elShow) { s.elShow.innerHTML = p.cards[i].map(c => `<img src="${cardImg(c, 60)}" alt="">`).join(''); s.elShow.className = 'he-show on'; }
+      if (s.elShow) { s.elShow.innerHTML = `<div class="bc-row bc-sm">${p.cards[i].map(c => bigCardHTML(c, 'in')).join('')}</div>`; s.elShow.className = 'he-show on'; }
       if (!this.ff) await this.wait(.12);
     }
   }
@@ -568,10 +585,14 @@ export default class Holdem extends Game {
       }
     }
     this.glowOn = true;
+    this.big?.mark('board', k => { const o = this.boardObjs[k]; return !o ? '' : cards.includes(o.userData.card) ? 'win' : 'dim'; });
+    for (const s of this.seats) if (s.i && s.elShow?.classList.contains('on')) [...s.elShow.querySelectorAll('.bc')].forEach((n, k) => { const c = this.p?.cards[s.i]?.[k]; n.classList.toggle('win', !!c && cards.includes(c)); n.classList.toggle('dim', !!c && !cards.includes(c)); });
   }
   clearHighlight() {
     for (const m of this.fx) m.parent?.remove(m);
     this.fx = []; this.glowOn = false;
+    this.big?.mark('board', null);
+    for (const s of this.seats || []) s.elShow?.querySelectorAll('.bc').forEach(n => n.classList.remove('win', 'dim'));
     for (const o of this.held || []) o.userData.lift = 0;
     for (const o of this.handObjs) if (o.userData.y0 != null) { o.position.y = o.userData.y0; o.userData.y0 = null; }
   }
@@ -759,6 +780,7 @@ export default class Holdem extends Game {
     this.hud.unanchor('str'); this.strengthOn = false;
     for (let i = 0; i < 6; i++) this.hud.unanchor('bet' + i);
     const objs = this.handObjs.filter(o => o.parent);
+    this.big?.hide('board');
     const to = this.lay.deal.clone().setY(.01);
     await Promise.all(objs.map((o, k) => {
       if (o.parent !== this.root) this.root.attach(o);
@@ -835,7 +857,7 @@ export default class Holdem extends Game {
   potTag() {
     if (!this.alive) return;
     const amt = this.disp.pot;
-    if (amt > 0) this.tag('pot', this.lay.pot.clone().add(V(0, this.potStack.height + .03, 0)), `<span class="tag he-pot">POT<b>${fmt(amt + this.disp.bet.reduce((a, b) => a + b, 0))}</b></span>`);
+    if (amt > 0) this.tag('pot', this.lay.pot.clone().add(V(0, this.potStack.height + (this.lay.portrait ? .03 : .085), 0)), `<span class="tag he-pot">POT<b>${fmt(amt + this.disp.bet.reduce((a, b) => a + b, 0))}</b></span>`);
     else this.hud.unanchor('pot');
   }
   seatState(i, st) {       // 'act' (their turn), 'fold' (sticks for the hand), 'won', '' (clear turn/won)

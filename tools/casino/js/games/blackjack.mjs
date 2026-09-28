@@ -7,6 +7,7 @@ import { dealCard, flipCard, ChipPile, CARD } from '../core/props.mjs';
 import { Shoe } from '../core/rng.mjs';
 import { handValue, isNatural, label, dealerShouldHit, twentyOnePlus3, SIDE_PAYS, advice, settleHand } from '../rules/blackjack.mjs';
 import { fmt, floatText } from '../core/hud.mjs';
+import { BigCards } from '../core/bigcards.mjs';
 import { FONT_DISPLAY, FONT_TEXT } from '../core/textures.mjs';
 
 const ZF = -.6, TABLE = { type: 'bj', a: 1.08, b: .8, zf: ZF };
@@ -22,6 +23,7 @@ export default class Blackjack extends Game {
   async enter(first) {
     const { stage } = this;
     this.shoe = new Shoe(6, .75);
+    this.big = new BigCards(this.hud);
     this.backdrop.setRoom('dealer');
     this.backdrop.place({ z: ZF - .03, railY: .057, width: 1.95 });
     this.table = buildTable(stage, { outline: TABLE, felt: { color: '#0b4031', size: [2048], paint: (c, P, S) => this.paintFelt(c, P, S) }, tray: { x: 0, z: ZF + .09, w: .62, chips: this.chips } });
@@ -138,7 +140,7 @@ export default class Blackjack extends Game {
     this.lastBets = this.spots.map(s => ({ main: s.main.amount, side: s.side.amount }));
     this.staked = this.totalBets(); this.returned = 0;
     this.hud.rackEnabled(false); this.hud.actions([]);
-    this.hud.clearAnchors();
+    this.hud.clearAnchors(); this.big.clear({ fade: false });
     if (this.shoe.needsShuffle) { this.say('Fresh shoe. Shuffling six decks.'); this.shoe.fresh(); await this.wait(.8); }
     const active = this.spots.filter(s => s.main.amount).sort((a, b) => b.x - a.x);   // first base = player's right
     for (const s of active) s.hands = [{ cards: [], objs: [], bet: s.main.amount, pile: s.main, split: false, done: false, doubled: false }];
@@ -210,6 +212,7 @@ export default class Blackjack extends Game {
     hand.cards.push(c); hand.objs.push(obj);
     this.sound.card();
     await dealCard(this.tw, obj, this.shoeProp.mouth, to, { faceUp, dur: .38, rotY: -(s.ang - Math.PI / 2) * .6 });
+    if (this.alive) this.updateLabels();
     await this.wait(dur * .3);
     return c;
   }
@@ -220,6 +223,7 @@ export default class Blackjack extends Game {
     const to = new THREE.Vector3(-.045 + n * .085 - (n > 1 ? (n - 1) * .014 : 0), CARD.t / 2, ZF + .25);
     this.sound.card();
     await dealCard(this.tw, obj, this.shoeProp.mouth, to, { faceUp, dur: .36, lift: .02 });
+    if (this.alive) this.updateLabels();
     await this.wait(dur * .3);
   }
   async revealHole() {
@@ -231,18 +235,29 @@ export default class Blackjack extends Game {
       this.stage.back(.6);
     }
   }
+  /* Every hand, readable. The 3D cards lie flat on the felt, seen from the
+     seat at a glancing angle; their upright HTML twins (core/bigcards.mjs) sit
+     over the same spot as large as the screen allows, fanned like a held hand
+     so each card's big index shows, with the running total as the caption. */
+  handPoint(s, hand, hi) {
+    const split = s.hands.length > 1, n = Math.max(1, hand.cards.length);
+    const bx = s.x + (split ? (hi === 0 ? -.058 : .058) : 0), bz = s.z - .128;
+    return new THREE.Vector3(bx + (n - 1) * .01, .01, bz - (n - 1) * .0125);
+  }
   updateLabels() {
     for (const s of this.spots) s.hands.forEach((h, hi) => {
       if (!h.cards.length) return;
-      const top = this.cardSpot(s, h, hi).add(new THREE.Vector3(.06, .005, .035));
       const v = handValue(h.cards), nat = isNatural(h.cards) && !h.split;
-      const cls = nat ? 'tag gold big' : v.total > 21 ? 'tag bust' : 'tag';
-      this.hud.anchor(`h${s.i}-${hi}`, top, `<span class="${cls}">${nat ? 'BLACKJACK' : v.total > 21 ? 'BUST ' + v.total : label(h.cards)}${h.doubled ? '<small>×2</small>' : ''}</span>`);
+      const cap = (nat ? 'BLACKJACK' : v.total > 21 ? 'BUST ' + v.total : label(h.cards)) + (h.doubled ? ' <b>×2</b>' : '');
+      this.big.show(`h${s.i}-${hi}`, this.handPoint(s, h, hi), h.objs.map((o, k) => o.userData.faceUp ? h.cards[k] : null),
+        { size: 'md', fan: true, caption: cap, capCls: nat ? 'gold' : v.total > 21 ? 'bust' : '', dy: this.stage.portrait ? '14%' : '12%' });
     });
     if (this.dealer?.cards.length) {
       const visible = this.dealer.objs.map((o, i) => o.userData.faceUp ? this.dealer.cards[i] : null).filter(Boolean);
-      const v = handValue(visible);
-      this.hud.anchor('dealer', new THREE.Vector3(-.13, .01, ZF + .25), `<span class="tag ${v.total > 21 ? 'bust' : ''}">${isNatural(this.dealer.cards) && visible.length === 2 ? 'BLACKJACK' : v.total > 21 ? 'BUST' : 'DEALER ' + label(visible)}</span>`);
+      const v = handValue(visible), n = this.dealer.cards.length;
+      const cap = isNatural(this.dealer.cards) && visible.length === 2 ? 'BLACKJACK' : v.total > 21 ? 'BUST ' + v.total : 'DEALER <b>' + label(visible) + '</b>';
+      this.big.show('dealer', new THREE.Vector3(-.045 + (n - 1) * .036, .01, ZF + .25), this.dealer.objs.map((o, i) => o.userData.faceUp ? this.dealer.cards[i] : null),
+        { size: 'md', fan: true, capFirst: true, dy: this.stage.portrait ? '-58%' : '-52%', caption: cap, capCls: v.total > 21 ? 'bust' : visible.length === 2 && isNatural(this.dealer.cards) ? 'gold' : '' });
     }
   }
   askInsurance(active) {
@@ -357,9 +372,8 @@ export default class Blackjack extends Game {
     net = this.returned - this.staked;
     // physically move the chips
     const moves = results.map(async ({ s, h, hi, result, returned }) => {
-      const at = this.cardSpot(s, h, hi).add(new THREE.Vector3(.06, .01, .035));
-      const tag = { blackjack: ['tag gold big', 'BLACKJACK +' + fmt(returned - h.bet)], win: ['tag win', 'WIN +' + fmt(returned - h.bet)], push: ['tag', 'PUSH'], lose: ['tag lose', 'LOSE'], bust: ['tag bust', 'BUST'], surrender: ['tag', 'SURRENDER'] }[result];
-      this.hud.anchor(`h${s.i}-${hi}`, at, `<span class="${tag[0]}">${tag[1]}</span>`);
+        const tag = { blackjack: ['tag gold big', 'BLACKJACK +' + fmt(returned - h.bet)], win: ['tag win', 'WIN +' + fmt(returned - h.bet)], push: ['tag', 'PUSH'], lose: ['tag lose', 'LOSE'], bust: ['tag bust', 'BUST'], surrender: ['tag', 'SURRENDER'] }[result];
+      this.big.caption(`h${s.i}-${hi}`, tag[1], { 'tag gold big': 'gold', 'tag win': 'win', 'tag bust': 'bust', 'tag lose': 'bust' }[tag[0]] || '');
       if (returned > h.bet) { await this.payPile(h.pile, returned - h.bet); }
       else if (result === 'push') { await this.wait(.4); await h.pile.sweepTo(this.chipOrigin(), this.tw, { dur: .5 }); }
       else if (result === 'surrender') { await h.pile.sweepTo(this.dealerPoint, this.tw, { dur: .5 }); }
@@ -381,6 +395,7 @@ export default class Blackjack extends Game {
   }
   async clearTable(active) {
     const objs = [...active.flatMap(s => s.hands.flatMap(h => h.objs)), ...this.dealer.objs];
+    this.big.clear();
     this.hud.clearAnchors();
     await Promise.all(objs.map((o, i) => this.tw.run(.45, (e, p) => {
       o.position.lerp(this.discard.point, e * .5 + .02); o.position.y += Math.sin(p * Math.PI) * .004;

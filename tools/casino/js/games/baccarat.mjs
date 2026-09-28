@@ -7,6 +7,7 @@ import { buildTable, cardShoe, discardTray, arcText, ring, rrect, text, hitSpot,
 import { dealCard, flipCard, ChipPile, ChipFactory, CARD, CHIP } from '../core/props.mjs';
 import { Shoe, rand } from '../core/rng.mjs';
 import * as R from '../rules/baccarat.mjs';
+import { BigCards } from '../core/bigcards.mjs';
 import { fmt, floatText } from '../core/hud.mjs';
 import { FONT_DISPLAY, FONT_TEXT, rankLabel } from '../core/textures.mjs';
 import { BendCards } from './baccarat-card.mjs';
@@ -47,6 +48,7 @@ export default class Baccarat extends Game {
 
   async enter(first) {
     const { stage } = this;
+    this.big = new BigCards(this.hud);
     const st = document.createElement('style'); st.id = 'css-baccarat'; st.textContent = CSS + HELP_CSS;
     document.getElementById('css-baccarat')?.remove(); document.head.append(st); this.styleEl = st;
     document.getElementById('app').classList.add('bac-on');
@@ -453,6 +455,7 @@ export default class Baccarat extends Game {
   async squeeze(o, side, { short = false, third = false } = {}) {
     if (!this.alive) return;
     this.mood(2);
+    this.big.veil(true);
     await this.stage.shot(this.sqShot(o, third), .75);
     if (!this.alive) return;
     o.bend.aim(this.stage.camera.position, third ? .5 : .58);
@@ -478,6 +481,7 @@ export default class Baccarat extends Game {
     if (this.speed0 != null) { this.tw.speed = this.speed0; this.speed0 = null; }
     this.mood(1);
     this.hud.actions([this.fastBtn()]);
+    this.big.veil(false);
     this.updateTotals();
     const card = o.userData.card, v = R.point(card);
     // a little sting on the good ones
@@ -529,16 +533,27 @@ export default class Baccarat extends Game {
   }
 
   // ── labels ──
+  /* The coup, readable: each side's cards as upright HTML twins over its box
+     (core/bigcards.mjs), as large as the screen allows, with the score badge
+     as the caption. The 3D cards still deal, squeeze and turn; during a
+     squeeze close-up the big cards step aside. */
   updateTotals() {
     const h = this.hand; if (!h) return;
     for (const side of ['P', 'B']) {
       const shown = h[side].filter((c, i) => h.objs[side][i].userData.faceUp);
-      if (!shown.length) { this.hud.unanchor('tot' + side); continue; }
+      if (!shown.length) { this.big.hide(side, { fade: false }); continue; }
       const cls = h.result ? (h.result === side ? ' win' : h.result === 'T' ? ' tie' : ' lose') : '';
       const two = shown.length >= 2 && h.objs[side][1]?.userData.faceUp && h.objs[side][0]?.userData.faceUp;
       const nat = two && R.isNatural(h[side].slice(0, 2)), pair = two && R.isPair(h[side]);
       const badges = (nat ? `<i class="bdg nat">NATURAL</i>` : '') + (pair ? `<i class="bdg pair">PAIR</i>` : '');
-      this.hud.anchor('tot' + side, new THREE.Vector3(BOX[side].x, .012, BOX.z + BOX.d / 2 + .034), `<div class="bac-score ${side.toLowerCase()}${cls}">${badges}${SIDE[side]}<span class="n">${R.total(shown)}</span></div>`);
+      const cards = h.objs[side].map((o, i) => o.userData.faceUp ? h[side][i] : null);
+      // over the 3D cards themselves on wide screens; on a phone, over the box, so the two hands keep apart
+      const os = h.objs[side], at = this.stage.portrait ? new THREE.Vector3(BOX[side].x, .012, BOX.z)
+        : new THREE.Vector3(os.reduce((a, o) => a + o.position.x, 0) / os.length, .012, BOX.z);
+      this.big.show(side, at, cards, {
+        size: 'md', fan: true, capCls: 'bare', dy: this.stage.portrait ? '8%' : '4%',
+        caption: `<div class="bac-score ${side.toLowerCase()}${cls}">${badges}${SIDE[side]}<span class="n">${R.total(shown)}</span></div>`
+      });
     }
   }
 
@@ -607,6 +622,7 @@ export default class Baccarat extends Game {
   async clearTable() {
     const h = this.hand; if (!h) return;
     const objs = [...h.objs.P, ...h.objs.B];
+    this.big.clear({ fade: false });
     this.hud.clearAnchors();
     this.winGlow = null;
     await Promise.all(objs.map((o, i) => this.tw.run(.45, (e, p) => {

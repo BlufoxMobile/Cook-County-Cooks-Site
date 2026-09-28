@@ -95,11 +95,15 @@ function drawCardFace(ctx, r, s) {
   ctx.strokeStyle = 'rgba(120,100,60,.22)'; ctx.lineWidth = 2; roundRect(ctx, 5, 5, W - 10, H - 10, 14); ctx.stroke();
   // jumbo indices
   const label = rankLabel(r);
+  // Heavy grotesque, not the Didone: at the sizes a card is actually seen at
+  // on a phone (~20px of index), Bodoni's hairlines vanish and a 6 reads as a
+  // smudge. Same face and weight as the big HTML cards (core/bigcards.mjs).
   const index = () => {
     ctx.fillStyle = color; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-    ctx.font = `700 ${label === '10' ? 70 : 84}px ${FONT_DISPLAY}`;
-    ctx.fillText(label, 50, 88);
-    drawSuit(ctx, s, 50, 128, 50, color);
+    ctx.font = `800 ${label === '10' ? 80 : 88}px ${FONT_TEXT}`;
+    if (label === '10') { ctx.save(); ctx.translate(50, 90); ctx.scale(.74, 1); ctx.fillText(label, 0, 0); ctx.restore(); }
+    else ctx.fillText(label, 50, 90);
+    drawSuit(ctx, s, 50, 130, 50, color);
   };
   index();
   ctx.save(); ctx.translate(W, H); ctx.rotate(Math.PI); index(); ctx.restore();
@@ -172,7 +176,7 @@ let atlasPromise = null;
 export function cardAtlas(renderer) {
   if (atlasPromise) return atlasPromise;
   atlasPromise = (async () => {
-    try { await Promise.all([document.fonts.load(`700 80px ${FONT_DISPLAY}`), document.fonts.load(`italic 700 80px ${FONT_DISPLAY}`)]); } catch {}
+    try { await Promise.all([document.fonts.load(`700 80px ${FONT_DISPLAY}`), document.fonts.load(`italic 700 80px ${FONT_DISPLAY}`), document.fonts.load(`800 80px ${FONT_TEXT}`)]); } catch {}
     const cv = document.createElement('canvas');
     cv.width = CARD_W * 13; cv.height = CARD_H * 5;
     const ctx = cv.getContext('2d');
