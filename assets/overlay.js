@@ -1280,6 +1280,33 @@ function clearFrameTimer() {
  * need that fallback. Posted to location.origin, never '*'.
  * -------------------------------------------------------------------------- */
 
+/* REP MEMORY helpers (see onFrameMessage). Strings are trimmed and capped;
+   anything else is dropped, so a malformed message can only store nothing. */
+const REP_TOOL_ORIGIN = 'https://blufoxmobile.github.io';
+const REP_KEY = 'ccc-rep';
+function cleanRep(r) {
+  if (!r || typeof r !== 'object') return null;
+  const str = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
+  const out = {
+    store: str(r.store, 80),
+    rep: str(r.rep, 80),
+    email: str(r.email, 120),
+    phone: str(r.phone, 32),
+    manual: r.manual === true
+  };
+  return out.store || out.rep ? out : null;
+}
+function loadRep() {
+  try { return cleanRep(JSON.parse(localStorage.getItem(REP_KEY) || 'null')); }
+  catch { return null; }
+}
+function saveRep(r) {
+  const c = cleanRep(r);
+  if (!c) return;
+  try { localStorage.setItem(REP_KEY, JSON.stringify(Object.assign(c, { at: Date.now() }))); }
+  catch { /* storage disabled: the sheet still works, the rep just types it again */ }
+}
+
 function onFrameMessage(event) {
   const ui = state.ui;
   if (!ui || !ui.frame || state.activeSlug === null) return;
@@ -1314,6 +1341,24 @@ function onFrameMessage(event) {
       try { document.dispatchEvent(new CustomEvent('ccc:find-open', { detail: { source: 'frame' } })); }
       catch { /* CustomEvent unavailable */ }
     }
+    return;
+  }
+
+  /* REP MEMORY (2026-09-27): the quote sheets' "Your store / Your name".
+     On an iPad, Safari (and Chrome, which is Safari underneath) keeps a framed
+     tool's localStorage only for the session, so every reopen of a quote sheet
+     came up blank and the rep retyped their store and name for each customer.
+     This page is first-party, so its storage lasts: the tool hands us the rep
+     it has selected ({action:'rep-set'}) and asks for it back when it opens
+     ({action:'rep-get'}). Only the blufoxmobile.github.io tools may use it, the
+     reply goes only to that origin, and what is kept is a store, a name, a work
+     email and an optional phone — the same four things the sheet itself stores. */
+  if (d.source === 'ccc-tool' && (d.action === 'rep-get' || d.action === 'rep-set')) {
+    if (event.origin !== REP_TOOL_ORIGIN) return;
+    if (d.action === 'rep-set') { saveRep(d.rep); return; }
+    try {
+      event.source.postMessage({ source: 'ccc-host', type: 'rep', v: 1, rep: loadRep() }, REP_TOOL_ORIGIN);
+    } catch { /* the frame went away; it will ask again next time it opens */ }
     return;
   }
 
