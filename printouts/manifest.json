@@ -52,6 +52,22 @@
    "blurb": "Opt-in and opt-out cards for Xfinity text updates — 27 pages, one per store, four cards to a page with cut marks. Scan START to turn texts on, STOP to turn them off."
   },
   {
+   "file": "NPS Text Template English.pdf",
+   "label": "NPS Text Template — English",
+   "type": "pdf",
+   "group": "counter",
+   "bytes": 301148,
+   "blurb": "Three cut-apart cards to a page. Hand one over at the close so the customer knows the Xfinity survey text from 61591 is coming, sees exactly what it looks like, and knows a 10 is the reply if we took great care of them."
+  },
+  {
+   "file": "NPS Text Template Spanish.pdf",
+   "label": "NPS Text Template — Spanish",
+   "type": "pdf",
+   "group": "counter",
+   "bytes": 300190,
+   "blurb": "The same survey-text card in Spanish for Spanish-speaking customers — three to a page. The phone shows the text exactly as it arrives, and the card explains in Spanish what it asks and why a 10 matters."
+  },
+  {
    "file": "Channel Line Up.pdf",
    "label": "Channel Line Up",
    "type": "pdf",
@@ -106,14 +122,6 @@
    "group": "reference",
    "bytes": 100608,
    "blurb": "The toner-friendly NPS sheet — the survey ask spelled out, for the counter or the back-office wall."
-  },
-  {
-   "file": "NPS Text Template Spanish.pdf",
-   "label": "NPS Text Template — Spanish",
-   "type": "pdf",
-   "group": "reference",
-   "bytes": 142128,
-   "blurb": "The Spanish wording for the survey follow-up text, so a Spanish-speaking customer knows what the score means."
   }
  ]
 }
