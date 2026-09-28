@@ -99,7 +99,7 @@
   <link rel="preload" href="assets/fonts/bodoni-moda-latin.c032219ef6.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/bodoni-moda-italic-latin.b737328c13.woff2" as="font" type="font/woff2" crossorigin
         media="(pointer: fine), (pointer: none), (min-width: 1001px), (min-width: 501px) and (min-height: 501px)">
-  <link rel="modulepreload" href="assets/app.330040c2dd.js">
+  <link rel="modulepreload" href="assets/app.65c5fefb15.js">
 
   <!-- ═══════════════════════════════════════════════════════════════════════
        THE ONE DECISION: RESTAURANT, OR POCKET LIST?
@@ -109,7 +109,7 @@
        weekly and two codebases would silently drift, so the answer is this —
        one URL, one tool list, two front ends, chosen here.
 
-       WHY THIS RUNS HERE AND NOT IN A MODULE. assets/app.330040c2dd.js is type="module",
+       WHY THIS RUNS HERE AND NOT IN A MODULE. assets/app.65c5fefb15.js is type="module",
        which is deferred by definition: it cannot run until the document has
        parsed, by which point the page has painted. A decision made there would
        show the wrong site first and swap it — a flash of the whole cinema on a
@@ -242,7 +242,7 @@
         d.setAttribute('data-motion-why', why);
       } catch (e) {}
       if (d.getAttribute('data-view') !== 'full') return;
-      var P = /*@cinema-graph*/["assets/cinema.fa566e41b9.js","assets/engine.638cfc5330.js","assets/overlay.f85d5936f5.js","assets/screens.5c2f6f1828.js","assets/chefwall.561dda2416.js","assets/labels.b8974f5d8d.js","assets/wallprint.c6e5ad8da9.js","assets/freezer.db542c2f18.js","assets/coldgate.5557b67d4d.js","assets/dom.d7b1df3700.js","rooms.d58e8ef8a0.js","assets/freshurl.72537abf1f.js","assets/preflight.3928c43470.js","assets/coldstore.26c122da4b.js","assets/roomorder.e9125c1800.js"];
+      var P = /*@cinema-graph*/["assets/cinema.968297e20b.js","assets/engine.638cfc5330.js","assets/overlay.8a3789790d.js","assets/screens.ef6e209d62.js","assets/chefwall.561dda2416.js","assets/labels.b8974f5d8d.js","assets/wallprint.c6e5ad8da9.js","assets/freezer.db542c2f18.js","assets/coldgate.5557b67d4d.js","assets/dom.d7b1df3700.js","rooms.d58e8ef8a0.js","assets/freshurl.72537abf1f.js","assets/preflight.3928c43470.js","assets/coldstore.26c122da4b.js","assets/roomorder.e9125c1800.js"];
       try {
         for (var i = 0; i < P.length; i++) {
           var l = document.createElement('link');
@@ -463,7 +463,7 @@
            next build has already pruned.
 
        REGISTERED HERE, NOT IN A MODULE, AND AFTER `load`.
-       In the <head> because it must not depend on assets/app.330040c2dd.js — the deploy
+       In the <head> because it must not depend on assets/app.65c5fefb15.js — the deploy
        window where a hashed module 404s is one of the cases this is meant to
        survive. After `load` because registration competes for the same
        connection as the hero plate, and the offline floor is for the NEXT
@@ -737,10 +737,10 @@
   <!-- ═══════════════════════════════════════════════════════════════════════
        THE ENTRY POINT, AND WHAT HAPPENS WHEN THE ENTRY POINT ITSELF IS GONE
        ═══════════════════════════════════════════════════════════════════════
-       assets/app.330040c2dd.js wraps its own boot in a try/catch and draws a flat list of
+       assets/app.65c5fefb15.js wraps its own boot in a try/catch and draws a flat list of
        every tool if any module it imports fails — but it cannot draw anything
        if IT is the file that 404'd, and that is not hypothetical: on
-       2026-08-31 assets/app.330040c2dd.js was live-404ing on
+       2026-08-31 assets/app.65c5fefb15.js was live-404ing on
        cookcountycooks.com while index.html, served with cache-control:
        max-age=600, was still naming it. build/fingerprint.mjs had emitted the
        next build's hashed names and pruned the previous build's; for up to ten
@@ -865,8 +865,8 @@
       function go() {
         if (started) return;
         started = true;
-        import('./assets/app.330040c2dd.js').catch(function (err) {
-          try { console.error('[entry] assets/app.330040c2dd.js did not load; drawing the plain list.', err); } catch (e) {}
+        import('./assets/app.65c5fefb15.js').catch(function (err) {
+          try { console.error('[entry] assets/app.65c5fefb15.js did not load; drawing the plain list.', err); } catch (e) {}
           if (window.__cccFloor) window.__cccFloor();
         });
       }
