@@ -515,7 +515,11 @@ body[data-ccc-lock] {
   grid-template-rows: auto 1fr;
   width: min(1680px, 100vw - clamp(0px, 4vw, 56px));
   height: min(var(--ccc-ov-vh, 100svh) - clamp(0px, 4vw, 56px), 1100px);
-  margin: auto;
+  /* v31: centred against the SMALL viewport, not against this grid. iOS grows
+     the box a fixed element is laid out in while the keyboard is up, and
+     "margin: auto" then slid the panel half a keyboard down the screen (Jeff's
+     iPhone screenshot, 9/30). Same position as before in every other case. */
+  margin: max(calc(clamp(0px, 4vw, 56px) / 2), calc((100svh - 1100px) / 2)) auto auto;
   border-radius: var(--ccc-ov-radius, 18px);
   overflow: hidden;
   background: var(--ccc-ov-panel, #101012);
@@ -545,8 +549,20 @@ body[data-ccc-lock] {
 .ccc-ov.is-closing:not(.is-in) .ccc-ov__panel { transform: scale(.985); }
 
 @media (max-width: 720px), (max-height: 500px) and (orientation: landscape) {
-  .ccc-ov__panel { width: 100vw; height: var(--ccc-ov-vh, 100svh); border-radius: 0; }
+  .ccc-ov__panel { width: 100vw; height: var(--ccc-ov-vh, 100svh); border-radius: 0; margin: 0 auto auto; }
 }
+
+/* TYPING (v31, see 7b): while a tool's text field has focus and the keyboard is
+   up, the panel is pinned by script to the part of the screen the keyboard
+   leaves — edge to edge, no title bar, nothing animating. The scrim stays full
+   screen behind it. */
+.ccc-ov.is-typing .ccc-ov__panel {
+  position: fixed; margin: 0; max-width: none;
+  border-radius: 0; box-shadow: none;
+  grid-template-rows: 1fr;
+  transform: none !important; opacity: 1 !important; transition: none !important;
+}
+.ccc-ov.is-typing .ccc-ov__bar { display: none; }
 
 /* IMMERSIVE — the arcade asks for this while a game is running (§6b). The
    chrome bar goes and the panel takes the whole viewport edge to edge, so the
@@ -554,7 +570,7 @@ body[data-ccc-lock] {
    svh as the floor) so a phone's collapsing toolbar gives its space to the
    game too. Cleared on every frame swap and on close. */
 .ccc-ov.is-immersive .ccc-ov__panel {
-  width: 100vw; height: 100svh; height: 100dvh;
+  width: 100vw; height: 100svh; height: 100dvh; margin: 0 auto auto;
   border-radius: 0; box-shadow: none;
   grid-template-rows: 0 1fr;
 }
@@ -1222,6 +1238,7 @@ function setImmersive(on) {
 
 function navigateStageFrame(ui, url) {
   setImmersive(false);
+  setTyping(false);
   const fresh = makeStageFrame();
   ui.frame.replaceWith(fresh);          // keeps its slot/order inside the stage
   ui.frame = fresh;
@@ -1236,6 +1253,7 @@ function navigateStageFrame(ui, url) {
  * history entry. Replacing the node does both jobs and pushes nothing.
  */
 function blankStageFrame(ui) {
+  setTyping(false);
   if (!ui || !ui.frame) return;
   ui.frame.onload = ui.frame.onerror = null;
   setImmersive(false);
@@ -1316,6 +1334,56 @@ function saveRep(r) {
   catch { /* storage disabled: the sheet still works, the rep just types it again */ }
 }
 
+/* OUTBOX MIRROR (2026-09-30). The quote sheets confirm "Submitted" as soon as a
+   quote is in their outbox (their own localStorage) and send it in the
+   background. Framed here on an iPad, that storage lasts only for the session
+   (see REP MEMORY), so a quote whose first send failed could be lost before a
+   retry. While framed, a sheet also hands its unsent quotes to this page
+   ({action:'outbox-sync', items, gone}) and asks for them back when it opens
+   ({action:'outbox-get'}). Same origin rule and reply target as rep memory.
+   Only unsent quotes are kept; a sheet removes each one ("gone") once the
+   Apps Script has answered, and anything left here is dropped after 14 days. */
+const OUTBOX_KEY = 'ccc-outbox';
+const OUTBOX_MAX = 60;
+const OUTBOX_MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000;
+function cleanOutboxItem(x) {
+  if (!x || typeof x !== 'object') return null;
+  const str = (v, max) => (typeof v === 'string' && v.length <= max ? v : '');
+  const id = str(x.id, 80);
+  if (!/^sub_[A-Za-z0-9_-]{4,}$/.test(id)) return null;
+  const appsUrl = str(x.appsUrl, 300), appsBody = str(x.appsBody, 200000);
+  if (!/^https:\/\/script\.google\.com\//.test(appsUrl) || !appsBody) return null;
+  const zapUrl = str(x.zapUrl, 300);
+  const num = (v) => (typeof v === 'number' && isFinite(v) ? v : 0);
+  const lab = x.label && typeof x.label === 'object' ? x.label : {};
+  return {
+    id, sid: str(x.sid, 100) || id, v: 3, appsUrl, appsBody,
+    zapUrl: /^https:\/\/hooks\.zapier\.com\//.test(zapUrl) ? zapUrl : '',
+    zapBody: str(x.zapBody, 200000), zapDone: x.zapDone === true,
+    ts: num(x.ts), attempts: num(x.attempts), rekeys: num(x.rekeys), dead: x.dead === true,
+    label: { customer: str(lab.customer, 120), store: str(lab.store, 80), rep: str(lab.rep, 80), sheet: str(lab.sheet, 40) }
+  };
+}
+function loadOutbox() {
+  try {
+    const o = JSON.parse(localStorage.getItem(OUTBOX_KEY) || '{}');
+    return o && typeof o === 'object' && !Array.isArray(o) ? o : {};
+  } catch { return {}; }
+}
+function saveOutbox(o) {
+  const now = Date.now();
+  const keep = Object.keys(o)
+    .filter((id) => o[id] && o[id].item && now - (o[id].at || 0) < OUTBOX_MAX_AGE_MS)
+    .sort((a, b) => (o[b].at || 0) - (o[a].at || 0))
+    .slice(0, OUTBOX_MAX);
+  const out = {};
+  keep.forEach((id) => { out[id] = o[id]; });
+  try {
+    if (keep.length) localStorage.setItem(OUTBOX_KEY, JSON.stringify(out));
+    else localStorage.removeItem(OUTBOX_KEY);
+  } catch { /* storage full or disabled: the sheet's own outbox still has them */ }
+}
+
 function onFrameMessage(event) {
   const ui = state.ui;
   if (!ui || !ui.frame || state.activeSlug === null) return;
@@ -1368,6 +1436,36 @@ function onFrameMessage(event) {
     try {
       event.source.postMessage({ source: 'ccc-host', type: 'rep', v: 1, rep: loadRep() }, REP_TOOL_ORIGIN);
     } catch { /* the frame went away; it will ask again next time it opens */ }
+    return;
+  }
+
+  /* OUTBOX MIRROR (2026-09-30): see cleanOutboxItem above. */
+  if (d.source === 'ccc-tool' && (d.action === 'outbox-sync' || d.action === 'outbox-get')) {
+    if (event.origin !== REP_TOOL_ORIGIN) return;
+    if (d.action === 'outbox-sync') {
+      const o = loadOutbox(), now = Date.now();
+      (Array.isArray(d.gone) ? d.gone : []).forEach((id) => { if (typeof id === 'string') delete o[id]; });
+      (Array.isArray(d.items) ? d.items : []).slice(0, OUTBOX_MAX).forEach((x) => {
+        const c = cleanOutboxItem(x);
+        if (c) o[c.id] = { item: c, at: (o[c.id] && o[c.id].at) || now };
+      });
+      saveOutbox(o);
+      return;
+    }
+    try {
+      const o = loadOutbox();
+      const items = Object.keys(o).map((id) => o[id] && o[id].item).filter(Boolean);
+      event.source.postMessage({ source: 'ccc-host', type: 'outbox', v: 1, items }, REP_TOOL_ORIGIN);
+    } catch { /* the frame went away; it asks again next time it opens */ }
+    return;
+  }
+
+  /* TYPING (v31, 2026-09-30): {source:'ccc-tool', action:'typing', on:true|false}.
+     A quote sheet says a text field inside it has focus. With the on-screen
+     keyboard up, the viewer then fits itself to the part of the screen the
+     keyboard leaves (see 7b). Same identity rule as everything above. */
+  if (d.source === 'ccc-tool' && d.action === 'typing') {
+    setTyping(d.on === true);
     return;
   }
 
@@ -2149,6 +2247,7 @@ export function openTool(slug, opts = {}) {
     document.addEventListener('keydown', onKeydown, true);
     if (from === 'closing') reopenFromClosing(ui);
     else beginOpen(ui, origin);
+    startKbWatch();
     announceViewer('open', slug, tool);
   }
 
@@ -2232,6 +2331,7 @@ function teardown() {
   state.pushedHistory = false;
   clearFrameTimer();
   clearCloseWatch();
+  stopKbWatch();
   state.revealCurrent = null;
   document.removeEventListener('keydown', onKeydown, true);
   const gen = ++state.gen;                       // a pending settleOpen() is now stale
@@ -2367,28 +2467,101 @@ function onKeydown(ev) {
 }
 
 /* -----------------------------------------------------------------------------
- * 7b. The on-screen keyboard — deliberately NOT handled here (v30, 2026-09-29)
+ * 7b. Typing with the on-screen keyboard (v31, 2026-09-30)
  * -----------------------------------------------------------------------------
- * v29 fitted the whole viewer to window.visualViewport while the keyboard was
- * up. On a real iPad in landscape (Jeff's photo, 9/28: Chrome on an iPad with
- * the translucent iPadOS 26 keyboard) that was the bug, not the fix:
- *   - landscape leaves ~200 px between Chrome's tab strip and the keyboard, so
- *     the panel shrank to a strip holding the title bar and the sheet's sticky
- *     savings tally, and the field being typed in fell out of view: "the
- *     t-sheet disappears when typing";
- *   - the viewer stopped at the top of the keyboard, and the iPadOS 26 keyboard
- *     is translucent, so the Pass showed through it and around it;
- *   - the scrim margin moved up to where the sheet had just been, so the next
- *     tap closed the viewer and threw the quote away;
- *   - iOS 26.0 is known to report visualViewport.height short after the
- *     keyboard goes (WebKit 301857, Apple forums 800125), which could leave
- *     it shrunk.
- * Measured here with a scripted visual viewport (1180x820, 430 px keyboard):
- * viewer 820 -> 390 px tall, panel 343, frame 310; a tap 8 px under the panel
- * closed the tool. The viewer now stays the size of the screen and iPadOS does
- * what it does on any page — it pans to put the focused field above the
- * keyboard — which is how every version before v29 behaved. --ccc-ov-vh in the
- * panel CSS is no longer written by anything; the svh fallback always applies. */
+ * THE REPORTS. 9/28, iPad landscape: v29 fitted the whole viewer to the visual
+ * viewport, which squeezed the sheet into a strip, let the Pass show through the
+ * translucent keyboard and put the close-on-tap margin under the rep's finger.
+ * v30 took that out and left it to iOS. 9/30, iPhone: iOS does NOT reliably
+ * bring a field inside a framed tool above the keyboard — Jeff's screenshot
+ * shows the viewer pushed half-way down the screen, the page zoomed, and the
+ * field under the keyboard. (The zoom was the tools' own 13-15 px inputs; they
+ * are 16 px on touch screens now, see the sheets.)
+ *
+ * WHAT HAPPENS NOW. Two parties, one small contract:
+ *   - the TOOL says when a text field inside it has focus
+ *     ({source:'ccc-tool', action:'typing', on}) and, whenever its own
+ *     viewport changes, scrolls the focused field into view itself;
+ *   - the VIEWER, only while that is true AND the visual viewport is at least
+ *     KB_MIN_PX shorter than the layout viewport (the keyboard is up) AND the
+ *     page is not pinch-zoomed, pins the PANEL — edge to edge, no title bar —
+ *     to exactly the part of the screen the keyboard leaves. The scrim is not
+ *     touched, so the page never shows through the keyboard, and margin taps
+ *     already do nothing on touch (buildUI).
+ * A tool that never sends the message gets the platform's own behaviour, as
+ * before. Keyboard down, field blurred, zoom, close or a frame swap: the panel
+ * goes back to its normal box at once. The iOS 26.0 bug that leaves
+ * visualViewport.height ~24 px short after the keyboard closes cannot hold the
+ * pin: it needs a focused field and a gap of KB_MIN_PX. */
+const KB_MIN_PX = 120;
+const kb = { typing: false, raf: 0, watching: false, pinned: false };
+
+function setTyping(on) {
+  kb.typing = !!on;
+  if (!kb.typing) applyPin(null);
+  scheduleKb();
+}
+
+function scheduleKb() {
+  if (!kb.raf) kb.raf = requestAnimationFrame(evaluateKb);
+}
+
+function evaluateKb() {
+  kb.raf = 0;
+  const ui = state.ui;
+  const vv = window.visualViewport;
+  if (!ui || !vv || state.activeSlug === null || !kb.typing) { applyPin(null); return; }
+  const layoutH = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+  const zoomed = Math.abs((vv.scale || 1) - 1) > 0.01;
+  if (zoomed || !(vv.height > 80) || layoutH - vv.height < KB_MIN_PX) { applyPin(null); return; }
+  applyPin({ top: vv.offsetTop, left: vv.offsetLeft, width: vv.width, height: vv.height });
+}
+
+function applyPin(r) {
+  const ui = state.ui;
+  if (!ui) return;
+  const s = ui.panel.style;
+  if (r) {
+    ui.root.classList.add('is-typing');
+    s.top = `${Math.max(0, Math.round(r.top))}px`;
+    s.left = `${Math.max(0, Math.round(r.left))}px`;
+    s.width = `${Math.round(r.width)}px`;
+    s.height = `${Math.round(r.height)}px`;
+    kb.pinned = true;
+  } else if (kb.pinned || ui.root.classList.contains('is-typing')) {
+    ui.root.classList.remove('is-typing');
+    s.top = s.left = s.width = s.height = '';
+    kb.pinned = false;
+  }
+}
+
+function startKbWatch() {
+  if (kb.watching) return;
+  let coarse = false;
+  try { coarse = window.matchMedia('(pointer: coarse)').matches; } catch { coarse = false; }
+  if (!coarse) return;
+  kb.watching = true;
+  const vv = window.visualViewport;
+  if (vv) {
+    vv.addEventListener('resize', scheduleKb);
+    vv.addEventListener('scroll', scheduleKb);
+  }
+  window.addEventListener('resize', scheduleKb);
+}
+
+function stopKbWatch() {
+  kb.typing = false;
+  if (kb.raf) { cancelAnimationFrame(kb.raf); kb.raf = 0; }
+  applyPin(null);
+  if (!kb.watching) return;
+  kb.watching = false;
+  const vv = window.visualViewport;
+  if (vv) {
+    vv.removeEventListener('resize', scheduleKb);
+    vv.removeEventListener('scroll', scheduleKb);
+  }
+  window.removeEventListener('resize', scheduleKb);
+}
 
 /* -----------------------------------------------------------------------------
  * 8. Routing — the viewer has its own URL
