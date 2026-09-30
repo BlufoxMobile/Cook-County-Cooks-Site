@@ -1130,8 +1130,17 @@ function buildUI() {
       ? `${tool.label} opened in its own window.`
       : `The browser blocked the window. Allow pop-ups for this site and try again.`);
   });
-  // Clicking the scrim (the margin around the panel) closes, like any modal.
-  root.addEventListener('mousedown', (ev) => {
+  /* Clicking the scrim (the margin around the panel) closes, like any modal —
+     WITH A MOUSE ONLY (v30, 2026-09-29). iPadOS turns a tap into a mousedown,
+     so on the store iPads a thumb on the ~24 px margin, or a tap just past the
+     bottom edge of the sheet (where its Submit and Next buttons are), shut the
+     viewer and unloaded the tool — every typed line of a quote gone, with no
+     undo. That is the "touch the sheet and it collapses back to the Pass" Jeff
+     reported. On touch and pen the margin now does nothing; ✕ and Escape
+     still close. A trackpad or mouse on an iPad reports pointerType "mouse",
+     so a deliberate click outside still works there too. */
+  root.addEventListener('pointerdown', (ev) => {
+    if (ev.pointerType !== 'mouse' || ev.button !== 0) return;
     if (ev.target === root || ev.target.classList.contains('ccc-ov__scrim')) closeTool();
   });
   root.addEventListener('keydown', trapFocus);
@@ -2140,7 +2149,6 @@ export function openTool(slug, opts = {}) {
     document.addEventListener('keydown', onKeydown, true);
     if (from === 'closing') reopenFromClosing(ui);
     else beginOpen(ui, origin);
-    startViewportWatch();
     announceViewer('open', slug, tool);
   }
 
@@ -2224,7 +2232,6 @@ function teardown() {
   state.pushedHistory = false;
   clearFrameTimer();
   clearCloseWatch();
-  stopViewportWatch();
   state.revealCurrent = null;
   document.removeEventListener('keydown', onKeydown, true);
   const gen = ++state.gen;                       // a pending settleOpen() is now stale
@@ -2360,61 +2367,28 @@ function onKeydown(ev) {
 }
 
 /* -----------------------------------------------------------------------------
- * 7b. The on-screen keyboard (v29, touch devices only)
+ * 7b. The on-screen keyboard — deliberately NOT handled here (v30, 2026-09-29)
  * -----------------------------------------------------------------------------
- * iPadOS shrinks and pans the VISUAL viewport for the keyboard but leaves the
- * layout viewport (which the fixed, svh-sized viewer is measured against), so a
- * quote-sheet field can end up under the keyboard (tools audit §3; documented
- * iOS behaviour, not observable here). On a coarse pointer, and only while the
- * visual viewport is shorter than the window and not pinch-zoomed, the viewer
- * is fitted to it. Otherwise nothing is written. */
-let vvHandler = null;
-let vvRaf = 0;
-
-function fitToVisualViewport() {
-  vvRaf = 0;
-  const ui = state.ui;
-  const vv = window.visualViewport;
-  if (!ui || !vv) return;
-  const s = ui.root.style;
-  const zoomed = Math.abs((vv.scale || 1) - 1) > 0.01;
-  const shrunk = !zoomed && vv.height > 0 && vv.height < (window.innerHeight || 0) - 1;
-  if (shrunk) {
-    s.setProperty('--ccc-ov-vh', `${Math.round(vv.height)}px`);
-    s.top = `${Math.max(0, Math.round(vv.offsetTop))}px`;
-    s.height = `${Math.round(vv.height)}px`;
-    s.bottom = 'auto';
-  } else if (s.height) {
-    s.removeProperty('--ccc-ov-vh');
-    s.top = s.height = s.bottom = '';
-  }
-}
-
-function startViewportWatch() {
-  const vv = window.visualViewport;
-  if (!vv || vvHandler) return;
-  let coarse = false;
-  try { coarse = window.matchMedia('(pointer: coarse)').matches; } catch { coarse = false; }
-  if (!coarse) return;
-  vvHandler = () => { if (!vvRaf) vvRaf = requestAnimationFrame(fitToVisualViewport); };
-  vv.addEventListener('resize', vvHandler);
-  vv.addEventListener('scroll', vvHandler);
-}
-
-function stopViewportWatch() {
-  const vv = window.visualViewport;
-  if (vv && vvHandler) {
-    vv.removeEventListener('resize', vvHandler);
-    vv.removeEventListener('scroll', vvHandler);
-  }
-  vvHandler = null;
-  if (vvRaf) { cancelAnimationFrame(vvRaf); vvRaf = 0; }
-  const ui = state.ui;
-  if (ui && ui.root.style.height) {
-    ui.root.style.removeProperty('--ccc-ov-vh');
-    ui.root.style.top = ui.root.style.height = ui.root.style.bottom = '';
-  }
-}
+ * v29 fitted the whole viewer to window.visualViewport while the keyboard was
+ * up. On a real iPad in landscape (Jeff's photo, 9/28: Chrome on an iPad with
+ * the translucent iPadOS 26 keyboard) that was the bug, not the fix:
+ *   - landscape leaves ~200 px between Chrome's tab strip and the keyboard, so
+ *     the panel shrank to a strip holding the title bar and the sheet's sticky
+ *     savings tally, and the field being typed in fell out of view: "the
+ *     t-sheet disappears when typing";
+ *   - the viewer stopped at the top of the keyboard, and the iPadOS 26 keyboard
+ *     is translucent, so the Pass showed through it and around it;
+ *   - the scrim margin moved up to where the sheet had just been, so the next
+ *     tap closed the viewer and threw the quote away;
+ *   - iOS 26.0 is known to report visualViewport.height short after the
+ *     keyboard goes (WebKit 301857, Apple forums 800125), which could leave
+ *     it shrunk.
+ * Measured here with a scripted visual viewport (1180x820, 430 px keyboard):
+ * viewer 820 -> 390 px tall, panel 343, frame 310; a tap 8 px under the panel
+ * closed the tool. The viewer now stays the size of the screen and iPadOS does
+ * what it does on any page — it pans to put the focused field above the
+ * keyboard — which is how every version before v29 behaved. --ccc-ov-vh in the
+ * panel CSS is no longer written by anything; the svh fallback always applies. */
 
 /* -----------------------------------------------------------------------------
  * 8. Routing — the viewer has its own URL
