@@ -179,7 +179,12 @@ const HTML_FILES = ['index.html', ...listDir('tools/printouts', ['.html']),
      manifest with no build step at all. (arcade/art/*.svg is gone as of the room
      rebuild: the cabinets are DRAWN from tint and title, so a new game needs no
      artwork and there is nothing left here to hash.) */
-  ...listDir('tools/arcade', ['.html'])];
+  ...listDir('tools/arcade', ['.html']),
+  /* tools/celestial-job-aid — the Celestial Job Aid binder (Break Room locker-4,
+     Oct 2026). Same reason as printouts: its <head> names the site's self-hosted
+     ../../assets/fonts/*.woff2. Its screenshots (shots/<hash>.webp) are already
+     content-named, so they are NOT fingerprinted here. */
+  ...listDir('tools/celestial-job-aid', ['.html'])];
   /* tools/casino is NOT in this list any more (2026-09-26). v29 put it here because
      its <head> named the SITE's fonts as ../../assets/fonts/*.woff2. Casino v2
      (9/25) ships its own copies at tools/casino/assets/fonts/ and names them

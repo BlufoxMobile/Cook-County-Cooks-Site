@@ -1,0 +1,1439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Celestial Retail Job Aid | C³</title>
+<meta name="description" content="Step-by-step C³ job aid for Celestial Store Space, Point of Sale and Customer Space.">
+<meta name="theme-color" content="#05070a">
+<!-- Baked into cookcountycooks.com (Break Room, Oct 2026). Fonts are the SITE's
+     self-hosted files (no fonts.googleapis.com: a hung font host must never hold
+     this page white inside the viewer); build/fingerprint.mjs rewrites the
+     ../../assets/fonts URLs to the current hashed copies. Screenshots live in
+     shots/<content-hash>.webp, lazy-loaded, so the page paints before them. -->
+<style>
+    @font-face { font-family: 'Archivo'; font-style: normal; font-weight: 300 700; font-stretch: 62% 125%; font-display: swap;
+      src: url(../../assets/fonts/archivo-latin.e3a28eade2.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+    @font-face { font-family: 'Archivo'; font-style: italic; font-weight: 300 700; font-stretch: 62% 125%; font-display: swap;
+      src: url(../../assets/fonts/archivo-italic-latin.d63de74ee5.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+    @font-face { font-family: 'Bodoni Moda'; font-style: normal; font-weight: 400 900; font-display: swap;
+      src: url(../../assets/fonts/bodoni-moda-latin.c032219ef6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+    @font-face { font-family: 'Bodoni Moda'; font-style: italic; font-weight: 400 700; font-display: swap;
+      src: url(../../assets/fonts/bodoni-moda-italic-latin.b737328c13.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  </style>
+<style>
+:root{
+  --ink-950:#05070a; --ink-900:#090d13; --ink-850:#0d131b; --ink-800:#131a24; --ink-700:#1b2430;
+  --walnut:#4b3526;
+  --brass-700:#8a6323; --brass:#c8973f; --brass-400:#ddb463; --brass-300:#ebce93;
+  --bone:#f4efe6; --bone-2:#dcd5c8; --bone-3:#b4aba0;
+  --lcd:#8ef0d0; --alert:#ff6f57; --amber:#f7b955;
+  --bg:var(--ink-950); --fg:var(--bone); --fg-muted:var(--bone-2); --fg-dim:var(--bone-3);
+  --surface:color-mix(in oklab, var(--ink-800) 90%, var(--walnut) 10%);
+  --surface-2:color-mix(in oklab, var(--ink-700) 90%, var(--walnut) 10%);
+  --line:color-mix(in oklab, var(--brass) 30%, transparent);
+  --line-soft:color-mix(in oklab, var(--bone) 13%, transparent);
+  --line-hair:color-mix(in oklab, var(--bone) 8%, transparent);
+  --brass-tint:color-mix(in oklab, var(--brass) 14%, transparent);
+  --font-display:"Bodoni Moda", Didot, "Bodoni MT", "Playfair Display", "Times New Roman", serif;
+  --font-text:"Archivo", ui-sans-serif, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --bar-h:64px;
+  --nav-w:290px;
+  color-scheme:dark;
+  accent-color:var(--brass);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--bar-h) + 16px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 16px/1.62 var(--font-text);
+  background-image:radial-gradient(1200px 600px at 80% -10%, color-mix(in oklab, var(--brass) 9%, transparent), transparent 60%);
+  background-repeat:no-repeat;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+img{max-width:100%}
+[hidden]{display:none!important}
+a{color:var(--brass-300);text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{color:var(--bone)}
+b,strong{font-weight:600;color:var(--bone)}
+h1,h2,h3,h4{text-wrap:balance}
+:focus-visible{outline:2px solid var(--brass-400);outline-offset:3px;border-radius:3px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+
+/* ---------- top bar ---------- */
+.bar{position:sticky;top:0;z-index:60;height:var(--bar-h);
+  background:color-mix(in oklab, var(--ink-950) 95%, transparent);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line-hair)}
+.bar::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;
+  background:linear-gradient(90deg, transparent, var(--line) 15%, var(--line) 85%, transparent)}
+.bar-in{max-width:1480px;height:100%;margin:0 auto;padding:0 22px;display:flex;align-items:center;gap:14px}
+.mark{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;
+  font:700 16px/1 var(--font-display);color:var(--ink-950);background:var(--brass-400);
+  box-shadow:inset 0 0 0 1px color-mix(in oklab, var(--bone) 35%, transparent)}
+.brand{min-width:0;line-height:1.15}
+.brand b{display:block;font:700 19px/1.1 var(--font-display);color:var(--bone);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand small{display:block;margin-top:3px;font:600 10.5px/1 var(--font-text);letter-spacing:.16em;text-transform:uppercase;color:var(--brass)}
+.pill{margin-left:auto;flex:none;font:600 10px/1 var(--font-text);letter-spacing:.16em;text-transform:uppercase;color:var(--brass-300);
+  border:1px solid var(--line);border-radius:999px;padding:7px 13px;white-space:nowrap}
+.menubtn{display:none;flex:none;align-items:center;gap:8px;min-height:44px;padding:0 14px;cursor:pointer;
+  background:var(--brass-tint);border:1px solid var(--line);border-radius:999px;color:var(--bone);font:600 13.5px/1 var(--font-text)}
+.menubtn svg{width:16px;height:16px;color:var(--brass-400)}
+
+/* ---------- layout ---------- */
+.layout{max-width:1480px;margin:0 auto;display:grid;grid-template-columns:var(--nav-w) minmax(0,1fr);gap:44px;padding:0 22px}
+main{padding:8px 0 110px;min-width:0;max-width:960px}
+
+/* ---------- side menu ---------- */
+nav.side{position:sticky;top:var(--bar-h);align-self:start;max-height:calc(100vh - var(--bar-h));overflow-y:auto;
+  padding:26px 6px 40px 0;scrollbar-width:thin;scrollbar-color:var(--ink-700) transparent;overscroll-behavior:contain}
+.navtitle{font:600 11px/1 var(--font-text);letter-spacing:.165em;text-transform:uppercase;color:var(--brass);
+  margin:0 0 12px 12px;display:flex;align-items:center;gap:10px}
+.navtitle::after{content:"";flex:1;height:1px;background:linear-gradient(90deg, var(--line), transparent)}
+.navsearch{width:100%;padding:10px 13px;margin-bottom:14px;border:1px solid var(--line-soft);border-radius:999px;
+  font:400 14px/1.2 var(--font-text);background:var(--ink-850);color:var(--bone)}
+.navsearch::placeholder{color:var(--fg-dim)}
+.navsearch:focus{outline:none;border-color:var(--brass-400);box-shadow:0 0 0 3px color-mix(in oklab, var(--brass) 22%, transparent)}
+nav.side ol{list-style:none;margin:0;padding:0}
+nav.side a{display:block;text-decoration:none;color:var(--fg-dim);border-left:2px solid transparent;
+  padding:7px 12px;border-radius:0 3px 3px 0;font-size:14px;line-height:1.35;transition:color .15s, background .15s, border-color .15s}
+nav.side a:hover{background:color-mix(in oklab, var(--brass) 8%, transparent);color:var(--bone)}
+nav.side a.sec{font-weight:600;color:var(--fg-muted);margin-top:3px;display:flex;gap:10px;align-items:baseline}
+nav.side a.sec .num{flex:none;width:24px;font:700 15px/1 var(--font-display);color:var(--brass);font-variant-numeric:lining-nums}
+nav.side a.sub{padding-left:46px;font-size:13px}
+nav.side a.active{background:var(--brass-tint);color:var(--bone);border-left-color:var(--brass-400)}
+nav.side a.active .num{color:var(--brass-300)}
+nav.side li.grp{margin:20px 0 6px 12px;font:600 10.5px/1 var(--font-text);letter-spacing:.165em;text-transform:uppercase;color:var(--brass-400)}
+nav.side li.grp a{display:inline;padding:0;border:0;color:inherit;font:inherit;background:none}
+nav.side li.grp a:hover{color:var(--bone);background:none}
+nav.side li.hide{display:none}
+.nomatch{margin:10px 12px;font-size:13px;color:var(--fg-dim)}
+
+/* ---------- hero ---------- */
+.hero{padding:clamp(40px,7vw,84px) 0 clamp(20px,3vw,32px)}
+.eyebrow{display:block;font:600 12px/1 var(--font-text);letter-spacing:.165em;text-transform:uppercase;color:var(--brass)}
+.eyebrow .dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--brass);vertical-align:middle;margin:0 .7em}
+.hero h1{font:700 clamp(40px,7.4vw,76px)/1.0 var(--font-display);letter-spacing:-.01em;margin:18px 0 18px}
+.hero h1 em{font-style:italic;font-weight:500;color:var(--brass-300)}
+.lede{font-size:clamp(17px,2.1vw,20px);line-height:1.5;color:var(--fg-muted);max-width:46ch;margin:0}
+.jump{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+.jump a{display:inline-flex;align-items:baseline;gap:9px;text-decoration:none;min-height:44px;padding:12px 16px;
+  border-radius:999px;border:1px solid var(--line-soft);color:var(--bone);font:600 14px/1 var(--font-text);
+  transition:border-color .2s, background .2s}
+.jump a span{font:600 10.5px/1 var(--font-text);letter-spacing:.14em;text-transform:uppercase;color:var(--brass)}
+.jump a:hover{border-color:var(--brass-400);background:var(--brass-tint)}
+.hero .meta{margin-top:26px;padding-top:16px;border-top:1px solid var(--line-hair);font-size:12.5px;line-height:1.6;color:var(--fg-dim);max-width:80ch}
+.hero .meta em{color:var(--fg-muted)}
+
+/* ---------- part dividers ---------- */
+.part{margin:72px 0 0;padding:34px 0 6px;position:relative}
+.part::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg, var(--brass-400), var(--line) 40%, transparent)}
+.part h2{margin:12px 0 10px;font:700 clamp(36px,5.6vw,56px)/1.02 var(--font-display);letter-spacing:-.01em}
+.part p{margin:0;color:var(--fg-muted);max-width:64ch;font-size:17px}
+
+/* ---------- sections ---------- */
+section{margin-bottom:10px}
+.sec-head{display:flex;align-items:baseline;gap:16px;margin:52px 0 16px}
+.sec-head .n{flex:none;font:700 40px/.9 var(--font-display);color:var(--brass);font-variant-numeric:lining-nums;min-width:52px}
+.sec-head h2{margin:0;font:700 clamp(26px,3.8vw,36px)/1.08 var(--font-display);letter-spacing:-.005em}
+
+.card{overflow-wrap:anywhere;background:var(--surface);border-radius:3px;padding:24px 26px;margin-bottom:16px;
+  box-shadow:inset 0 0 0 1px var(--line-soft)}
+.card > h3{margin:0 0 6px;font:600 19px/1.3 var(--font-text);color:var(--bone)}
+.card > .lede{margin:0 0 18px;font-size:15px;color:var(--fg-dim);max-width:70ch}
+.card h4{margin:20px 0 8px;font:600 15.5px/1.3 var(--font-text);color:var(--brass-300)}
+.card p.body{margin:0 0 12px;max-width:74ch;color:var(--fg-muted)}
+.card .split > div > h4:first-child{margin-top:0}
+
+/* lists */
+.blist{margin:0;padding-left:1.15em;color:var(--fg-muted);max-width:74ch}
+.blist > li{margin-bottom:10px}
+.blist li::marker{color:var(--brass)}
+.blist ul,.steps ul{margin:8px 0 0;padding-left:1.15em;color:var(--fg-dim);font-size:14.5px}
+.blist ul li,.steps ul li{margin:.25em 0}
+.steps ul li::marker{color:var(--brass)}
+
+/* numbered steps */
+.steps{list-style:none;counter-reset:s;margin:0;padding:0;max-width:none}
+.steps[start="2"]{counter-reset:s 1}
+.steps[start="5"]{counter-reset:s 4}
+.steps > li{counter-increment:s;position:relative;padding-left:56px;margin-bottom:28px}
+.steps > li:last-child{margin-bottom:4px}
+.steps > li::before{content:counter(s, decimal-leading-zero);position:absolute;left:0;top:-2px;
+  font:700 30px/1 var(--font-display);color:var(--brass);font-variant-numeric:lining-nums}
+.steps > li > .t{margin:2px 0 0;font-size:15.5px;color:var(--fg-muted);max-width:74ch}
+.steps > li > .t b:first-child{color:var(--bone)}
+.steps > li > .note,.steps > li > .warn{margin-top:14px}
+
+/* legend (matches numbered screenshot markers) */
+.legend{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.legend li{display:flex;gap:12px;align-items:flex-start;color:var(--fg-muted);font-size:15px}
+.legend .k{flex:none;width:26px;height:26px;border-radius:50%;background:var(--brass-400);color:var(--ink-950);
+  font:700 13px/1 var(--font-text);display:flex;align-items:center;justify-content:center;margin-top:1px}
+
+/* buttons / on-screen labels */
+kbd{font:inherit;font-size:.94em;font-weight:600;color:var(--bone);background:var(--brass-tint);
+  border:1px solid var(--line);border-radius:3px;padding:0 .4em;white-space:nowrap}
+
+/* figures */
+figure{margin:18px 0 0;text-align:center}
+.steps > li > figure img,.card > figure img{max-width:880px}
+figure img{display:block;width:100%;height:auto;margin:0 auto;background:#fff;border-radius:3px;cursor:zoom-in;
+  box-shadow:0 0 0 1px var(--line), 0 18px 40px -18px rgb(0 0 0 / .85);transition:box-shadow .2s}
+figure img:hover{box-shadow:0 0 0 1px var(--brass-400), 0 18px 40px -18px rgb(0 0 0 / .85)}
+figcaption{display:flex;justify-content:center;align-items:center;gap:7px;margin-top:10px;font-size:13px;color:var(--fg-dim)}
+figcaption::before{content:"";flex:none;width:13px;height:13px;opacity:.9;background:var(--brass-400);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6'/%3E%3Cpath d='m20 20-5-5M10.5 8v5M8 10.5h5'/%3E%3C/svg%3E") center/contain no-repeat;
+          mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6'/%3E%3Cpath d='m20 20-5-5M10.5 8v5M8 10.5h5'/%3E%3C/svg%3E") center/contain no-repeat}
+dd figcaption,.faq figcaption{justify-content:flex-start}
+.figs{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));align-items:start}
+.figs.two{grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))}
+.split{display:grid;gap:26px;grid-template-columns:1fr 1fr;align-items:start}
+.split > *{min-width:0}
+figure.tall img{max-width:380px}
+figure.mid > img{max-width:600px}
+
+/* callouts */
+.note{border-left:2px solid var(--brass);background:color-mix(in oklab, var(--brass) 7%, transparent);border-radius:0 3px 3px 0;
+  padding:12px 16px;margin:18px 0 0;font-size:14.5px;color:var(--fg-muted)}
+.warn{border-left:3px solid var(--amber);background:color-mix(in oklab, var(--amber) 9%, transparent);
+  box-shadow:inset 0 0 0 1px color-mix(in oklab, var(--amber) 22%, transparent);border-radius:0 3px 3px 0;
+  padding:13px 17px;margin:18px 0 0;font-size:14.5px;color:var(--fg-muted)}
+.warn .lbl{display:block;font:700 10.5px/1 var(--font-text);letter-spacing:.15em;text-transform:uppercase;color:var(--amber);margin-bottom:7px}
+
+/* part cards (overview) */
+.parts{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr))}
+.partcard{display:block;text-decoration:none;background:var(--surface-2);border-radius:3px;padding:16px 18px;min-width:0;
+  box-shadow:inset 0 0 0 1px var(--line-soft);transition:box-shadow .2s}
+.partcard:hover{box-shadow:inset 0 0 0 1px var(--brass-400)}
+.partcard .eyebrow{font-size:10.5px}
+.partcard b{display:block;margin:8px 0 6px;font:700 20px/1.15 var(--font-display);color:var(--bone)}
+.partcard p{margin:0;font-size:14px;color:var(--fg-dim)}
+
+/* do / don't */
+.dodont{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.dodont > div{background:var(--surface-2);border-radius:3px;padding:16px 18px}
+.dodont .do{box-shadow:inset 0 0 0 1px var(--line-soft), inset 3px 0 0 var(--lcd)}
+.dodont .dont{box-shadow:inset 0 0 0 1px var(--line-soft), inset 3px 0 0 var(--alert)}
+.tag{display:inline-block;font:700 11px/1 var(--font-text);letter-spacing:.12em;text-transform:uppercase;padding:5px 8px;border-radius:2px;margin-bottom:10px}
+.do .tag{background:color-mix(in oklab, var(--lcd) 18%, transparent);color:var(--lcd)}
+.dont .tag{background:color-mix(in oklab, var(--alert) 18%, transparent);color:var(--alert)}
+.dodont ul{margin:0;padding-left:1.1em;color:var(--fg-muted);font-size:15px}
+.dodont li{margin:.3em 0}
+.dodont li::marker{color:var(--brass)}
+
+/* ground rules */
+.rules{display:grid;gap:10px;margin:0;padding:0}
+.rules li{list-style:none;display:grid;grid-template-columns:44px 1fr;gap:2px 14px;background:var(--surface-2);
+  border-radius:3px;padding:14px 16px;box-shadow:inset 0 0 0 1px var(--line-soft)}
+.rules .ico{grid-row:span 2;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
+  background:var(--brass-tint);box-shadow:inset 0 0 0 1px var(--line);color:var(--brass-300)}
+.rules .ico svg{width:20px;height:20px}
+.rules h4{margin:2px 0 0;color:var(--bone);font-size:15.5px}
+.rules p{margin:0;color:var(--fg-muted);font-size:14.5px}
+
+/* launch paths */
+.path{display:flex;gap:14px;align-items:baseline}
+.path .lt{flex:none;font:700 32px/1 var(--font-display);color:var(--brass);min-width:26px}
+.path h4{margin:0 0 4px;color:var(--bone)}
+.path p{margin:0;color:var(--fg-muted);font-size:15px}
+
+/* definitions, glance, chips, training, faq */
+dl.defs{margin:20px 0 0;display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr))}
+dl.defs > div{background:var(--surface-2);border-radius:3px;padding:14px 16px;min-width:0;box-shadow:inset 0 0 0 1px var(--line-soft)}
+dl.defs dt{font-weight:600;color:var(--brass-300);margin-bottom:4px}
+dl.defs dd{margin:0;font-size:14.5px;color:var(--fg-muted)}
+.glance{margin:0;display:grid;gap:16px}
+.glance > div{display:grid;grid-template-columns:104px minmax(0,1fr);gap:12px;align-items:baseline}
+.glance dt{font:600 11px/1.3 var(--font-text);letter-spacing:.15em;text-transform:uppercase;color:var(--brass)}
+.glance dd{margin:0;color:var(--fg-muted)}
+.chips{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.chips li{background:var(--surface-2);border-radius:3px;padding:10px 14px;font-weight:600;color:var(--bone);font-size:15px;
+  box-shadow:inset 0 0 0 1px var(--line-soft), inset 3px 0 0 var(--brass)}
+.chips small{display:block;font-weight:400;font-size:13.5px;color:var(--fg-dim)}
+.trainbox{background:var(--surface-2);border-radius:3px;padding:16px 18px;box-shadow:inset 0 0 0 1px var(--line)}
+.trainbox h4{margin-top:0}
+.trainbox .blist > li:last-child{margin-bottom:0}
+.faq{margin:0;display:grid}
+.faq .qa{padding:16px 0;border-top:1px solid var(--line-hair)}
+.faq .qa:first-child{border-top:none;padding-top:4px}
+.faq dt{font-weight:600;font-size:16px;color:var(--bone)}
+.faq dd{margin:6px 0 0;color:var(--fg-muted);max-width:74ch}
+
+/* ---------- footer ---------- */
+footer.foot{margin-top:72px;padding-top:24px;border-top:1px solid var(--line-hair);font-size:13px;color:var(--fg-dim)}
+footer.foot p{margin:0}
+footer.foot p + p{margin-top:6px}
+
+/* ---------- back to top ---------- */
+.totop{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:70;width:46px;height:46px;border-radius:50%;
+  border:1px solid var(--line);background:var(--ink-850);color:var(--brass-300);display:grid;place-items:center;cursor:pointer;
+  opacity:0;pointer-events:none;transition:opacity .25s, border-color .2s}
+.totop.show{opacity:1;pointer-events:auto}
+.totop:hover{border-color:var(--brass-400)}
+.totop svg{width:18px;height:18px}
+
+/* ---------- lightbox ---------- */
+dialog.lb{border:0;padding:0;background:#030509;max-width:100vw;max-height:100vh;width:100vw;height:100vh;margin:0;color:var(--fg)}
+dialog.lb::backdrop{background:rgb(3 5 9 / .96)}
+dialog.lb .lb-inner{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 12px 20px;gap:12px}
+dialog.lb img{max-width:min(1400px,100%);max-height:calc(100vh - 124px);width:auto;height:auto;background:#fff;border-radius:3px;box-shadow:0 0 0 1px var(--line)}
+dialog.lb .cap{margin:0;color:var(--fg-muted);font-size:14px;text-align:center;max-width:70ch}
+dialog.lb button{position:fixed;z-index:2;top:12px;right:12px;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);
+  background:var(--ink-850);color:var(--bone);font:600 20px/1 var(--font-text);cursor:pointer}
+@media (max-width:700px){
+  dialog.lb .lb-inner{display:block;overflow:auto;padding:68px 0 24px;-webkit-overflow-scrolling:touch}
+  dialog.lb img{max-width:none;max-height:none;width:210vw;border-radius:0}
+  dialog.lb .cap{position:sticky;left:0;width:100vw;max-width:none;padding:14px 16px 0;text-align:left}
+}
+
+/* ---------- responsive ---------- */
+@media (max-width:1000px){
+  .layout{grid-template-columns:1fr;gap:0;padding:0 16px}
+  .bar-in{padding:0 16px}
+  .menubtn{display:inline-flex}
+  .pill{display:none}
+  nav.side{position:fixed;top:var(--bar-h);left:0;right:0;bottom:0;align-self:stretch;max-height:none;z-index:55;padding:20px 16px 40px;
+    background:color-mix(in oklab, var(--ink-950) 97%, transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    display:none}
+  nav.side.open{display:block}
+  body.navopen{overflow:hidden}
+  body.navopen .totop{display:none}
+  nav.side a{padding-top:10px;padding-bottom:10px}
+  .split,.dodont{grid-template-columns:1fr}
+  .card{padding:20px 18px}
+  .glance > div{grid-template-columns:1fr;gap:2px}
+}
+@media (max-width:560px){
+  .brand small{display:none}
+  .brand b{font-size:17px}
+  .mark{width:34px;height:34px;font-size:14px}
+  .sec-head{gap:12px}
+  .sec-head .n{font-size:32px;min-width:42px}
+  .steps > li{padding-left:44px}
+  .steps > li::before{font-size:25px}
+  .card{padding:18px 15px}
+  .brand b{font-size:16px}
+}
+@media (max-width:400px){
+  .mark{display:none}
+}
+@media print{
+  :root{--bg:#fff;--fg:#111;--fg-muted:#333;--fg-dim:#555;--bone:#111;--surface:#fff;--surface-2:#fff;--line-soft:#ccc;--line:#b58a3a}
+  body{background:#fff;color:#111}
+  .bar,nav.side,.totop,.navsearch,.jump{display:none!important}
+  .layout{display:block;padding:0}
+  .card{break-inside:avoid;box-shadow:0 0 0 1px #ccc}
+  figure img{cursor:default;box-shadow:0 0 0 1px #ccc}
+  figcaption::before{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="bar-in">
+    <button class="menubtn" id="menubtn" type="button" aria-controls="nav" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span>Menu</span></button>
+    <span class="mark" aria-hidden="true">C³</span>
+    <div class="brand"><b>Celestial Retail Job Aid</b><small>Store Space · Point of Sale · Customer Space</small></div>
+    <span class="pill">Private &amp; Confidential</span>
+  </div>
+</div>
+
+<div class="layout">
+
+<nav class="side" id="nav" aria-label="Sections">
+  <p class="navtitle">Jump to a section</p>
+  <input class="navsearch" id="navsearch" type="search" placeholder="Filter sections…" aria-label="Filter sections" autocomplete="off">
+  <ol id="navlist">
+    <li><a class="sec" href="#overview"><span class="num">01</span>Overview</a></li>
+    <li class="grp"><a href="#part-a">Part A · Store Space</a></li>
+    <li><a class="sec" href="#queue"><span class="num">02</span>Queue (Home) Screen</a></li>
+    <li><a class="sub" href="#queue-appointments">Appointments screen</a></li>
+    <li><a class="sub" href="#queue-waiting">Waiting screen</a></li>
+    <li><a class="sub" href="#queue-inprogress">In-progress screen</a></li>
+    <li><a class="sec" href="#checkin"><span class="num">03</span>Checking In a Guest</a></li>
+    <li><a class="sub" href="#checkin-member">Existing member</a></li>
+    <li><a class="sub" href="#checkin-prospect">Prospective customer</a></li>
+    <li><a class="sub" href="#checkin-cb">Comcast Business customer</a></li>
+    <li><a class="sec" href="#appointment"><span class="num">04</span>Creating an Appointment</a></li>
+    <li><a class="sec" href="#details"><span class="num">05</span>Customer Details</a></li>
+    <li><a class="sub" href="#details-ai">AI-powered interactions</a></li>
+    <li><a class="sub" href="#details-insights">Acquisition insights</a></li>
+    <li><a class="sec" href="#session"><span class="num">06</span>Start, End &amp; Transfer</a></li>
+    <li><a class="sub" href="#session-start">Starting a session</a></li>
+    <li><a class="sub" href="#session-end">Ending or transferring</a></li>
+    <li class="grp"><a href="#part-b">Part B · Point of Sale</a></li>
+    <li><a class="sec" href="#pos-basics"><span class="num">07</span>Know This First</a></li>
+    <li><a class="sub" href="#pos-what">What POS is for</a></li>
+    <li><a class="sub" href="#pos-rules">Before you ring anything</a></li>
+    <li><a class="sec" href="#launch"><span class="num">08</span>Launch Point</a></li>
+    <li><a class="sub" href="#launch-new">POS — new session</a></li>
+    <li><a class="sub" href="#launch-inprogress">POS — in-progress session</a></li>
+    <li><a class="sub" href="#launch-backoffice">Back Office</a></li>
+    <li><a class="sec" href="#pos-home"><span class="num">09</span>POS Homepage</a></li>
+    <li><a class="sec" href="#sale"><span class="num">10</span>Completing a Sale</a></li>
+    <li><a class="sub" href="#sale-steps">Sale step by step</a></li>
+    <li><a class="sub" href="#sale-tips">Sale — good to know</a></li>
+    <li><a class="sec" href="#return"><span class="num">11</span>Completing a Return</a></li>
+    <li><a class="sub" href="#return-steps">Return step by step</a></li>
+    <li><a class="sub" href="#return-tips">Exchanges &amp; refunds</a></li>
+    <li><a class="sec" href="#bo-home"><span class="num">12</span>Back Office Homepage</a></li>
+    <li><a class="sec" href="#open"><span class="num">13</span>Open Store</a></li>
+    <li><a class="sub" href="#open-drawer">Opening the cash drawer</a></li>
+    <li><a class="sub" href="#fund-drawer">Fund drawer</a></li>
+    <li><a class="sec" href="#close"><span class="num">14</span>Close Store</a></li>
+    <li><a class="sub" href="#settle-drawer">Settle drawer</a></li>
+    <li><a class="sub" href="#tender-count">Tender count</a></li>
+    <li><a class="sub" href="#close-drawer">Closing the cash drawer</a></li>
+    <li><a class="sec" href="#faqs"><span class="num">15</span>POS Help &amp; FAQs</a></li>
+    <li><a class="sub" href="#pos-help">TechSpot ticket</a></li>
+    <li><a class="sub" href="#pos-faq">POS FAQs</a></li>
+    <li class="grp"><a href="#part-c">Part C · Customer Space</a></li>
+    <li><a class="sec" href="#cs-glance"><span class="num">16</span>At a glance</a></li>
+    <li><a class="sub" href="#cs-what">What is Customer Space</a></li>
+    <li><a class="sec" href="#cs-access"><span class="num">17</span>Accessing Customer Space</a></li>
+    <li><a class="sub" href="#cs-lookup">Quick account lookup</a></li>
+    <li><a class="sec" href="#cs-new"><span class="num">18</span>New sale (prospect)</a></li>
+    <li><a class="sec" href="#cs-existing"><span class="num">19</span>Existing member</a></li>
+    <li><a class="sec" href="#cs-features"><span class="num">20</span>Customer Space features</a></li>
+    <li><a class="sub" href="#cs-tools">Tools menu</a></li>
+    <li><a class="sub" href="#cs-account">Account details</a></li>
+    <li><a class="sub" href="#cs-billing">Billing details</a></li>
+    <li><a class="sub" href="#cs-service">Service details</a></li>
+    <li><a class="sub" href="#cs-devices">Device details</a></li>
+    <li><a class="sub" href="#cs-mobile">Mobile service</a></li>
+    <li><a class="sec" href="#cs-mercury"><span class="num">21</span>Mercury Assistant</a></li>
+    <li><a class="sub" href="#cs-agentic">Agentic tasks</a></li>
+    <li><a class="sub" href="#cs-recommended">Recommended tasks</a></li>
+    <li><a class="sub" href="#cs-ama">Ask Me Anything (AMA)</a></li>
+    <li><a class="sec" href="#cs-training"><span class="num">22</span>Interactive trainings</a></li>
+    <li><a class="sec" href="#cs-faqs"><span class="num">23</span>Customer Space FAQs</a></li>
+    <li><a class="sub" href="#cs-report">Report an issue</a></li>
+  </ol>
+  <p class="nomatch" id="nomatch" hidden>No sections match. Try another word.</p>
+</nav>
+
+<main id="main">
+
+
+  <header class="hero" id="top-of-page">
+    <div class="eyebrow">C³ Rep Training<span class="dot"></span>Celestial</div>
+    <h1>Celestial <em>Retail</em> Job Aid</h1>
+    <p class="lede">Store Space, Point of Sale and Customer Space — step by step, with the screens you'll see. Use the menu to jump straight to what you need.</p>
+    <div class="jump">
+      <a href="#part-a"><span>Part A</span>Store Space</a>
+      <a href="#part-b"><span>Part B</span>Point of Sale</a>
+      <a href="#part-c"><span>Part C</span>Customer Space</a>
+    </div>
+    <div class="meta">Sources: <em>Celestial Store Space overview process</em> (COMMS530, modified 07/30/2026) · <em>Celestial Store Space — Check-in and account details</em> (COMMS532, modified 07/07/2026) · <em>Celestial Point of Sale — Pilot Job Aid</em>, August 2025 · <em>Celestial Point of Sale</em> (HOW22959, modified 08/19/2026) · <em>Celestial Customer Space</em> (HOW23418, modified 08/19/2026) · Private &amp; Confidential</div>
+  </header>
+
+  <!-- 1 OVERVIEW -->
+  <section id="overview">
+    <div class="sec-head"><span class="n">01</span><h2>Overview</h2></div>
+    <div class="card">
+      <h3>What Celestial Store Space does</h3>
+      <p class="lede">The central tool Xfinity Retail Store reps use to run the floor. From Store Space you can:</p>
+      <ul class="blist">
+        <li>Manage <b>appointments</b> and the <b>check-in queue</b>.</li>
+        <li>Pack <b>Buy Anywhere Pickup in Store (BAPIS)</b> orders.</li>
+        <li>Complete <b>Point of Sale</b> purchases.</li>
+        <li>Open <b>Celestial Customer Space</b> for member account handling.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>What this job aid covers</h3>
+      <p class="lede">Three parts. A and B follow a guest through the store; C covers member accounts in Customer Space.</p>
+      <div class="parts">
+        <a class="partcard" href="#part-a">
+          <span class="eyebrow">Part A · Sections 2–6</span>
+          <b>Celestial Store Space</b>
+          <p>Queue screens, checking in members, prospects and Comcast Business customers, creating appointments, reading customer details and AI insights, and starting, ending or transferring a session.</p>
+        </a>
+        <a class="partcard" href="#part-b">
+          <span class="eyebrow">Part B · Sections 7–15</span>
+          <b>Celestial Point of Sale</b>
+          <p>The ground rules, launching POS and Back Office, the POS homepage, step-by-step sales and returns, opening, funding, settling and closing the cash drawer, and where to get help.</p>
+        </a>
+        <a class="partcard" href="#part-c">
+          <span class="eyebrow">Part C · Sections 16–23</span>
+          <b>Celestial Customer Space</b>
+          <p>The Retail 360 replacement: account lookup, new-sale and existing-member paths, billing, services and devices, Mercury Assistant, trainings and FAQs.</p>
+        </a>
+      </div>
+      <div class="warn">
+        <span class="lbl">POS scope — read this first</span>
+        The Celestial POS should be used to complete <b>sales and returns for in-store merchandise</b> and <b>bill payments</b> for customers. It should <b>not</b> be used to sell Xfinity services or equipment that needs activation.
+      </div>
+    </div>
+  </section>
+
+  <div class="part" id="part-a">
+    <span class="eyebrow">Part A</span>
+    <h2>Celestial Store Space</h2>
+    <p>Run the guest queue: check people in, book appointments, prepare from their details, and hand off to the right tool.</p>
+  </div>
+
+  <!-- 2 QUEUE -->
+  <section id="queue">
+    <div class="sec-head"><span class="n">02</span><h2>Queue (Home) Screen</h2></div>
+    <div class="card">
+      <h3>Getting started</h3>
+      <p class="lede">Select <kbd>Store</kbd> in the side bar to open your store's queue. This is the home screen for everything in Part A.</p>
+      <figure style="margin-top:0"><img loading="lazy" decoding="async" alt="Celestial Store Space queue home screen with Appointments, Waiting and In Progress columns, check-in and calendar icons" width="960" height="700" src="shots/d5ff61ac0a.webp"><figcaption>Queue (home) screen — Guests tab with Appointments, Waiting, and In Progress</figcaption></figure>
+      <ul class="blist" style="margin-top:22px">
+        <li><b>Navigation bar</b> — <kbd>Store</kbd> opens the retail store queue. The other icons take you to apps such as Einstein 360 or ECM, and to the Celestial home page for Knowledge.</li>
+        <li><b>Store information</b> — The drop-down arrow next to <b>Store</b> shows which store's queue you're viewing. Switch between <kbd>Guests</kbd> (the main queue) and <kbd>Calendar</kbd> (all upcoming appointments, today and future).</li>
+        <li><b>Start an action</b> — The <b>person icon</b> starts a check-in (<a href="#checkin">section 3</a>). The <b>calendar icon</b> creates an appointment (<a href="#appointment">section 4</a>). Both icons sit at the top of every Store Space page.</li>
+        <li><b>Status columns</b>
+          <ul>
+            <li><b>Appointments</b> — every customer with an appointment scheduled for today.</li>
+            <li><b>Waiting</b> — guests who are checked in and waiting, with how long they've waited.</li>
+            <li><b>In Progress</b> — guests you're helping, plus guests other reps are helping and which rep has them.</li>
+          </ul>
+          Select the <b>list icon</b> beside a column to open that column's full screen.
+        </li>
+      </ul>
+    </div>
+
+    <div class="card" id="queue-appointments">
+      <h3>Appointments screen</h3>
+      <p class="lede">All of today's upcoming appointments, whether each guest is a new or existing customer, and a summary of the visit reason. Select a customer's tab to open their details.</p>
+      <figure><img loading="lazy" decoding="async" alt="Appointments queue screen listing guests, times and visit reasons, with status drop-down open" width="960" height="698" src="shots/c1bc7a0a5c.webp"><figcaption>Appointments screen — the arrow next to the status name switches between statuses</figcaption></figure>
+      <div class="note"><b>Tip:</b> Select the arrow next to any status name to jump between Appointments, Waiting, and In Progress.</div>
+    </div>
+
+    <div class="card" id="queue-waiting">
+      <h3>Waiting screen</h3>
+      <p class="lede">How long each guest has been waiting and a summary of the visit reason. Select a customer's tab to open their details.</p>
+      <figure><img loading="lazy" decoding="async" alt="Waiting queue screen with wait times and visit reasons" width="960" height="700" src="shots/fdd459f349.webp"><figcaption>Waiting screen — long waits are flagged in red</figcaption></figure>
+    </div>
+
+    <div class="card" id="queue-inprogress">
+      <h3>In-progress screen</h3>
+      <p class="lede">Every guest being helped, the time their session started, the rep helping them, and a summary of the visit reason.</p>
+      <figure><img loading="lazy" decoding="async" alt="In Progress queue screen with start times, assigned reps and visit reasons" width="960" height="699" src="shots/bf778b84ed.webp"><figcaption>In-progress screen</figcaption></figure>
+    </div>
+  </section>
+
+  <!-- 3 CHECK-IN -->
+  <section id="checkin">
+    <div class="sec-head"><span class="n">03</span><h2>Checking In a Guest</h2></div>
+
+    <div class="card" id="checkin-member">
+      <h3>Existing Xfinity member</h3>
+      <p class="lede">Find the account, tell the next rep how to spot the guest and why they're here, then add them to the queue.</p>
+      <ol class="steps">
+        <li><p class="t">Select the <b>person icon</b>, then <kbd>Xfinity customer</kbd> (shown as Xfinity Member) or <kbd>Comcast Business customer</kbd>. Search by the member's <b>phone number, account number, email, barcode, or QR code</b>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Check-in guest page with Xfinity Member selected and account search field" width="1139" height="827" src="shots/f6950bb1a0.webp"><figcaption>Guest Details — search by phone, account number, email, or <b>Capture code</b> for a barcode or QR code</figcaption></figure></li>
+        <li><p class="t">The addresses tied to that number appear. Select the matching <b>address</b> and the <b>account user</b>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Search results with account address and account user selections" width="984" height="686" src="shots/c612bc53ae.webp"><figcaption>Select an account, then select a user from this account (or Not Listed)</figcaption></figure></li>
+        <li><p class="t">Add <b>identifiers</b> from the list so the rep assigned to help can easily spot the guest.</p>
+          <figure><img loading="lazy" decoding="async" alt="Identifier drop-down with coat, hat, animal, stroller, number of guests and glasses" width="1161" height="827" src="shots/28c5d7d9e0.webp"><figcaption>How can this guest be recognized? — pick one or more identifiers</figcaption></figure></li>
+        <li><p class="t">Add the <b>reason for the visit</b>:</p>
+          <ul>
+            <li>The service they have questions about.</li>
+            <li>Any additional information that will help the assisting rep.</li>
+            <li>Their preferred language.</li>
+          </ul>
+          <div class="figs two">
+            <figure><img loading="lazy" decoding="async" alt="Reason for visit drop-down options" width="879" height="645" src="shots/66508a47a3.webp"><figcaption>Reason for visit options</figcaption></figure>
+            <figure><img loading="lazy" decoding="async" alt="Topics to discuss, additional notes and preferred language" width="870" height="671" src="shots/7e64dde96d.webp"><figcaption>Topics to discuss, notes (250 characters), and preferred language</figcaption></figure>
+          </div></li>
+        <li><p class="t">Confirm the current <b>email and phone number</b> are correct for notifications. Edit them if needed.</p>
+          <figure><img loading="lazy" decoding="async" alt="Notification preferences with email and SMS options and Add to queue button" width="936" height="673" src="shots/9b7423cf2d.webp"><figcaption>Notification Preferences — <b>Use a different email</b> or <b>Use a different number</b> to edit</figcaption></figure></li>
+        <li><p class="t">Select <kbd>Add to queue</kbd>. The member is checked in and added to the <b>Waiting</b> queue. Next, <a href="#session-start">start a session</a>.</p></li>
+      </ol>
+    </div>
+
+    <div class="card" id="checkin-prospect">
+      <h3>Prospective customer</h3>
+      <p class="lede">Check serviceability first. That check is also what turns on Acquisition Insights (<a href="#details-insights">section 5</a>).</p>
+      <ol class="steps">
+        <li><p class="t">Select the <b>person icon</b> and <kbd>Xfinity prospect</kbd>. Enter the customer's <b>name and address</b> to see whether they're in a serviceable area.</p>
+          <figure><img loading="lazy" decoding="async" alt="Check-in guest page with Xfinity prospect selected, name fields and serviceability address field" width="876" height="703" src="shots/bc77fd9111.webp"><figcaption>Guest Details for a prospect — name and Serviceability check</figcaption></figure></li>
+        <li><p class="t">Read the serviceability result.</p>
+          <ul>
+            <li><b>Serviceable</b> — continue to step 3.</li>
+            <li><b>Not serviceable</b> — let the customer know they can go to <b>xfinity.com/mytown</b> and complete the form to hear when Xfinity services reach their area.</li>
+          </ul>
+          <div class="figs two">
+            <figure><img loading="lazy" decoding="async" alt="Serviceability results showing Video, Internet, Voice and Xfinity Home as serviceable" width="976" height="697" src="shots/6a5170a698.webp"><figcaption>Serviceable — results by line of business</figcaption></figure>
+            <figure><img loading="lazy" decoding="async" alt="No serviceability results found message" width="1030" height="647" src="shots/a21b38deab.webp"><figcaption>No serviceability results found</figcaption></figure>
+          </div>
+          <div class="note">If the address is unknown, enter <b>"Address not available"</b> in the Guest's address field.</div></li>
+        <li><p class="t">Add <b>identifiers</b> so the assisting rep can spot the guest (same list as for members).</p></li>
+        <li><p class="t">Add the <b>reason for the visit</b>: the service they're asking about, extra notes for the rep, and preferred language.</p></li>
+        <li><p class="t">Add the customer's <b>contact information</b>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Notification preferences with empty email and phone fields and Add to queue button" width="961" height="632" src="shots/83de046f3d.webp"><figcaption>Notification Preferences — enter an email, a phone number, or both</figcaption></figure></li>
+        <li><p class="t">Select <kbd>Add to queue</kbd>. The customer is checked in and added to the <b>Waiting</b> queue. Next, <a href="#session-start">start a session</a>.</p></li>
+      </ol>
+    </div>
+
+    <div class="card" id="checkin-cb">
+      <h3>Comcast Business customer</h3>
+      <ol class="steps">
+        <li><p class="t">Select the <b>person icon</b> and <kbd>Comcast Business customer</kbd> (shown as CB customer). Search by the customer's <b>phone number, account number, or email</b>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Check-in guest page with CB customer selected and search field" width="1146" height="827" src="shots/bfd6d733f5.webp"><figcaption>CB customer — search by phone number, account number, or email</figcaption></figure></li>
+        <li><p class="t">Finish the check-in using the same steps as an <a href="#checkin-member">existing member</a>.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 4 APPOINTMENT -->
+  <section id="appointment">
+    <div class="sec-head"><span class="n">04</span><h2>Creating an Appointment</h2></div>
+    <div class="card">
+      <h3>Booking a future visit</h3>
+      <p class="lede">The same information as a check-in, plus a date and time.</p>
+      <ol class="steps">
+        <li><p class="t">Select the <b>calendar icon</b>, then choose <kbd>Xfinity prospect</kbd>, <kbd>Xfinity customer</kbd>, or <kbd>Comcast Business customer</kbd> and enter the information as you would for a check-in.</p>
+          <ul>
+            <li><b>Xfinity prospect:</b> enter the customer's name and address.</li>
+            <li><b>Xfinity customer or Comcast Business customer:</b> enter the phone number attached to their account.</li>
+          </ul>
+          <figure><img loading="lazy" decoding="async" alt="Create appointment page with customer type and phone number search" width="1053" height="776" src="shots/7840bdd507.webp"><figcaption>Create appointment — Guest Details</figcaption></figure></li>
+        <li><p class="t">Complete the remaining information:</p>
+          <ul>
+            <li>Preferred consultant, if the guest has one.</li>
+            <li>Topics the customer would like to discuss.</li>
+            <li>Additional notes for the assisting rep.</li>
+            <li>Preferred language.</li>
+          </ul>
+          <figure><img loading="lazy" decoding="async" alt="Preferred consultant drop-down, topics to discuss, notes and preferred language" width="973" height="722" src="shots/d1ec810ccd.webp"><figcaption>Visit Details — preferred consultant, topics, notes, language</figcaption></figure></li>
+        <li><p class="t">Select an appointment <b>date and time</b> that works best for the customer.</p>
+          <figure><img loading="lazy" decoding="async" alt="Scheduling calendar with morning, afternoon and evening time slots" width="963" height="369" src="shots/9e217b813f.webp"><figcaption>Scheduling — choose Morning, Afternoon, or Evening, then a time</figcaption></figure></li>
+        <li><p class="t">Add the customer's <b>phone number or email</b> so they get updates about the appointment, then select <kbd>Create appointment</kbd>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Notification preferences with email and phone fields and Create appointment button" width="1217" height="355" src="shots/7785d712e0.webp"><figcaption>Notification Preferences — Create appointment</figcaption></figure></li>
+        <li><p class="t">The new appointment appears under <kbd>Calendar</kbd>.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 5 CUSTOMER DETAILS -->
+  <section id="details">
+    <div class="sec-head"><span class="n">05</span><h2>Reviewing Customer Details</h2></div>
+    <div class="card">
+      <h3>What the details screen shows</h3>
+      <p class="lede">Read this before you walk over. It tells you who you're looking for, why they came in, and what's on their account.</p>
+      <div class="split">
+        <div>
+          <h4>Check-in guests</h4>
+          <ul class="blist">
+            <li>Name and how long they've been waiting.</li>
+            <li>Identifiers to find them in the store.</li>
+            <li>Visit details from check-in: visit reason and services to discuss.</li>
+            <li>Serviceability (new customers) or current account information (existing members).</li>
+          </ul>
+          <h4>Appointment guests</h4>
+          <ul class="blist">
+            <li>Name.</li>
+            <li>Appointment date and time.</li>
+            <li>Visit details from booking: reason for visit and services to discuss.</li>
+            <li>Serviceability (new customers) or current account information (existing members).</li>
+          </ul>
+          <h4>Other details</h4>
+          <ul class="blist">
+            <li>Contact information from notification preferences, and preferred language.</li>
+            <li>For an existing member, attach the account with their phone number to see:
+              <ul>
+                <li>Account type: employee, active, or inactive.</li>
+                <li>Active services.</li>
+                <li>Tenure and Xfinity membership status.</li>
+                <li>The current address on the account.</li>
+                <li><b>Recent engagement</b> — additions or changes made in the last 30 days.</li>
+                <li><b>Latest notes</b> — in-store, chat, and call-center interactions from the last year.</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <figure class="tall" style="margin-top:0"><img loading="lazy" decoding="async" alt="Customer details screen: visit details, serviceability, account snapshot, recent engagement and latest notes" width="660" height="1738" src="shots/c8ad288173.webp"><figcaption>Customer details — visit details, serviceability, account snapshot, recent engagement, latest notes</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="card" id="details-ai">
+      <h3>AI-powered interactions: Xfinity members</h3>
+      <p class="lede">After you check in a member, a <b>Recommended actions</b> banner may show an <b>Account Review Opportunity</b>.</p>
+      <div class="split">
+        <ul class="blist">
+          <li>It appears only for members who have AI-powered interaction deals available. Not every member will.</li>
+          <li>When you see it, <b>swivel to CSG</b> to explore personalized deals that may give the member better value for their needs.</li>
+          <li>For the deal details, see <em>AI-powered interaction deals available in CSG</em> in Celestial Knowledge.</li>
+        </ul>
+        <figure style="margin-top:0"><img loading="lazy" decoding="async" alt="Customer details with Recommended actions banner for an Account Review Opportunity" width="890" height="703" src="shots/edfa72d9a9.webp"><figcaption>Recommended actions — Account Review Opportunity</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="card" id="details-insights">
+      <h3>Celestial Acquisition Insights: prospective customers</h3>
+      <p class="lede">AI-powered insights on each prospect who walks in: what they might want, what competitors offer, and personalized recommendations. They help you start a conversation that feels personal, offer the right product faster, and close with less guesswork.</p>
+      <ol class="steps">
+        <li><p class="t">Complete the <b>serviceability check</b> during prospect check-in (<a href="#checkin-prospect">section 3, step 1</a>). Insights only surface after it.</p></li>
+        <li><p class="t">For serviceable customers, insights appear at the <b>bottom of the customer details screen</b>. Use them alongside your <b>T-Charts</b> to steer the conversation toward the right solution.</p></li>
+      </ol>
+      <figure><img loading="lazy" decoding="async" alt="Customer details with Location recommendations, Likely to buy, Please consider and Edge out the competition insights" width="995" height="474" src="shots/ebcc2f1754.webp"><figcaption>Acquisition insights at the bottom of the customer details screen</figcaption></figure>
+      <dl class="defs">
+        <div><dt>Location recommendations</dt><dd>Key household persona details: who the customer may be and what matters most to them.</dd></div>
+        <div><dt>Likely to buy</dt><dd>The Xfinity deal a household like this most often chooses, suggested by AI from the persona data.</dd></div>
+        <div><dt>Please consider</dt><dd>Recommendations by line of business, drawn from what's known about the household, to keep in mind through the conversation.</dd></div>
+        <div><dt>Edge out the competition</dt><dd>The top ways Xfinity wins against competitors in the household's area, to anticipate objections and sharpen your pitch.</dd></div>
+      </dl>
+      <div class="warn"><span class="lbl">Keep doing discovery</span>Insights don't replace discovery questions or exploring the customer's needs. They're one more tool for finding the best option.</div>
+      <div class="note"><b>Insights won't appear when:</b> the customer is out of footprint, they're a Comcast Business customer, or there's already an active account at the address.</div>
+    </div>
+  </section>
+
+  <!-- 6 SESSION -->
+  <section id="session">
+    <div class="sec-head"><span class="n">06</span><h2>Starting, Ending &amp; Transferring a Session</h2></div>
+
+    <div class="card" id="session-start">
+      <h3>Starting a session</h3>
+      <ol class="steps">
+        <li><p class="t">Select the customer's tab in the <b>Waiting</b> queue, then click <kbd>Start</kbd>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Waiting guest details with Start button highlighted" width="960" height="701" src="shots/ec679cb0df.webp"><figcaption>Waiting guest details — Start</figcaption></figure></li>
+        <li><p class="t">In <b>Start guest session</b>, select the tool you want to go to next.</p>
+          <ul>
+            <li><b>Point of Sale</b> — sell accessories, return items, or take a payment on a guest's bill. Continue in <a href="#launch">Part B</a>.</li>
+            <li><b>Retail360</b> — customer service and account support. <b>Customer Space</b> replaces Retail 360 as it rolls out; when you see it here, continue in <a href="#part-c">Part C</a>.</li>
+          </ul>
+          <figure><img loading="lazy" decoding="async" alt="Start guest session modal with Point of Sale and Retail360 options" width="960" height="698" src="shots/5926c2e9e5.webp"><figcaption>Start guest session — choose Point of Sale or Retail360</figcaption></figure></li>
+      </ol>
+    </div>
+
+    <div class="card" id="session-end">
+      <h3>Ending or transferring a session</h3>
+      <ul class="blist">
+        <li><b>End the session:</b> go back to Celestial Store Space and click <kbd>End session</kbd>.</li>
+        <li><b>Transfer the guest:</b> open the <kbd>•••</kbd> menu, select <kbd>Transfer guest</kbd>, and choose the rep you're handing them to. The same menu also has <kbd>Create appointment</kbd>.</li>
+      </ul>
+      <figure><img loading="lazy" decoding="async" alt="In-progress guest with End session button and menu showing Transfer guest and Create appointment" width="960" height="718" src="shots/d5f593188d.webp"><figcaption>In-progress guest — End session, or ••• → Transfer guest</figcaption></figure>
+      <div class="warn"><span class="lbl">One guest at a time</span>You can't check in another guest or edit another customer's information until you <b>end the current session</b>.</div>
+    </div>
+  </section>
+
+  <div class="part" id="part-b">
+    <span class="eyebrow">Part B</span>
+    <h2>Celestial Point of Sale</h2>
+    <p>Point of Sale replaced Xstore and now lives inside Celestial, right next to Store Space and Knowledge, so you can check a guest in, look something up, and take payment without leaving one tool. Launch it from a check-in and the guest's info is already filled in.</p>
+  </div>
+
+  <!-- 7 POS BASICS -->
+  <section id="pos-basics">
+    <div class="sec-head"><span class="n">07</span><h2>Know This First</h2></div>
+
+    <div class="card" id="pos-what">
+      <h3>What Point of Sale is for</h3>
+      <p class="lede">Sales and returns for in-store merchandise, bill payments, and the daily open and close.</p>
+      <div class="dodont">
+        <div class="do">
+          <span class="tag">Use it for</span>
+          <ul>
+            <li>Selling and returning accessories / in-store merchandise</li>
+            <li>Taking bill payments for customers</li>
+            <li>Opening and closing the store</li>
+            <li>Funding and settling the drawer</li>
+          </ul>
+        </div>
+        <div class="dont">
+          <span class="tag">Not for</span>
+          <ul>
+            <li>Selling Xfinity services</li>
+            <li>Any equipment that has to be activated — for example NOW Internet, prepaid devices or Xfinity Cameras</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="pos-rules">
+      <h3>Before you ring anything</h3>
+      <p class="lede">It works the same on the desktop and the iPad, with one exception (checks). Five things to keep straight:</p>
+      <ul class="rules">
+        <li>
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <h4>Open it from Store Space</h4>
+          <p>Point of Sale launches straight from the guest check-in — no swiveling to a separate app.</p>
+        </li>
+        <li>
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M8 9V6a4 4 0 0 1 8 0"/></svg></span>
+          <h4>Opening &amp; closing</h4>
+          <p>At open, only the registers need to be opened — iPads don't. At close, any suspended transaction is cancelled automatically, so finish anything you've parked before closing.</p>
+        </li>
+        <li>
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg></span>
+          <h4>Exchanges are two transactions</h4>
+          <p>Do the return first, then ring the new item as its own sale.</p>
+        </li>
+        <li>
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M11 18h2"/></svg></span>
+          <h4>Checks = iPad only</h4>
+          <p>Check payments can only be taken on an iPad.</p>
+        </li>
+        <li>
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.2-3.6 3.8-5.5 7-5.5s5.8 1.9 7 5.5"/></svg></span>
+          <h4>Commission follows the login</h4>
+          <p>The sale is credited to whoever is logged in when it's completed. Make sure it's <b>you</b>.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 8 LAUNCH POINT -->
+  <section id="launch">
+    <div class="sec-head"><span class="n">08</span><h2>Launch Point</h2></div>
+
+    <div class="card" id="launch-new">
+      <h3>Launching Point of Sale from a new session</h3>
+      <p class="lede">Two ways in, depending on whether the guest gives you their information.</p>
+      <div class="split">
+        <div>
+          <div class="path"><span class="lt">A</span><div><h4>Starting a new guest session</h4><p>When starting the guest session in Celestial Store Space, select <kbd>Point of Sale</kbd> in the pop-up (see <a href="#session-start">Starting a session</a>).</p></div></div>
+          <figure><img loading="lazy" decoding="async" alt="Start guest session modal with Point of Sale option highlighted" width="910" height="663" src="shots/2a65ceac58.webp"><figcaption>Start guest session modal — choose Point of Sale</figcaption></figure>
+        </div>
+        <div>
+          <div class="path"><span class="lt">B</span><div><h4>Quick purchase, or the guest won't share info</h4><p>Begin check-in using <kbd>Xfinity prospect</kbd> and enter <kbd>Point of Sale</kbd> to bypass the serviceability check.</p></div></div>
+          <figure><img loading="lazy" decoding="async" alt="Check-in guest screen using Xfinity prospect to bypass serviceability check" width="870" height="663" src="shots/d7516976ac.webp"><figcaption>Check-in guest — enter "Point of sale" to bypass serviceability</figcaption></figure>
+        </div>
+      </div>
+      <div class="note">If the guest's address is unknown, enter <b>"Address not available"</b> in the Serviceability check field.</div>
+    </div>
+
+    <div class="card" id="launch-inprogress">
+      <h3>Launching Point of Sale from an in-progress session</h3>
+      <div class="path"><span class="lt">C</span><div><h4>Already in a session</h4><p>Go back to the customer details and select <kbd>Point of Sale</kbd> under <b>Continue guest session</b>.</p></div></div>
+      <figure><img loading="lazy" decoding="async" alt="In-progress guest session showing Continue guest session with Point of Sale" width="1078" height="730" src="shots/b86ec4bc11.webp"><figcaption>In-progress guest session — Continue guest session → Point of Sale</figcaption></figure>
+    </div>
+
+    <div class="card" id="launch-backoffice">
+      <h3>Launching Back Office</h3>
+      <ol class="steps">
+        <li><p class="t">Select the drop-down next to <b>Store</b> to display store information related to the selected store.</p></li>
+        <li><p class="t">Click <kbd>Manage store</kbd> to launch the Back Office homepage.</p></li>
+      </ol>
+      <figure><img loading="lazy" decoding="async" alt="Store drop-down with Manage store link" width="1098" height="534" src="shots/76f283b6a9.webp"><figcaption>Store drop-down → Manage store</figcaption></figure>
+    </div>
+  </section>
+
+  <!-- 9 POS HOMEPAGE -->
+  <section id="pos-home">
+    <div class="sec-head"><span class="n">09</span><h2>POS Homepage</h2></div>
+    <div class="card">
+      <h3>POS Homepage view</h3>
+      <p class="lede">Every transaction starts from one of these six tiles. The numbers below match the markers on the screenshot.</p>
+      <div class="split">
+        <figure style="margin-top:0"><img loading="lazy" decoding="async" alt="Point of Sale homepage with six numbered tiles" width="1137" height="723" src="shots/231ca4e4c2.webp"><figcaption>Point of Sale homepage</figcaption></figure>
+        <ol class="legend">
+          <li><span class="k">1</span><div><b>Sale</b> — Begin a sale by scanning or manually entering a product SKU.</div></li>
+          <li><span class="k">2</span><div><b>Quick sale</b> — Quickly add miscellaneous or admin items with no barcode to the cart from a catalog page.</div></li>
+          <li><span class="k">3</span><div><b>Return</b> — Add products for return by scanning, manual entry, or search transaction history.</div></li>
+          <li><span class="k">4</span><div><b>Look up item</b> — Search for products using filters such as SKU, UPC, Description, Department, Sub-department to add to cart or initiate a return.</div></li>
+          <li><span class="k">5</span><div><b>Comcast services</b> — Assist customers with bill payments. <em>If the customer account was not attached during check-in, you can complete account lookup here to access billing details.</em></div></li>
+          <li><span class="k">6</span><div><b>Transaction history</b> — Search previous transaction records (and resume suspended ones) using filters such as Store Number, Transaction Status, Date Range, Employee ID, Tender, and Customer Phone Number.</div></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 SALE -->
+  <section id="sale">
+    <div class="sec-head"><span class="n">10</span><h2>Completing a Sale</h2></div>
+    <div class="card" id="sale-steps">
+      <h3>Step by step</h3>
+      <p class="lede">Five steps from scan to receipt.</p>
+      <ol class="steps">
+        <li><p class="t"><b>Tap Sale.</b> Tap <kbd>Sale</kbd>, then scan the product or type in its SKU.</p>
+          <figure><img loading="lazy" decoding="async" alt="Point of Sale home screen with the Sale tile highlighted." width="1047" height="705" src="shots/9b57688796.webp"><figcaption>POS home — Sale tile</figcaption></figure></li>
+        <li><p class="t"><b>Build the cart.</b> Keep adding items with <kbd>Scan item</kbd>, <kbd>Look up item</kbd> or <kbd>Quick sale</kbd>. When the cart is complete, tap <kbd>Checkout</kbd>.</p>
+          <figure><img loading="lazy" decoding="async" alt="The Cart screen listing items on the left, with Scan item, Look up item and Quick sale options highlighted on the right and the Checkout button at the bottom." width="1118" height="756" src="shots/a4f55095d8.webp"><figcaption>Cart — add more items, then Checkout</figcaption></figure></li>
+        <li><p class="t"><b>Choose how they're paying.</b> Select the payment method, then tap <kbd>Process payment</kbd>.</p>
+          <ul>
+            <li>If the guest's account was attached at check-in, their details show here and can be edited.</li>
+            <li>No account attached? You can still look it up before you process the payment.</li>
+          </ul>
+          <figure><img loading="lazy" decoding="async" alt="The Checkout screen with Credit card and Cash payment options and the Guest details panel highlighted." width="1110" height="756" src="shots/b146cd3a20.webp"><figcaption>Checkout — payment method and guest details</figcaption></figure></li>
+        <li><p class="t"><b>Take the payment.</b> Run the card or take cash through RetailPay like you normally do. A <em>Processing card payment</em> overlay shows while it goes through — don't close it.</p>
+          <figure><img loading="lazy" decoding="async" alt="Processing card payment pop-up telling you not to close the window until the payment is complete." width="1105" height="561" src="shots/2b05fd8eed.webp"><figcaption>Processing card payment — leave it open</figcaption></figure></li>
+        <li><p class="t"><b>Send the receipt.</b> Choose <kbd>Email receipt</kbd> or <kbd>Print receipt</kbd>. If an account is attached, the email address fills in automatically — you can change it.</p>
+          <figure><img loading="lazy" decoding="async" alt="The Order confirmation screen with the order summary and Email receipt / Print receipt options." width="889" height="756" src="shots/cfc57f1021.webp"><figcaption>Order confirmation — email or print</figcaption></figure></li>
+      </ol>
+    </div>
+
+    <div class="card" id="sale-tips">
+      <h3>Good to know</h3>
+      <div class="split">
+        <ul class="blist">
+          <li>Items can be scanned, or manually enter the product SKU.</li>
+          <li>Once in the cart, you can also add items via <b>quick sale</b> or by scanning more items.</li>
+          <li>During checkout, guest details will appear if a customer's account was connected in Celestial Store Space during check-in.
+            <ul>
+              <li>Customer details can be edited.</li>
+              <li>If a customer's account was not connected, you can complete a lookup before processing the payment.</li>
+            </ul>
+          </li>
+          <li>When accepting cash payments, once you select a printer to complete the transaction it will prepopulate the same printer option for a receipt.</li>
+        </ul>
+        <figure style="margin-top:0"><img loading="lazy" decoding="async" alt="Point of Sale menu screen with Scan item, Quick sale and Return tiles" width="1250" height="883" src="shots/cf40d5cb6a.webp"><figcaption>POS menu — Scan item, Quick sale, Return, and more</figcaption></figure>
+      </div>
+      <div class="note">Use the <b>"Skip to specific menu items, functions, or reports"</b> search bar at the top to jump straight to a function instead of hunting for the tile.</div>
+    </div>
+  </section>
+
+  <!-- 11 RETURN -->
+  <section id="return">
+    <div class="sec-head"><span class="n">11</span><h2>Completing a Return</h2></div>
+    <div class="card" id="return-steps">
+      <h3>Step by step</h3>
+      <p class="lede">Doing an exchange? Run this return first, then ring the replacement as a new sale.</p>
+      <ol class="steps">
+        <li><p class="t"><b>Find the original sale.</b> Tap <kbd>Return</kbd> and scan the receipt — or find the sale in <kbd>Transaction history</kbd>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Point of Sale home screen with the Return and Transaction history tiles highlighted." width="1114" height="756" src="shots/3d05954d2c.webp"><figcaption>POS home — Return or Transaction history</figcaption></figure></li>
+        <li><p class="t"><b>Pick the items and where they go.</b> Check each item the customer is returning, choose its inventory destination from the drop-down, then tap <kbd>Submit</kbd>.</p>
+          <figure><img loading="lazy" decoding="async" alt="The Return selections screen with one item checked and Keep in store chosen as the inventory destination." width="1077" height="750" src="shots/ee923c13cb.webp"><figcaption>Return selections — item and inventory destination</figcaption></figure></li>
+        <li><p class="t"><b>Review the return.</b> Make sure the right items and the refund amount are correct, then tap <kbd>Select tender</kbd>.</p>
+          <div class="warn"><span class="lbl">Heads up</span>The <b>Return comments</b> box on this screen is required.</div>
+          <figure><img loading="lazy" decoding="async" alt="The Return cart screen listing the items, a required Return comments box, the refund due and the Select tender button." width="1094" height="756" src="shots/f1d0f9da7e.webp"><figcaption>Return cart — comments are required</figcaption></figure></li>
+        <li><p class="t"><b>Refund it.</b> Choose the refund method, then tap <kbd>Process refund</kbd>.</p>
+          <figure><img loading="lazy" decoding="async" alt="The Refund payment screen with refund tender options — Credit card, Cash and HQ refund — highlighted." width="1084" height="755" src="shots/34010c042d.webp"><figcaption>Refund payment — Credit card, Cash or HQ refund</figcaption></figure></li>
+        <li><p class="t"><b>Send the receipt.</b> Email or print the customer's receipt.</p>
+          <figure><img loading="lazy" decoding="async" alt="The Return confirmation screen with the refund total and Email receipt / Print receipt options." width="1119" height="755" src="shots/dfb494380d.webp"><figcaption>Return confirmation — email or print</figcaption></figure></li>
+      </ol>
+    </div>
+
+    <div class="card" id="return-tips">
+      <h3>Good to know</h3>
+      <ul class="blist">
+        <li>If a customer would like to do an <b>exchange</b>, complete a return of the original item first. Then select <kbd>Back to home</kbd> to complete a sale of the new item the customer would like to purchase.</li>
+        <li>Credit card returns may take <b>5–7 business days</b> to be returned, based on their financial institution.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 12 BACK OFFICE HOMEPAGE -->
+  <section id="bo-home">
+    <div class="sec-head"><span class="n">12</span><h2>Back Office Homepage</h2></div>
+    <div class="card">
+      <h3>Back Office Homepage view</h3>
+      <p class="lede">Numbers below match the markers on the screenshot.</p>
+      <div class="split">
+        <figure style="margin-top:0"><img loading="lazy" decoding="async" alt="Back Office homepage with five numbered tiles" width="1143" height="801" src="shots/bbf4c446ad.webp"><figcaption>Back Office homepage — store open state</figcaption></figure>
+        <ol class="legend">
+          <li><span class="k">1</span><div><b>Store status</b> — Shows the status of the store: <b>Store Open</b> or <b>Store Closed</b>.</div></li>
+          <li><span class="k">2</span><div><b>Close store / Open store</b> — Close store and complete tender count, or open store and review any closing comments from the prior day. <em>Note: the tile always shows the opposite action of the current store status. Example shown: status is open, so the tile shows the close-store action.</em></div></li>
+          <li><span class="k">3</span><div><b>Till</b> — Manage all till-related functions such as funding the drawer, closing or settling the till, and other cash-handling operations.</div></li>
+          <li><span class="k">4</span><div><b>Transaction history</b> — Search previous transaction records using filters such as Store Number, Transaction Status, Date Range, Employee ID, Tender, and Customer Phone Number.</div></li>
+          <li><span class="k">5</span><div><b>Look up item</b> — Search for products using filters such as SKU, UPC, Description, Department, Sub-department to add to cart or initiate a return.</div></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 OPEN STORE -->
+  <section id="open">
+    <div class="sec-head"><span class="n">13</span><h2>Open Store</h2></div>
+
+    <div class="card" id="open-drawer">
+      <h3>Opening the cash drawer</h3>
+      <ol class="steps">
+        <li><p class="t">The store's current status will show <kbd>Store closed</kbd>. To open the store, click the <kbd>Open store</kbd> tile.</p>
+          <figure><img loading="lazy" decoding="async" alt="Back Office showing Store closed status and Open store tile" width="753" height="278" src="shots/8e44026667.webp"><figcaption>Back Office — Store closed, Open store tile</figcaption></figure></li>
+        <li><p class="t">Confirm open.</p>
+          <figure><img loading="lazy" decoding="async" alt="Open this store confirmation dialog" width="584" height="237" src="shots/a75f0f39c3.webp"><figcaption>"Open this store?" — select Yes</figcaption></figure></li>
+        <li><p class="t">Review store open details and any comments from the previous night's closing, then select <kbd>Okay</kbd>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Store open dialog showing business date and closing comments" width="453" height="301" src="shots/a583ed2de2.webp"><figcaption>Store open — business date and closing comments</figcaption></figure></li>
+        <li><p class="t">The store will now show as <b>Store open</b>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Back Office homepage showing Store open status" width="692" height="303" src="shots/875897835b.webp"><figcaption>Back Office homepage — Store open</figcaption></figure></li>
+      </ol>
+    </div>
+
+    <div class="card" id="fund-drawer">
+      <h3>Fund drawer</h3>
+      <p class="lede">Load the starting funds into the drawer for the business day.</p>
+      <ol class="steps">
+        <li><p class="t">Select <kbd>Till</kbd>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Back Office homepage with Till tile highlighted" width="690" height="297" src="shots/76ec9b3b13.webp"><figcaption>Back Office — Till tile</figcaption></figure></li>
+        <li><p class="t">Select <kbd>Fund drawer</kbd>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Till menu with Fund drawer highlighted" width="728" height="318" src="shots/2b48e2ab15.webp"><figcaption>Till menu — Fund drawer</figcaption></figure></li>
+        <li><p class="t">If on iPad, select the printer you want to open. Desktop will default to the attached cash drawer.</p>
+          <figure><img loading="lazy" decoding="async" alt="Select a printer to open cash drawer dialog" width="570" height="395" src="shots/06e55c4a99.webp"><figcaption>Select a printer to open cash drawer</figcaption></figure></li>
+        <li><p class="t">Enter the amount, ensuring it is equal to the system expectation, then select <kbd>Add funds</kbd>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Fund drawer screen with amount keypad" width="849" height="597" src="shots/e38dcbf551.webp"><figcaption>Fund drawer — expected funds shown at top</figcaption></figure></li>
+        <li><p class="t">Verify the amount is equal and continue. You will be taken back to the Till main menu.</p>
+          <div class="figs two">
+            <figure style="margin-top:12px"><img loading="lazy" decoding="async" alt="Verify count dialog with zero difference" width="542" height="309" src="shots/3a48875852.webp"><figcaption>Verify count — difference is $0.00</figcaption></figure>
+            <figure style="margin-top:12px"><img loading="lazy" decoding="async" alt="Verify count dialog requiring a comment for a discrepancy" width="542" height="408" src="shots/c5895960c3.webp"><figcaption>If the amount is not equal, a comment is required</figcaption></figure>
+          </div></li>
+      </ol>
+      <div class="note">If the amount is <b>not</b> equal, provide comments to explain the discrepancy before continuing.</div>
+    </div>
+  </section>
+
+  <!-- 14 CLOSE STORE -->
+  <section id="close">
+    <div class="sec-head"><span class="n">14</span><h2>Close Store</h2></div>
+
+    <div class="card" id="settle-drawer">
+      <h3>Settle drawer</h3>
+      <p class="lede">Close out the drawer at the end of the business day.</p>
+      <ol class="steps">
+        <li><p class="t">Select <kbd>Till</kbd>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Back Office homepage with Till tile" width="616" height="264" src="shots/d285f8fcd3.webp"><figcaption>Back Office — Till tile</figcaption></figure></li>
+        <li><p class="t">Select <kbd>Settle drawer</kbd>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Till menu with Settle drawer highlighted" width="726" height="324" src="shots/49b759fdc4.webp"><figcaption>Till menu — Settle drawer</figcaption></figure></li>
+        <li><p class="t">If on iPad, select the printer you want to settle. Desktop will default to the attached cash drawer.</p>
+          <figure><img loading="lazy" decoding="async" alt="Select a printer to open cash drawer dialog" width="526" height="360" src="shots/8cee547d74.webp"><figcaption>Select a printer to open cash drawer</figcaption></figure></li>
+        <li><p class="t">Select the type of tender you want to declare.</p>
+          <figure><img loading="lazy" decoding="async" alt="Tender count screen with declare a tender options" width="638" height="449" src="shots/9fa64b8ed3.webp"><figcaption>Tender count — declare a tender (Cash, Check, Traveler's check, Money order)</figcaption></figure></li>
+      </ol>
+    </div>
+
+    <div class="card" id="tender-count">
+      <h3>Settle drawer — tender count</h3>
+      <ol class="steps" start="5">
+        <li><p class="t">Enter the amount for each applicable tender. After entering amounts, select <kbd>Declare tender</kbd> to be taken back to the tender count page, then select the next type of tender you want to declare.</p>
+          <div class="figs two">
+            <figure><img loading="lazy" decoding="async" alt="Declare traveler's checks and Declare cash screens" width="843" height="894" src="shots/1f9f830d33.webp"><figcaption>Declare traveler's checks and Declare cash</figcaption></figure>
+            <figure><img loading="lazy" decoding="async" alt="Declare money orders and Declare checks screens" width="841" height="914" src="shots/ca7de600ce.webp"><figcaption>Declare money orders and Declare checks</figcaption></figure>
+          </div></li>
+        <li><p class="t">When you are done entering all tenders, select <kbd>Submit count</kbd>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Tender count screen with Submit count button" width="715" height="496" src="shots/ea569b85ad.webp"><figcaption>Tender count — declared vs. expected for each tender</figcaption></figure></li>
+        <li><p class="t">Verify all tenders are equal and continue.</p>
+          <div class="figs two">
+            <figure><img loading="lazy" decoding="async" alt="Verify count dialog with all tenders equal" width="455" height="375" src="shots/bdf3c39dd1.webp"><figcaption>Verify count — all differences $0.00</figcaption></figure>
+            <figure><img loading="lazy" decoding="async" alt="Verify count with discrepancy and Accept deposit amount dialog" width="666" height="516" src="shots/cd0550b083.webp"><figcaption>If not equal: comment required, then accept deposit or recount</figcaption></figure>
+          </div></li>
+        <li><p class="t">Select or scan the printer to print the receipt. You will be taken back to the Back Office Homepage.</p></li>
+      </ol>
+      <div class="note">If any amount is not equal, provide comments to explain the discrepancy and continue. You will then be prompted to <b>accept the deposit amount</b> or <b>recount the drawer</b>.</div>
+    </div>
+
+    <div class="card" id="close-drawer">
+      <h3>Closing the cash drawer</h3>
+      <ol class="steps">
+        <li><p class="t">The store's current status will show <kbd>Store open</kbd>. To close the store, click the <kbd>Close store</kbd> tile.</p>
+          <figure><img loading="lazy" decoding="async" alt="Back Office homepage with Close store tile highlighted" width="777" height="405" src="shots/bf9ff79954.webp"><figcaption>Back Office — Close store tile</figcaption></figure></li>
+        <li><p class="t">You must settle all cash drawers that were open before proceeding.</p>
+          <figure><img loading="lazy" decoding="async" alt="Settle drawers before closing dialog listing open registers" width="501" height="456" src="shots/ac51c8eab5.webp"><figcaption>Settle drawers before closing — registers still open</figcaption></figure></li>
+        <li><p class="t">Provide any closing comments needed for the opener, then select <kbd>Close store</kbd>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Close the store dialog with closing comments field" width="478" height="429" src="shots/105eed01ab.webp"><figcaption>Close the store? — closing comments, 100 character limit</figcaption></figure></li>
+        <li><p class="t">You will then be taken into the tender count flow to declare tender for all cash drawer deposits. Once all tender is confirmed you will be taken to the Back Office Homepage and the store status will show <b>Store closed</b>.</p></li>
+      </ol>
+      <div class="warn"><span class="lbl">Heads up</span>Closing the store <b>ends the business day and cancels any suspended transactions</b>. Make sure nothing is left suspended before you close.</div>
+    </div>
+  </section>
+
+  <!-- 15 HELP & FAQ -->
+  <section id="faqs">
+    <div class="sec-head"><span class="n">15</span><h2>POS Help &amp; FAQs</h2></div>
+    <div class="card" id="pos-help">
+      <h3>When it breaks: submit a TechSpot ticket</h3>
+      <ol class="steps">
+        <li><p class="t">Open <b>Care App Team Links</b>.</p></li>
+        <li><p class="t">Go to <b>Care Application Issues</b>.</p></li>
+        <li><p class="t">In the <b>Application</b> drop-down, choose <b>Point of Sale</b>.</p></li>
+        <li><p class="t">Fill in every required field with as much detail as you can. Attach screenshots and the session ID if you have it.</p></li>
+      </ol>
+      <div class="note">There's also a Tool Tips video and training linked from the full article in <a href="https://celestial.cable.comcast.com/knowledge/article-info/?query=HOW22959" target="_blank" rel="noopener">Celestial Knowledge (HOW22959)</a> — Comcast login required.</div>
+    </div>
+    <div class="card" id="pos-faq">
+      <h3>Celestial Point of Sale FAQs</h3>
+      <p class="lede">The source deck links out to a separate Celestial Point of Sale FAQ document.</p>
+      <div class="note">The FAQ link was not captured in the PDF export. Add the destination URL here when you have it, or reach out to your pilot lead for the current FAQ document.</div>
+    </div>
+  </section>
+
+  <!-- ===================== PART C: CUSTOMER SPACE ===================== -->
+  <div class="part" id="part-c">
+    <span class="eyebrow">Part C</span>
+    <h2>Customer Space</h2>
+    <p>View and manage a member's account in one place, with Mercury Assistant alongside. Customer Space replaces Retail 360.</p>
+  </div>
+
+  <!-- 1 AT A GLANCE -->
+  <section id="cs-glance">
+    <div class="sec-head"><span class="n">16</span><h2>At a glance</h2></div>
+    <div class="card">
+      <div class="split">
+        <dl class="glance">
+          <div><dt>What</dt><dd>Celestial Customer Space centralizes member information and interactions in one place. You can manage a member's account and give personalized service, with Mercury Assistant at your side.</dd></div>
+          <div><dt>When</dt><dd>Rolling launch beginning <b>July 7</b>.</dd></div>
+          <div><dt>Rep impact</dt><dd>The Retail 360 functionality you already know moves into the same tool you use for <b>Point of Sale</b>, <b>Check-in (Store Space)</b>, <b>Buy Anywhere Pickup In-Store (BAPIS)</b> and knowledge, plus new capabilities with Mercury Assistant.</dd></div>
+        </dl>
+        <figure style="margin-top:0"><img loading="lazy" decoding="async" alt="Celestial logo on a tablet with a keyboard" width="960" height="548" src="shots/661028db6c.webp"><figcaption>Celestial Customer Space</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="card" id="cs-what">
+      <h3>What is Customer Space</h3>
+      <p class="lede">One screen for the member's account, tools and knowledge, so you can help without swiveling between systems.</p>
+      <p class="body">Celestial Customer Space is a centralized tool for viewing and managing a member's account. It combines account details, tools, and knowledge in one place. It replaces <b>Retail 360</b>, bringing that functionality into the Celestial platform along with new capabilities like Mercury Assistant.</p>
+      <h4>Benefits to you</h4>
+      <ul class="blist">
+        <li>All customer information in one place for a personalized experience.</li>
+        <li>Less time swiveling between tools.</li>
+        <li>Quick summaries and answers surfaced during the interaction.</li>
+        <li>Faster sales, service, and troubleshooting conversations.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 2 ACCESSING CUSTOMER SPACE -->
+  <section id="cs-access">
+    <div class="sec-head"><span class="n">17</span><h2>Accessing Customer Space</h2></div>
+    <div class="card">
+      <h3>Start with check-in</h3>
+      <p class="lede">Every customer account is reached through check-in in Store Space.</p>
+      <p class="body">To access any customer account, you must complete check-in in <b>Store Space</b>. Check-in captures key details like customer type, visit reason, and contact information. It does more than manage the queue:</p>
+      <ul class="blist">
+        <li>Identifies quick interactions, like bill payments or exchanges.</li>
+        <li>Gives you insight into the customer's needs before the interaction starts.</li>
+        <li>Surfaces opportunities for sales, upgrades, or support.</li>
+      </ul>
+      <div class="note">Completing check-in sets you up to start the interaction <b>prepared and confident</b>.</div>
+    </div>
+
+    <div class="card" id="cs-lookup">
+      <h3>Quick account lookup</h3>
+      <p class="lede">For account reviews, research, and quick hits, like equipment returns on a busy day.</p>
+      <ol class="steps">
+        <li><p class="t">Select the <kbd>Store</kbd> drop-down, then select <kbd>Customer lookup</kbd>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Store drop-down showing store details and the Customer lookup button" width="960" height="672" src="shots/c7400ca035.webp"><figcaption>Store drop-down → Customer lookup</figcaption></figure></li>
+        <li><p class="t">Search by <b>account number</b>, <b>phone number</b>, <b>customer name</b>, <b>address</b>, or <b>email</b>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Customer lookup screen with account number, phone number, customer name, address and email options" width="960" height="413" src="shots/eec4b02690.webp"><figcaption>Choose a lookup type, then select Next</figcaption></figure></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 3 PROSPECTIVE CUSTOMER -->
+  <section id="cs-new">
+    <div class="sec-head"><span class="n">18</span><h2>Prospective customer (new sale)</h2></div>
+    <div class="card">
+      <h3>Starting a new sale from the queue</h3>
+      <p class="lede">The path for a guest who isn't an Xfinity member yet.</p>
+      <ol class="steps">
+        <li><p class="t">In Store Space, select the prospective customer's name from the waiting queue, then select <kbd>Start</kbd>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Store Space waiting queue with a guest selected and the Start button highlighted" width="960" height="693" src="shots/9f111f5687.webp"><figcaption>Waiting queue → guest details → Start</figcaption></figure></li>
+        <li><p class="t">Select your sale path: <b>XOE</b> (new customer) or <b>NOW</b>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Choose how you'd like to proceed dialog with New customer flows and Point of Sale options" width="960" height="708" src="shots/4c7cbbdf3f.webp"><figcaption>"Choose how you'd like to proceed"</figcaption></figure></li>
+        <li><p class="t">You'll be asked whether the customer wants Xfinity Mobile.</p>
+          <ul>
+            <li><b>Yes:</b> ID authentication is triggered before you continue to XOE.</li>
+            <li><b>No:</b> continue to the XOE plan builder. If they change their mind later in the interaction, you can add mobile later through XM360.</li>
+          </ul>
+          <figure><img loading="lazy" decoding="async" alt="Purchasing phone today dialog asking if the consumer will be purchasing Xfinity Mobile, with Yes and No options" width="960" height="711" src="shots/8f7e664f21.webp"><figcaption>"Purchasing phone today?" — Yes or No</figcaption></figure></li>
+        <li><p class="t">Begin building the order as normal in XOE.</p>
+          <figure><img loading="lazy" decoding="async" alt="XOE plan builder showing Internet, Mobile, and TV and Streaming options" width="960" height="700" src="shots/a92e97ffab.webp"><figcaption>XOE plan builder — "Xfinity is available at your address. Build your plan."</figcaption></figure></li>
+        <li><p class="t">After the sale is complete, you'll return to Store Space with <b>Point of Sale</b> and <b>Customer Space</b> navigation buttons available for the session.</p>
+          <figure><img loading="lazy" decoding="async" alt="Store Space guest session with Continue guest session buttons and End session button highlighted" width="960" height="665" src="shots/498cc9f514.webp"><figcaption>Back in Store Space — continue the guest session, or select End session when finished</figcaption></figure></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 4 EXISTING MEMBER -->
+  <section id="cs-existing">
+    <div class="sec-head"><span class="n">19</span><h2>Existing member</h2></div>
+    <div class="card">
+      <h3>Opening a member's account</h3>
+      <p class="lede">Four steps from the queue to a verified account.</p>
+      <ol class="steps">
+        <li><p class="t">In Store Space, select the Xfinity member's name from the waiting queue, then select <kbd>Start</kbd>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Store Space waiting queue with a member selected and the Start button highlighted" width="960" height="667" src="shots/c6ffb413e2.webp"><figcaption>Visit details and account snapshot show before you start</figcaption></figure></li>
+        <li><p class="t">Select your action path: <kbd>Customer Space</kbd> or <kbd>Point of Sale</kbd>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Start guest session dialog with Point of Sale and Customer Space options" width="960" height="690" src="shots/5a1634e445.webp"><figcaption>Start guest session — Point of Sale or Customer Space</figcaption></figure>
+          <div class="note">Until Retail 360 is sunset, you'll continue to see it as an option here.</div></li>
+        <li><p class="t">Select the appropriate member profile, then select <kbd>Next</kbd>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Authentication step 1 asking who you are speaking with, listing the primary account holder and a manager" width="960" height="721" src="shots/6d2cc414ff.webp"><figcaption>Step 1 — confirm who you're speaking with</figcaption></figure></li>
+        <li><p class="t">Select and complete ID verification with an acceptable form of identification.</p>
+          <figure><img loading="lazy" decoding="async" alt="Authentication step 2 with Photo ID and Non-photo ID verification options" width="960" height="695" src="shots/3622d4d903.webp"><figcaption>Step 2 — Photo ID or Non-photo ID</figcaption></figure></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 5 FEATURES -->
+  <section id="cs-features">
+    <div class="sec-head"><span class="n">20</span><h2>Customer Space features</h2></div>
+    <div class="card">
+      <h3>Customer profile and tools menu</h3>
+      <p class="lede">A full view of the member's account, with two ways to take action during the interaction.</p>
+      <figure style="margin-top:0"><img loading="lazy" decoding="async" alt="Customer Space home screen with the customer profile on the left and Mercury Assistant on the right" width="960" height="702" src="shots/467282257c.webp"><figcaption>Customer Space home — customer profile on the left, Mercury Assistant on the right</figcaption></figure>
+    </div>
+
+    <div class="card" id="cs-tools">
+      <h3>Tools menu</h3>
+      <p class="lede">Jump straight into the tools you already use.</p>
+      <div class="split">
+        <div>
+          <ul class="chips">
+            <li>OneSupport</li>
+            <li>Einstein 360</li>
+            <li>XM360 <small>Xfinity Mobile account details</small></li>
+            <li>XM Sales <small>Xfinity Mobile buy flow</small></li>
+            <li>Point of Sale</li>
+          </ul>
+        </div>
+        <figure style="margin-top:0"><img loading="lazy" decoding="async" alt="Customer Space tools menu with External tools highlighted" width="960" height="694" src="shots/a4373ee254.webp"><figcaption>Tools menu → External tools</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="card" id="cs-account">
+      <h3>Member account details</h3>
+      <div class="split">
+        <div>
+          <p class="body">You can view:</p>
+          <ul class="blist">
+            <li>Member contact information <em>(can be updated)</em></li>
+            <li>Account number</li>
+            <li>Preferred name</li>
+            <li>User role</li>
+            <li>Xfinity membership status</li>
+          </ul>
+        </div>
+        <figure style="margin-top:0"><img loading="lazy" decoding="async" alt="Account details with contact information, division, and loyalty" width="960" height="721" src="shots/e28e7986d4.webp"><figcaption>Account details — contact, division, loyalty</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="card" id="cs-billing">
+      <h3>Billing details</h3>
+      <div class="split">
+        <div>
+          <p class="body">You can:</p>
+          <ul class="blist">
+            <li>View billing details, ledger, and autopay.</li>
+            <li>Review account history and receipts.</li>
+            <li>Take bill payments.</li>
+          </ul>
+        </div>
+        <figure style="margin-top:0"><img loading="lazy" decoding="async" alt="Billing details with core balance, next payment, service dates, and billing address" width="960" height="665" src="shots/ab870e331e.webp"><figcaption>Billing details — core balance and billing address</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="card" id="cs-service">
+      <h3>Service details</h3>
+      <div class="split">
+        <div>
+          <p class="body">You can:</p>
+          <ul class="blist">
+            <li>View active core services and serviceability information.</li>
+            <li>Disconnect core services.</li>
+          </ul>
+          <div class="warn"><span class="lbl">Swivel to CSG</span>To make any other changes to core services, you'll need to swivel to <b>CSG</b>.</div>
+        </div>
+        <figure style="margin-top:0"><img loading="lazy" decoding="async" alt="Service details listing core services with serviceability and a Disconnect Services button" width="960" height="665" src="shots/059b88efac.webp"><figcaption>Service details — core services and Disconnect Services</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="card" id="cs-devices">
+      <h3>Device details</h3>
+      <p class="body">You can view the current core devices on the member's account, manage equipment (<b>add, remove, swap, reorder</b>), and run diagnostics and check usage.</p>
+      <ol class="steps" style="margin-top:16px">
+        <li><p class="t">Select <kbd>Devices</kbd>, then <kbd>Manage devices</kbd>.</p>
+          <figure><img loading="lazy" decoding="async" alt="Device details with the Manage devices button highlighted" width="960" height="671" src="shots/069c8984ae.webp"><figcaption>Device details → Manage devices</figcaption></figure></li>
+        <li><p class="t">Complete changes through the equipment manager as normal.</p>
+          <figure><img loading="lazy" decoding="async" alt="Manage Equipment page with Add, Remove, Swap, and Reorder buttons and current equipment list" width="960" height="677" src="shots/d134e56c5a.webp"><figcaption>Equipment manager — Add, Remove, Swap, Reorder, then Apply Changes</figcaption></figure></li>
+      </ol>
+    </div>
+
+    <div class="card" id="cs-mobile">
+      <h3>Mobile service</h3>
+      <p class="body">You can:</p>
+      <ul class="blist">
+        <li>View mobile lines and plan details.</li>
+        <li>See eligibility and device information.</li>
+        <li>Navigate to <b>XM360</b> to manage or add lines.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 6 MERCURY ASSISTANT -->
+  <section id="cs-mercury">
+    <div class="sec-head"><span class="n">21</span><h2>Mercury Assistant</h2></div>
+    <div class="card">
+      <h3>What Mercury Assistant does</h3>
+      <p class="lede">An AI-powered panel built into Customer Space to help you get answers and take action faster.</p>
+      <ul class="blist">
+        <li>Quick summaries of the customer's account.</li>
+        <li>Suggested next steps based on the visit.</li>
+        <li>Access to Celestial knowledge through <b>Ask Me Anything (AMA)</b>.</li>
+      </ul>
+    </div>
+
+    <div class="card" id="cs-agentic">
+      <h3>Agentic tasks</h3>
+      <div class="split">
+        <div>
+          <p class="body">One-tap buttons that save you time with summaries built from the member's account:</p>
+          <ul class="blist">
+            <li>Recent bill summary</li>
+            <li>Summary of interaction</li>
+            <li>Summary of service issues</li>
+            <li>Summary of credits</li>
+          </ul>
+        </div>
+        <figure class="tall" style="margin-top:0"><img loading="lazy" decoding="async" alt="Mercury Assistant panel with agentic task buttons for recent bills, credits, service issues, and interactions" width="960" height="799" src="shots/552a911e76.webp"><figcaption>Agentic task buttons</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="card" id="cs-recommended">
+      <h3>Recommended tasks</h3>
+      <div class="split">
+        <div>
+          <p class="body">Suggested actions based on the visit reason noted in Store Space. Examples you may see:</p>
+          <ul class="blist">
+            <li>Explain my bill</li>
+            <li>Explain Xfinity Mobile due date</li>
+            <li>Add Xfinity Internet service</li>
+            <li>Add Xfinity Mobile service</li>
+          </ul>
+        </div>
+        <figure class="tall" style="margin-top:0"><img loading="lazy" decoding="async" alt="Mercury recommended task card: Add Xfinity Internet services, with an Add Internet to Customer's Account button" width="960" height="944" src="shots/556ce70dd8.webp"><figcaption>A recommended task with its action button</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="card" id="cs-ama">
+      <h3>Ask Me Anything (AMA)</h3>
+      <div class="split">
+        <div>
+          <p class="body">AMA finds answers to <b>product, policy, or tool</b> questions. It gives knowledge-based answers so you don't have to swivel to Celestial Knowledge, but it <b>won't</b> pull customer-specific account answers.</p>
+          <div class="note">For best practices when searching in Mercury Assistant, look up <b>Celestial tips: AMA and search</b> in Celestial Knowledge.</div>
+        </div>
+        <figure class="tall" style="margin-top:0"><img loading="lazy" decoding="async" alt="AMA conversation answering how to tell if an eSIM is activated, with source article links" width="960" height="1382" src="shots/8220b8c902.webp"><figcaption>AMA example — answers list their knowledge sources</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 TRAININGS -->
+  <section id="cs-training">
+    <div class="sec-head"><span class="n">22</span><h2>Interactive trainings</h2></div>
+    <div class="card">
+      <h3>Training for Customer Space</h3>
+      <p class="lede">The same two courses are offered in two systems. Branded Partner stores take them in CREATE.</p>
+      <div class="split">
+        <div class="trainbox">
+          <h4>ULearn trainings</h4>
+          <ul class="blist">
+            <li>Celestial: Customer Space</li>
+            <li>Mercury Assistant</li>
+          </ul>
+        </div>
+        <div class="trainbox">
+          <h4>CREATE training — Branded Partners</h4>
+          <ul class="blist">
+            <li>Celestial: Customer Space</li>
+            <li>Mercury Assistant</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 CUSTOMER SPACE FAQS -->
+  <section id="cs-faqs">
+    <div class="sec-head"><span class="n">23</span><h2>Customer Space FAQs</h2></div>
+    <div class="card">
+      <h3>Common questions</h3>
+      <dl class="faq">
+        <div class="qa"><dt>Can I use Mercury Assistant for a prospective customer?</dt>
+          <dd>Customer Space features, including Mercury Assistant, are only available once a customer has pending services. For a prospective customer, use the information shown in Store Space from the check-in or appointment, and swivel to Celestial Knowledge if you need knowledge information.</dd></div>
+        <div class="qa"><dt>Can I type my AMA question in Spanish?</dt>
+          <dd>Yes. If you type your question in Spanish, AMA will interpret it and respond in Spanish.</dd></div>
+        <div class="qa"><dt>Can Mercury Assistant give me information about an account?</dt>
+          <dd>No. Outside of the agentic tasks, questions about a specific customer's account get a generic answer sourced from Celestial Knowledge. Use AMA the way you'd use Celestial Knowledge search.</dd></div>
+        <div class="qa"><dt>Does this change how I use XM360, XOE, and other tools?</dt>
+          <dd>No. All tool processes are business as usual. Use Customer Space as a launch point to get to the tools you need quickly. You still need to swivel to CSG for any core service changes.</dd></div>
+        <div class="qa" id="cs-report"><dt>How do I report issues with Customer Space?</dt>
+          <dd>Submit issues through <b>TechSpot</b> using the <b>Care Application Issue</b> form. Fill in all applicable fields completely and accurately, and include any details or screenshots that help.
+            <figure class="mid"><img loading="lazy" decoding="async" alt="TechSpot Care Application Issue form with Summary, Detailed Description, Application, SubCategory, and Symptom fields" width="960" height="908" src="shots/e50f1d86e9.webp"><figcaption>TechSpot ticket — Application: Celestial · SubCategory: Celestial Customer Space</figcaption></figure></dd></div>
+      </dl>
+    </div>
+  </section>
+
+
+  <footer class="foot">
+    <p>Adapted for C³ rep training from Celestial Knowledge articles COMMS530, COMMS532, HOW22959 and HOW23418, and the Celestial Point of Sale Pilot Job Aid. Screenshots are from those sources.</p>
+    <p>Procedures change — if something on screen doesn't match, the Knowledge article is the source of truth.</p>
+  </footer>
+</main>
+</div>
+
+<button class="totop" id="totop" type="button" aria-label="Back to top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 14l6-6 6 6"/></svg></button>
+
+<dialog class="lb" id="lb" aria-label="Screenshot preview">
+  <div class="lb-inner">
+    <button type="button" id="lbClose" aria-label="Close">✕</button>
+    <img id="lbImg" alt="">
+    <p class="cap" id="lbCap"></p>
+  </div>
+</dialog>
+
+<script>
+(function(){
+  var nav=document.getElementById('nav'), mb=document.getElementById('menubtn'), mq=window.matchMedia('(max-width:1000px)');
+
+  // ---- mobile menu ----
+  function setNav(open){
+    nav.classList.toggle('open',open); document.body.classList.toggle('navopen',open);
+    mb.setAttribute('aria-expanded',open?'true':'false');
+    if(open){ var a=nav.querySelector('a.active'); nav.scrollTop = (a && a.offsetTop > nav.clientHeight*0.6) ? a.offsetTop - nav.clientHeight/2 : 0; }
+  }
+  mb.addEventListener('click',function(){ setNav(!nav.classList.contains('open')); });
+  nav.addEventListener('click',function(e){ if(e.target.closest('a') && mq.matches) setNav(false); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape' && nav.classList.contains('open')) setNav(false); });
+  mq.addEventListener && mq.addEventListener('change',function(){ if(!mq.matches) setNav(false); });
+
+  // ---- scroll-spy ----
+  var links=[].slice.call(nav.querySelectorAll('#navlist a[href^="#"]')).filter(function(a){return !a.closest('.grp')});
+  var targets=links.map(function(a){return document.getElementById(a.getAttribute('href').slice(1))});
+  var last=-1;
+  function spy(){
+    var best=0, y=window.scrollY+110;
+    targets.forEach(function(t,i){ if(t && t.getBoundingClientRect().top+window.scrollY<=y) best=i; });
+    if(window.innerHeight+window.scrollY>=document.documentElement.scrollHeight-4) best=links.length-1;
+    if(best===last) return; last=best;
+    links.forEach(function(a,i){a.classList.toggle('active',i===best)});
+    if(!mq.matches){
+      var a=links[best], r=a.getBoundingClientRect(), nr=nav.getBoundingClientRect();
+      if(r.top<nr.top+60||r.bottom>nr.bottom-30) nav.scrollTo({top:a.offsetTop-nav.clientHeight/2,behavior:'smooth'});
+    }
+  }
+  var tt=document.getElementById('totop'), tick=false;
+  window.addEventListener('scroll',function(){
+    if(!tick){tick=true;requestAnimationFrame(function(){spy();tick=false})}
+    tt.classList.toggle('show',window.scrollY>700);
+  },{passive:true});
+  spy();
+  tt.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'})});
+
+  // ---- menu filter ----
+  var s=document.getElementById('navsearch'), nm=document.getElementById('nomatch');
+  s.addEventListener('input',function(){
+    var q=s.value.toLowerCase().trim(), shown=0;
+    [].forEach.call(document.querySelectorAll('#navlist li'),function(li){
+      var hit=q==='' || li.textContent.toLowerCase().indexOf(q)!==-1;
+      li.classList.toggle('hide',!hit); if(hit && !li.classList.contains('grp')) shown++;
+    });
+    nm.hidden=shown>0;
+  });
+
+  // ---- screenshot lightbox ----
+  var lb=document.getElementById('lb'), img=document.getElementById('lbImg'), cap=document.getElementById('lbCap');
+  function open(i){
+    var fc=i.closest('figure').querySelector('figcaption');
+    img.src=i.src; img.alt=i.alt;
+    cap.textContent=(fc?fc.textContent:i.alt)+(window.matchMedia('(max-width:700px)').matches?'  ·  Drag to look around.':'');
+    if(lb.showModal){ lb.showModal(); lb.querySelector('.lb-inner').scrollTo(0,0); } else { window.open(i.src,'_blank'); }
+  }
+  [].forEach.call(document.querySelectorAll('main figure img'),function(i){
+    i.setAttribute('tabindex','0'); i.setAttribute('role','button');
+    i.setAttribute('loading','lazy'); i.setAttribute('decoding','async');
+    i.addEventListener('click',function(){open(i)});
+    i.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){e.preventDefault();open(i)} });
+  });
+  lb.addEventListener('click',function(e){ if(e.target!==img) lb.close(); });
+  img.addEventListener('click',function(){ if(!window.matchMedia('(max-width:700px)').matches) lb.close(); });
+  document.getElementById('lbClose').addEventListener('click',function(){lb.close()});
+})();
+</script>
+</body>
+</html>

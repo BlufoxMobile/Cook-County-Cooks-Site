@@ -221,7 +221,7 @@ export const HOTSPOTS = {
     { slug:'training-xfinity',      kind:'tool', x:18.2, y:42.0, w:3.1, h:16.0, label:'Xfinity Product Mastery' },
     { slug:'training-straight-line',kind:'tool', x:21.6, y:42.0, w:3.3, h:16.0, label:'Sales Process 101' },
     { slug:'training-tsheet',       kind:'tool', x:25.1, y:42.0, w:3.3, h:16.0, label:'The Plus-First Playbook' },
-    { slug:'training-pos',          kind:'tool', x:28.5, y:42.0, w:1.9, h:16.0, label:'Celestial Point of Sale' },
+    { slug:'training-pos',          kind:'tool', x:28.5, y:42.0, w:1.9, h:16.0, label:'Celestial Job Aid' },
 
     /* THE ARCADE CABINET — and it opens the ARCADE now, not one game.
        The client asked for "a Cook County Cooks Arcade section in the breakroom
