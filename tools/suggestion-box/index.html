@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <meta name="referrer" content="no-referrer">
+  <title>Suggestion Box | Cook County Cooks</title>
+  <!-- Self-hosted fonts (same files as the site). build/fingerprint.mjs rewrites
+       these names to their hashed copies — tools/suggestion-box is in HTML_FILES. -->
+  <style>
+    @font-face { font-family: 'Archivo'; font-style: normal; font-weight: 300 700; font-stretch: 62% 125%; font-display: swap;
+      src: url(../../assets/fonts/archivo-latin.e3a28eade2.woff2) format('woff2'); }
+    @font-face { font-family: 'Bodoni Moda'; font-style: normal; font-weight: 400 900; font-display: swap;
+      src: url(../../assets/fonts/bodoni-moda-latin.c032219ef6.woff2) format('woff2'); }
+    @font-face { font-family: 'Bodoni Moda'; font-style: italic; font-weight: 400 700; font-display: swap;
+      src: url(../../assets/fonts/bodoni-moda-italic-latin.b737328c13.woff2) format('woff2'); }
+  </style>
+  <style>
+    :root{
+      --ink-950:#05070a; --ink-900:#090d13; --ink-850:#0d131b; --ink-800:#131a24; --ink-700:#1b2430; --ink-600:#2a3542;
+      --bone:#f4efe6; --bone-dim:#b9b1a3; --muted:#8c96a4;
+      --brass:#c8973f; --brass-hi:#e2b866; --amber:#f7b955; --lcd:#8ef0d0; --alert:#ff6f57;
+      --r:14px;
+      --serif:'Bodoni Moda', Georgia, 'Times New Roman', serif;
+      --sans:'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    }
+    *{ box-sizing:border-box; margin:0; }
+    html{ -webkit-text-size-adjust:100%; }
+    body{
+      min-height:100vh; min-height:100svh;
+      background:
+        radial-gradient(1200px 600px at 50% -10%, rgba(200,151,63,.16), transparent 60%),
+        radial-gradient(900px 500px at 100% 110%, rgba(142,240,208,.05), transparent 60%),
+        var(--ink-900);
+      color:var(--bone); font:400 16px/1.55 var(--sans);
+      display:flex; justify-content:center;
+      padding:clamp(20px,5vw,56px) 16px calc(40px + env(safe-area-inset-bottom));
+    }
+    .wrap{ width:100%; max-width:680px; }
+
+    /* ── the box ─────────────────────────────────────────── */
+    .slot{
+      position:relative; height:54px; margin:0 auto -1px; width:min(100%,560px);
+      background:linear-gradient(#2a2117,#1a140d); border:1px solid #4a3a24; border-bottom:0;
+      border-radius:12px 12px 0 0; display:grid; place-items:center;
+    }
+    .slot::before{ /* the mail slot */
+      content:""; width:58%; height:10px; border-radius:6px;
+      background:#050403; box-shadow:inset 0 2px 4px rgba(0,0,0,.9), 0 1px 0 rgba(226,184,102,.25);
+    }
+    .slot .plate{
+      position:absolute; left:50%; bottom:-13px; transform:translateX(-50%);
+      font:700 10px/1 var(--sans); letter-spacing:.28em; text-transform:uppercase;
+      color:#1a140d; background:linear-gradient(var(--brass-hi),var(--brass)); padding:6px 12px 5px; border-radius:3px;
+      box-shadow:0 1px 0 rgba(255,255,255,.25) inset, 0 2px 6px rgba(0,0,0,.5); white-space:nowrap; z-index:2;
+    }
+    .slip{ transition:transform .7s cubic-bezier(.6,-0.2,.4,1), opacity .5s ease .25s; }
+    .card{
+      background:linear-gradient(180deg,var(--ink-800),var(--ink-850));
+      border:1px solid var(--ink-600); border-radius:var(--r);
+      box-shadow:0 30px 60px -30px rgba(0,0,0,.8);
+      padding:clamp(26px,5vw,42px) clamp(18px,5vw,40px) clamp(22px,4vw,34px);
+    }
+
+    .eyebrow{ font:700 11px/1.2 var(--sans); letter-spacing:.24em; text-transform:uppercase; color:var(--brass-hi); }
+    h1{ font:600 clamp(30px,6vw,44px)/1.08 var(--serif); letter-spacing:-.01em; margin-top:10px; }
+    h1 em{ font-style:italic; color:var(--brass-hi); }
+    .lede{ color:var(--bone-dim); margin-top:12px; max-width:52ch; }
+
+    .promise{
+      display:flex; gap:12px; align-items:flex-start; margin-top:20px;
+      background:rgba(142,240,208,.06); border:1px solid rgba(142,240,208,.22); border-radius:10px; padding:12px 14px;
+      font-size:14px; color:#cfeee4;
+    }
+    .promise svg{ flex:none; margin-top:2px; }
+
+    fieldset{ border:0; padding:0; margin-top:28px; }
+    legend, .label{ font:700 13px/1.2 var(--sans); letter-spacing:.08em; text-transform:uppercase; color:var(--bone); margin-bottom:12px; padding:0; }
+    .label-row{ display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin:28px 0 10px; flex-wrap:wrap; }
+    .label-row .label{ margin:0; }
+
+    .chips{ display:flex; flex-wrap:wrap; gap:8px; }
+    .chip{ position:relative; }
+    .chip input{ position:absolute; opacity:0; inset:0; margin:0; cursor:pointer; }
+    .chip span{
+      display:inline-flex; align-items:center; min-height:44px; padding:0 16px; border-radius:999px;
+      border:1px solid var(--ink-600); background:var(--ink-700); color:var(--bone-dim);
+      font:500 14px/1 var(--sans); transition:background .15s, border-color .15s, color .15s; user-select:none;
+    }
+    .chip input:hover + span{ border-color:#45525f; color:var(--bone); }
+    .chip input:checked + span{ background:rgba(200,151,63,.16); border-color:var(--brass); color:var(--bone); }
+    .chip input:focus-visible + span{ outline:2px solid var(--brass-hi); outline-offset:2px; }
+
+    .starter{
+      appearance:none; border:0; background:none; color:var(--brass-hi); cursor:pointer;
+      font:600 13px/1 var(--sans); padding:10px 0; min-height:44px; text-decoration:underline; text-underline-offset:3px;
+    }
+    .starter:hover{ color:var(--amber); }
+    .starter:focus-visible{ outline:2px solid var(--brass-hi); outline-offset:2px; border-radius:4px; }
+
+    textarea{
+      width:100%; min-height:200px; resize:vertical; display:block;
+      background:var(--ink-950); color:var(--bone); border:1px solid var(--ink-600); border-radius:10px;
+      padding:14px 16px; font:400 16px/1.6 var(--sans); /* 16px: no iOS zoom on focus */
+    }
+    textarea::placeholder{ color:#5f6a78; }
+    textarea:focus{ outline:none; border-color:var(--brass); box-shadow:0 0 0 3px rgba(200,151,63,.22); }
+    .meta{ display:flex; justify-content:space-between; gap:12px; margin-top:8px; font-size:13px; color:var(--muted); flex-wrap:wrap; }
+    .meta .count.warn{ color:var(--amber); }
+
+    .hp{ position:absolute !important; left:-9999px !important; width:1px; height:1px; overflow:hidden; }
+
+    .actions{ display:flex; align-items:center; gap:16px; margin-top:24px; flex-wrap:wrap; }
+    .send{
+      appearance:none; border:0; cursor:pointer; min-height:52px; padding:0 28px; border-radius:10px;
+      background:linear-gradient(var(--brass-hi),var(--brass)); color:#17110a;
+      font:700 16px/1 var(--sans); letter-spacing:.02em;
+      box-shadow:0 1px 0 rgba(255,255,255,.3) inset, 0 10px 24px -10px rgba(200,151,63,.6);
+      display:inline-flex; align-items:center; gap:10px;
+    }
+    .send:hover{ filter:brightness(1.06); }
+    .send:focus-visible{ outline:2px solid var(--bone); outline-offset:3px; }
+    .send[disabled]{ opacity:.55; cursor:not-allowed; filter:none; }
+    .hint{ font-size:13px; color:var(--muted); }
+    .err{ display:none; margin-top:16px; padding:12px 14px; border-radius:10px; border:1px solid rgba(255,111,87,.4); background:rgba(255,111,87,.08); color:#ffc2b6; font-size:14px; }
+    .err.on{ display:block; }
+
+    /* ── sent state ──────────────────────────────────────── */
+    .done{ display:none; text-align:center; padding:12px 0 6px; }
+    .done .tick{ width:64px; height:64px; margin:4px auto 14px; border-radius:50%; display:grid; place-items:center;
+      background:rgba(142,240,208,.1); border:1px solid rgba(142,240,208,.35); }
+    .done h2{ font:600 clamp(26px,5vw,34px)/1.15 var(--serif); }
+    .done p{ color:var(--bone-dim); margin:10px auto 0; max-width:44ch; }
+    .again{ appearance:none; cursor:pointer; margin-top:22px; min-height:48px; padding:0 22px; border-radius:10px;
+      background:transparent; border:1px solid var(--ink-600); color:var(--bone); font:600 15px/1 var(--sans); }
+    .again:hover{ border-color:var(--brass); }
+    .again:focus-visible{ outline:2px solid var(--brass-hi); outline-offset:2px; }
+
+    body.dropping .slip{ transform:translateY(-70px) scale(.92,.15); opacity:0; }
+    body.sent .form{ display:none; }
+    body.sent .done{ display:block; animation:rise .5s ease both; }
+    @keyframes rise{ from{ opacity:0; transform:translateY(10px); } to{ opacity:1; transform:none; } }
+
+    .foot{ text-align:center; margin-top:22px; font-size:12px; color:#5f6a78; }
+
+    @media (max-width:480px){
+      .chip span{ padding:0 14px; font-size:13.5px; }
+      .send{ width:100%; justify-content:center; }
+    }
+    @media (prefers-reduced-motion:reduce){
+      .slip, body.sent .done{ transition:none; animation:none; }
+      body.dropping .slip{ transform:none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="slot" aria-hidden="true"><span class="plate">Suggestion Box</span></div>
+    <div class="card">
+      <div class="form slip">
+        <div class="eyebrow">Anonymous &middot; Straight to Jeff</div>
+        <h1>Got an idea? <em>Drop it in the box.</em></h1>
+        <p class="lede">Something slowing your store down, a promo that isn't landing, a tool that could be better, someone who deserves a shout-out &mdash; say it here.</p>
+
+        <div class="promise">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8ef0d0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg>
+          <div><strong>Truly anonymous.</strong> No name, no store, no login, and nothing about your phone or computer is sent &mdash; just the topic and your words. Leave out details that would point back to you.</div>
+        </div>
+
+        <form id="box" novalidate>
+          <fieldset>
+            <legend>What's it about?</legend>
+            <div class="chips" role="radiogroup">
+              <label class="chip"><input type="radio" name="topic" value="store-ops" checked><span>Store Operations</span></label>
+              <label class="chip"><input type="radio" name="topic" value="sales"><span>Sales &amp; Promos</span></label>
+              <label class="chip"><input type="radio" name="topic" value="tools"><span>Tools &amp; Website</span></label>
+              <label class="chip"><input type="radio" name="topic" value="scheduling"><span>Scheduling</span></label>
+              <label class="chip"><input type="radio" name="topic" value="training"><span>Training</span></label>
+              <label class="chip"><input type="radio" name="topic" value="recognition"><span>Recognition</span></label>
+              <label class="chip"><input type="radio" name="topic" value="other"><span>Other</span></label>
+            </div>
+          </fieldset>
+
+          <div class="label-row">
+            <label class="label" for="suggestion">Your suggestion</label>
+            <button type="button" class="starter" id="starter">Not sure how to start? Use a template</button>
+          </div>
+          <textarea id="suggestion" name="suggestion" maxlength="4000" required
+            placeholder="It would help if…"></textarea>
+          <div class="meta"><span>Be specific &mdash; what's happening, and what would make it better.</span><span class="count" id="count">0 / 4000</span></div>
+
+          <!-- honeypot: hidden from people, filled by bots, dropped by the Zap -->
+          <div class="hp" aria-hidden="true"><label>Website <input type="text" name="website" id="website" tabindex="-1" autocomplete="off"></label></div>
+
+          <div class="actions">
+            <button type="submit" class="send" id="send" disabled>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+              <span id="sendLabel">Drop it in the box</span>
+            </button>
+            <span class="hint" id="hint">Write a few words to send.</span>
+          </div>
+          <div class="err" id="err" role="alert"></div>
+        </form>
+      </div>
+
+      <div class="done" id="done" aria-live="polite" tabindex="-1">
+        <div class="tick"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#8ef0d0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+        <h2>It's in the box.</h2>
+        <p>Thanks for speaking up. Jeff reads every one &mdash; and since nobody knows who sent it, watch for the answer on a call or in a team email.</p>
+        <button type="button" class="again" id="again">Drop in another</button>
+      </div>
+    </div>
+    <p class="foot">C&sup3; Suggestion Box &middot; Cook County Cooks</p>
+  </main>
+
+  <script>
+  (function () {
+    'use strict';
+    // Zapier catch hook — "Anonymous Suggestion Box — cookcountycooks.com"
+    // (workflow 01a0fdd6-af59-7897-b7e7-45b9fa789360). The Zap emails Jeff.
+    var HOOK = 'https://hooks.zapier.com/hooks/catch/20441079/Fl8de5gv1mE0Y65i/';
+    var MAX = 4000;
+    var TEMPLATE = "What's getting in the way:\n\n\nMy idea:\n\n\nWhy it would help:\n";
+
+    var form = document.getElementById('box');
+    var ta = document.getElementById('suggestion');
+    var count = document.getElementById('count');
+    var send = document.getElementById('send');
+    var sendLabel = document.getElementById('sendLabel');
+    var hint = document.getElementById('hint');
+    var err = document.getElementById('err');
+    var done = document.getElementById('done');
+    var opened = Date.now();
+    var busy = false;
+
+    function meaningful() {
+      // the template's own headings don't count as a suggestion
+      var t = ta.value;
+      ["What's getting in the way:", 'My idea:', 'Why it would help:'].forEach(function (h) { t = t.split(h).join(''); });
+      return t.trim().length >= 3;
+    }
+    function refresh() {
+      var n = ta.value.length;
+      count.textContent = n + ' / ' + MAX;
+      count.classList.toggle('warn', n > MAX * 0.9);
+      var ok = meaningful();
+      send.disabled = !ok || busy;
+      hint.textContent = ok ? 'Nothing that identifies you is sent.' : 'Write a few words to send.';
+    }
+    ta.addEventListener('input', refresh);
+
+    document.getElementById('starter').addEventListener('click', function () {
+      if (!ta.value.trim()) ta.value = TEMPLATE;
+      else if (ta.value.indexOf('My idea:') === -1) ta.value = TEMPLATE + '\n' + ta.value;
+      ta.focus();
+      var at = ta.value.indexOf('\n') + 1;           // cursor under the first heading
+      ta.setSelectionRange(at, at);
+      refresh();
+    });
+
+    function post(body) {
+      // form-encoded = a CORS "simple request" (no preflight). Zapier answers
+      // with Access-Control-Allow-Origin: *, so the response is readable.
+      return fetch(HOOK, {
+        method: 'POST',
+        body: body,
+        credentials: 'omit',
+        referrerPolicy: 'no-referrer',
+        cache: 'no-store'
+      }).then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r;
+      });
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (busy || !meaningful()) return;
+      busy = true; refresh();
+      err.classList.remove('on');
+      sendLabel.textContent = 'Sending…';
+      var topic = (form.querySelector('input[name="topic"]:checked') || {}).value || 'other';
+      var body = new URLSearchParams();
+      body.set('topic', topic);
+      // drop any template heading that was left empty
+      var H = "(?:What's getting in the way:|My idea:|Why it would help:)";
+      var text = ta.value.replace(new RegExp(H + '\\s*(?=' + H + '|$)', 'g'), '').trim();
+      body.set('suggestion', text.slice(0, MAX));
+      body.set('website', document.getElementById('website').value);
+      body.set('elapsed', String(Date.now() - opened));
+
+      post(body).then(function () {
+        var still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+        document.body.classList.add('dropping');
+        setTimeout(function () {
+          document.body.classList.remove('dropping');
+          document.body.classList.add('sent');
+          window.scrollTo(0, 0);
+          try { done.focus({ preventScroll: true }); } catch (_) { done.focus(); }
+        }, still ? 0 : 650);
+      }).catch(function () {
+        err.textContent = "That didn't go through — check your connection and try again. Your words are still here.";
+        err.classList.add('on');
+      }).then(function () {
+        busy = false;
+        sendLabel.textContent = 'Drop it in the box';
+        refresh();
+      });
+    });
+
+    document.getElementById('again').addEventListener('click', function () {
+      ta.value = '';
+      opened = Date.now();
+      document.body.classList.remove('sent');
+      refresh();
+      ta.focus();
+    });
+
+    refresh();
+  })();
+  </script>
+</body>
+</html>

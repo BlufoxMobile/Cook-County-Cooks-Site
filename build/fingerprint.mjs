@@ -184,7 +184,11 @@ const HTML_FILES = ['index.html', ...listDir('tools/printouts', ['.html']),
      Oct 2026). Same reason as printouts: its <head> names the site's self-hosted
      ../../assets/fonts/*.woff2. Its screenshots (shots/<hash>.webp) are already
      content-named, so they are NOT fingerprinted here. */
-  ...listDir('tools/celestial-job-aid', ['.html'])];
+  ...listDir('tools/celestial-job-aid', ['.html']),
+  /* tools/suggestion-box — the anonymous Suggestion Box (Break Room chip, Oct 2026).
+     Same reason: its <head> names ../../assets/fonts/*.woff2. It POSTs to a Zapier
+     catch hook; the Zap ("Anonymous Suggestion Box — cookcountycooks.com") emails Jeff. */
+  ...listDir('tools/suggestion-box', ['.html'])];
   /* tools/casino is NOT in this list any more (2026-09-26). v29 put it here because
      its <head> named the SITE's fonts as ../../assets/fonts/*.woff2. Casino v2
      (9/25) ships its own copies at tools/casino/assets/fonts/ and names them
