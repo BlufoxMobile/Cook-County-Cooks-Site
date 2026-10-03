@@ -219,8 +219,7 @@ export const HOTSPOTS = {
        p 0-0.5 (f1a/railclash.py). engine.js flips a label above its object
        wherever the label would land on a room's type. */
     { slug:'training-xfinity',      kind:'tool', x:18.2, y:42.0, w:3.1, h:16.0, label:'Xfinity Product Mastery' },
-    { slug:'training-straight-line',kind:'tool', x:21.6, y:42.0, w:3.3, h:16.0, label:'Sales Process 101' },
-    { slug:'training-tsheet',       kind:'tool', x:25.1, y:42.0, w:3.3, h:16.0, label:'The Plus-First Playbook' },
+    { slug:'csg-how-to',            kind:'tool', x:21.6, y:42.0, w:3.3, h:16.0, label:'CSG How To' },
     { slug:'training-pos',          kind:'tool', x:28.5, y:42.0, w:1.9, h:16.0, label:'Celestial Job Aid' },
 
     /* THE ARCADE CABINET — and it opens the ARCADE now, not one game.
