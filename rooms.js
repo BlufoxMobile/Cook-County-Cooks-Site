@@ -108,6 +108,7 @@ export const HOTSPOTS = {
     { slug:'credit-limit',  kind:'tool', x:35.0, y:33.5, w:7.5, h:11.0, label:'Credit Limit Increase' },
     { slug:'bapis',         kind:'tool', x:43.5, y:34.5, w:6.5, h:10.0, label:'BAPIS — Scan, Pack & Pick Up' },
     { slug:'bp-access',     kind:'tool', x:51.0, y:35.0, w:5.0, h: 9.0, label:'Report BP Access Issues' },
+    { slug:'internet-essentials', kind:'tool', x:56.2, y:36.5, w:4.4, h:10.2, label:'Internet Essentials — Agent Portal' },
   ],
   office: [
     /* THE BACK OFFICE MONITOR — days since the last detractor, one district per
