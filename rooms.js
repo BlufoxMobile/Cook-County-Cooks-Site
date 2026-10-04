@@ -106,7 +106,7 @@ export const HOTSPOTS = {
   prep: [
     { slug:'porting-guide', kind:'tool', x:24.0, y:33.5, w:9.0, h:12.0, label:'PortPro — Porting Guide' },
     { slug:'credit-limit',  kind:'tool', x:35.0, y:33.5, w:7.5, h:11.0, label:'Credit Limit Increase' },
-    { slug:'bapis',         kind:'tool', x:43.5, y:34.5, w:6.5, h:10.0, label:'Online Order Processing' },
+    { slug:'bapis',         kind:'tool', x:43.5, y:34.5, w:6.5, h:10.0, label:'BAPIS — Scan, Pack & Pick Up' },
     { slug:'bp-access',     kind:'tool', x:51.0, y:35.0, w:5.0, h: 9.0, label:'Report BP Access Issues' },
   ],
   office: [
