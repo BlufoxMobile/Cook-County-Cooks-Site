@@ -192,7 +192,11 @@ const HTML_FILES = ['index.html', ...listDir('tools/printouts', ['.html']),
   /* tools/bapis — BAPIS Scan, Pack & Pick Up (Prep Station recipe-card-3, Oct 2026),
      built from Celestial COMMS538 in the CSG How To design. Same reason: its <head>
      names ../../assets/fonts/*.woff2. Its shots/<hash>.webp are content-named already. */
-  ...listDir('tools/bapis', ['.html'])];
+  ...listDir('tools/bapis', ['.html']),
+  /* tools/internet-essentials — Internet Essentials Agent Portal guide (Prep Station
+     recipe-card-5, Oct 2026), CSG How To design. Same reason: its <head> names
+     ../../assets/fonts/*.woff2. Its shots/<hash>.webp are content-named already. */
+  ...listDir('tools/internet-essentials', ['.html'])];
   /* tools/casino is NOT in this list any more (2026-09-26). v29 put it here because
      its <head> named the SITE's fonts as ../../assets/fonts/*.woff2. Casino v2
      (9/25) ships its own copies at tools/casino/assets/fonts/ and names them
