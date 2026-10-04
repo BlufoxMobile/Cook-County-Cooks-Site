@@ -162,11 +162,11 @@ const SURFACES = [
     paper: [224, 213, 198], ramp: [0.007, 0.024],
     lines: ['Credit Limit', 'Increase'], meta: 'Tap to open' },
 
-  { slug: 'bapis', snap: true,          room: 'prep',   surface: 'card',
+  { slug: 'exception-report', snap: true, room: 'prep', surface: 'card',
     quad: [[43.12, 35.75], [49.05, 36.42], [49.12, 46.72], [43.48, 46.80]],
     zone: [0.10, 0.26, 0.93, 0.73],    align: 'start',
     paper: [228, 219, 209], ramp: [-0.019, 0.044],
-    kicker: 'BAPIS', lines: ['Scan, Pack', '& Pick Up'], meta: 'Tap to open' },
+    lines: ['Exception', 'Report'], meta: 'Tap to open' },
 
   { slug: 'bp-access', snap: true,      room: 'prep',   surface: 'card',
     quad: [[50.50, 36.79], [55.26, 37.31], [55.30, 46.80], [50.54, 46.88]],
@@ -182,11 +182,11 @@ const SURFACES = [
      guide: the rail recedes, so it is the narrowest sheet yet (~4.1% of the
      plate). Same treatment as bp-access — short lines, no rule. Quad traced
      on the edited prep.webp; the dark plate's card sits on the same pixels. */
-  { slug: 'internet-essentials', snap: true, room: 'prep', surface: 'card',
+  { slug: 'fall-off', snap: true,       room: 'prep',   surface: 'card',
     quad: [[56.38, 37.69], [60.49, 37.93], [60.42, 46.47], [56.36, 46.57]],
     zone: [0.11, 0.24, 0.96, 0.71],    align: 'start',
     paper: [225, 217, 207], ramp: [-0.030, 0.018],
-    lines: ['Internet', 'Essentials', 'Portal'], rule: false },
+    lines: ['Fall-Off', 'Summary'], rule: false },
 
   /* ── BACK OFFICE · two clipboards on wall hooks ────────────────────────────
      The camera is off to the left of this wall, so horizontals converge hard:
@@ -194,13 +194,16 @@ const SURFACES = [
      their side edges stay within 1.5° of vertical. That is a shear, not a
      rotation, and the four-corner fit resolves it as one. Blank white stock, so
      these two get faint pre-printed form rules of their own under the title. */
-  { slug: 'exception-report', room: 'office', surface: 'clipboard',
+  /* v39 (2026-10-04): the client traded these two with the prep rail's 3rd and
+     5th tickets — BAPIS and Internet Essentials hang here now, Exception Report
+     and Fall-Off Summary went to the rail. Geometry is the object's, unchanged. */
+  { slug: 'bapis',            room: 'office', surface: 'clipboard',
     quad: [[85.92, 37.91], [89.96, 36.79], [88.54, 56.72], [85.58, 56.34]],
     zone: [0.11, 0.09, 0.89, 0.60],    align: 'start',
     paper: [226, 181, 151], ramp: [-0.017, 0.074],
-    lines: ['Exception', 'Report'], meta: 'Tap to open', rules: 0.62 },
+    lines: ['BAPIS', 'Pick Up'], meta: 'Tap to open', rules: 0.62 },
 
-  { slug: 'fall-off',        room: 'office', surface: 'clipboard',
+  { slug: 'internet-essentials', room: 'office', surface: 'clipboard',
     quad: [[91.54, 36.19], [97.46, 34.4], [97.12, 58.58], [91.46, 50.97]],
     /* v30: centred like its neighbour's. The writing area used to be pulled
        left of centre (u 0.06-0.82) because the plate's right edge cut this
@@ -210,7 +213,7 @@ const SURFACES = [
        words sit on the middle of the sheet again. */
     zone: [0.11, 0.09, 0.89, 0.60],    align: 'start',
     paper: [222, 181, 155], ramp: [-0.066, -0.068],
-    lines: ['Fall-Off', 'Summary'], meta: 'Tap to open', rules: 0.5 },
+    lines: ['Internet', 'Essentials', 'Portal'], meta: 'Tap to open', rules: 0.5 },
 
   /* The sheet standing in the printer's output tray. It is tipped back and lit
      hard from the upper left — it loses 28% of its light across its width and
