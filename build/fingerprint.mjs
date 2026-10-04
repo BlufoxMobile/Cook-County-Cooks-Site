@@ -201,6 +201,12 @@ const HTML_FILES = ['index.html', ...listDir('tools/printouts', ['.html']),
      Oct 2026), CSG How To design. Same reason: its <head> names ../../assets/fonts/*.woff2.
      Its shots/<hash>.webp|svg are content-named already. */
   ...listDir('tools/esim-activation', ['.html'])];
+  /* tools/request-access (Prep Station recipe-card-4, Oct 2026) is deliberately NOT in
+     this list. Like tools/csg-how-to it is one passcode-locked file whose ~2.8 MB
+     encrypted PAYLOAD sits on a single line, and the literal rewriter's backtracking
+     regex never returns on it (measured: fingerprint hung >2.5 min). Its <head> already
+     names the content-hashed fonts (archivo-latin.e3a28eade2 etc.), which only change
+     if the font bytes change — rebuild that file if they ever do. */
   /* tools/casino is NOT in this list any more (2026-09-26). v29 put it here because
      its <head> named the SITE's fonts as ../../assets/fonts/*.woff2. Casino v2
      (9/25) ships its own copies at tools/casino/assets/fonts/ and names them
