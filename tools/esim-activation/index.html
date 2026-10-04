@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="theme-color" content="#000000">
+<title>eSIM Xfinity Mobile Activation Guide</title>
+<style>
+  @font-face { font-family: 'Archivo'; font-style: normal; font-weight: 300 700; font-stretch: 62% 125%; font-display: swap;
+    src: url(../../assets/fonts/archivo-latin.e3a28eade2.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'Bodoni Moda'; font-style: normal; font-weight: 400 900; font-display: swap;
+    src: url(../../assets/fonts/bodoni-moda-latin.c032219ef6.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'Bodoni Moda'; font-style: italic; font-weight: 400 700; font-display: swap;
+    src: url(../../assets/fonts/bodoni-moda-italic-latin.b737328c13.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+</style>
+<style>
+/* Same design system as tools/csg-how-to (CSG How To Guides), so the guides read as one set.
+   Accent is Xfinity Mobile violet. Built from tools/internet-essentials (Oct 2026). */
+:root{
+  --ink:#000;--ink-1:#07090c;--ink-2:#0d1116;--ink-3:#151b22;
+  --line:rgba(255,255,255,.08);--line-2:rgba(255,255,255,.14);
+  --text:#f2efe8;--text-2:#b9b4aa;--text-3:#7d7a74;
+  --brass:#d4a94f;--brass-2:#f0cf86;--brass-dim:rgba(212,169,79,.16);
+  --c:#b79cff;
+  --warn:#ff8a65;--ok:#5be3a0;
+  --display:'Bodoni Moda',Didot,'Times New Roman',serif;
+  --sans:'Archivo',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:ui-monospace,'JetBrains Mono',Consolas,monospace;
+  --r:4px;--gut:16px;--max:1180px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:190px}
+body{margin:0;background:var(--ink);color:var(--text);font:400 16px/1.6 var(--sans);-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(900px 500px at 85% -10%,rgba(92,200,255,.10),transparent 60%),radial-gradient(700px 500px at -10% 110%,rgba(212,169,79,.07),transparent 60%)}
+a{color:inherit}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--brass-2);outline-offset:2px;border-radius:2px}
+.wrap{position:relative;z-index:1;max-width:var(--max);margin:0 auto;padding:0 var(--gut)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.hair{height:1px;background:linear-gradient(90deg,transparent,var(--c) 20%,var(--c) 80%,transparent);opacity:.45}
+
+/* ---------- header ---------- */
+header.top{position:sticky;top:0;z-index:20;background:rgba(0,0,0,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:14px;height:64px}
+.brand{display:flex;align-items:baseline;gap:10px;text-decoration:none;white-space:nowrap}
+.brand b{font:700 24px/1 var(--display)}
+.brand b em{color:var(--c)}
+.brand span{font:600 10px/1 var(--sans);letter-spacing:.28em;text-transform:uppercase;color:var(--text-3)}
+.search{position:relative;flex:1;max-width:520px;margin-left:auto}
+.search input{width:100%;height:44px;padding:0 44px 0 42px;background:var(--ink-2);border:0;box-shadow:inset 0 0 0 1px var(--line-2);border-radius:999px;color:var(--text);font:500 15px var(--sans)}
+.search input::placeholder{color:var(--text-3)}
+.search input:focus{outline:none;box-shadow:inset 0 0 0 1px var(--c)}
+.search input::-webkit-search-cancel-button{display:none}
+.search svg{position:absolute;left:15px;top:13px;width:18px;height:18px;stroke:var(--text-3)}
+.search kbd{position:absolute;right:12px;top:11px;font:500 11px var(--mono);color:var(--text-3);border:1px solid var(--line-2);border-radius:4px;padding:2px 6px}
+.search .clear{position:absolute;right:6px;top:4px;width:36px;height:36px;border-radius:50%;color:var(--text-2);display:none;font-size:20px}
+.search.has .clear{display:block}.search.has kbd{display:none}
+nav.cats{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 0 12px}
+nav.cats::-webkit-scrollbar{display:none}
+nav.cats a{flex:none;display:flex;align-items:center;gap:8px;height:38px;padding:0 16px;border-radius:999px;text-decoration:none;color:var(--text-2);font:600 14px var(--sans);box-shadow:inset 0 0 0 1px var(--line);transition:.15s}
+nav.cats a i{font:700 11px var(--sans);font-style:normal;color:var(--c);letter-spacing:.06em}
+nav.cats a:hover{color:var(--text);box-shadow:inset 0 0 0 1px var(--line-2)}
+nav.cats a[aria-current]{color:#000;background:var(--c);box-shadow:none}
+nav.cats a[aria-current] i{color:#000}
+
+/* ---------- guide page ---------- */
+.g-head{padding:44px 0 28px}
+.eyebrow{font:600 12px/1 var(--sans);letter-spacing:.28em;text-transform:uppercase;color:var(--c)}
+.g-head h1{font:700 clamp(38px,7vw,76px)/1 var(--display);margin:14px 0 16px;max-width:18ch;letter-spacing:-.012em}
+.g-head h1 em{background:linear-gradient(100deg,var(--c) 0%,#dccfff 40%,#f6f2ff 50%,#dccfff 60%,var(--c) 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sheen 5s ease-in-out infinite;font-style:italic}
+@keyframes sheen{0%,100%{background-position:100% 0}50%{background-position:0 0}}
+.g-head .sum{font-size:18px;color:var(--text-2);max-width:62ch;margin:0}
+.g-head .meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:18px}
+.tag{font:600 11px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;padding:5px 8px;border-radius:3px;background:var(--ink-3);color:var(--text-2)}
+.layout{display:grid;grid-template-columns:1fr;gap:32px;padding:28px 0 80px}
+@media(min-width:980px){.layout{grid-template-columns:minmax(0,1fr) 260px}}
+.toc{display:none}
+@media(min-width:980px){.toc{display:block;position:sticky;top:140px;align-self:start}}
+.toc h5{margin:0 0 10px;font:600 11px var(--sans);letter-spacing:.24em;text-transform:uppercase;color:var(--text-3)}
+.toc a{display:flex;justify-content:space-between;gap:8px;padding:7px 0 7px 14px;border-left:1px solid var(--line-2);text-decoration:none;color:var(--text-2);font-size:14px;transition:color .15s,border-color .15s}
+.toc a small{color:var(--text-3);font-size:12px}
+.toc a:hover,.toc a.on{color:var(--text);border-color:var(--c)}
+.toc a.all small{color:var(--ok)}
+.g-sec{margin-bottom:44px}
+.g-sec h2{display:flex;align-items:center;gap:12px;font:700 28px/1.15 var(--display);margin:0 0 6px}
+.g-sec h2::before{content:"";flex:none;width:22px;height:2px;background:var(--c)}
+.g-sec .intro{color:var(--text-2);margin:0 0 18px}
+.g-sec .intro b{color:var(--text)}
+ol.steps{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+ol.steps>li{position:relative;display:grid;grid-template-columns:52px 1fr;gap:14px;padding:18px;border-radius:6px;background:var(--ink-1);box-shadow:inset 0 0 0 1px var(--line);transition:background .25s,box-shadow .25s,opacity .25s}
+ol.steps>li.hit{box-shadow:inset 0 0 0 1px var(--brass);animation:glow 1.6s}
+@keyframes glow{0%{background:rgba(212,169,79,.18)}100%{background:var(--ink-1)}}
+.step-body{min-width:0}
+.step-body .do{margin:8px 0 0;font-size:18px;line-height:1.5}
+.step-body code{font:500 .9em var(--mono);background:var(--ink-3);color:var(--brass-2);padding:2px 6px;border-radius:3px}
+.callout{margin-top:12px;padding:12px 14px;border-radius:4px;font-size:15px;background:var(--ink-2);box-shadow:inset 3px 0 0 var(--brass)}
+.callout.warn{box-shadow:inset 3px 0 0 var(--warn)}
+.callout .lbl{display:block;font:700 11px var(--sans);letter-spacing:.18em;text-transform:uppercase;margin-bottom:4px;color:var(--brass-2)}
+.callout.warn .lbl{color:var(--warn)}
+.callout a,.mrow a,.panel a{color:var(--brass-2)}
+.shots{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start}
+figure.shot{width:fit-content;max-width:100%;margin:14px 0 0;border-radius:6px;overflow:hidden;background:#e8ebef;box-shadow:0 0 0 1px var(--line-2),0 12px 40px rgba(0,0,0,.5);cursor:zoom-in;position:relative}
+figure.shot img{display:block;width:100%;height:auto;margin:0 auto;transition:transform .5s cubic-bezier(.16,1,.3,1)}
+figure.shot:hover img{transform:scale(1.015)}
+figure.shot figcaption{background:var(--ink-2);color:var(--text-3);font-size:13px;padding:8px 12px}
+figure.shot::after{content:"Tap to enlarge";position:absolute;right:10px;top:10px;font:600 11px var(--sans);letter-spacing:.08em;padding:5px 8px;border-radius:3px;background:rgba(0,0,0,.72);color:#fff;opacity:0;transition:.2s}
+figure.shot:hover::after{opacity:1}
+/* tall phone-camera shots read better side by side than stacked */
+@media(min-width:700px){.shots.pair figure.shot{max-width:calc(50% - 6px)}}
+.panel{padding:20px;border-radius:6px;background:var(--ink-1);box-shadow:inset 0 0 0 1px var(--line);margin-bottom:28px}
+.panel h3{margin:0 0 10px;font:700 22px var(--display)}
+.panel ul{margin:0;padding-left:20px;color:var(--text-2)}
+.panel li b{color:var(--text)}
+.panel li+li{margin-top:6px}
+.src{display:inline-flex;align-items:center;gap:8px;height:30px;padding:0 12px;border-radius:999px;text-decoration:none;font-weight:600;font-size:12px;box-shadow:inset 0 0 0 1px var(--line-2)}
+.src:hover{box-shadow:inset 0 0 0 1px var(--c);color:var(--c)}
+.tbl{margin-top:14px;border-radius:6px;overflow:auto;box-shadow:inset 0 0 0 1px var(--line)}
+.tbl table{width:100%;border-collapse:collapse;font-size:15px}
+.tbl th{text-align:left;font:600 11px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--c);background:var(--ink-2);padding:12px 14px;border-bottom:1px solid var(--line-2)}
+.tbl td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--text)}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tr.hit td{background:rgba(212,169,79,.16)}
+@media(max-width:640px){
+  .tbl{box-shadow:none;overflow:visible}
+  .tbl thead{display:none}
+  .tbl table,.tbl tbody,.tbl tr,.tbl td{display:block;width:100%}
+  .tbl tr{margin-bottom:10px;border-radius:6px;background:var(--ink-1);box-shadow:inset 0 0 0 1px var(--line);padding:6px 0}
+  .tbl td{border:0;padding:6px 14px}
+  .tbl td::before{content:attr(data-h);display:block;font:600 10px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+}
+
+/* ---------- search ---------- */
+.s-head{padding:40px 0 20px}
+.s-head h1{font:700 clamp(32px,5vw,48px)/1.1 var(--display);margin:10px 0 0}
+.s-head p{color:var(--text-2);margin:8px 0 0}
+.s-head button{margin-top:14px;color:var(--text-2);text-decoration:underline;font-size:14px}
+.hits{display:grid;gap:10px;padding-bottom:80px}
+a.hit{display:block;padding:18px;border-radius:6px;text-decoration:none;background:var(--ink-1);box-shadow:inset 0 0 0 1px var(--line)}
+a.hit:hover{background:var(--ink-2)}
+a.hit .where{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--c);font-weight:600}
+a.hit h4{margin:6px 0 4px;font:600 18px/1.3 var(--sans)}
+a.hit p{margin:0;color:var(--text-2);font-size:15px}
+mark{background:rgba(240,207,134,.25);color:var(--brass-2);border-radius:2px;padding:0 2px}
+
+/* ---------- motion ---------- */
+#view{view-transition-name:view}
+::view-transition-old(view){animation:vtOut .28s cubic-bezier(.4,0,1,1) both}
+::view-transition-new(view){animation:vtIn .55s cubic-bezier(.16,1,.3,1) both}
+@keyframes vtOut{to{opacity:0;transform:translateY(-14px) scale(.985);filter:blur(6px)}}
+@keyframes vtIn{from{opacity:0;transform:translateY(28px) scale(.975);filter:blur(10px)}}
+#view.enter{animation:vtIn .55s cubic-bezier(.16,1,.3,1) both}
+.rise{animation:rise .6s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(min(var(--i,0),14) * 45ms)}
+@keyframes rise{from{opacity:0;transform:translateY(22px) scale(.98)}}
+
+/* step check-offs */
+.num{position:relative;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;font:700 19px var(--display);color:#000;background:var(--c);transition:transform .2s cubic-bezier(.3,1.6,.5,1),background .2s}
+.num:hover{transform:scale(1.08)}
+.num svg{position:absolute;width:22px;height:22px;opacity:0;transform:scale(.4);transition:.25s cubic-bezier(.3,1.6,.5,1)}
+.num span{transition:.2s}
+li.done .num{background:var(--ok);animation:pop .45s cubic-bezier(.3,1.6,.5,1)}
+li.done .num span{opacity:0;transform:scale(.4)}
+li.done .num svg{opacity:1;transform:scale(1)}
+@keyframes pop{40%{transform:scale(1.25);box-shadow:0 0 0 10px rgba(91,227,160,.18)}}
+li.done{background:rgba(91,227,160,.035)!important;box-shadow:inset 0 0 0 1px rgba(91,227,160,.28)!important}
+li.done .do{color:var(--text-2)}
+.mrow{display:flex;gap:10px;align-items:flex-start;margin-top:10px;font-size:15px;color:var(--text-2)}
+.mrow svg{flex:none;width:18px;height:18px;margin-top:2px;stroke:var(--c)}
+.mrow b{color:var(--text);font-weight:600}
+
+/* progress dock */
+.dock{position:sticky;top:112px;z-index:15;margin:0 0 26px;padding:12px 14px;border-radius:8px;background:rgba(10,13,17,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:inset 0 0 0 1px var(--line-2),0 10px 30px rgba(0,0,0,.4);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.dock .meter{flex:1;min-width:140px}
+.dock .meter small{display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);letter-spacing:.06em;margin-bottom:6px}
+.dock .meter small b{color:var(--text)}
+.bar-o{height:6px;border-radius:99px;background:var(--ink-3);overflow:hidden}
+.bar-i{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--c),var(--ok));transition:width .6s cubic-bezier(.16,1,.3,1)}
+.go{display:inline-flex;align-items:center;gap:10px;height:46px;padding:0 20px;border-radius:999px;background:var(--c);color:#000;font-weight:700;font-size:15px;letter-spacing:.02em;position:relative;overflow:hidden;transition:transform .15s}
+.go:hover{transform:translateY(-1px)}
+.go::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%);transform:translateX(-120%);animation:sweep 3.2s 1s ease-in-out infinite}
+@keyframes sweep{60%,100%{transform:translateX(120%)}}
+.go svg{width:18px;height:18px}
+.ghost{height:46px;padding:0 14px;border-radius:999px;color:var(--text-2);font-size:14px;box-shadow:inset 0 0 0 1px var(--line-2)}
+.ghost:hover{color:var(--text)}
+
+/* walkthrough */
+#wk{position:fixed;inset:0;z-index:70;display:none;flex-direction:column;background:radial-gradient(1200px 600px at 50% -10%,rgba(92,200,255,.14),transparent 60%),#000;color:var(--text)}
+#wk.on{display:flex;animation:wkIn .5s cubic-bezier(.16,1,.3,1)}
+@keyframes wkIn{from{opacity:0;transform:scale(1.04)}}
+.wk-top{display:flex;align-items:center;gap:14px;padding:14px var(--gut);border-bottom:1px solid var(--line)}
+.wk-top .t{flex:1;min-width:0}
+.wk-top .t b{display:block;font:700 18px var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wk-top .t small{color:var(--c);font:600 11px var(--sans);letter-spacing:.18em;text-transform:uppercase}
+.wk-x{width:44px;height:44px;border-radius:50%;background:var(--ink-3);font-size:22px;flex:none}
+.wk-prog{height:4px;background:var(--ink-3)}
+.wk-prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--c),var(--ok));transition:width .5s cubic-bezier(.16,1,.3,1);box-shadow:0 0 18px var(--c)}
+.wk-stage{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:22px var(--gut) 30px}
+.wk-card{max-width:980px;margin:0 auto}
+.wk-card.in-r{animation:inR .45s cubic-bezier(.16,1,.3,1)}
+.wk-card.in-l{animation:inL .45s cubic-bezier(.16,1,.3,1)}
+@keyframes inR{from{opacity:0;transform:translateX(60px);filter:blur(8px)}}
+@keyframes inL{from{opacity:0;transform:translateX(-60px);filter:blur(8px)}}
+.wk-count{display:flex;align-items:center;gap:12px;color:var(--text-3);font:600 12px var(--sans);letter-spacing:.16em;text-transform:uppercase}
+.wk-count .big{display:grid;place-items:center;width:58px;height:58px;border-radius:50%;background:var(--c);color:#000;font:700 26px var(--display);letter-spacing:0;animation:pop .5s cubic-bezier(.3,1.6,.5,1)}
+.wk-text{font:600 clamp(22px,3.4vw,32px)/1.3 var(--sans);margin:18px 0 6px;letter-spacing:-.005em}
+.wk-card .mrow{font-size:17px}
+.wk-card figure.shot{margin-top:18px;width:fit-content!important}
+.wk-card figure.shot img{max-height:58vh;width:auto;max-width:100%;object-fit:contain;background:#fff}
+.wk-nav{display:flex;gap:10px;padding:12px var(--gut) calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:rgba(0,0,0,.6)}
+.wk-nav button{height:56px;border-radius:12px;font-weight:700;font-size:16px}
+.wk-back{width:120px;box-shadow:inset 0 0 0 1px var(--line-2);color:var(--text-2)}
+.wk-back:disabled{opacity:.35}
+.wk-next{flex:1;background:var(--c);color:#000;display:flex;align-items:center;justify-content:center;gap:10px}
+.wk-next svg{width:20px;height:20px}
+.wk-hint{color:var(--text-3);font-size:12px;text-align:center;margin-top:14px}
+.wk-done{text-align:center;padding:12vh 0}
+.wk-done .ring{width:120px;height:120px;margin:0 auto 26px;border-radius:50%;display:grid;place-items:center;background:var(--ok);color:#000;animation:pop .7s cubic-bezier(.3,1.6,.5,1);position:relative}
+.wk-done .ring::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--ok);animation:ripple 1.6s ease-out infinite}
+@keyframes ripple{to{inset:-40px;opacity:0}}
+.wk-done .ring svg{width:56px;height:56px}
+.wk-done h2{font:700 clamp(32px,6vw,54px)/1.05 var(--display);margin:0 0 10px}
+.wk-done p{color:var(--text-2)}
+.spark{position:fixed;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:80;animation:spark 1.1s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes spark{to{transform:translate(var(--dx),var(--dy)) rotate(var(--r));opacity:0}}
+
+/* lightbox */
+#lb{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.94);display:none;place-items:center;padding:20px;overflow:auto}
+#lb.on{display:grid}
+#lb img{max-width:100%;max-height:86vh;border-radius:4px;background:#fff;cursor:zoom-in;transition:max-width .3s,max-height .3s}
+#lb p{color:var(--text-2);text-align:center;font-size:14px;max-width:70ch;margin:12px auto 0}
+#lb button{position:fixed;top:14px;right:14px;width:44px;height:44px;border-radius:50%;background:var(--ink-3);font-size:22px;z-index:1}
+#lb.zoom{place-items:start;align-content:start}
+#lb.zoom img{max-width:none;max-height:none;width:auto;cursor:zoom-out}
+
+footer{padding:40px 0 60px;color:var(--text-3);font-size:13px;border-top:1px solid var(--line)}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+@media(max-width:640px){
+  .bar{height:auto;flex-wrap:wrap;padding:12px 0 10px;gap:10px}
+  .brand b{font-size:21px}
+  .brand span{display:none}
+  .search{max-width:none;flex-basis:100%;order:3}
+  .search kbd{display:none}
+  .g-head{padding:30px 0 20px}
+  .g-head .sum{font-size:16px}
+  ol.steps>li{grid-template-columns:1fr;gap:6px;padding:16px}
+  html{scroll-padding-top:230px}
+  .dock{top:166px;padding:10px 12px;gap:10px}
+  .go{flex:1;justify-content:center}
+  .ghost{display:none}
+  .dock .meter small span{display:none}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* Long URLs (e.g. support.internetessentials.com/en/agent/agentsearch) must wrap on phones */
+.step-body a,.callout a,.mrow a,.panel a,td a,.intro a{overflow-wrap:anywhere;word-break:break-word}
+
+/* ---- eSIM guide: QR codes + copyable codes ---- */
+.qrstrip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:24px;max-width:860px}
+.qrcard{display:flex;gap:14px;align-items:center;text-align:left;padding:12px;border-radius:10px;background:var(--ink-2);box-shadow:0 0 0 1px var(--line-2);color:var(--text);cursor:pointer;transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s}
+.qrcard:hover{transform:translateY(-2px);box-shadow:0 0 0 1px var(--c),0 14px 40px rgba(183,156,255,.18)}
+.qrcard img{width:88px;height:88px;flex:none;background:#fff;border-radius:6px;padding:4px}
+.qrcard b{display:block;font:700 15px/1.2 var(--sans)}
+.qrcard small{display:block;color:var(--text-2);font-size:13px;margin-top:3px}
+.qrcard i{display:block;font:600 11px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--c);margin-top:8px;font-style:normal}
+@media(max-width:760px){.qrstrip{grid-template-columns:1fr}.qrcard img{width:76px;height:76px}}
+figure.shot.qr{background:#fff;width:300px!important}
+figure.shot.qr img{padding:10px;image-rendering:pixelated}
+figure.shot.qr::after{content:"Tap for full screen"}
+.qfull{display:block;margin-top:4px;color:var(--c);font-weight:600;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+#lb.qrmode{background:#fff}
+#lb.qrmode img{width:min(84vw,72vh);max-width:none;max-height:none;height:auto;cursor:default;image-rendering:pixelated}
+#lb.qrmode p{color:#222;font:600 18px/1.3 var(--sans)}
+#lb.qrmode button{background:#eee;color:#000}
+.step-body code,td code,.callout code{cursor:copy;position:relative;white-space:nowrap}
+td code{font:500 .92em var(--mono);background:var(--ink-3);color:var(--brass-2);padding:2px 6px;border-radius:3px}
+code.copied::after{content:"Copied";position:absolute;left:50%;bottom:calc(100% + 6px);transform:translateX(-50%);font:600 11px/1 var(--sans);background:var(--ok);color:#000;padding:4px 7px;border-radius:3px;white-space:nowrap}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="bar">
+      <a class="brand" href="#/"><b>eSIM <em>Activation</em></b><span>Blufox Mobile</span></a>
+      <div class="search" id="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <label class="sr" for="q">Search this guide</label>
+        <input id="q" type="search" placeholder="Search: QR code, Samsung, SOS, XM360, watch…" autocomplete="off" enterkeyhint="search">
+        <kbd>/</kbd>
+        <button class="clear" id="q-clear" type="button" aria-label="Clear search">×</button>
+      </div>
+    </div>
+    <nav class="cats" id="cats" aria-label="Sections"></nav>
+  </div>
+</header>
+<main id="view" class="wrap" tabindex="-1"></main>
+<footer><div class="wrap"><span>eSIM Xfinity Mobile Activation Guide · From Celestial HOW13265, HOW23576, HOW21239 and 8 more · For Blufox Mobile team members · Always confirm against Celestial.</span><a href="https://celestial.cable.comcast.com/knowledge/article-info/?query=200826155424623" target="_blank" rel="noopener">Open HOW13265 in Celestial ↗</a></div></footer>
+
+<div id="wk" role="dialog" aria-modal="true" aria-label="Step-by-step walkthrough">
+  <div class="wk-top"><div class="t"><small id="wk-sec"></small><b id="wk-title"></b></div><button class="wk-x" id="wk-x" type="button" aria-label="Close walkthrough">×</button></div>
+  <div class="wk-prog"><i id="wk-bar"></i></div>
+  <div class="wk-stage" id="wk-stage"></div>
+  <div class="wk-nav"><button class="wk-back" id="wk-back" type="button">← Back</button><button class="wk-next" id="wk-next" type="button"></button></div>
+</div>
+<div id="lb" role="dialog" aria-label="Enlarged picture"><button type="button" aria-label="Close">×</button><div><img alt=""><p></p></div></div>
+
+<script>
+const G = {"id": "esim-activation", "code": "HOW13265 + 9 more", "updated": "Aug 24, 2026", "title": "eSIM Xfinity Mobile Activation Guide", "summary": "Get a phone, tablet or watch onto Xfinity Mobile: the QR codes, the app and XM360 steps, the manual eSIM codes for every brand, and what to do when the eSIM won't download or the SIM stops working.", "source": "https://celestial.cable.comcast.com/knowledge/article-info/?query=200826155424623", "before": ["Put the device on **WiFi** first (the store WiFi in store, home WiFi at home). Every eSIM step needs internet.", "Device **charged or plugged in**, and updated to the **latest software**.", "Customer has saved anything that won't move over on its own, like **voicemails, photos and files**.", "Porting a number? Have the **previous carrier's account number and transfer PIN** ready.", "Customer knows their **Xfinity ID and password**. A **Primary or Manager** ID can activate any device on the account. A **Member** can only activate the device on their own line.", "Bringing their own device? Run the IMEI through the **BYOD IMEI Lookup tool** and make sure the phone is **unlocked**. If the lock status can't be confirmed, no eSIM or SIM card can be sent.", "New device on an existing line? **Number Lock must be off** (Xfinity app or website)."], "tips": ["Most activations finish in **under 10 minutes**. A smartwatch can take **up to 30 minutes**.", "The eSIM QR code only works once the device is in **RS (Ready State)**. If XM360 doesn't show RS, the QR code and the push notification won't work yet.", "**A phone can't scan a QR code on its own screen.** Show the QR on the store iPad or a computer. If the customer only has the one phone, use the manual code in section 07.", "**eSIM to pSIM is not available.** When the buy flow decides a device should use eSIM, the pSIM option is greyed out on purpose. Don't escalate eSIM→pSIM requests to ECM > XM Support.", "Xfinity Mobile supports **one mobile service per device** (Xfinity Mobile, Comcast Business Mobile or NOW Mobile), even on a dual-SIM phone. The second slot can be another carrier or a travel data plan.", "**Billing start:** BYOD eSIM and in-stock purchases bill when the order completes. Shipped devices and pSIM cards bill on delivery. Smartwatches bill at setup or 7 days after purchase, whichever is first.", "A **one-time $25 line activation fee** applies to every new phone or tablet line.", "Deleting an eSIM **doesn't cancel the plan**. Erasing the phone lets the customer choose to **keep** the eSIM.", "Never try a SIM swap or a line deactivation on a device that isn't working or doesn't seem to have an eSIM. Troubleshoot first, then escalate through standard procedures.", "Everything here applies to **NOW Mobile** customers too."], "sections": [{"title": "Scan to activate: the QR codes", "nav": "QR codes", "qr": true, "intro": "The three QR codes Celestial gives for activation, rebuilt sharp so they scan easily off a screen. Each was checked against the Celestial original and opens exactly the same thing. Tap **Show full screen** to hold one up for the customer.", "steps": [{"text": "**eSIM download QR.** Use it when the eSIM didn't download by itself. The customer opens the **Camera** (or **Settings › Add eSIM › Use QR code**), scans it, and follows the prompts.", "imgs": [{"f": "464b830b3a.svg", "w": 300, "h": 300, "qr": 1, "data": "LPA:1$cct.vzw.otgeuicc.com$", "cap": "eSIM download QR. Scans to **LPA:1$cct.vzw.otgeuicc.com$** — the Xfinity Mobile eSIM server.", "alt": "QR code that downloads the Xfinity Mobile eSIM."}], "warn": "The device has to be in **RS (Ready State)** in XM360 first, or the download has nothing to pick up. Show the code on a **different screen** from the phone being activated.", "note": "It's the same code for every customer. It points the phone at the Xfinity Mobile eSIM server, which matches the eSIM to that phone."}, {"text": "**Xfinity app QR.** Scan from a phone while the customer is on a computer or tablet. It opens the Xfinity app, or the App Store / Google Play if the app isn't installed, so they can start activation.", "imgs": [{"f": "b7f53d1fbd.svg", "w": 300, "h": 300, "qr": 1, "data": "https://xfinity.app.link/overview_aricle1qr", "cap": "Xfinity app QR. Opens the Xfinity app (or the app store) to start activation.", "alt": "QR code that opens the Xfinity app."}]}, {"text": "**In-store self-activation QR.** Hand it over when a customer would rather activate on their own. It checks for the Xfinity app, then goes straight to the guided activation flow (or to the app store first).", "imgs": [{"f": "b041adf9da.svg", "w": 300, "h": 300, "qr": 1, "data": "https://xfinity.app.link/RetailCorp", "cap": "In-store self-activation QR (COMMS247). Opens the Xfinity app straight into the guided activation flow.", "alt": "QR code for in-store guided self-activation."}], "note": "Works for phones and iPads. **Not for watches.** Watches use the activation built into the device. More in section 15."}, {"text": "**The customer's own QR code.** In XM360, open **Devices › Activations** and pick the device. Under **Fallback Activation**, click **Send QR code**. A copy is also in the email inbox on the customer's account.", "imgs": [{"f": "cf205cc51d.webp", "w": 960, "h": 670, "cap": "XM360 Activations tab. Fallback Activation has the Send QR code and eSIM activation guide buttons.", "alt": "XM360 Activations tab. Fallback Activation has the Send QR code and eSIM activation guide buttons."}], "where": "XM360 › **Devices** › **Activations** › device › **Fallback Activation**", "note": "Can't scan? The **eSIM activation guide** button next to it gives the manual code, or use section 07."}]}, {"title": "Activate in the Xfinity app (existing line)", "nav": "Xfinity app", "intro": "The way Celestial wants customers to activate a **new device on an existing line**, whether they bought it from Xfinity or brought it. Pick whichever start fits (steps 1–5), then finish with steps 6–10.", "steps": [{"text": "**Push notification:** tap **Xfinity Mobile devices ready to activate** when it pops up on the phone.", "imgs": [{"f": "a5e5ef567c.webp", "w": 687, "h": 239, "cap": "The push notification: Xfinity Mobile devices ready to activate.", "alt": "The push notification: Xfinity Mobile devices ready to activate."}]}, {"text": "**Overview tab:** open the Xfinity app. If a device is waiting, the Overview card says **You have a device to activate**. Tap **Activate your device**.", "imgs": [{"f": "0a78a14023.webp", "w": 450, "h": 447, "cap": "Overview card: You have a device to activate › Activate your device.", "alt": "Overview card: You have a device to activate › Activate your device."}]}, {"text": "**Services tab:** scroll to **Connect compatible equipment** and tap **Activate more devices**. Scroll to **Mobile** and pick **Purchased from Xfinity** or **Purchased elsewhere**.", "imgs": [{"f": "f07fcea54f.webp", "w": 520, "h": 1020, "cap": "Services tab. Activate more devices is under Connect compatible equipment.", "alt": "Services tab. Activate more devices is under Connect compatible equipment."}]}, {"text": "**Account tab:** tap **Set up equipment or devices** under **Activate WiFi and more**, scroll to **Mobile**, and pick the device type.", "imgs": []}, {"text": "**Search:** tap the search icon at the top of the Overview tab, type **Activate Xfinity Mobile device**, and tap the device.", "imgs": []}, {"text": "Tap **Start Activation**. Tap **Send Code** to send a one-time passcode to an email on file, or to the number on the device or SIM being replaced. Enter it and tap **Confirm Code**.", "imgs": [], "result": "The app says the number was activated."}, {"text": "Confirm identity: tap the **Xfinity app notification**, or enter the **code sent by email or text**.", "imgs": []}, {"text": "**eSIM:** tap the **Set up eSIM** notification and follow the cellular plan steps on the screen.", "imgs": [], "result": "**Cellular Setup Complete**. The phone is on the Xfinity Mobile network."}, {"text": "**pSIM instead:** follow the app's prompts to put the SIM card in (it may already be in the phone), then tap **The SIM is inserted**.", "imgs": []}, {"text": "Check for **signal bars** at the top of the screen. In the app, tap **Yes, I have cellular service bars**, then **Continue**.", "imgs": [], "result": "Xfinity Mobile activates the service and confirms the new device is on the network.", "note": "Swapping an eSIM or pSIM? The app asks for one more identity check, by notification or code, before it finishes."}]}, {"title": "New line: set up on the phone itself", "nav": "New line", "intro": "New lines **don't need the app** anymore. The device walks the customer through it. The number transfer happens **after** the phone is connected, in the Xfinity app.", "steps": [{"text": "**New phone or tablet bought from Xfinity:** update and back up the old phone. Unbox the new one and turn it on.", "imgs": []}, {"text": "Follow the setup screens. Connect to **WiFi** and install the **eSIM** when it's offered.", "imgs": [], "result": "The phone connects to Xfinity Mobile."}, {"text": "Keeping the old number? Transfer it in the **Xfinity app** with the old carrier's account info.", "imgs": [], "warn": "When the transfer finishes, an iPhone may show **SOS** and an Android may show **No service**. **Restart the phone** to sync the SIM."}, {"text": "**Brought their own phone?** Use the brand's steps in the table below. On a **dual-SIM** phone, label the new line **Xfinity** and make it the default for **calls, texts and data**.", "imgs": []}], "table": {"head": ["Phone", "Install the eSIM", "Dual SIM: also do this"], "rows": [["**iPhone**", "Tap the **Settings** notification, or **Settings › Set Up Cellular**. pSIM: put the card in, then power on.", "Set Xfinity as the default line for calls, texts and cellular data, and turn it on for **iMessage**."], ["**Samsung**", "Tap **Add eSIM** on the **eSIM ready to add** notification. Missed it? **Settings › Connections › SIM Manager › Add eSIM › Search for eSIMs**, then **Add**.", "Name the Xfinity SIM (e.g. \"Xfinity\"). On the **Messages**, **Calls** and **Data** screens tap that line, then turn on **Data switching**."], ["**Motorola**", "Tap **Set up your Xfinity Mobile eSIM**, or **Network & Internet › SIMs › Add SIM › Set up an eSIM**, then **Set up**.", "**Settings** › switch **Xfinity Mobile** on › **Turn on**. Pick Xfinity for calls (tap **Turn it off** on the Smart SIM pop-up), messages and mobile data (**OK**), then turn on **Switch SIM automatically**."], ["**Pixel**", "Tap **Set up your Xfinity Mobile eSIM**, or **Network & Internet › SIMs › Add SIM › Set up an eSIM**, then **Set up**.", "**Settings** › switch Xfinity on › **Get Started** › **Next**. Choose Xfinity for **calls, texts and data**, then turn on **Automatic data switching**."], ["**Other Android**", "Put in the pSIM if there is one, power on, and follow the screens.", "—"]]}}, {"title": "Quick transfer: old phone to new phone", "nav": "Quick transfer", "intro": "If the customer has their old phone with them, quick transfer moves the line to the new one **without the Xfinity app**. It only works **iPhone to iPhone** or **Android to Android**, and it ties up both phones for a few minutes.", "steps": [{"text": "Both phones on **WiFi and Bluetooth**, side by side, with the latest software. **Number Lock off.** The old phone needs a **screen lock** (PIN or pattern).", "imgs": [], "note": "They may need their Apple ID, Google or Samsung account, and their **Xfinity ID and password**."}, {"text": "**iPhone (12 and up):** on the new iPhone, follow setup and choose **Transfer from nearby iPhone** › **Transfer Number**. Approve **Transfer SIM** on the old iPhone.", "imgs": [], "note": "Missed it during setup? **Settings › Cellular › Set Up Cellular › Transfer from Nearby iPhone**. Type the code from the new iPhone into the old one."}, {"text": "If asked, sign in with the **Xfinity ID** (**Let's go** › password › **Sign In**). Wait for the network, don't close the screen, then tap **Okay** and **Done**.", "imgs": [], "result": "**Cellular Setup Complete**."}, {"text": "**Android:** on the new phone pick **Transfer a SIM from another device** (during setup, or **Settings › Network & Internet › SIMs › Add SIM**). Scan the QR code on the new phone **with the old phone**, confirm the lock code, pick the **Xfinity Mobile eSIM**, and tap **Transfer**.", "imgs": [], "where": "Samsung: **Settings › Connections › SIM manager › Add eSIM › Transfer a SIM from another phone**. Samsung to Samsung uses a verification code instead of a QR."}, {"text": "More than one eSIM on the phone? Turn the new Xfinity SIM **on** afterwards in the SIM settings.", "imgs": []}], "table": {"head": ["Brand", "Works on", "Notes"], "rows": [["**iPhone**", "iPhone 12 and newer", "pSIM → eSIM on a new iPhone, eSIM → eSIM, or **convert pSIM to eSIM on the same iPhone**: **Settings › Cellular › Convert to eSIM**, then take out the SIM card."], ["**Google Pixel**", "Pixel 6 and newer, Android 12+", "During setup or later in Settings. Old phone scans the QR on the new one."], ["**Samsung**", "e.g. Galaxy S23+, Z Flip/Fold 5+", "A pSIM on the old phone becomes an eSIM on the new one. Other Android → Samsung uses the QR scan."], ["**Motorola**", "e.g. 2025+ moto g, razr, g stylus 5G", "During setup or later in Settings."], ["**Android, same phone**", "—", "pSIM → eSIM on the **same** Android phone is **not supported**. Use XM360 (section 11)."]]}}, {"title": "Activate a device in XM360", "nav": "XM360", "intro": "For new devices, BYOD, and replacements from XMC, Apple or other makers. Encourage the app first. Use XM360 when the customer needs you. **Not for smartwatches** (see section 14).", "steps": [{"text": "**Authenticate** the customer in **Einstein 360**, then open **XM360**.", "imgs": []}, {"text": "Select the **Devices** tab, then **Activations**, and pick the device to activate.", "imgs": [{"f": "cf205cc51d.webp", "w": 960, "h": 670, "cap": "XM360 Activations tab with the device ready to activate.", "alt": "XM360 Activations tab with the device ready to activate."}]}, {"text": "Make sure the customer **isn't using** that device right now, and have them **power it off**.", "imgs": [], "note": "A **BYOD** badge marks a customer-owned device. If the iPad asks for **ID proofing** in the store, complete it."}, {"text": "Choose **New number** or **Submit port** (keep their current number).", "imgs": [{"f": "44701b1e0b.webp", "w": 960, "h": 247, "cap": "Porting: New number or Submit port.", "alt": "Porting: New number or Submit port."}], "warn": "Always get an **alternate contact number**. When the port completes, service with the old carrier **ends**."}, {"text": "**eSIM:** have the customer turn the device on, follow the setup screens, connect to **WiFi**, and keep going to the home screen. The eSIM downloads and activates by itself. Check for **bars** in the top right.", "imgs": [], "note": "**pSIM:** put the card in and skip to step 7."}, {"text": "**eSIM didn't download?** In order: check for the **Xfinity app push notification** › check the phone's **settings** › **Send QR code** from Fallback Activation (customer scans it with the Camera) › **enter the code manually** (section 07).", "imgs": [{"f": "cf205cc51d.webp", "w": 960, "h": 670, "cap": "Fallback Activation: Send QR code, or the eSIM activation guide for a manual code.", "alt": "Fallback Activation: Send QR code, or the eSIM activation guide for a manual code."}]}, {"text": "Click **Continue** once the eSIM is downloaded or the pSIM is in. For a pSIM, answer whether the card was **inserted correctly**.", "imgs": []}, {"text": "Test it: power the device **off and on**, check that **Xfinity Mobile** shows in the status bar, **call or text with WiFi off**, and install the **Xfinity app**.", "imgs": []}, {"text": "All good? Select **Yes: All the steps above were successful** › **Finish**. If not, select **No: Some steps weren't successful**.", "imgs": []}], "table": {"head": ["XM360 / iPad message", "What it means", "What you do"], "rows": [["**Verification status not started.** Customer must go into the Xfinity app…", "The customer hasn't tried activating in the app.", "They have to try in the app and get an **unsuccessful** message before you can help."], ["**Verification complete.** Customer must go into the Xfinity app…", "They didn't finish in the app.", "Same: try in the app first."], ["**No seasoned contact at this time.**", "No trusted contact method on file.", "In store: do **ID proofing on the iPad**, including the knowledge-based question, then activate."], ["**…Please use iPad or have the customer use the Xfinity app**", "Verification not started, pending or done.", "Push the **Xfinity app**. If needed, finish ID proofing on the iPad."]]}}, {"title": "Replacement device (insurance or OEM)", "nav": "Replacement", "intro": "For an XMC/Assurant insurance replacement or a manufacturer (OEM) warranty replacement. **Don't** send the customer to the maker or Assurant, and **don't** ring it up as a BYOD order.", "steps": [{"text": "On the **Device Details** page, under **Actions**, select **Activate Replacement Device**.", "imgs": [{"f": "3e2f768350.webp", "w": 520, "h": 732, "cap": "XM360 Devices page. Activate Replacement Device is in the Actions grid at the bottom.", "alt": "XM360 Devices page. Activate Replacement Device is in the Actions grid at the bottom."}], "warn": "Only for a **verified** insurance or OEM replacement. A customer's own phone uses **Replace with eSIM BYOD** or **Replace with no-SIM BYOD**. Updating the IMEI needs **Step Up** authorization."}, {"text": "Pick **Insurance Replacement Device** or **OEM Replacement Device**, enter **IMEI 1** (15 digits), and click **Continue**.", "imgs": [{"f": "bb63d4d9d4.webp", "w": 960, "h": 567, "cap": "Select the replacement type and enter IMEI 1.", "alt": "Select the replacement type and enter IMEI 1."}], "warn": "Use **IMEI 1, not IMEI 2**. Assurant only sends Comcast IMEI 1."}, {"text": "**IMEI update in progress** shows. It can take **up to 5 minutes**. The customer gets a **We received your request** email.", "imgs": [{"f": "e15972c3a2.webp", "w": 960, "h": 188, "cap": "IMEI update in progress: up to 5 minutes.", "alt": "IMEI update in progress: up to 5 minutes."}, {"f": "2d2090f86d.webp", "w": 835, "h": 492, "cap": "Customer email: We received your request.", "alt": "Customer email: We received your request."}]}, {"text": "When the device is live on the network, the customer gets a **You're all set** email. Finish the activation from **step 7 of section 05**.", "imgs": [{"f": "4b3095e2ff.webp", "w": 880, "h": 445, "cap": "Customer email: You're all set.", "alt": "Customer email: You're all set."}]}, {"text": "**Replacement device must be verified?** The insurer or maker's file hasn't arrived. **Network IMEI** shows **Active** and **Billing System IMEI** shows **Update Pending**, with a **Verify** button. The phone **works** in this state, so finish the activation anyway.", "imgs": [{"f": "1fcb1146f9.webp", "w": 430, "h": 450, "cap": "IMEI updated, pending verification. The Verify button is in the IMEI section.", "alt": "IMEI updated, pending verification. The Verify button is in the IMEI section."}]}, {"text": "**XM Tier 1** sees **Escalate to XM Support**: open an **XM Support chat in ECM** for **OEM** replacements. **Insurance** replacements confirm themselves within about **72 hours**, so don't escalate those.", "imgs": [{"f": "b69904eb0e.webp", "w": 927, "h": 391, "cap": "Escalate to XM Support overlay.", "alt": "Escalate to XM Support overlay."}]}, {"text": "Agents with permission: after 3 days, **Confirm Replacement Device**, or **Convert to BYO** if it isn't a replacement. XM Support sees **Verify replacement device** / **Not a replacement device**.", "imgs": [{"f": "10d371f97b.webp", "w": 822, "h": 396, "cap": "Verify replacement device? prompt.", "alt": "Verify replacement device? prompt."}]}, {"text": "**Verified:** features, promotions and protection move to the new IMEI, and only **one IMEI** shows on the Device Details page.", "imgs": [{"f": "f48e19260d.webp", "w": 450, "h": 480, "cap": "Device Details after the IMEI is verified.", "alt": "Device Details after the IMEI is verified."}, {"f": "5ecbd9976b.webp", "w": 450, "h": 468, "cap": "IMEI updated: all features and promotions moved to the new IMEI.", "alt": "IMEI updated: all features and promotions moved to the new IMEI."}]}, {"text": "**Not a replacement:** the customer gets a **We couldn't confirm your new device** email, and the page says a **different device is active**, with an **Align** button. The phone still works. That's an OK state, and nothing more is needed unless they want protection on the new phone.", "imgs": [{"f": "5d29cfe9f9.webp", "w": 800, "h": 731, "cap": "Customer email: We couldn't confirm your new device as a replacement.", "alt": "Customer email: We couldn't confirm your new device as a replacement."}, {"f": "5ecbd9976b.webp", "w": 450, "h": 468, "cap": "Device Details: not confirmed as a replacement, with Align.", "alt": "Device Details: not confirmed as a replacement, with Align."}]}]}, {"title": "eSIM won't download: enter it by hand", "nav": "Manual code", "intro": "Last resort after the notification and the QR code. Put the device on **WiFi**, then type the code below. **Tap a code to copy it.** Watch the dollar signs: Samsung's code has **no** $ at the end, Pixel and Motorola end **with** one.", "steps": [], "table": {"head": ["Phone", "Steps", "Type exactly"], "rows": [["**iPhone / iPad**", "**Settings › Cellular** (or Mobile Data) › **Add Cellular Plan** / **Add eSIM** › **Use QR code** › **Enter Details Manually** (bottom). Leave **Activation Code** and **Confirmation Code** empty. Tap **Next** (top). If Next is hidden, tap one of the empty code fields.", "SM-DP+ Address: `cct.vzw.otgeuicc.com`"], ["**Samsung Galaxy**", "**Settings › Connections › SIM manager › Add eSIM › Scan QR code** › **Enter Activation code** › **Done**.", "`LPA:1$cct.vzw.otgeuicc.com`"], ["**Google Pixel**", "**Settings › Network & Internet › SIMs › Add SIM › Download a SIM instead** (pick **Use a different network** if Xfinity isn't listed) › **Need help?** › **Enter it manually** › **Continue**.", "`LPA:1$cct.vzw.otgeuicc.com$`"], ["**Motorola**", "**Settings › Network & Internet › Mobile Network** (or SIMs & mobile network) › **Add SIM** or **+** › **Enter code manually** › **Done**.", "`LPA:1$cct.vzw.otgeuicc.com$`"]]}}, {"title": "Troubleshoot an eSIM in XM360", "nav": "Manage SIM", "intro": "XM360 shows each device's **Network Status**. **Green** is good (RS, or connected and working). **Red** means a problem. If it doesn't say **CN – Connected** or **CN – Installed Enabled** in green, use **Manage SIM Troubleshooting**.", "steps": [{"text": "**Authenticate** in **Einstein 360**, launch **XM360**, and go to **Devices**.", "imgs": []}, {"text": "Pick the device and click **Manage SIM Troubleshooting**.", "imgs": [{"f": "2624e6cbb0.webp", "w": 500, "h": 534, "cap": "Devices: Manage SIM Troubleshooting next to Network Status.", "alt": "Devices: Manage SIM Troubleshooting next to Network Status."}, {"f": "fbbbe3fe95.webp", "w": 811, "h": 874, "cap": "Device details with Network Status CN – Connected.", "alt": "Device details with Network Status CN – Connected."}]}, {"text": "**Still activating?** Go to **Activations** instead. A red **Resolution required** shows on the device. Click **SIM troubleshooting**.", "imgs": [{"f": "03f74c1398.webp", "w": 960, "h": 614, "cap": "Activations: eSIM manually disabled, with SIM troubleshooting.", "alt": "Activations: eSIM manually disabled, with SIM troubleshooting."}, {"f": "03f74c1398.webp", "w": 960, "h": 614, "cap": "Phone setup failed, Resolution required.", "alt": "Phone setup failed, Resolution required."}]}, {"text": "Work the checklist for that phone and tick each step. If it's still broken, **Reissue eSIM** lights up, but only when the Network Status needs a new eSIM.", "imgs": [{"f": "60c18c842e.webp", "w": 500, "h": 693, "cap": "Manage SIM Troubleshooting checklist (Samsung). Reissue eSIM unlocks at the bottom.", "alt": "Manage SIM Troubleshooting checklist (Samsung). Reissue eSIM unlocks at the bottom."}], "note": "**No Reissue option?** It's not a SIM problem. Use **Qelp** or the matching **Interactive Troubleshooting Guide (ITG)**."}, {"text": "**Red CN-Installed or CN-Downloaded, but service is fine?** The eSIM was activated before XM360 tracked this status. Have the customer turn the Xfinity line **off and back on** (table below), then **refresh** the Network Status.", "imgs": [], "result": "It turns green: **CN Installed Enabled** or **CN Connected**."}, {"text": "Confirm it really works: have the customer **make a test call** or **download an app with WiFi off**.", "imgs": [{"f": "8763bb082d.webp", "w": 624, "h": 667, "cap": "Healthy device: CN – Connected, Compatible.", "alt": "Healthy device: CN – Connected, Compatible."}]}], "table": {"head": ["Status or phone", "What it means / where the toggle is"], "rows": [["**RS**", "Ready to set up and connect. Needed before the push notification or QR code will work."], ["**CN – Connected / CN – Installed Enabled**", "On the network and working. The eSIM was downloaded."], ["**iPhone toggle**", "**Settings › Cellular › SIM Manager** › Xfinity Mobile › **Turn On This Line** off, then on."], ["**Pixel toggle**", "**Settings › Network & Internet › SIMs** › Xfinity Mobile eSIM off, then on."], ["**Motorola toggle**", "**Settings › Network & Internet › SIMs & Mobile Network** › Xfinity Mobile eSIM off, then on."], ["**Samsung toggle**", "**Settings › Connections › SIM Manager** › Xfinity Mobile eSIM off, then on."]]}}, {"title": "Error messages during activation", "nav": "Errors", "intro": "Seen in the buy flow or XM360. If one of these shows, **retry up to two more times**. If it keeps coming back, the device can't activate with an eSIM.", "steps": [{"text": "**System error / timeout** while checking IMEI eligibility: click **Retry**. After 3 tries the pop-up closes and the error shows on the IMEI checker page.", "imgs": [{"f": "450de1e796.webp", "w": 960, "h": 547, "cap": "A system error has occurred. Retry.", "alt": "A system error has occurred. Retry."}, {"f": "90428f5d58.webp", "w": 624, "h": 280, "cap": "Eligibility and compatibility check in progress.", "alt": "Eligibility and compatibility check in progress."}]}, {"text": "**BYOD check has reached the maximum number of retries.** Stop retrying. Go back over the BYOD checklist on the page (paid off, unlocked, updated, port info, backed up).", "imgs": [{"f": "49d2e924cc.webp", "w": 960, "h": 905, "cap": "BYOD: maximum number of retries.", "alt": "BYOD: maximum number of retries."}]}, {"text": "**ERROR: BYO200, device locked by its carrier (hard stop).** It can't activate. Send the customer to their old carrier to unlock it.", "imgs": [{"f": "193c24af1e.webp", "w": 624, "h": 65, "cap": "BYO200: locked by its carrier.", "alt": "BYO200: locked by its carrier."}], "warn": "**iPhone:** after the old carrier confirms the unlock, the customer must **back up and factory reset** (keep the eSIM — section 13)."}, {"text": "**This device may be locked (soft stop).** If it really is locked, it can't be activated. Have the customer check with their old carrier.", "imgs": [{"f": "080486bdff.webp", "w": 624, "h": 57, "cap": "May be locked: soft-stop warning.", "alt": "May be locked: soft-stop warning."}]}, {"text": "**iPhone stuck on SOS** after activating: first make sure an **eSIM is installed**. iPhone 13, 14 and SE (3rd gen) get a **Carrier Cellular Plan Ready to Be Installed** notice: **Settings** › tap it › **Continue**.", "imgs": [], "note": "SOS in a no-coverage area after activating is normal."}, {"text": "Still SOS: **Airplane Mode on for 15 seconds**, then off. Still SOS: **Settings › General › Transfer or Reset › Reset › Reset Network Settings** (about 5 minutes). Repeat once if needed.", "imgs": []}]}, {"title": "pSIM: clean it, swap it, ship a new one", "nav": "pSIM", "intro": "**No SIM**, **Insert SIM card** or **SOS** on a phone with a physical SIM card. Some pSIM cards came bad from the maker. They don't hurt the phone. **If the phone supports eSIM, steer them to eSIM** (section 11).", "steps": [{"text": "**Clean it:** power the phone off, pop the tray with a SIM tool or paperclip, and wipe the gold contacts with a soft cloth. Put it back **chip-side down** and restart.", "imgs": [], "note": "Card moved to a different phone and calls stopped? That phone may be reported **lost or stolen**, **prepaid-only**, owe money to the old carrier, or not be **certified** for the network. Service gets suspended for a short time."}, {"text": "**Swap in store:** if you scan a new card's **ICCID** (16 digits) and see **Error – Defective SIM**, grab another card. Throw the bad one away as usual.", "imgs": [{"f": "24afdb068d.webp", "w": 960, "h": 398, "cap": "Error – Defective SIM: use a different SIM.", "alt": "Error – Defective SIM: use a different SIM."}]}, {"text": "**Ship a SIM in XM360:** Devices › device › **Manage SIM Troubleshooting** › choose the reason (Unable to make calls, send messages, use data, Damaged SIM, Lost device, 4G to 5G swap).", "imgs": [{"f": "148194ac20.webp", "w": 920, "h": 587, "cap": "Manage SIM: What does the customer need help with?", "alt": "Manage SIM: What does the customer need help with?"}], "note": "Every reason **except Switch SIM activation type** ends in a pSIM replacement."}, {"text": "Do the troubleshooting tips for that reason. **Tick each one that didn't fix it**, then click **Continue**.", "imgs": [{"f": "333692c2c6.webp", "w": 960, "h": 816, "cap": "Troubleshooting tips for Unable to send messages.", "alt": "Troubleshooting tips for Unable to send messages."}]}, {"text": "Tell the customer the line **won't work until the new card arrives**, then click **Place order**.", "imgs": [{"f": "f28eb04d52.webp", "w": 778, "h": 451, "cap": "Ship a new SIM: Place order.", "alt": "Ship a new SIM: Place order."}], "warn": "**One SIM per transaction.** Two devices need two orders."}, {"text": "**Have a card in the store?** Type or **Scan ICCID** instead of clicking **Ship SIM**, then **Add SIM**.", "imgs": [{"f": "f22ef82842.webp", "w": 960, "h": 712, "cap": "Replace SIM: Enter or scan ICCID.", "alt": "Replace SIM: Enter or scan ICCID."}]}, {"text": "Confirmation: the new card arrives in **2–3 business days**. Click **Back to devices**.", "imgs": [{"f": "d4d66caa03.webp", "w": 960, "h": 668, "cap": "Order confirmed: Back to devices.", "alt": "Order confirmed: Back to devices."}], "note": "**SIM ORDER ERROR?** Try once more. Then open **ECM › XM Support › XM360 Issues › Order Entry/Action Not Available › SIM Change**."}]}, {"title": "Switch a pSIM to eSIM (same phone)", "nav": "pSIM → eSIM", "intro": "Only for phones that support both SIM types and are eligible for eSIM. **eSIM back to pSIM is not available.**", "steps": [{"text": "In XM360: Devices › device › **Manage SIM Troubleshooting** › **Switch SIM activation type**. Confirm with the customer, then click **Continue**.", "imgs": [{"f": "148194ac20.webp", "w": 920, "h": 587, "cap": "Switch SIM activation type: confirm the switch to eSIM.", "alt": "Switch SIM activation type: confirm the switch to eSIM."}]}, {"text": "**SIM Switch in progress** shows. When the replacement is confirmed, the customer **downloads the eSIM** (section 05, step 5 onward).", "imgs": []}, {"text": "**iPhone shortcut:** **Settings › Cellular › Convert to eSIM** › **Convert to eSIM** twice › take out the SIM card › **Continue**, then sign in with the Xfinity ID.", "imgs": [], "result": "**Converted to eSIM** shows under the number in Settings."}]}, {"title": "Recover a deleted eSIM", "nav": "Deleted eSIM", "intro": "A deleted eSIM means no service until a new one is downloaded. The customer can do it themselves with a **Primary or Manager** Xfinity ID, or you can reissue it in XM360 (section 08).", "steps": [{"text": "**Online:** sign in to the Xfinity Mobile account › **Devices** › the device › **eSIM download and help** › **eSIM details**.", "imgs": []}, {"text": "**Xfinity app:** **Services** tab › **Mobile lines and data usage** › the line › the device › **Device Management** › **Download a new eSIM** (may need to sign in again).", "imgs": []}, {"text": "Either way: **Get a new eSIM** › **Add SIM** and follow the prompts. Or scan the **QR code** (section 01), or enter the code by hand (section 07).", "imgs": []}, {"text": "Turn the eSIM **on** if it's off.", "imgs": [], "where": "Pixel & Motorola: **Settings › Network & Internet › SIMs**. Samsung: **Settings › Connections › SIM Manager**."}], "table": {"head": ["Never do this to fix an eSIM activation", "Why"], "rows": [["Submit a **provide order** for the eSIM device", "Breaks the device status and can **lose the customer's number**."], ["Activate it with a **new phone number**", "Same risk."], ["Try a **Pair SIM** order", "Same risk."], ["**Deactivate and reactivate** the line", "Same risk. If a number does get lost, open a ticket to recover it."], ["Swap pSIM ↔ eSIM devices any other way", "Only **early upgrade/NDEL with eSIM** or **Replace with eSIM BYOD** in XM360 is correct."]]}}, {"title": "Delete an eSIM, or reset and keep it", "nav": "Delete / reset", "intro": "Delete the old eSIM **before** using Replace SIM, or XM360 and Retail360 show **SIM Transferred**, and a second replacement leaves the device with **no service**. Factory resetting? Make sure they choose to **keep** the eSIM.", "steps": [], "table": {"head": ["Phone", "Delete the eSIM", "Factory reset, keep the eSIM"], "rows": [["**iPhone / iPad**", "**Settings › Cellular** › the plan › **Delete eSIM** › confirm.", "**Settings › General › Transfer or Reset › Erase All Content and Settings** › passcode. Choose **keep eSIM**."], ["**Samsung**", "**Settings › Connections › SIM card manager** › the eSIM › **Remove** › confirm.", "**Settings › General management › Reset › Factory data reset › Reset**. Choose **keep eSIM**."], ["**Google Pixel**", "**Settings › Network and Internet › SIMs** › the eSIM › **Erase SIM** › confirm.", "**Settings › System › Reset options › Erase all data**. Choose **keep eSIM**."], ["**Motorola**", "**Settings › Connected devices › Mobile data** › the eSIM › **Erase SIM** › confirm.", "—"]]}}, {"title": "Activate a smartwatch in XM360", "nav": "Smartwatch", "intro": "Watches always use **eSIM** and have **one IMEI**. The customer needs a free line and an active Xfinity Mobile phone on the **same OS** as the watch. It takes **up to 30 minutes** (pairing, apps, cellular). Have them try the **watch app** first.", "steps": [{"text": "Open the account in XM360 › **Devices** › the watch › **Activate watch**.", "imgs": [{"f": "53e67aed6e.webp", "w": 960, "h": 635, "cap": "Watch details: Cellular Activation Inactive, Activate watch.", "alt": "Watch details: Cellular Activation Inactive, Activate watch."}]}, {"text": "**Paired watch (Smartwatch fee):** pick the **host line** and click **Continue**.", "imgs": [{"f": "b6c9bff192.webp", "w": 960, "h": 878, "cap": "Select host line.", "alt": "Select host line."}]}, {"text": "Choose **Add as new** (a new watch on this line) or **Replace active watch**, then **Continue**.", "imgs": [{"f": "baecf6f9bc.webp", "w": 960, "h": 883, "cap": "Add as new.", "alt": "Add as new."}, {"f": "512b812465.webp", "w": 960, "h": 909, "cap": "Replace active watch: pick the watch to replace.", "alt": "Replace active watch: pick the watch to replace."}]}, {"text": "Replacing? Pick the watch being replaced, review **Original** vs **Replacement**, and confirm with the customer.", "imgs": [{"f": "2f0beef02b.webp", "w": 960, "h": 823, "cap": "Replacement confirmation.", "alt": "Replacement confirmation."}], "warn": "The old watch is **deactivated automatically**. XM360 warns you if that line is on a promotion."}, {"text": "**Pair the watch** with the phone: open **pairing instructions** and walk them through Step 1 in the watch app, then **Continue**.", "imgs": [{"f": "b8bf5d391e.webp", "w": 960, "h": 984, "cap": "Pair watch: pairing instructions link.", "alt": "Pair watch: pairing instructions link."}]}, {"text": "Enter the **911 emergency address** › **Continue**. Confirm the address (or **Use address exactly as entered**) › **Continue**.", "imgs": [{"f": "5b51fc352e.webp", "w": 520, "h": 650, "cap": "Add 911 emergency location information.", "alt": "Add 911 emergency location information."}, {"f": "9710ae8d7b.webp", "w": 520, "h": 637, "cap": "Verify 911 emergency address.", "alt": "Verify 911 emergency address."}]}, {"text": "Open **activation instructions** and have the customer download the **eSIM** on the watch (Step 2, Apple or Android). Click **Continue**.", "imgs": [{"f": "2db60314cf.webp", "w": 960, "h": 1023, "cap": "Activate cellular: Ready to activate cellular.", "alt": "Activate cellular: Ready to activate cellular."}, {"f": "0a6d489181.webp", "w": 960, "h": 875, "cap": "Activation in progress.", "alt": "Activation in progress."}]}, {"text": "While it runs, confirm they downloaded the eSIM from **Set Up Cellular**, turned on cellular on the watch, and saw success in the watch app. Tick the box.", "imgs": [{"f": "094b331def.webp", "w": 960, "h": 285, "cap": "Confirm the three items, then tick the box.", "alt": "Confirm the three items, then tick the box."}]}, {"text": "No eSIM after **7 minutes**? Click **Verify eSIM installation**.", "imgs": [{"f": "6d7c209612.webp", "w": 960, "h": 284, "cap": "eSIM created and ready for download. Verify eSIM installation.", "alt": "eSIM created and ready for download. Verify eSIM installation."}]}, {"text": "**Activation complete** › **Continue**. The watch is listed on the **Devices** page.", "imgs": [{"f": "eed1b7518a.webp", "w": 520, "h": 637, "cap": "Activation complete.", "alt": "Activation complete."}, {"f": "bed1076ce1.webp", "w": 960, "h": 846, "cap": "Devices page with the watch listed.", "alt": "Devices page with the watch listed."}]}, {"text": "**Standalone watch (Smartwatch Data Plan):** same start. Pair it, then enter and confirm the **911 address** › **Continue**.", "imgs": [{"f": "70f29e7ecc.webp", "w": 600, "h": 598, "cap": "Standalone: Verify 911 emergency address.", "alt": "Standalone: Verify 911 emergency address."}, {"f": "aef88a79f1.webp", "w": 600, "h": 598, "cap": "Use address exactly as entered.", "alt": "Use address exactly as entered."}]}, {"text": "Open **activation instructions**, **Continue**, wait for **Activation in progress**, then **Verify eSIM installation** › **Finish**.", "imgs": [{"f": "b1d5adeedb.webp", "w": 600, "h": 443, "cap": "Ready to activate cellular.", "alt": "Ready to activate cellular."}, {"f": "2153f96fc4.webp", "w": 400, "h": 452, "cap": "Activation in progress.", "alt": "Activation in progress."}, {"f": "1eb57a6aec.webp", "w": 400, "h": 452, "cap": "Verify eSIM installation, then Finish.", "alt": "Verify eSIM installation, then Finish."}]}, {"text": "Done: the **Device Details** page shows the watch with its **own phone number**.", "imgs": [{"f": "2851a1da32.webp", "w": 400, "h": 522, "cap": "Device Details with the watch's number.", "alt": "Device Details with the watch's number."}]}]}, {"title": "Customer self-activation in store", "nav": "Self-activate", "intro": "The self-activation QR (section 01) lets a customer activate on their own while you help the next guest. Phones and iPads only, **not watches**. Handouts are reordered in **Hub2U**.", "steps": [{"text": "Get them ready: device on the **store WiFi** and updated, important data and voicemails saved, **old carrier account info** handy if porting, and the **Xfinity app** installed.", "imgs": [], "note": "They can also scan it at home on their home WiFi."}, {"text": "Set them up at the **community table** with the device and the QR code (section 01, step 3).", "imgs": [], "note": "Something like: \"Here's a step-by-step guide that makes it easy. Sit here and get started. I'll check back in a few minutes.\""}, {"text": "Several phones for one family? Hand them the QR and one phone, and **activate the others alongside them**.", "imgs": []}, {"text": "Keep an eye on them while you help someone else. Let the new guest know you'll check in on the other customer now and then.", "imgs": []}, {"text": "Stuck? Use your tools (sections 05–08). If you can't fix it, contact the **Center of Excellence**. Don't let them leave until the activation is **done** and they have no questions.", "imgs": []}]}, {"title": "Who can do what", "nav": "Who does what", "steps": [], "table": {"head": ["eSIM job", "Retail", "Care (XMC)", "Xfinity app"], "rows": [["New line activation", "✓", "✓", "✓"], ["Bring your own device (BYOD)", "✓", "✓", "✓"], ["New device, existing line (NDEL)", "✓", "✓", "✓"], ["Early upgrade", "✓", "✓", "✓"], ["BYO new device, existing line (BYONDEL)", "✓", "✓", "✓"], ["eSIM replacement", "✓", "✓", "✓"], ["pSIM → eSIM on the same phone", "✓", "✓", "✗"], ["eSIM → pSIM", "✗", "✗", "✗"]]}}, {"title": "Sources in Celestial", "nav": "Sources", "steps": [], "table": {"head": ["Article", "Covers", "Updated"], "rows": [["[HOW13265](https://celestial.cable.comcast.com/knowledge/article-info/?query=200826155424623)", "What to do if an eSIM or pSIM isn't working (QR code, manual entry)", "08/24/2026"], ["[HOW23576](https://celestial.cable.comcast.com/knowledge/article-info/?query=260813162253563)", "Activate on an existing Xfinity Mobile or NOW Mobile line", "08/19/2026"], ["[HOW13358](https://celestial.cable.comcast.com/knowledge/article-info/?query=200826155424716)", "Activate a phone or tablet with Xfinity Mobile", "08/18/2026"], ["[HOW21239](https://celestial.cable.comcast.com/knowledge/article-info/?query=220922094418000)", "eSIM activation support", "08/18/2026"], ["[HOW21177](https://celestial.cable.comcast.com/knowledge/article-info/?query=220825180708267)", "Manage SIM troubleshooting in XM360", "08/18/2026"], ["[HOW11877](https://celestial.cable.comcast.com/knowledge/article-info/?query=200826155423240)", "Activate a device or a replacement device in XM360", "08/17/2026"], ["[HOW23169](https://celestial.cable.comcast.com/knowledge/article-info/?query=260115123645743)", "Quick transfer", "05/07/2026"], ["[HOW21262](https://celestial.cable.comcast.com/knowledge/article-info/?query=221003091917003)", "Delete an eSIM", "04/30/2026"], ["[HOW21638](https://celestial.cable.comcast.com/knowledge/article-info/?query=230420173336647)", "Activate a smartwatch in XM360", "12/18/2025"], ["[COMMS247](https://celestial.cable.comcast.com/knowledge/article-info/?query=240530160939907)", "Customer self-activation QR code", "11/13/2025"], ["[HOW13360](https://celestial.cable.comcast.com/knowledge/article-info/?query=200826155424718)", "Why won't my mobile device activate?", "05/08/2025"]]}}], "qrs": [{"f": "464b830b3a.svg", "w": 300, "h": 300, "qr": 1, "data": "LPA:1$cct.vzw.otgeuicc.com$", "cap": "eSIM download QR. Scans to **LPA:1$cct.vzw.otgeuicc.com$** — the Xfinity Mobile eSIM server.", "alt": "QR code that downloads the Xfinity Mobile eSIM.", "key": "esim"}, {"f": "b7f53d1fbd.svg", "w": 300, "h": 300, "qr": 1, "data": "https://xfinity.app.link/overview_aricle1qr", "cap": "Xfinity app QR. Opens the Xfinity app (or the app store) to start activation.", "alt": "QR code that opens the Xfinity app.", "key": "app"}, {"f": "b041adf9da.svg", "w": 300, "h": 300, "qr": 1, "data": "https://xfinity.app.link/RetailCorp", "cap": "In-store self-activation QR (COMMS247). Opens the Xfinity app straight into the guided activation flow.", "alt": "QR code for in-store guided self-activation.", "key": "self"}]};
+const $=s=>document.querySelector(s);
+const RM=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rich=s=>esc(s).replace(/\[(.+?)\]\((https:\/\/[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1 ↗</a>').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/`(.+?)`/g,'<code>$1</code>');
+const plain=s=>String(s??'').replace(/\[(.+?)\]\([^)]+\)/g,'$1').replace(/\*\*|`/g,'');
+const SV={check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',pin:'<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',eye:'<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>',arr:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'};
+
+const allSteps=()=>G.sections.flatMap((s,si)=>(s.steps||[]).map((st,ti)=>({st,si,ti,sec:s.title,id:`s${si}-${ti}`})));
+const STEPS=allSteps();
+const imgCount=new Set(G.sections.flatMap(s=>(s.steps||[]).flatMap(st=>st.imgs.map(i=>i.f)))).size;
+
+/* ---------- progress memory (this device only) ---------- */
+const DK='esim-done-v1';
+function getDone(){ try{return new Set(JSON.parse(localStorage.getItem(DK)||'[]'))}catch(_){return new Set()} }
+function setDone(set){ try{localStorage.setItem(DK,JSON.stringify([...set]))}catch(_){} }
+
+/* ---------- markup ---------- */
+function figHtml(st){
+  if(!st.imgs.length) return '';
+  const tall=st.imgs.length>1 && st.imgs.every(im=>im.h>im.w*1.15);
+  return `<div class="shots${tall?' pair':''}">${st.imgs.map(im=>`<figure class="shot${im.qr?' qr':''}" style="width:${im.w}px"${im.qr?` data-qrf="${esc(im.f)}"`:''}><img loading="lazy" decoding="async" src="shots/${im.f}" width="${im.w}" height="${im.h}" alt="${esc(im.alt||im.cap)}"><figcaption>${rich(im.cap)}${im.qr?'<span class="qfull">Show full screen ↗</span>':''}</figcaption></figure>`).join('')}</div>`;
+}
+function stepInner(st){
+  return `${st.where?`<div class="mrow">${SV.pin}<span><b>Where:</b> ${rich(st.where)}</span></div>`:''}
+    ${st.result?`<div class="mrow">${SV.eye}<span><b>You'll see:</b> ${rich(st.result)}</span></div>`:''}
+    ${st.note?`<div class="callout"><span class="lbl">Tip</span>${rich(st.note)}</div>`:''}
+    ${st.warn?`<div class="callout warn"><span class="lbl">Heads up</span>${rich(st.warn)}</div>`:''}
+    ${figHtml(st)}`;
+}
+function stepHtml(st,id,n,done,i){
+  return `<li id="${id}" class="rise${done?' done':''}" style="--i:${i}"><button class="num" type="button" data-sid="${id}" aria-pressed="${done}" aria-label="Mark step ${n} done"><span>${n}</span>${SV.check}</button><div class="step-body"><p class="do">${rich(st.text)}</p>${stepInner(st)}</div></li>`;
+}
+function tableHtml(t,id){
+  return `<div class="tbl" id="${id}"><table><thead><tr>${t.head.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${t.rows.map((r,ri)=>`<tr id="${id}${ri}">${r.map((c,ci)=>`<td data-h="${esc(t.head[ci]||'')}">${rich(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+function guideHtml(){
+  const D=getDone();
+  return `
+  <section class="g-head">
+    <div class="eyebrow">Xfinity Mobile · ${esc(G.code)}</div>
+    <h1>eSIM Xfinity Mobile <em>Activation</em></h1>
+    <p class="sum">${esc(G.summary)}</p>
+    <div class="meta"><span class="tag">${STEPS.length} steps</span><span class="tag">${imgCount} pictures</span><span class="tag">Celestial current to ${esc(G.updated)}</span><a class="src" href="${esc(G.source)}" target="_blank" rel="noopener">Main article in Celestial ↗</a></div>
+    <div class="qrstrip">${G.qrs.map(q=>`<button type="button" class="qrcard" data-qr="${q.key}"><img src="shots/${q.f}" width="132" height="132" alt="${esc(q.alt)}"><span><b>${esc({esim:'eSIM download',app:'Xfinity app',self:'Self-activation'}[q.key])}</b><small>${esc({esim:'If the eSIM didn’t download',app:'Start activation in the app',self:'Guided, in store'}[q.key])}</small><i>Show full screen ↗</i></span></button>`).join('')}</div>
+  </section>
+  <div class="hair"></div>
+  <div class="layout">
+    <article>
+      <div class="dock"><div class="meter"><small><span>Your progress</span><b class="cnt"></b></small><div class="bar-o"><div class="bar-i"></div></div></div><button class="go" id="go" type="button">${SV.play}<b>Start step-by-step</b></button><button class="ghost" id="reset" type="button">Reset</button></div>
+      <div class="panel" id="before"><h3>Before you start</h3><ul>${G.before.map(x=>`<li>${rich(x)}</li>`).join('')}</ul></div>
+      ${G.sections.map((s,si)=>`<section class="g-sec" id="s${si}" data-sec="${si}"><h2>${esc(s.title)}</h2>${s.intro?`<p class="intro">${rich(s.intro)}</p>`:''}
+        ${s.steps.length?`<ol class="steps">${s.steps.map((st,ti)=>stepHtml(st,`s${si}-${ti}`,ti+1,D.has(`s${si}-${ti}`),ti)).join('')}</ol>`:''}${s.table?tableHtml(s.table,`s${si}-t`):''}</section>`).join('')}
+      <div class="panel" id="tips"><h3>Good to know</h3><ul>${G.tips.map(x=>`<li>${rich(x)}</li>`).join('')}</ul></div>
+    </article>
+    <aside class="toc"><h5>On this page</h5>${G.sections.map((s,si)=>`<a href="#/~s${si}" data-a="s${si}"><span>${esc(s.title)}</span><small></small></a>`).join('')}<a href="#/~tips" data-a="tips"><span>Good to know</span></a></aside>
+  </div>`;
+}
+
+/* ---------- views ---------- */
+let VIEW='';
+function setView(html,anim){
+  const apply=()=>{ $('#view').innerHTML=html; };
+  if(anim && !RM() && document.startViewTransition && setView.ready) document.startViewTransition(apply);
+  else { apply(); if(anim && !RM()){ const v=$('#view'); v.classList.remove('enter'); void v.offsetWidth; v.classList.add('enter'); } }
+  setView.ready=true;
+}
+function showGuide(anchor){
+  const fresh=VIEW!=='guide';
+  /* landing on an anchor: no entrance motion — a scaled/translated view makes scrollIntoView aim short */
+  if(fresh){ setView(guideHtml(),!anchor); VIEW='guide'; paintDock(); spy(); if(anchor) document.querySelectorAll('#view .rise').forEach(x=>x.classList.remove('rise')); }
+  const go=()=>{ if(anchor){ const el=document.getElementById(anchor); if(el){ el.scrollIntoView({block:'start',behavior:fresh||RM()?'auto':'smooth'}); if(el.tagName==='LI'||el.tagName==='TR'){ el.classList.remove('hit'); void el.offsetWidth; el.classList.add('hit'); } } } else if(fresh) window.scrollTo(0,0); };
+  if(fresh){ requestAnimationFrame(()=>requestAnimationFrame(go));
+    /* web fonts can re-wrap the text above the target; settle once more if the reader hasn't moved */
+    if(anchor&&document.fonts&&document.fonts.status!=='loaded'){ const y0=()=>scrollY; let y; requestAnimationFrame(()=>requestAnimationFrame(()=>{ y=y0(); })); document.fonts.ready.then(()=>{ if(Math.abs(scrollY-y)<4) go(); }); } }
+  else go();
+}
+function route(){
+  const h=decodeURIComponent(location.hash.replace(/^#\/?/,''));
+  if(h.startsWith('search/')){ const q=h.slice(7); if(qi.value.trim()!==q){ qi.value=q; $('#search').classList.toggle('has',!!q); } return renderSearch(q); }
+  if(qi.value){ qi.value=''; $('#search').classList.remove('has'); }
+  showGuide(h.startsWith('~')?h.slice(1):'');
+}
+
+/* ---------- section chips + scroll spy ---------- */
+$('#cats').innerHTML=G.sections.map((s,si)=>`<a href="#/~s${si}" data-a="s${si}"><i>${String(si+1).padStart(2,'0')}</i>${esc(s.nav)}</a>`).join('');
+let IO=null;
+function spy(){
+  if(IO) IO.disconnect();
+  const secs=[...document.querySelectorAll('.g-sec')]; if(!secs.length||!('IntersectionObserver' in window)) return;
+  const vis=new Map();
+  IO=new IntersectionObserver(es=>{ es.forEach(e=>vis.set(e.target.id,e.isIntersecting?e.boundingClientRect.top:null));
+    const on=secs.find(s=>vis.get(s.id)!=null); mark(on?on.id:null); },{rootMargin:'-200px 0px -55% 0px'});
+  secs.forEach(s=>IO.observe(s));
+}
+function mark(id){
+  /* scroll the chip strip by itself: a scrollIntoView here would cancel the page's own anchor scroll */
+  const nav=$('#cats');
+  nav.querySelectorAll('a').forEach(a=>{ const m=a.dataset.a===id; if(m===a.hasAttribute('aria-current')) return; a.toggleAttribute('aria-current',m);
+    if(m&&nav.scrollWidth>nav.clientWidth) nav.scrollTo({left:a.offsetLeft-nav.offsetLeft-(nav.clientWidth-a.offsetWidth)/2,behavior:RM()?'auto':'smooth'}); });
+  document.querySelectorAll('.toc a').forEach(a=>a.classList.toggle('on',a.dataset.a===id));
+}
+
+/* ---------- progress ---------- */
+function paintDock(){
+  const d=getDone(), n=STEPS.filter(x=>d.has(x.id)).length, b=$('.dock .bar-i'); if(!b) return;
+  b.style.width=(n/STEPS.length*100)+'%';
+  $('.dock .cnt').textContent=`${n} of ${STEPS.length} done`;
+  $('.dock .go b').textContent=n&&n<STEPS.length?'Resume step-by-step':'Start step-by-step';
+  G.sections.forEach((s,si)=>{ const a=document.querySelector(`.toc a[data-a="s${si}"]`); if(!a) return; const ids=s.steps.map((_,ti)=>`s${si}-${ti}`), k=ids.filter(x=>d.has(x)).length; a.querySelector('small').textContent=ids.length?`${k}/${ids.length}`:''; a.classList.toggle('all',ids.length>0&&k===ids.length); });
+}
+
+/* ---------- search ---------- */
+const IDX=[];
+G.sections.forEach((s,si)=>{
+  IDX.push({anchor:`s${si}`,kind:'Section',title:s.title,text:[s.title,s.nav,s.intro||''].join(' ')});
+  s.steps.forEach((st,ti)=>IDX.push({anchor:`s${si}-${ti}`,kind:`${s.title} · Step ${ti+1}`,title:plain(st.text),text:[st.text,st.where||'',st.result||'',st.note||'',st.warn||'',...st.imgs.map(i=>i.cap)].join(' ')}));
+  if(s.table) s.table.rows.forEach((r,ri)=>IDX.push({anchor:`s${si}-t${ri}`,kind:`${s.title} · Table`,title:plain(r[0]),text:r.join(' ')}));
+});
+G.before.forEach(t=>IDX.push({anchor:'before',kind:'Before you start',title:'Before you start',text:t}));
+G.tips.forEach(t=>IDX.push({anchor:'tips',kind:'Good to know',title:'Good to know',text:t}));
+IDX.forEach(r=>{ r.text=plain(r.text).replace(/\s+/g,' ').trim(); r.lc=r.text.toLowerCase(); });
+const SYN={"qr": ["qr code", "scan"], "scan": ["qr", "camera"], "code": ["lpa", "qr", "passcode"], "manual": ["enter it manually", "enter details manually", "enter code manually", "lpa"], "iphone": ["apple", "ios"], "apple": ["iphone"], "android": ["samsung", "pixel", "motorola"], "galaxy": ["samsung"], "google": ["pixel"], "moto": ["motorola"], "watch": ["smartwatch"], "smartwatch": ["watch"], "sim": ["esim", "psim"], "card": ["psim", "sim card"], "physical": ["psim"], "xm360": ["xm 360"], "imei": ["imei 1"], "locked": ["unlock", "lock"], "unlock": ["locked"], "port": ["transfer", "porting"], "transfer": ["quick transfer", "port"], "sos": ["no service"], "service": ["bars", "sos"], "delete": ["erase", "remove"], "reset": ["factory", "erase"], "replacement": ["insurance", "oem", "assurant"], "insurance": ["xmc", "assurant"], "app": ["xfinity app"], "activate": ["activation"], "error": ["byo200", "retry"], "status": ["network status", "rs", "cn"], "ready": ["rs"], "reissue": ["new esim"], "dual": ["dual sim", "dual-sim"], "number": ["port", "mdn"], "iccid": ["scan iccid"], "swap": ["switch", "replace sim"]};
+function search(q){
+  const terms=q.toLowerCase().split(/\s+/).filter(Boolean); if(!terms.length) return [];
+  const has=(r,t)=>r.lc.includes(t)||(SYN[t]||[]).some(x=>r.lc.includes(x))||(t.length>3&&t.endsWith('s')&&r.lc.includes(t.slice(0,-1)));
+  return IDX.filter(r=>terms.every(t=>has(r,t))).map(r=>{ let sc=0; terms.forEach(t=>{ if(r.title.toLowerCase().includes(t)) sc+=4; if(r.lc.includes(t)) sc+=2; }); if(r.kind==='Section') sc+=1; return {r,sc}; }).sort((a,b)=>b.sc-a.sc).slice(0,40);
+}
+function snippet(text,terms){
+  const lc=text.toLowerCase(); let at=-1;
+  for(const t of terms){ const k=lc.indexOf(t); if(k>=0&&(at<0||k<at)) at=k; }
+  let s=at>60?'…'+text.slice(at-50):text; if(s.length>200) s=s.slice(0,200)+'…';
+  let out=esc(s); for(const t of terms){ if(t.length<2) continue; out=out.replace(new RegExp('('+t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'),'<mark>$1</mark>'); }
+  return out;
+}
+function renderSearch(q){
+  const anim=VIEW!=='search'; VIEW='search'; if(IO) IO.disconnect(); mark(null);
+  const terms=q.toLowerCase().split(/\s+/).filter(Boolean), res=search(q);
+  setView(`<section class="s-head"><div class="eyebrow">Search this guide</div><h1>“${esc(q)}”</h1><p>${res.length?`${res.length} match${res.length===1?'':'es'}`:'No matches. Try a shorter word: QR, Samsung, SOS, watch, IMEI, pSIM.'}</p><button type="button" id="s-back">← Back to the guide</button></section>
+  <div class="hits">${res.map(({r},k)=>`<a class="hit${anim?' rise':''}" style="--i:${k}" href="#/~${r.anchor}"><div class="where">${esc(r.kind)}</div><h4>${esc(r.title)}</h4><p>${snippet(r.text,terms)}</p></a>`).join('')}</div>`,anim);
+  window.scrollTo(0,0);
+}
+const qi=$('#q'); let qt=null;
+qi.addEventListener('input',()=>{ $('#search').classList.toggle('has',!!qi.value); clearTimeout(qt); qt=setTimeout(()=>{ const v=qi.value.trim(); if(v) history.replaceState(null,'','#/search/'+encodeURIComponent(v)); else history.replaceState(null,'','#/'); route(); },140); });
+qi.addEventListener('keydown',e=>{ if(e.key==='Enter'){ const first=$('a.hit'); if(first) first.click(); qi.blur(); } if(e.key==='Escape'){ qi.value=''; qi.dispatchEvent(new Event('input')); } });
+$('#q-clear').addEventListener('click',()=>{ qi.value=''; qi.dispatchEvent(new Event('input')); qi.focus(); });
+document.addEventListener('keydown',e=>{ const typing=/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName); if(!typing&&(e.key==='/'||((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'))&&!WK){ e.preventDefault(); qi.focus(); qi.select(); } if(e.key==='Escape') closeLB(); });
+
+/* ---------- lightbox ---------- */
+function openLB(im,qr){ $('#lb img').src=im.src; $('#lb img').alt=im.alt; $('#lb p').textContent=qr?'Customer: open your phone’s Camera and point it at this code.':im.alt; $('#lb').classList.remove('zoom'); $('#lb').classList.toggle('qrmode',!!qr); $('#lb').classList.add('on'); }
+function closeLB(){ $('#lb').classList.remove('on','zoom','qrmode'); }
+$('#lb').addEventListener('click',e=>{ if(e.target.tagName==='IMG'){ if(!$('#lb').classList.contains('qrmode')) $('#lb').classList.toggle('zoom'); return; } closeLB(); });
+
+/* ---------- clicks ---------- */
+document.addEventListener('click',e=>{
+  if(e.target.closest('#s-back')){ location.hash='#/'; return; }
+  const qc=e.target.closest('.qrcard'); if(qc){ openLB(qc.querySelector('img'),true); return; }
+  const f=e.target.closest('figure.shot'); if(f){ openLB(f.querySelector('img'),f.classList.contains('qr')); return; }
+  const cd=e.target.closest('.step-body code, td code, .callout code'); if(cd){ copyCode(cd); return; }
+  const nb=e.target.closest('.num'); if(nb){ const d=getDone(), id=nb.dataset.sid, li=nb.closest('li');
+    if(d.has(id)){ d.delete(id); li.classList.remove('done'); nb.setAttribute('aria-pressed','false'); } else { d.add(id); li.classList.add('done'); nb.setAttribute('aria-pressed','true'); burst(nb,8); }
+    setDone(d); paintDock(); return; }
+  if(e.target.closest('#go')){ wkOpen(); return; }
+  if(e.target.closest('#reset')){ setDone(new Set()); document.querySelectorAll('ol.steps li.done').forEach(li=>{ li.classList.remove('done'); li.querySelector('.num').setAttribute('aria-pressed','false'); }); paintDock(); return; }
+  /* same-hash anchor clicks still jump (hashchange won't fire) */
+  const a=e.target.closest('a[href^="#/~"]'); if(a&&a.getAttribute('href')===location.hash){ e.preventDefault(); route(); }
+});
+function copyCode(el){ const txt=el.textContent; const done=()=>{ el.classList.add('copied'); setTimeout(()=>el.classList.remove('copied'),1400); };
+  if(navigator.clipboard&&window.isSecureContext) navigator.clipboard.writeText(txt).then(done,()=>{}); else { const r=document.createRange(); r.selectNodeContents(el); const s=getSelection(); s.removeAllRanges(); s.addRange(r); try{ document.execCommand('copy'); done(); }catch(_){} } }
+function burst(el,n){ if(RM()) return; const r=el.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2, cols=['#5be3a0','#f0cf86','#ff7eb6','#5cc8ff','#ffb05c'];
+  for(let k=0;k<n;k++){ const p=document.createElement('i'); p.className='spark'; const a=Math.random()*Math.PI*2, d=40+Math.random()*(n>12?160:60);
+    p.style.cssText=`left:${cx}px;top:${cy}px;background:${cols[k%cols.length]};--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;--r:${Math.random()*540}deg`; document.body.appendChild(p); setTimeout(()=>p.remove(),1200); } }
+
+/* ---------- step-by-step walkthrough ---------- */
+let WK=null;
+function wkOpen(){ const d=getDone(); let i=STEPS.findIndex(x=>!d.has(x.id)); if(i<0) i=0;
+  WK={i}; $('#wk-title').textContent=G.title; $('#wk').classList.add('on'); document.body.style.overflow='hidden'; wkRender(0); $('#wk-next').focus(); }
+function wkClose(){ if(!WK) return; $('#wk').classList.remove('on'); document.body.style.overflow=''; const at=STEPS[Math.min(WK.i,STEPS.length-1)]; WK=null; VIEW=''; showGuide(at?at.id:''); }
+function wkRender(dir){ const i=WK.i, stg=$('#wk-stage');
+  if(i>=STEPS.length){ $('#wk-sec').textContent='Finished'; $('#wk-bar').style.width='100%';
+    stg.innerHTML=`<div class="wk-card wk-done in-r"><div class="ring">${SV.check}</div><h2>All ${STEPS.length} steps done.</h2><p>${esc(G.title)} — nice work.</p></div>`;
+    $('#wk-next').innerHTML='Back to the guide'; $('#wk-back').disabled=false; burst($('.wk-done .ring'),36); return; }
+  const x=STEPS[i]; $('#wk-sec').textContent=x.sec; $('#wk-bar').style.width=(i/STEPS.length*100)+'%';
+  stg.innerHTML=`<div class="wk-card ${dir<0?'in-l':'in-r'}"><div class="wk-count"><span class="big">${i+1}</span><span>Step ${i+1} of ${STEPS.length}<br>${esc(x.sec)} · ${x.ti+1}</span></div><p class="wk-text">${rich(x.st.text)}</p>${stepInner(x.st)}<p class="wk-hint">Tap a picture to zoom · Swipe or use ← → keys</p></div>`;
+  stg.scrollTop=0; $('#wk-back').disabled=i===0;
+  $('#wk-next').innerHTML=i===STEPS.length-1?`Done — finish ${SV.check}`:`Done — next step ${SV.arr}`; }
+function wkNext(){ if(!WK) return; if(WK.i>=STEPS.length){ wkClose(); return; } const d=getDone(); d.add(STEPS[WK.i].id); setDone(d); WK.i++; wkRender(1); }
+function wkPrev(){ if(!WK||WK.i===0) return; WK.i--; wkRender(-1); }
+$('#wk-next').addEventListener('click',wkNext); $('#wk-back').addEventListener('click',wkPrev); $('#wk-x').addEventListener('click',wkClose);
+document.addEventListener('keydown',e=>{ if(!WK||$('#lb').classList.contains('on')) return; if(e.key==='ArrowRight'){e.preventDefault();wkNext();} else if(e.key==='ArrowLeft'){e.preventDefault();wkPrev();} else if(e.key==='Escape'){wkClose();} });
+let tx=null; $('#wk-stage').addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
+$('#wk-stage').addEventListener('touchend',e=>{ if(tx==null) return; const dx=e.changedTouches[0].clientX-tx; tx=null; if(Math.abs(dx)>70){ dx<0?wkNext():wkPrev(); } },{passive:true});
+
+window.addEventListener('hashchange',route);
+route();
+</script>
+</body>
+</html>
