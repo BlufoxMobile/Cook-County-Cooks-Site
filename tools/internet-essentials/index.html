@@ -255,6 +255,9 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
   .dock .meter small span{display:none}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* Long URLs (e.g. support.internetessentials.com/en/agent/agentsearch) must wrap on phones */
+.step-body a,.callout a,.mrow a,.panel a,td a,.intro a{overflow-wrap:anywhere;word-break:break-word}
 </style>
 </head>
 <body>
