@@ -178,6 +178,16 @@ const SURFACES = [
        still ink rather than grey mush. */
     lines: ['Report BP', 'Access', 'Issues'], rule: false },
 
+  /* The fifth card (Oct 2026), added to the plate for the Internet Essentials
+     guide: the rail recedes, so it is the narrowest sheet yet (~4.1% of the
+     plate). Same treatment as bp-access — short lines, no rule. Quad traced
+     on the edited prep.webp; the dark plate's card sits on the same pixels. */
+  { slug: 'internet-essentials', snap: true, room: 'prep', surface: 'card',
+    quad: [[56.38, 37.69], [60.49, 37.93], [60.42, 46.47], [56.36, 46.57]],
+    zone: [0.11, 0.24, 0.96, 0.71],    align: 'start',
+    paper: [225, 217, 207], ramp: [-0.030, 0.018],
+    lines: ['Internet', 'Essentials', 'Portal'], rule: false },
+
   /* ── BACK OFFICE · two clipboards on wall hooks ────────────────────────────
      The camera is off to the left of this wall, so horizontals converge hard:
      both sheets' top edges fall ~9° (left board) and ~12° (right board) while
