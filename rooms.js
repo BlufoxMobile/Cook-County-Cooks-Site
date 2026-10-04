@@ -107,7 +107,7 @@ export const HOTSPOTS = {
     { slug:'porting-guide', kind:'tool', x:24.0, y:33.5, w:9.0, h:12.0, label:'PortPro — Porting Guide' },
     { slug:'credit-limit',  kind:'tool', x:35.0, y:33.5, w:7.5, h:11.0, label:'Credit Limit Increase' },
     { slug:'exception-report', kind:'tool', x:43.5, y:34.5, w:6.5, h:10.0, label:'Exception Report' },
-    { slug:'bp-access',     kind:'tool', x:51.0, y:35.0, w:5.0, h: 9.0, label:'Report BP Access Issues' },
+    { slug:'bp-access',     kind:'tool', x:51.0, y:35.0, w:5.0, h: 9.0, label:'Request Access — How To' },
     { slug:'fall-off',      kind:'tool', x:56.2, y:36.5, w:4.4, h:10.2, label:'Fall-Off Summary' },
     /* v39 (2026-10-04): the client traded these two tickets with the Back Office
        clipboards — Exception Report and Fall-Off Summary now hang on the rail,
