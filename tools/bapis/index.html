@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="theme-color" content="#000000">
+<title>BAPIS: Scan, Pack &amp; Pick Up</title>
+<style>
+  @font-face { font-family: 'Archivo'; font-style: normal; font-weight: 300 700; font-stretch: 62% 125%; font-display: swap;
+    src: url(../../assets/fonts/archivo-latin.e3a28eade2.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'Bodoni Moda'; font-style: normal; font-weight: 400 900; font-display: swap;
+    src: url(../../assets/fonts/bodoni-moda-latin.c032219ef6.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'Bodoni Moda'; font-style: italic; font-weight: 400 700; font-display: swap;
+    src: url(../../assets/fonts/bodoni-moda-italic-latin.b737328c13.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+</style>
+<style>
+/* Same design system as tools/csg-how-to (CSG How To Guides), so the two read as one set.
+   Accent is CSG's "orders" colour. */
+:root{
+  --ink:#000;--ink-1:#07090c;--ink-2:#0d1116;--ink-3:#151b22;
+  --line:rgba(255,255,255,.08);--line-2:rgba(255,255,255,.14);
+  --text:#f2efe8;--text-2:#b9b4aa;--text-3:#7d7a74;
+  --brass:#d4a94f;--brass-2:#f0cf86;--brass-dim:rgba(212,169,79,.16);
+  --c:#ff7eb6;
+  --warn:#ff8a65;--ok:#5be3a0;
+  --display:'Bodoni Moda',Didot,'Times New Roman',serif;
+  --sans:'Archivo',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:ui-monospace,'JetBrains Mono',Consolas,monospace;
+  --r:4px;--gut:16px;--max:1180px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:190px}
+body{margin:0;background:var(--ink);color:var(--text);font:400 16px/1.6 var(--sans);-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(900px 500px at 85% -10%,rgba(255,126,182,.10),transparent 60%),radial-gradient(700px 500px at -10% 110%,rgba(212,169,79,.07),transparent 60%)}
+a{color:inherit}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--brass-2);outline-offset:2px;border-radius:2px}
+.wrap{position:relative;z-index:1;max-width:var(--max);margin:0 auto;padding:0 var(--gut)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.hair{height:1px;background:linear-gradient(90deg,transparent,var(--c) 20%,var(--c) 80%,transparent);opacity:.45}
+
+/* ---------- header ---------- */
+header.top{position:sticky;top:0;z-index:20;background:rgba(0,0,0,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:14px;height:64px}
+.brand{display:flex;align-items:baseline;gap:10px;text-decoration:none;white-space:nowrap}
+.brand b{font:700 24px/1 var(--display)}
+.brand b em{color:var(--c)}
+.brand span{font:600 10px/1 var(--sans);letter-spacing:.28em;text-transform:uppercase;color:var(--text-3)}
+.search{position:relative;flex:1;max-width:520px;margin-left:auto}
+.search input{width:100%;height:44px;padding:0 44px 0 42px;background:var(--ink-2);border:0;box-shadow:inset 0 0 0 1px var(--line-2);border-radius:999px;color:var(--text);font:500 15px var(--sans)}
+.search input::placeholder{color:var(--text-3)}
+.search input:focus{outline:none;box-shadow:inset 0 0 0 1px var(--c)}
+.search input::-webkit-search-cancel-button{display:none}
+.search svg{position:absolute;left:15px;top:13px;width:18px;height:18px;stroke:var(--text-3)}
+.search kbd{position:absolute;right:12px;top:11px;font:500 11px var(--mono);color:var(--text-3);border:1px solid var(--line-2);border-radius:4px;padding:2px 6px}
+.search .clear{position:absolute;right:6px;top:4px;width:36px;height:36px;border-radius:50%;color:var(--text-2);display:none;font-size:20px}
+.search.has .clear{display:block}.search.has kbd{display:none}
+nav.cats{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 0 12px}
+nav.cats::-webkit-scrollbar{display:none}
+nav.cats a{flex:none;display:flex;align-items:center;gap:8px;height:38px;padding:0 16px;border-radius:999px;text-decoration:none;color:var(--text-2);font:600 14px var(--sans);box-shadow:inset 0 0 0 1px var(--line);transition:.15s}
+nav.cats a i{font:700 11px var(--sans);font-style:normal;color:var(--c);letter-spacing:.06em}
+nav.cats a:hover{color:var(--text);box-shadow:inset 0 0 0 1px var(--line-2)}
+nav.cats a[aria-current]{color:#000;background:var(--c);box-shadow:none}
+nav.cats a[aria-current] i{color:#000}
+
+/* ---------- guide page ---------- */
+.g-head{padding:44px 0 28px}
+.eyebrow{font:600 12px/1 var(--sans);letter-spacing:.28em;text-transform:uppercase;color:var(--c)}
+.g-head h1{font:700 clamp(38px,7vw,76px)/1 var(--display);margin:14px 0 16px;max-width:18ch;letter-spacing:-.012em}
+.g-head h1 em{background:linear-gradient(100deg,var(--c) 0%,#ffc2dc 40%,#fff2f8 50%,#ffc2dc 60%,var(--c) 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sheen 5s ease-in-out infinite;font-style:italic}
+@keyframes sheen{0%,100%{background-position:100% 0}50%{background-position:0 0}}
+.g-head .sum{font-size:18px;color:var(--text-2);max-width:62ch;margin:0}
+.g-head .meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:18px}
+.tag{font:600 11px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;padding:5px 8px;border-radius:3px;background:var(--ink-3);color:var(--text-2)}
+.layout{display:grid;grid-template-columns:1fr;gap:32px;padding:28px 0 80px}
+@media(min-width:980px){.layout{grid-template-columns:minmax(0,1fr) 260px}}
+.toc{display:none}
+@media(min-width:980px){.toc{display:block;position:sticky;top:140px;align-self:start}}
+.toc h5{margin:0 0 10px;font:600 11px var(--sans);letter-spacing:.24em;text-transform:uppercase;color:var(--text-3)}
+.toc a{display:flex;justify-content:space-between;gap:8px;padding:7px 0 7px 14px;border-left:1px solid var(--line-2);text-decoration:none;color:var(--text-2);font-size:14px;transition:color .15s,border-color .15s}
+.toc a small{color:var(--text-3);font-size:12px}
+.toc a:hover,.toc a.on{color:var(--text);border-color:var(--c)}
+.toc a.all small{color:var(--ok)}
+.g-sec{margin-bottom:44px}
+.g-sec h2{display:flex;align-items:center;gap:12px;font:700 28px/1.15 var(--display);margin:0 0 6px}
+.g-sec h2::before{content:"";flex:none;width:22px;height:2px;background:var(--c)}
+.g-sec .intro{color:var(--text-2);margin:0 0 18px}
+.g-sec .intro b{color:var(--text)}
+ol.steps{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+ol.steps>li{position:relative;display:grid;grid-template-columns:52px 1fr;gap:14px;padding:18px;border-radius:6px;background:var(--ink-1);box-shadow:inset 0 0 0 1px var(--line);transition:background .25s,box-shadow .25s,opacity .25s}
+ol.steps>li.hit{box-shadow:inset 0 0 0 1px var(--brass);animation:glow 1.6s}
+@keyframes glow{0%{background:rgba(212,169,79,.18)}100%{background:var(--ink-1)}}
+.step-body{min-width:0}
+.step-body .do{margin:8px 0 0;font-size:18px;line-height:1.5}
+.step-body code{font:500 .9em var(--mono);background:var(--ink-3);color:var(--brass-2);padding:2px 6px;border-radius:3px}
+.callout{margin-top:12px;padding:12px 14px;border-radius:4px;font-size:15px;background:var(--ink-2);box-shadow:inset 3px 0 0 var(--brass)}
+.callout.warn{box-shadow:inset 3px 0 0 var(--warn)}
+.callout .lbl{display:block;font:700 11px var(--sans);letter-spacing:.18em;text-transform:uppercase;margin-bottom:4px;color:var(--brass-2)}
+.callout.warn .lbl{color:var(--warn)}
+.callout a,.mrow a,.panel a{color:var(--brass-2)}
+.shots{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start}
+figure.shot{width:fit-content;max-width:100%;margin:14px 0 0;border-radius:6px;overflow:hidden;background:#e8ebef;box-shadow:0 0 0 1px var(--line-2),0 12px 40px rgba(0,0,0,.5);cursor:zoom-in;position:relative}
+figure.shot img{display:block;width:100%;height:auto;margin:0 auto;transition:transform .5s cubic-bezier(.16,1,.3,1)}
+figure.shot:hover img{transform:scale(1.015)}
+figure.shot figcaption{background:var(--ink-2);color:var(--text-3);font-size:13px;padding:8px 12px}
+figure.shot::after{content:"Tap to enlarge";position:absolute;right:10px;top:10px;font:600 11px var(--sans);letter-spacing:.08em;padding:5px 8px;border-radius:3px;background:rgba(0,0,0,.72);color:#fff;opacity:0;transition:.2s}
+figure.shot:hover::after{opacity:1}
+/* tall phone-camera shots read better side by side than stacked */
+@media(min-width:700px){.shots.pair figure.shot{max-width:calc(50% - 6px)}}
+.panel{padding:20px;border-radius:6px;background:var(--ink-1);box-shadow:inset 0 0 0 1px var(--line);margin-bottom:28px}
+.panel h3{margin:0 0 10px;font:700 22px var(--display)}
+.panel ul{margin:0;padding-left:20px;color:var(--text-2)}
+.panel li b{color:var(--text)}
+.panel li+li{margin-top:6px}
+.src{display:inline-flex;align-items:center;gap:8px;height:30px;padding:0 12px;border-radius:999px;text-decoration:none;font-weight:600;font-size:12px;box-shadow:inset 0 0 0 1px var(--line-2)}
+.src:hover{box-shadow:inset 0 0 0 1px var(--c);color:var(--c)}
+.tbl{margin-top:14px;border-radius:6px;overflow:auto;box-shadow:inset 0 0 0 1px var(--line)}
+.tbl table{width:100%;border-collapse:collapse;font-size:15px}
+.tbl th{text-align:left;font:600 11px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--c);background:var(--ink-2);padding:12px 14px;border-bottom:1px solid var(--line-2)}
+.tbl td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--text)}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tr.hit td{background:rgba(212,169,79,.16)}
+@media(max-width:640px){
+  .tbl{box-shadow:none;overflow:visible}
+  .tbl thead{display:none}
+  .tbl table,.tbl tbody,.tbl tr,.tbl td{display:block;width:100%}
+  .tbl tr{margin-bottom:10px;border-radius:6px;background:var(--ink-1);box-shadow:inset 0 0 0 1px var(--line);padding:6px 0}
+  .tbl td{border:0;padding:6px 14px}
+  .tbl td::before{content:attr(data-h);display:block;font:600 10px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+}
+
+/* ---------- search ---------- */
+.s-head{padding:40px 0 20px}
+.s-head h1{font:700 clamp(32px,5vw,48px)/1.1 var(--display);margin:10px 0 0}
+.s-head p{color:var(--text-2);margin:8px 0 0}
+.s-head button{margin-top:14px;color:var(--text-2);text-decoration:underline;font-size:14px}
+.hits{display:grid;gap:10px;padding-bottom:80px}
+a.hit{display:block;padding:18px;border-radius:6px;text-decoration:none;background:var(--ink-1);box-shadow:inset 0 0 0 1px var(--line)}
+a.hit:hover{background:var(--ink-2)}
+a.hit .where{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--c);font-weight:600}
+a.hit h4{margin:6px 0 4px;font:600 18px/1.3 var(--sans)}
+a.hit p{margin:0;color:var(--text-2);font-size:15px}
+mark{background:rgba(240,207,134,.25);color:var(--brass-2);border-radius:2px;padding:0 2px}
+
+/* ---------- motion ---------- */
+#view{view-transition-name:view}
+::view-transition-old(view){animation:vtOut .28s cubic-bezier(.4,0,1,1) both}
+::view-transition-new(view){animation:vtIn .55s cubic-bezier(.16,1,.3,1) both}
+@keyframes vtOut{to{opacity:0;transform:translateY(-14px) scale(.985);filter:blur(6px)}}
+@keyframes vtIn{from{opacity:0;transform:translateY(28px) scale(.975);filter:blur(10px)}}
+#view.enter{animation:vtIn .55s cubic-bezier(.16,1,.3,1) both}
+.rise{animation:rise .6s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(min(var(--i,0),14) * 45ms)}
+@keyframes rise{from{opacity:0;transform:translateY(22px) scale(.98)}}
+
+/* step check-offs */
+.num{position:relative;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;font:700 19px var(--display);color:#000;background:var(--c);transition:transform .2s cubic-bezier(.3,1.6,.5,1),background .2s}
+.num:hover{transform:scale(1.08)}
+.num svg{position:absolute;width:22px;height:22px;opacity:0;transform:scale(.4);transition:.25s cubic-bezier(.3,1.6,.5,1)}
+.num span{transition:.2s}
+li.done .num{background:var(--ok);animation:pop .45s cubic-bezier(.3,1.6,.5,1)}
+li.done .num span{opacity:0;transform:scale(.4)}
+li.done .num svg{opacity:1;transform:scale(1)}
+@keyframes pop{40%{transform:scale(1.25);box-shadow:0 0 0 10px rgba(91,227,160,.18)}}
+li.done{background:rgba(91,227,160,.035)!important;box-shadow:inset 0 0 0 1px rgba(91,227,160,.28)!important}
+li.done .do{color:var(--text-2)}
+.mrow{display:flex;gap:10px;align-items:flex-start;margin-top:10px;font-size:15px;color:var(--text-2)}
+.mrow svg{flex:none;width:18px;height:18px;margin-top:2px;stroke:var(--c)}
+.mrow b{color:var(--text);font-weight:600}
+
+/* progress dock */
+.dock{position:sticky;top:112px;z-index:15;margin:0 0 26px;padding:12px 14px;border-radius:8px;background:rgba(10,13,17,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:inset 0 0 0 1px var(--line-2),0 10px 30px rgba(0,0,0,.4);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.dock .meter{flex:1;min-width:140px}
+.dock .meter small{display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);letter-spacing:.06em;margin-bottom:6px}
+.dock .meter small b{color:var(--text)}
+.bar-o{height:6px;border-radius:99px;background:var(--ink-3);overflow:hidden}
+.bar-i{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--c),var(--ok));transition:width .6s cubic-bezier(.16,1,.3,1)}
+.go{display:inline-flex;align-items:center;gap:10px;height:46px;padding:0 20px;border-radius:999px;background:var(--c);color:#000;font-weight:700;font-size:15px;letter-spacing:.02em;position:relative;overflow:hidden;transition:transform .15s}
+.go:hover{transform:translateY(-1px)}
+.go::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%);transform:translateX(-120%);animation:sweep 3.2s 1s ease-in-out infinite}
+@keyframes sweep{60%,100%{transform:translateX(120%)}}
+.go svg{width:18px;height:18px}
+.ghost{height:46px;padding:0 14px;border-radius:999px;color:var(--text-2);font-size:14px;box-shadow:inset 0 0 0 1px var(--line-2)}
+.ghost:hover{color:var(--text)}
+
+/* walkthrough */
+#wk{position:fixed;inset:0;z-index:70;display:none;flex-direction:column;background:radial-gradient(1200px 600px at 50% -10%,rgba(255,126,182,.14),transparent 60%),#000;color:var(--text)}
+#wk.on{display:flex;animation:wkIn .5s cubic-bezier(.16,1,.3,1)}
+@keyframes wkIn{from{opacity:0;transform:scale(1.04)}}
+.wk-top{display:flex;align-items:center;gap:14px;padding:14px var(--gut);border-bottom:1px solid var(--line)}
+.wk-top .t{flex:1;min-width:0}
+.wk-top .t b{display:block;font:700 18px var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wk-top .t small{color:var(--c);font:600 11px var(--sans);letter-spacing:.18em;text-transform:uppercase}
+.wk-x{width:44px;height:44px;border-radius:50%;background:var(--ink-3);font-size:22px;flex:none}
+.wk-prog{height:4px;background:var(--ink-3)}
+.wk-prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--c),var(--ok));transition:width .5s cubic-bezier(.16,1,.3,1);box-shadow:0 0 18px var(--c)}
+.wk-stage{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:22px var(--gut) 30px}
+.wk-card{max-width:980px;margin:0 auto}
+.wk-card.in-r{animation:inR .45s cubic-bezier(.16,1,.3,1)}
+.wk-card.in-l{animation:inL .45s cubic-bezier(.16,1,.3,1)}
+@keyframes inR{from{opacity:0;transform:translateX(60px);filter:blur(8px)}}
+@keyframes inL{from{opacity:0;transform:translateX(-60px);filter:blur(8px)}}
+.wk-count{display:flex;align-items:center;gap:12px;color:var(--text-3);font:600 12px var(--sans);letter-spacing:.16em;text-transform:uppercase}
+.wk-count .big{display:grid;place-items:center;width:58px;height:58px;border-radius:50%;background:var(--c);color:#000;font:700 26px var(--display);letter-spacing:0;animation:pop .5s cubic-bezier(.3,1.6,.5,1)}
+.wk-text{font:600 clamp(22px,3.4vw,32px)/1.3 var(--sans);margin:18px 0 6px;letter-spacing:-.005em}
+.wk-card .mrow{font-size:17px}
+.wk-card figure.shot{margin-top:18px;width:fit-content!important}
+.wk-card figure.shot img{max-height:58vh;width:auto;max-width:100%;object-fit:contain;background:#fff}
+.wk-nav{display:flex;gap:10px;padding:12px var(--gut) calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:rgba(0,0,0,.6)}
+.wk-nav button{height:56px;border-radius:12px;font-weight:700;font-size:16px}
+.wk-back{width:120px;box-shadow:inset 0 0 0 1px var(--line-2);color:var(--text-2)}
+.wk-back:disabled{opacity:.35}
+.wk-next{flex:1;background:var(--c);color:#000;display:flex;align-items:center;justify-content:center;gap:10px}
+.wk-next svg{width:20px;height:20px}
+.wk-hint{color:var(--text-3);font-size:12px;text-align:center;margin-top:14px}
+.wk-done{text-align:center;padding:12vh 0}
+.wk-done .ring{width:120px;height:120px;margin:0 auto 26px;border-radius:50%;display:grid;place-items:center;background:var(--ok);color:#000;animation:pop .7s cubic-bezier(.3,1.6,.5,1);position:relative}
+.wk-done .ring::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--ok);animation:ripple 1.6s ease-out infinite}
+@keyframes ripple{to{inset:-40px;opacity:0}}
+.wk-done .ring svg{width:56px;height:56px}
+.wk-done h2{font:700 clamp(32px,6vw,54px)/1.05 var(--display);margin:0 0 10px}
+.wk-done p{color:var(--text-2)}
+.spark{position:fixed;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:80;animation:spark 1.1s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes spark{to{transform:translate(var(--dx),var(--dy)) rotate(var(--r));opacity:0}}
+
+/* lightbox */
+#lb{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.94);display:none;place-items:center;padding:20px;overflow:auto}
+#lb.on{display:grid}
+#lb img{max-width:100%;max-height:86vh;border-radius:4px;background:#fff;cursor:zoom-in;transition:max-width .3s,max-height .3s}
+#lb p{color:var(--text-2);text-align:center;font-size:14px;max-width:70ch;margin:12px auto 0}
+#lb button{position:fixed;top:14px;right:14px;width:44px;height:44px;border-radius:50%;background:var(--ink-3);font-size:22px;z-index:1}
+#lb.zoom{place-items:start;align-content:start}
+#lb.zoom img{max-width:none;max-height:none;width:auto;cursor:zoom-out}
+
+footer{padding:40px 0 60px;color:var(--text-3);font-size:13px;border-top:1px solid var(--line)}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+@media(max-width:640px){
+  .bar{height:auto;flex-wrap:wrap;padding:12px 0 10px;gap:10px}
+  .brand b{font-size:21px}
+  .brand span{display:none}
+  .search{max-width:none;flex-basis:100%;order:3}
+  .search kbd{display:none}
+  .g-head{padding:30px 0 20px}
+  .g-head .sum{font-size:16px}
+  ol.steps>li{grid-template-columns:1fr;gap:6px;padding:16px}
+  html{scroll-padding-top:230px}
+  .dock{top:166px;padding:10px 12px;gap:10px}
+  .go{flex:1;justify-content:center}
+  .ghost{display:none}
+  .dock .meter small span{display:none}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="bar">
+      <a class="brand" href="#/"><b>BAPIS <em>Scan &amp; Pack</em></b><span>Blufox Mobile</span></a>
+      <div class="search" id="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <label class="sr" for="q">Search this guide</label>
+        <input id="q" type="search" placeholder="Search: pickup code, unpack, reprint…" autocomplete="off" enterkeyhint="search">
+        <kbd>/</kbd>
+        <button class="clear" id="q-clear" type="button" aria-label="Clear search">×</button>
+      </div>
+    </div>
+    <nav class="cats" id="cats" aria-label="Sections"></nav>
+  </div>
+</header>
+<main id="view" class="wrap" tabindex="-1"></main>
+<footer><div class="wrap"><span>BAPIS Scan &amp; Pack · From Celestial article COMMS538 · For Blufox Mobile team members · Always confirm against Celestial.</span><a href="https://celestial.cable.comcast.com/knowledge/article-info/?query=260320161714277" target="_blank" rel="noopener">Open the article in Celestial ↗</a></div></footer>
+
+<div id="wk" role="dialog" aria-modal="true" aria-label="Step-by-step walkthrough">
+  <div class="wk-top"><div class="t"><small id="wk-sec"></small><b id="wk-title"></b></div><button class="wk-x" id="wk-x" type="button" aria-label="Close walkthrough">×</button></div>
+  <div class="wk-prog"><i id="wk-bar"></i></div>
+  <div class="wk-stage" id="wk-stage"></div>
+  <div class="wk-nav"><button class="wk-back" id="wk-back" type="button">← Back</button><button class="wk-next" id="wk-next" type="button"></button></div>
+</div>
+<div id="lb" role="dialog" aria-label="Enlarged picture"><button type="button" aria-label="Close">×</button><div><img alt=""><p></p></div></div>
+
+<script>
+const G = {"id": "bapis", "code": "COMMS538", "updated": "Sep 25, 2026", "title": "BAPIS: Scan, Pack & Pick Up", "summary": "Buy Anywhere, Pick up In-store. Pack the online order before the customer walks in, hand it over the right way, and unpack it if nobody comes.", "before": ["Every BAPIS order lives in **Celestial → Store Space → Pickups**, sorted into three queues: **Ready to pack**, **Packed** and **Unpack**.", "Pack the order **at least two hours before** the customer is due in the store.", "Core and Xfinity Mobile bought together show up as **two line items**. That means two bags, and you pack and hand over each one separately.", "**Mobile** orders can only be picked up by the **primary account holder**. **Core** orders can be picked up by the primary, a manager, or an authorized user.", "Orders not picked up within **four days** move to the **Unpack** queue by themselves."], "sections": [{"title": "Find your BAPIS orders", "nav": "Find orders", "intro": "All in-store reps can see every BAPIS order in Store Space. Start here every time.", "steps": [{"text": "Open **Store Space** and select the **Pickups** tab.", "where": "Celestial → **Store** → **Pickups**", "result": "Three queues side by side: **Ready to pack**, **Packed** and **Unpack**, each with the customer's name and when they ordered or their appointment time.", "imgs": [{"f": "966ad73f44.webp", "w": 960, "h": 612, "cap": "The Pickups tab: Ready to pack, Packed and Unpack queues.", "alt": "Celestial store space pickup page. Ready to pack, packed, and unpack queues with customer name, order time and date or appointment time."}]}, {"text": "Watch for the **New pickup order received** alert.", "result": "When an order comes in through XOE or xfinity.com, store leaders get a notification in the top-right corner: “Pack their bag before they arrive.”", "imgs": [{"f": "407252b440.webp", "w": 960, "h": 614, "cap": "The new pickup order notification, top right.", "alt": "Celestial Store Space with new pickup order received notification in the top right corner."}]}]}, {"title": "Pack the order (scan and pack)", "nav": "Pack", "intro": "Do this at least two hours before the customer arrives.", "steps": [{"text": "Select the customer's name under **Ready to pack**, review the order, then select **Pack**.", "where": "**Pickups** → **Ready to pack** → customer's name", "result": "Order details: when it was placed, any pickup appointment, their services, bags to pack, items ordered, and the core and Xfinity Mobile equipment on the order.", "note": "If they ordered core **and** Xfinity Mobile, you'll see two line items. Pack two separate bags and run scan and pack once for each.", "imgs": [{"f": "8393e492c9.webp", "w": 960, "h": 614, "cap": "Customer selected in Ready to pack, with Pack in the top right.", "alt": "Celestial Store Space ready to pack queue on left side with selected customer's order details on right side. Check-in and pack button options at the top."}]}, {"text": "Select **Open scanner** and scan the SKU on each device or piece of equipment.", "result": "Scan items: a list of everything on the order marked **Not scanned**. Retrieve the items and scan them in the order they appear.", "imgs": [{"f": "09a8386e6d.webp", "w": 960, "h": 614, "cap": "Scan items list with the Open scanner button.", "alt": "Items listed to scan. Open scanner button."}]}, {"text": "Point the camera at the barcode and scan.", "result": "The scanner opens on **Barcode** for scan and pack. It opens on **QR Code** for pickups and unpacks. You can also switch to **Manual**.", "imgs": [{"f": "bff0eece85.webp", "w": 731, "h": 1000, "cap": "The scanner on its Barcode setting.", "alt": "Scanner barcode view."}]}, {"text": "Read the confirmation after each scan.", "result": "**Success:** a green check and “Scanned”. It closes by itself after five seconds, or select **Close**.", "warn": "**Error:** a red ! that stays on screen. Select **Retry** when you're ready to scan a different device.", "imgs": [{"f": "8e48523ef9.webp", "w": 571, "h": 801, "cap": "Success: green check, item scanned.", "alt": "Success confirmation message with green check icon."}, {"f": "a44ea594bc.webp", "w": 792, "h": 1106, "cap": "Error: “The device you scanned is not in the system.” Select Retry.", "alt": "Error message with red exclamation icon."}]}, {"text": "Review what you scanned, then select **Add items** to add the equipment to the customer's account.", "result": "**Add to account**: each item with its MAC address, IMEI or SIM.", "note": "If an item gets dropped or damaged after you scanned it, select **Replace** on that line and scan the new one.", "imgs": [{"f": "78fb092b84.webp", "w": 960, "h": 614, "cap": "Add to account, with Replace on the item and the Add items button.", "alt": "Items that were scanned, with replace button on list item. Add items button."}]}, {"text": "Print the packing slip: select **Open scanner** and scan the printer you want to print to.", "result": "“Items were added to the customer's order.” On orders with several devices, each one is listed with its own **Replace** button and a **Print slip** button.", "imgs": [{"f": "997fd6074d.webp", "w": 960, "h": 466, "cap": "Items added. Open scanner to scan the printer.", "alt": "Confirmation message that items were added to customer's order. Open scanner button."}, {"f": "0f4fcaedfa.webp", "w": 960, "h": 614, "cap": "An order with three devices, each with Replace, and Print slip.", "alt": "All items scanned listed with replace button on each list item. Print slip button."}]}, {"text": "Select **Done**, attach the slip, and store the order securely.", "where": "**Core orders:** attach the slip to the bag and put it in the staging cart at the front of the house. **Mobile orders:** attach the slip to the bag, or wrap it around the device with a rubber band, and store it where your store keeps devices (safe room, old-style safe, or the set-aside back-of-house area).", "result": "**Finish path** — “That's a wrap!” Select **Finish**.", "imgs": [{"f": "69ac856516.webp", "w": 1100, "h": 579, "cap": "Finish path: select Finish.", "alt": "Finish path message with finish button."}]}, {"text": "Check that the customer moved to the **Packed** queue. The order is ready for pickup.", "warn": "Look at **Ready to pack** one more time. If the customer has a second order (core or mobile), pack that one too.", "imgs": [{"f": "3ff7defb3f.webp", "w": 960, "h": 611, "cap": "The customer now sits in the Packed queue.", "alt": "Celestial store space pickup page. Ready to pack, packed, and unpack queues with customer name, order time and date or appointment time."}]}]}, {"title": "Complete the pickup", "nav": "Pick up", "intro": "When the customer arrives, check them in and find out whether it's a quick pickup or a consultative appointment. The order should be in **Packed**. If it isn't packed yet, pack it first, then come back here.", "steps": [{"text": "Select the customer's name in the **Packed** queue.", "where": "**Pickups** → **Packed** → customer's name", "note": "Look for more than one line item. That means more than one order.", "imgs": [{"f": "81e7856702.webp", "w": 960, "h": 612, "cap": "Customer selected in the Packed queue.", "alt": "Celestial store space pickup page. Ready to pack, packed, and unpack queues with customer name, order time and date or appointment time."}]}, {"text": "Select **Check-in**.", "imgs": [{"f": "aa242027ce.webp", "w": 960, "h": 611, "cap": "Order details with Check-in in the top right.", "alt": "Celestial Store Space packed queue on left side with selected customer's order details on right side. Check-in button at the top."}]}, {"text": "Go through the check-in form. It's filled in for you.", "result": "**Guest details** has the account's primary user already selected. In **Visit details**, the reason for visit is already **Online Order Pick Up**, with a **BAPIS order packed** banner.", "imgs": [{"f": "6dc825842c.webp", "w": 830, "h": 1056, "cap": "Guest details: the account holder on the account.", "alt": "Celestial check in form. Guest details: account holder selection and identifier selection."}, {"f": "596faaa37b.webp", "w": 707, "h": 833, "cap": "Visit details: BAPIS order packed, reason Online Order Pick Up.", "alt": "Celestial Store Space check in form. Visit details: BAPIS banner showing packed order and preferred consultant selection, reason for visit field populated with Online Pick Up selection."}]}, {"text": "Find the customer in the **Waiting** queue and select **Start** to begin the session.", "result": "A quick pickup goes to the top of the queue. An appointment is placed by appointment time. The customer's page shows a **BAPIS order packed** banner with how long the order stays active and that the primary account holder must pick it up.", "note": "If someone else on the account checked in (not the primary account holder), the banner says the order is waiting for the primary account holder.", "imgs": [{"f": "7fc4adf758.webp", "w": 749, "h": 617, "cap": "Customer start screen: BAPIS banner and the Start button.", "alt": "Celestial Store Space customer start screen. Start button, BAPIS banner, and customer information."}, {"f": "34c52cfc4b.webp", "w": 910, "h": 213, "cap": "The banner when the person checked in isn't the primary account holder.", "alt": "Blue notification banner BAPIS order packed order can be picked up by a primary account holder within x days. Order details link."}]}, {"text": "Select the person who is there for the pickup and ask for their photo ID. This should be the **primary account holder**.", "warn": "Mobile orders: primary account holder only. Core orders: primary, manager or authorized user. Anyone else gets an error here (see **Account owner required** below).", "imgs": [{"f": "06684d45c0.webp", "w": 1100, "h": 480, "cap": "Step 1: choose who is picking up, then Next.", "alt": "Step 1, customer option selection."}]}, {"text": "Select the type of ID the customer gave you, then **Next**.", "result": "**Customer Authentication**: Photo ID or Non-photo ID.", "imgs": [{"f": "6d26ab7980.webp", "w": 1100, "h": 502, "cap": "Customer Authentication: choose the ID type.", "alt": "Customer authentication screen. Type of id option selection."}]}, {"text": "Enter the customer's **six-digit pickup code** and select **Verify**.", "note": "The code was sent when they ordered, to the verified email on the primary account holder's profile. **An Xfinity-provided email address can't receive it.** There is no workaround for the pickup code. To add an email that can receive codes in the future, see [Add or change a customer's email or mobile number](https://celestial.cable.comcast.com/knowledge/article-info?query=HOW11614). Need it again? Select **Resend code**.", "warn": "**Three wrong codes cancel the order.**", "imgs": [{"f": "ad10de7cd6.webp", "w": 1100, "h": 746, "cap": "Verify pickup code: Attempt 1 of 3, Resend code, Verify.", "alt": "Verify pick up code screenshot. Attempt 1 of 3 and fillable field."}]}, {"text": "When you see **Pickup code accepted**, go over the equipment with the customer so they know what they're getting.", "result": "**Review order**: order summary, bags to pick up, items ordered and the device details.", "imgs": [{"f": "dff4fb9d83.webp", "w": 791, "h": 869, "cap": "Review order, then Process payment.", "alt": "Review order screen. Pick code accepted banner, order summer details, and process payment button."}]}, {"text": "Select **Process payment** to take the customer's payment.", "result": "“Processing payment.” It can take up to four and a half minutes. When it says the process is complete, select **Next**.", "imgs": [{"f": "13232ebffa.webp", "w": 1000, "h": 467, "cap": "Processing payment, then Next.", "alt": "Processing payment screen. Language to inform of payment processing."}]}, {"text": "Select **Open scanner** and scan the order's **packing slip**.", "result": "The order's bag flips from **Not scanned** to **Scanned**. Select **Next**.", "imgs": [{"f": "43e9caede3.webp", "w": 1100, "h": 447, "cap": "Scan items: the bag is Not scanned.", "alt": "Scan items screen with order information and not scanner status. Open scanner button."}, {"f": "9e6b514e3f.webp", "w": 1075, "h": 577, "cap": "Packing slip scanned. Select Next.", "alt": "Scan items screen with order information and scanned status."}]}, {"text": "Get the customer's **signature** to confirm they received everything and the order is correct. Select **Done**.", "result": "**Collect signature**: they can **Draw** it on the touchscreen or **Type** their name.", "imgs": [{"f": "5e7a4b6d5c.webp", "w": 825, "h": 874, "cap": "Collect signature: Draw or Type.", "alt": "Collect signature screen. Field to draw or type customer signature."}]}, {"text": "Select **Finish**. The pickup is done.", "note": "If they have a core order **and** a mobile order, run the pickup twice, once for each order.", "imgs": [{"f": "5a951a9da4.webp", "w": 1100, "h": 391, "cap": "Finish path: select Finish.", "alt": "Finish path screen. Language for completed path and finish button."}]}]}, {"title": "Two orders on one account", "nav": "Two orders", "intro": "A customer with a core order and an Xfinity Mobile order has two separate pickups.", "steps": [{"text": "Look for **two BAPIS banners** on the customer's session, one for each order type.", "result": "Each banner has an **Order details** link that opens that order in the **Packed** queue.", "imgs": [{"f": "c83bf82dfd.webp", "w": 1006, "h": 880, "cap": "Two BAPIS order packed banners, one Xfinity Mobile and one Core.", "alt": "Celestial store space in progress queue screen. Multiple BAPIS order banners. Order details link to each order."}]}, {"text": "Start the pickup. On **Review orders**, pick the order to start with and select **Next**.", "warn": "Each order has to be finished on its own. Come back to Review orders for the second one.", "imgs": [{"f": "58f2b47d28.webp", "w": 1100, "h": 563, "cap": "Review orders: choose which order to start with.", "alt": "Review orders screen. Order number selection."}]}], "table": {"head": ["Order type", "After authentication you'll"], "rows": [["Xfinity Mobile", "**Verify pickup code** → **Process payment** → **Scan packing slip** → **Capture signature**"], ["Core", "**Scan packing slip** → **Capture signature**"]]}}, {"title": "Leave and come back to a pickup", "nav": "Exit & resume", "steps": [{"text": "To leave the pickup, select **Cancel**, then **Exit path**.", "result": "You go back to the customer's active Store Space session.", "warn": "Exiting loses the progress on that step.", "imgs": [{"f": "242252a197.webp", "w": 772, "h": 469, "cap": "Are you sure you want to exit this path?", "alt": "Exit path modal with exit path button and continue path button."}]}, {"text": "To pick up where you left off, select **Resume Pickup**.", "where": "Customer's session → **Continue guest session**", "imgs": [{"f": "b4c60d1b8e.webp", "w": 1100, "h": 655, "cap": "Continue guest session: Resume Pickup.", "alt": "Celestial store space in-progress screen. Customer details, end session button, BAPIS banner, continue guest session CTA buttons Point of Sale and Resume Pickup."}]}]}, {"title": "Unpack an order nobody picked up", "nav": "Unpack", "intro": "Orders must be picked up within **four days** of purchase. After that, they move to the **Unpack** queue on their own.", "steps": [{"text": "Select the customer's name in the **Unpack** queue.", "where": "**Pickups** → **Unpack** → customer's name", "imgs": [{"f": "9e67ed602a.webp", "w": 960, "h": 612, "cap": "Customer in the Unpack queue.", "alt": "Celestial store space pickup page. Ready to pack, packed, and unpack queues with customer name, order time and date or appointment time."}]}, {"text": "Select **Unpack**.", "imgs": [{"f": "cd3f5d78f6.webp", "w": 960, "h": 664, "cap": "Order details with Unpack in the top right.", "alt": "Celestial Store Space unpack queue on left side with selected customer's order details on right side. Upack button at the top."}]}, {"text": "Select **Open scanner** and scan the packing slips.", "result": "Each bag (Xfinity Mobile bag, Core bag) flips to **Scanned** and the screen says **Scanning complete**. Select **Next**.", "imgs": [{"f": "ac0820da11.webp", "w": 960, "h": 513, "cap": "Unpack bag: Open scanner.", "alt": "Bag order list. Open scanner button."}, {"f": "3ddbe3cf02.webp", "w": 960, "h": 519, "cap": "Scanning complete: both bags scanned.", "alt": "Order list with scanned confirmation."}]}, {"text": "Make sure every device and piece of equipment is there, and put it back in the right stock area.", "result": "**Return to inventory**: the Xfinity Mobile and core equipment on the order.", "imgs": [{"f": "bcc626b177.webp", "w": 960, "h": 663, "cap": "Return to inventory list.", "alt": "Equipment list to return to inventory."}]}, {"text": "Select **Finish**.", "result": "Any money held for the customer is released, and they get a message that the order was canceled.", "imgs": [{"f": "a028c3ce83.webp", "w": 1100, "h": 388, "cap": "Finish path: select Finish.", "alt": "Finish path screen. Language for completed path and finish button."}]}]}, {"title": "Account owner required", "nav": "Owner required", "intro": "Only the primary account holder can pick up mobile orders. If someone else was checked in, you'll get this error during the pickup.", "steps": [{"text": "If the primary account holder is there with them, select **Close**, go back to Store Space, **end the current session**, and check in the account owner. Then run the pickup again.", "result": "“Account owner required. For the safety of this account, this path cannot be completed without a primary account holder.”", "imgs": [{"f": "b94a464253.webp", "w": 851, "h": 372, "cap": "The Account owner required error.", "alt": "Red account owner required error banner."}]}]}, {"title": "Reprints and getting help", "nav": "Help", "steps": [{"text": "To reprint a packing slip, open the customer's order in the **Packed** queue and select **Reprint Receipt**.", "where": "**Pickups** → **Packed** → customer's name → **Reprint Receipt**", "imgs": [{"f": "cb39df69d8.webp", "w": 878, "h": 626, "cap": "Order details in Packed with Reprint Receipt.", "alt": "Celestial Store Space check in. Customer's order details, equipment and reprint receipt button."}]}, {"text": "If Celestial gives you trouble during BAPIS, submit a **TechSpot** ticket: **Report an issue** → **Care Application Issues**.", "where": "**Application:** Celestial · **SubCategory:** Celestial Store Space · **Select Symptom:** BAPIS Issues", "note": "Attach screenshots of any errors you're seeing.", "imgs": [{"f": "9513a6370d.webp", "w": 1025, "h": 998, "cap": "The TechSpot form with Celestial, Celestial Store Space and BAPIS Issues selected.", "alt": "Ticket form. Summary, detailed description, application, subcategory, select symptom, impacted account number fields to be completed.."}]}]}], "tips": ["Pack early. Two hours before arrival is the rule, so a customer who walks in early isn't left waiting while you scan.", "Core and Mobile = two bags, two scan-and-packs, two pickups.", "The pickup code only goes to a verified, non-Xfinity email on the primary account holder's profile. There's no way around it.", "Three wrong pickup codes cancel the order.", "Unclaimed orders go to Unpack after four days. Unpack them so the stock goes back on the shelf.", "For the full Celestial packing course, see the BAPIS training in Ulearn."], "source": "https://celestial.cable.comcast.com/knowledge/article-info/?query=260320161714277"};
+const $=s=>document.querySelector(s);
+const RM=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rich=s=>esc(s).replace(/\[(.+?)\]\((https:\/\/[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1 ↗</a>').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/`(.+?)`/g,'<code>$1</code>');
+const plain=s=>String(s??'').replace(/\[(.+?)\]\([^)]+\)/g,'$1').replace(/\*\*|`/g,'');
+const SV={check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',pin:'<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',eye:'<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>',arr:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'};
+
+const allSteps=()=>G.sections.flatMap((s,si)=>(s.steps||[]).map((st,ti)=>({st,si,ti,sec:s.title,id:`s${si}-${ti}`})));
+const STEPS=allSteps();
+const imgCount=G.sections.reduce((n,s)=>n+(s.steps||[]).reduce((m,st)=>m+st.imgs.length,0),0);
+
+/* ---------- progress memory (this device only) ---------- */
+const DK='bapis-done-v1';
+function getDone(){ try{return new Set(JSON.parse(localStorage.getItem(DK)||'[]'))}catch(_){return new Set()} }
+function setDone(set){ try{localStorage.setItem(DK,JSON.stringify([...set]))}catch(_){} }
+
+/* ---------- markup ---------- */
+function figHtml(st){
+  if(!st.imgs.length) return '';
+  const tall=st.imgs.length>1 && st.imgs.every(im=>im.h>im.w*1.15);
+  return `<div class="shots${tall?' pair':''}">${st.imgs.map(im=>`<figure class="shot" style="width:${im.w}px"><img loading="lazy" decoding="async" src="shots/${im.f}" width="${im.w}" height="${im.h}" alt="${esc(im.alt||im.cap)}"><figcaption>${rich(im.cap)}</figcaption></figure>`).join('')}</div>`;
+}
+function stepInner(st){
+  return `${st.where?`<div class="mrow">${SV.pin}<span><b>Where:</b> ${rich(st.where)}</span></div>`:''}
+    ${st.result?`<div class="mrow">${SV.eye}<span><b>You'll see:</b> ${rich(st.result)}</span></div>`:''}
+    ${st.note?`<div class="callout"><span class="lbl">Tip</span>${rich(st.note)}</div>`:''}
+    ${st.warn?`<div class="callout warn"><span class="lbl">Heads up</span>${rich(st.warn)}</div>`:''}
+    ${figHtml(st)}`;
+}
+function stepHtml(st,id,n,done,i){
+  return `<li id="${id}" class="rise${done?' done':''}" style="--i:${i}"><button class="num" type="button" data-sid="${id}" aria-pressed="${done}" aria-label="Mark step ${n} done"><span>${n}</span>${SV.check}</button><div class="step-body"><p class="do">${rich(st.text)}</p>${stepInner(st)}</div></li>`;
+}
+function tableHtml(t,id){
+  return `<div class="tbl" id="${id}"><table><thead><tr>${t.head.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${t.rows.map((r,ri)=>`<tr id="${id}${ri}">${r.map((c,ci)=>`<td data-h="${esc(t.head[ci]||'')}">${rich(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+function guideHtml(){
+  const D=getDone();
+  return `
+  <section class="g-head">
+    <div class="eyebrow">Celestial Store Space · ${esc(G.code)}</div>
+    <h1>BAPIS: Scan, Pack <em>&amp; Pick Up</em></h1>
+    <p class="sum">${esc(G.summary)}</p>
+    <div class="meta"><span class="tag">${STEPS.length} steps</span><span class="tag">${imgCount} pictures</span><span class="tag">Celestial updated ${esc(G.updated)}</span><a class="src" href="${esc(G.source)}" target="_blank" rel="noopener">Full article in Celestial ↗</a></div>
+  </section>
+  <div class="hair"></div>
+  <div class="layout">
+    <article>
+      <div class="dock"><div class="meter"><small><span>Your progress</span><b class="cnt"></b></small><div class="bar-o"><div class="bar-i"></div></div></div><button class="go" id="go" type="button">${SV.play}<b>Start step-by-step</b></button><button class="ghost" id="reset" type="button">Reset</button></div>
+      <div class="panel" id="before"><h3>Before you start</h3><ul>${G.before.map(x=>`<li>${rich(x)}</li>`).join('')}</ul></div>
+      ${G.sections.map((s,si)=>`<section class="g-sec" id="s${si}" data-sec="${si}"><h2>${esc(s.title)}</h2>${s.intro?`<p class="intro">${rich(s.intro)}</p>`:''}
+        ${s.steps.length?`<ol class="steps">${s.steps.map((st,ti)=>stepHtml(st,`s${si}-${ti}`,ti+1,D.has(`s${si}-${ti}`),ti)).join('')}</ol>`:''}${s.table?tableHtml(s.table,`s${si}-t`):''}</section>`).join('')}
+      <div class="panel" id="tips"><h3>Good to know</h3><ul>${G.tips.map(x=>`<li>${rich(x)}</li>`).join('')}</ul></div>
+    </article>
+    <aside class="toc"><h5>On this page</h5>${G.sections.map((s,si)=>`<a href="#/~s${si}" data-a="s${si}"><span>${esc(s.title)}</span><small></small></a>`).join('')}<a href="#/~tips" data-a="tips"><span>Good to know</span></a></aside>
+  </div>`;
+}
+
+/* ---------- views ---------- */
+let VIEW='';
+function setView(html,anim){
+  const apply=()=>{ $('#view').innerHTML=html; };
+  if(anim && !RM() && document.startViewTransition && setView.ready) document.startViewTransition(apply);
+  else { apply(); if(anim && !RM()){ const v=$('#view'); v.classList.remove('enter'); void v.offsetWidth; v.classList.add('enter'); } }
+  setView.ready=true;
+}
+function showGuide(anchor){
+  const fresh=VIEW!=='guide';
+  /* landing on an anchor: no entrance motion — a scaled/translated view makes scrollIntoView aim short */
+  if(fresh){ setView(guideHtml(),!anchor); VIEW='guide'; paintDock(); spy(); if(anchor) document.querySelectorAll('#view .rise').forEach(x=>x.classList.remove('rise')); }
+  const go=()=>{ if(anchor){ const el=document.getElementById(anchor); if(el){ el.scrollIntoView({block:'start',behavior:fresh||RM()?'auto':'smooth'}); if(el.tagName==='LI'||el.tagName==='TR'){ el.classList.remove('hit'); void el.offsetWidth; el.classList.add('hit'); } } } else if(fresh) window.scrollTo(0,0); };
+  if(fresh){ requestAnimationFrame(()=>requestAnimationFrame(go));
+    /* web fonts can re-wrap the text above the target; settle once more if the reader hasn't moved */
+    if(anchor&&document.fonts&&document.fonts.status!=='loaded'){ const y0=()=>scrollY; let y; requestAnimationFrame(()=>requestAnimationFrame(()=>{ y=y0(); })); document.fonts.ready.then(()=>{ if(Math.abs(scrollY-y)<4) go(); }); } }
+  else go();
+}
+function route(){
+  const h=decodeURIComponent(location.hash.replace(/^#\/?/,''));
+  if(h.startsWith('search/')){ const q=h.slice(7); if(qi.value.trim()!==q){ qi.value=q; $('#search').classList.toggle('has',!!q); } return renderSearch(q); }
+  if(qi.value){ qi.value=''; $('#search').classList.remove('has'); }
+  showGuide(h.startsWith('~')?h.slice(1):'');
+}
+
+/* ---------- section chips + scroll spy ---------- */
+$('#cats').innerHTML=G.sections.map((s,si)=>`<a href="#/~s${si}" data-a="s${si}"><i>${String(si+1).padStart(2,'0')}</i>${esc(s.nav)}</a>`).join('');
+let IO=null;
+function spy(){
+  if(IO) IO.disconnect();
+  const secs=[...document.querySelectorAll('.g-sec')]; if(!secs.length||!('IntersectionObserver' in window)) return;
+  const vis=new Map();
+  IO=new IntersectionObserver(es=>{ es.forEach(e=>vis.set(e.target.id,e.isIntersecting?e.boundingClientRect.top:null));
+    const on=secs.find(s=>vis.get(s.id)!=null); mark(on?on.id:null); },{rootMargin:'-200px 0px -55% 0px'});
+  secs.forEach(s=>IO.observe(s));
+}
+function mark(id){
+  /* scroll the chip strip by itself: a scrollIntoView here would cancel the page's own anchor scroll */
+  const nav=$('#cats');
+  nav.querySelectorAll('a').forEach(a=>{ const m=a.dataset.a===id; if(m===a.hasAttribute('aria-current')) return; a.toggleAttribute('aria-current',m);
+    if(m&&nav.scrollWidth>nav.clientWidth) nav.scrollTo({left:a.offsetLeft-nav.offsetLeft-(nav.clientWidth-a.offsetWidth)/2,behavior:RM()?'auto':'smooth'}); });
+  document.querySelectorAll('.toc a').forEach(a=>a.classList.toggle('on',a.dataset.a===id));
+}
+
+/* ---------- progress ---------- */
+function paintDock(){
+  const d=getDone(), n=STEPS.filter(x=>d.has(x.id)).length, b=$('.dock .bar-i'); if(!b) return;
+  b.style.width=(n/STEPS.length*100)+'%';
+  $('.dock .cnt').textContent=`${n} of ${STEPS.length} done`;
+  $('.dock .go b').textContent=n&&n<STEPS.length?'Resume step-by-step':'Start step-by-step';
+  G.sections.forEach((s,si)=>{ const a=document.querySelector(`.toc a[data-a="s${si}"]`); if(!a) return; const ids=s.steps.map((_,ti)=>`s${si}-${ti}`), k=ids.filter(x=>d.has(x)).length; a.querySelector('small').textContent=`${k}/${ids.length}`; a.classList.toggle('all',k===ids.length); });
+}
+
+/* ---------- search ---------- */
+const IDX=[];
+G.sections.forEach((s,si)=>{
+  IDX.push({anchor:`s${si}`,kind:'Section',title:s.title,text:[s.title,s.nav,s.intro||''].join(' ')});
+  s.steps.forEach((st,ti)=>IDX.push({anchor:`s${si}-${ti}`,kind:`${s.title} · Step ${ti+1}`,title:plain(st.text),text:[st.text,st.where||'',st.result||'',st.note||'',st.warn||'',...st.imgs.map(i=>i.cap)].join(' ')}));
+  if(s.table) s.table.rows.forEach((r,ri)=>IDX.push({anchor:`s${si}-t${ri}`,kind:`${s.title} · Table`,title:plain(r[0]),text:r.join(' ')}));
+});
+G.before.forEach(t=>IDX.push({anchor:'before',kind:'Before you start',title:'Before you start',text:t}));
+G.tips.forEach(t=>IDX.push({anchor:'tips',kind:'Good to know',title:'Good to know',text:t}));
+IDX.forEach(r=>{ r.text=plain(r.text).replace(/\s+/g,' ').trim(); r.lc=r.text.toLowerCase(); });
+const SYN={code:['pickup code','pick up code'],slip:['packing slip','receipt'],receipt:['slip','reprint'],reprint:['receipt'],print:['printer','slip'],cancel:['exit','unpack'],id:['identification','authentication'],sign:['signature'],pay:['payment'],return:['unpack','inventory'],stock:['inventory'],scan:['scanner','barcode'],ticket:['techspot'],help:['techspot','issue'],mobile:['xfinity mobile'],error:['retry','owner required'],owner:['primary account holder'],email:['pickup code']};
+function search(q){
+  const terms=q.toLowerCase().split(/\s+/).filter(Boolean); if(!terms.length) return [];
+  const has=(r,t)=>r.lc.includes(t)||(SYN[t]||[]).some(x=>r.lc.includes(x))||(t.length>3&&t.endsWith('s')&&r.lc.includes(t.slice(0,-1)));
+  return IDX.filter(r=>terms.every(t=>has(r,t))).map(r=>{ let sc=0; terms.forEach(t=>{ if(r.title.toLowerCase().includes(t)) sc+=4; if(r.lc.includes(t)) sc+=2; }); if(r.kind==='Section') sc+=1; return {r,sc}; }).sort((a,b)=>b.sc-a.sc).slice(0,40);
+}
+function snippet(text,terms){
+  const lc=text.toLowerCase(); let at=-1;
+  for(const t of terms){ const k=lc.indexOf(t); if(k>=0&&(at<0||k<at)) at=k; }
+  let s=at>60?'…'+text.slice(at-50):text; if(s.length>200) s=s.slice(0,200)+'…';
+  let out=esc(s); for(const t of terms){ if(t.length<2) continue; out=out.replace(new RegExp('('+t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'),'<mark>$1</mark>'); }
+  return out;
+}
+function renderSearch(q){
+  const anim=VIEW!=='search'; VIEW='search'; if(IO) IO.disconnect(); mark(null);
+  const terms=q.toLowerCase().split(/\s+/).filter(Boolean), res=search(q);
+  setView(`<section class="s-head"><div class="eyebrow">Search this guide</div><h1>“${esc(q)}”</h1><p>${res.length?`${res.length} match${res.length===1?'':'es'}`:'No matches. Try a shorter word: pack, code, unpack, slip, ID, signature.'}</p><button type="button" id="s-back">← Back to the guide</button></section>
+  <div class="hits">${res.map(({r},k)=>`<a class="hit${anim?' rise':''}" style="--i:${k}" href="#/~${r.anchor}"><div class="where">${esc(r.kind)}</div><h4>${esc(r.title)}</h4><p>${snippet(r.text,terms)}</p></a>`).join('')}</div>`,anim);
+  window.scrollTo(0,0);
+}
+const qi=$('#q'); let qt=null;
+qi.addEventListener('input',()=>{ $('#search').classList.toggle('has',!!qi.value); clearTimeout(qt); qt=setTimeout(()=>{ const v=qi.value.trim(); if(v) history.replaceState(null,'','#/search/'+encodeURIComponent(v)); else history.replaceState(null,'','#/'); route(); },140); });
+qi.addEventListener('keydown',e=>{ if(e.key==='Enter'){ const first=$('a.hit'); if(first) first.click(); qi.blur(); } if(e.key==='Escape'){ qi.value=''; qi.dispatchEvent(new Event('input')); } });
+$('#q-clear').addEventListener('click',()=>{ qi.value=''; qi.dispatchEvent(new Event('input')); qi.focus(); });
+document.addEventListener('keydown',e=>{ const typing=/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName); if(!typing&&(e.key==='/'||((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'))&&!WK){ e.preventDefault(); qi.focus(); qi.select(); } if(e.key==='Escape') closeLB(); });
+
+/* ---------- lightbox ---------- */
+function openLB(im){ $('#lb img').src=im.src; $('#lb img').alt=im.alt; $('#lb p').textContent=im.alt; $('#lb').classList.remove('zoom'); $('#lb').classList.add('on'); }
+function closeLB(){ $('#lb').classList.remove('on','zoom'); }
+$('#lb').addEventListener('click',e=>{ if(e.target.tagName==='IMG'){ $('#lb').classList.toggle('zoom'); return; } closeLB(); });
+
+/* ---------- clicks ---------- */
+document.addEventListener('click',e=>{
+  if(e.target.closest('#s-back')){ location.hash='#/'; return; }
+  const f=e.target.closest('figure.shot'); if(f){ openLB(f.querySelector('img')); return; }
+  const nb=e.target.closest('.num'); if(nb){ const d=getDone(), id=nb.dataset.sid, li=nb.closest('li');
+    if(d.has(id)){ d.delete(id); li.classList.remove('done'); nb.setAttribute('aria-pressed','false'); } else { d.add(id); li.classList.add('done'); nb.setAttribute('aria-pressed','true'); burst(nb,8); }
+    setDone(d); paintDock(); return; }
+  if(e.target.closest('#go')){ wkOpen(); return; }
+  if(e.target.closest('#reset')){ setDone(new Set()); document.querySelectorAll('ol.steps li.done').forEach(li=>{ li.classList.remove('done'); li.querySelector('.num').setAttribute('aria-pressed','false'); }); paintDock(); return; }
+  /* same-hash anchor clicks still jump (hashchange won't fire) */
+  const a=e.target.closest('a[href^="#/~"]'); if(a&&a.getAttribute('href')===location.hash){ e.preventDefault(); route(); }
+});
+function burst(el,n){ if(RM()) return; const r=el.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2, cols=['#5be3a0','#f0cf86','#ff7eb6','#5cc8ff','#ffb05c'];
+  for(let k=0;k<n;k++){ const p=document.createElement('i'); p.className='spark'; const a=Math.random()*Math.PI*2, d=40+Math.random()*(n>12?160:60);
+    p.style.cssText=`left:${cx}px;top:${cy}px;background:${cols[k%cols.length]};--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;--r:${Math.random()*540}deg`; document.body.appendChild(p); setTimeout(()=>p.remove(),1200); } }
+
+/* ---------- step-by-step walkthrough ---------- */
+let WK=null;
+function wkOpen(){ const d=getDone(); let i=STEPS.findIndex(x=>!d.has(x.id)); if(i<0) i=0;
+  WK={i}; $('#wk-title').textContent=G.title; $('#wk').classList.add('on'); document.body.style.overflow='hidden'; wkRender(0); $('#wk-next').focus(); }
+function wkClose(){ if(!WK) return; $('#wk').classList.remove('on'); document.body.style.overflow=''; const at=STEPS[Math.min(WK.i,STEPS.length-1)]; WK=null; VIEW=''; showGuide(at?at.id:''); }
+function wkRender(dir){ const i=WK.i, stg=$('#wk-stage');
+  if(i>=STEPS.length){ $('#wk-sec').textContent='Finished'; $('#wk-bar').style.width='100%';
+    stg.innerHTML=`<div class="wk-card wk-done in-r"><div class="ring">${SV.check}</div><h2>All ${STEPS.length} steps done.</h2><p>${esc(G.title)} — nice work.</p></div>`;
+    $('#wk-next').innerHTML='Back to the guide'; $('#wk-back').disabled=false; burst($('.wk-done .ring'),36); return; }
+  const x=STEPS[i]; $('#wk-sec').textContent=x.sec; $('#wk-bar').style.width=(i/STEPS.length*100)+'%';
+  stg.innerHTML=`<div class="wk-card ${dir<0?'in-l':'in-r'}"><div class="wk-count"><span class="big">${i+1}</span><span>Step ${i+1} of ${STEPS.length}<br>${esc(x.sec)} · ${x.ti+1}</span></div><p class="wk-text">${rich(x.st.text)}</p>${stepInner(x.st)}<p class="wk-hint">Tap a picture to zoom · Swipe or use ← → keys</p></div>`;
+  stg.scrollTop=0; $('#wk-back').disabled=i===0;
+  $('#wk-next').innerHTML=i===STEPS.length-1?`Done — finish ${SV.check}`:`Done — next step ${SV.arr}`; }
+function wkNext(){ if(!WK) return; if(WK.i>=STEPS.length){ wkClose(); return; } const d=getDone(); d.add(STEPS[WK.i].id); setDone(d); WK.i++; wkRender(1); }
+function wkPrev(){ if(!WK||WK.i===0) return; WK.i--; wkRender(-1); }
+$('#wk-next').addEventListener('click',wkNext); $('#wk-back').addEventListener('click',wkPrev); $('#wk-x').addEventListener('click',wkClose);
+document.addEventListener('keydown',e=>{ if(!WK||$('#lb').classList.contains('on')) return; if(e.key==='ArrowRight'){e.preventDefault();wkNext();} else if(e.key==='ArrowLeft'){e.preventDefault();wkPrev();} else if(e.key==='Escape'){wkClose();} });
+let tx=null; $('#wk-stage').addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
+$('#wk-stage').addEventListener('touchend',e=>{ if(tx==null) return; const dx=e.changedTouches[0].clientX-tx; tx=null; if(Math.abs(dx)>70){ dx<0?wkNext():wkPrev(); } },{passive:true});
+
+window.addEventListener('hashchange',route);
+route();
+</script>
+</body>
+</html>
