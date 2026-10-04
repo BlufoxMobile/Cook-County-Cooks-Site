@@ -1136,6 +1136,19 @@ function buildHero() {
         //
         // The og:description meta in index.html keeps that sentence: it is the
         // link preview, not the page, and he was talking about the page.
+      ]),
+      // SITE TOUR (Oct 2026). [stated] Jeff wanted a video reps can click to
+      // learn every room and tool. It is a SIBLING of .hero-inner, absolutely
+      // placed (theme.css "Site tour button"), so the masthead's measured
+      // optical centring above is untouched. data-tool routes it through the
+      // overlay like every other tool: #/tool/site-tour, framed, fresh.
+      el('a', { class: 'hero-tour', href: '#/tool/site-tour', 'data-tool': 'site-tour',
+                'aria-label': 'Watch the site tour, 3 minutes 43 seconds' }, [
+        el('span', { class: 'hero-tour__play', 'aria-hidden': 'true' }),
+        el('span', { class: 'hero-tour__txt' }, [
+          el('b', { text: 'Watch the site tour' }),
+          el('small', { text: 'Start here · 3:43' })
+        ])
       ])
     ])
   ]);
