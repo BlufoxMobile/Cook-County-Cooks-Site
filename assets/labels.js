@@ -176,7 +176,7 @@ const SURFACES = [
        around it is narrower still, so the writing area is ~65px on a 1600px
        desktop. Three short lines and no rule is what fits at a size that is
        still ink rather than grey mush. */
-    lines: ['Report BP', 'Access', 'Issues'], rule: false },
+    lines: ['Request', 'Access', 'How To'], rule: false },
 
   /* The fifth card (Oct 2026), added to the plate for the Internet Essentials
      guide: the rail recedes, so it is the narrowest sheet yet (~4.1% of the
