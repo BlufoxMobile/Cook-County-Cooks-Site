@@ -190,7 +190,7 @@ export const HOTSPOTS = {
     /* THE LOCKERS ARE SCENERY NOW (v35, 2026-10-03). The client: "I want the
        breakroom to be a fun place for the employees. These items are more
        training related." Xfinity Product Mastery, CSG How To and the Celestial
-       Job Aid moved to the Host Stand as rail chips (`chip-only` in
+       Job Aid moved out as rail chips (Host Stand in v35, then the Back Office in v36) (`chip-only` in
        data/tools.json), so the three locker-door hotspots that opened them
        (x 18.2 -> 30.4, y 42 -> 58) are gone. The doors are still in the
        photograph; if a fun tool ever wants one, the seams were measured there. */
