@@ -137,25 +137,12 @@ export const HOTSPOTS = {
     /* The right-hand brick wall was re-measured against the same new plate.
        Its objects are larger and closer than in the previous composition,
        which is what keeps their printed labels legible — see labels.js. */
-    /* The commission payout sheet, printed off and taped to the empty navy wall
-       to the LEFT of the monitor — the client asked for it to read as a page
-       someone actually ran off and stuck up. It is drawn rather than
-       photographed: a real printed page is what the tool IS, so rendering it
-       gives us live type at any size, and it keeps us from re-shooting a room
-       whose square-on monitor took four attempts to get right. Sits above the
-       bottom-left rail card with clear air between them. */
-    /* ⚠ IT MUST STAY LEFT OF PLATE-X 22.2.
-       This plate has a wall corner — a dead-vertical seam at plate-x 22.21%
-       (traced by column-differencing at 14 heights; it moves 0.17% over the
-       full frame). The first cut of this sheet ran 11.5 → 27.0, so 69% of it
-       sat on the left return wall and 31% on the back wall, and the client
-       read exactly that: "it looks like it's taped to both walls on the
-       screen." Now 9.0 → 21.0, entirely on the return wall with 1.2% of
-       clearance, and smaller as he asked. 12.0% x 17.0% of a 2400x1340 plate
-       is 288 x 227.8 plate px = 1.264:1; landscape US Letter is 1.294:1, so
-       the page still fills its box rather than being letterboxed in it. */
-    { slug:'commission-payouts', kind:'print', x:9.0, y:25.0, w:12.0, h:17.0,
-      label:'Commission Payouts 2026', rotate:-1.4 },
+    /* v35 (2026-10-03): the taped Commission Payouts sheet came OFF this wall.
+       The client moved Commission Payouts 2026 and Rep Hourly Rate Estimate to
+       the Break Room ("in lieu of" the training tools that left it for the Host
+       Stand), where they are rail chips (`chip-only`). The old sheet sat at
+       x 9.0, y 25.0, w 12.0, h 17.0, rotate -1.4 — wallprint.js still knows how
+       to draw it (SHEET_CARD) if it is ever hung somewhere again. */
 
     /* ⚠ THE TWO CLIPBOARDS ARE 1.2% FROM THE PLATE'S RIGHT EDGE AND THAT IS
        NOT A MEASURING ERROR. Traced against plates/office.webp: board 1 spans
@@ -200,28 +187,13 @@ export const HOTSPOTS = {
 
     { kind:'chefs' },
 
-    /* The locker bank is four doors, seams read off a 6x crop of the new plate.
-       It runs x 17.4 -> 30.4 and the sofa occludes it below y 68.
-
-       HEIGHT IS 22, NOT 26, AND THE FOUR PERCENT IS NOT SPARE. The Break Room
-       used to keep the v3 z-order with its hotspot layer BELOW .rail; §09 has
-       the full story of why that was retired (the wash was capping the chef
-       wall at 2.94:1 and painting through the new television). The cost of
-       retiring it is that these brackets now paint ABOVE the rail card, and on
-       a SHORT window they reached down into the chip rows — measured across the
-       whole runway at five sizes, only 1512x751 clashed and it needed 3.29% of
-       plate height. 22 gives it 4%. The doors still run y 42 -> 64 against art
-       that is unoccluded to 68, so nothing was lost but the overlap.
-       v29 fix round (G3 M-6): 22 -> 16. At 1440x900 the doors' bracket feet
-       sat 8px above "COURSE SIX" and at 1180x820 ran through it into the
-       title; the target is the upper door (the vents and the name plate), so
-       y 42 -> 58 keeps a finger-sized box (≥ 44px tall at every landscape
-       size) and clears the kicker by ≥ 20px at 1180, 1440, 1512 and 1920 over
-       p 0-0.5 (f1a/railclash.py). engine.js flips a label above its object
-       wherever the label would land on a room's type. */
-    { slug:'training-xfinity',      kind:'tool', x:18.2, y:42.0, w:3.1, h:16.0, label:'Xfinity Product Mastery' },
-    { slug:'csg-how-to',            kind:'tool', x:21.6, y:42.0, w:3.3, h:16.0, label:'CSG How To' },
-    { slug:'training-pos',          kind:'tool', x:28.5, y:42.0, w:1.9, h:16.0, label:'Celestial Job Aid' },
+    /* THE LOCKERS ARE SCENERY NOW (v35, 2026-10-03). The client: "I want the
+       breakroom to be a fun place for the employees. These items are more
+       training related." Xfinity Product Mastery, CSG How To and the Celestial
+       Job Aid moved to the Host Stand as rail chips (`chip-only` in
+       data/tools.json), so the three locker-door hotspots that opened them
+       (x 18.2 -> 30.4, y 42 -> 58) are gone. The doors are still in the
+       photograph; if a fun tool ever wants one, the seams were measured there. */
 
     /* THE ARCADE CABINET — and it opens the ARCADE now, not one game.
        The client asked for "a Cook County Cooks Arcade section in the breakroom
