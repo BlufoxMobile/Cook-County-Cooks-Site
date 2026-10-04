@@ -196,7 +196,11 @@ const HTML_FILES = ['index.html', ...listDir('tools/printouts', ['.html']),
   /* tools/internet-essentials — Internet Essentials Agent Portal guide (Prep Station
      recipe-card-5, Oct 2026), CSG How To design. Same reason: its <head> names
      ../../assets/fonts/*.woff2. Its shots/<hash>.webp are content-named already. */
-  ...listDir('tools/internet-essentials', ['.html'])];
+  ...listDir('tools/internet-essentials', ['.html']),
+  /* tools/esim-activation — eSIM Xfinity Mobile Activation Guide (Back Office chip,
+     Oct 2026), CSG How To design. Same reason: its <head> names ../../assets/fonts/*.woff2.
+     Its shots/<hash>.webp|svg are content-named already. */
+  ...listDir('tools/esim-activation', ['.html'])];
   /* tools/casino is NOT in this list any more (2026-09-26). v29 put it here because
      its <head> named the SITE's fonts as ../../assets/fonts/*.woff2. Casino v2
      (9/25) ships its own copies at tools/casino/assets/fonts/ and names them
