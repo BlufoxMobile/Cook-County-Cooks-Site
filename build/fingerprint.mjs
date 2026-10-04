@@ -200,7 +200,11 @@ const HTML_FILES = ['index.html', ...listDir('tools/printouts', ['.html']),
   /* tools/esim-activation — eSIM Xfinity Mobile Activation Guide (Back Office chip,
      Oct 2026), CSG How To design. Same reason: its <head> names ../../assets/fonts/*.woff2.
      Its shots/<hash>.webp|svg are content-named already. */
-  ...listDir('tools/esim-activation', ['.html'])];
+  ...listDir('tools/esim-activation', ['.html']),
+  /* tools/site-tour — the Site Tour video (hero button + Host Stand chip, Oct 2026).
+     Same reason: its <head> names ../../assets/fonts/*.woff2. Its video/ segments,
+     poster and captions are addressed by name and NOT fingerprinted. */
+  ...listDir('tools/site-tour', ['.html'])];
   /* tools/request-access (Prep Station recipe-card-4, Oct 2026) is deliberately NOT in
      this list. Like tools/csg-how-to it is one passcode-locked file whose ~2.8 MB
      encrypted PAYLOAD sits on a single line, and the literal rewriter's backtracking
