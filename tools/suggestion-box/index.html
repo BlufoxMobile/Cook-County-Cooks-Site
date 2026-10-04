@@ -110,6 +110,27 @@
     .meta{ display:flex; justify-content:space-between; gap:12px; margin-top:8px; font-size:13px; color:var(--muted); flex-wrap:wrap; }
     .meta .count.warn{ color:var(--amber); }
 
+    /* ── optional contact ───────────────────────────────── */
+    .contact{ margin-top:28px; border:1px dashed #3a4654; border-radius:12px; padding:18px 18px 16px; background:rgba(255,255,255,.015); }
+    .contact-head{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .contact-head .label{ margin:0; }
+    .opt{ font:700 10.5px/1 var(--sans); letter-spacing:.16em; text-transform:uppercase; color:var(--lcd);
+      border:1px solid rgba(142,240,208,.4); background:rgba(142,240,208,.08); border-radius:999px; padding:5px 9px 4px; }
+    .contact-note{ margin-top:8px; font-size:14px; color:var(--bone-dim); }
+    .fields{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:14px; }
+    .field label{ display:block; font:600 12.5px/1.2 var(--sans); color:var(--bone-dim); margin-bottom:6px; }
+    .field label span{ color:var(--muted); font-weight:400; }
+    .field input{ width:100%; min-height:46px; background:var(--ink-950); color:var(--bone); border:1px solid var(--ink-600);
+      border-radius:10px; padding:0 14px; font:400 16px/1 var(--sans); }
+    .field input::placeholder{ color:#5f6a78; }
+    .field input:focus{ outline:none; border-color:var(--brass); box-shadow:0 0 0 3px rgba(200,151,63,.22); }
+    .field input.bad{ border-color:var(--alert); }
+    .field .fhint{ display:none; margin-top:6px; font-size:12.5px; color:#ffb3a5; }
+    .field input.bad + .fhint{ display:block; }
+    .named{ display:none; margin-top:12px; font-size:13.5px; color:var(--amber); }
+    .contact.has .named{ display:block; }
+    @media (max-width:640px){ .fields{ grid-template-columns:1fr; } }
+
     .hp{ position:absolute !important; left:-9999px !important; width:1px; height:1px; overflow:hidden; }
 
     .actions{ display:flex; align-items:center; gap:16px; margin-top:24px; flex-wrap:wrap; }
@@ -160,13 +181,13 @@
     <div class="slot" aria-hidden="true"><span class="plate">Suggestion Box</span></div>
     <div class="card">
       <div class="form slip">
-        <div class="eyebrow">Anonymous &middot; Straight to Jeff</div>
+        <div class="eyebrow">Anonymous by default &middot; Straight to Jeff</div>
         <h1>Got an idea? <em>Drop it in the box.</em></h1>
         <p class="lede">Something slowing your store down, a promo that isn't landing, a tool that could be better, someone who deserves a shout-out &mdash; say it here.</p>
 
         <div class="promise">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8ef0d0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg>
-          <div><strong>Truly anonymous.</strong> No name, no store, no login, and nothing about your phone or computer is sent &mdash; just the topic and your words. Leave out details that would point back to you.</div>
+          <div><strong>Anonymous by default.</strong> No login, and nothing about your phone or computer is sent &mdash; just the topic and your words. Your name and contact info are only included if you choose to add them below.</div>
         </div>
 
         <form id="box" novalidate>
@@ -191,6 +212,31 @@
             placeholder="It would help if…"></textarea>
           <div class="meta"><span>Be specific &mdash; what's happening, and what would make it better.</span><span class="count" id="count">0 / 4000</span></div>
 
+          <div class="contact" id="contact">
+            <div class="contact-head">
+              <span class="label" id="contactLabel">Want a follow-up?</span>
+              <span class="opt">Completely optional</span>
+            </div>
+            <p class="contact-note">Add your name, phone or email only if you'd like Jeff to be able to reach you about this. Leave all three blank to stay completely anonymous.</p>
+            <div class="fields" role="group" aria-labelledby="contactLabel">
+              <div class="field">
+                <label for="cname">Name <span>(optional)</span></label>
+                <input type="text" id="cname" name="name" maxlength="80" autocomplete="name" placeholder="Leave blank to stay anonymous">
+              </div>
+              <div class="field">
+                <label for="cphone">Phone <span>(optional)</span></label>
+                <input type="tel" id="cphone" name="phone" maxlength="30" autocomplete="tel" inputmode="tel" placeholder="(555) 555-5555">
+                <div class="fhint">That doesn't look like a phone number.</div>
+              </div>
+              <div class="field">
+                <label for="cemail">Email <span>(optional)</span></label>
+                <input type="email" id="cemail" name="email" maxlength="120" autocomplete="email" inputmode="email" placeholder="you@example.com">
+                <div class="fhint">That doesn't look like an email address.</div>
+              </div>
+            </div>
+            <p class="named" id="named">Heads up: because you added contact info, this suggestion won't be anonymous. Clear the fields above to send it anonymously.</p>
+          </div>
+
           <!-- honeypot: hidden from people, filled by bots, dropped by the Zap -->
           <div class="hp" aria-hidden="true"><label>Website <input type="text" name="website" id="website" tabindex="-1" autocomplete="off"></label></div>
 
@@ -208,7 +254,7 @@
       <div class="done" id="done" aria-live="polite" tabindex="-1">
         <div class="tick"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#8ef0d0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
         <h2>It's in the box.</h2>
-        <p>Thanks for speaking up. Jeff reads every one &mdash; and since nobody knows who sent it, watch for the answer on a call or in a team email.</p>
+        <p id="doneMsg">Thanks for speaking up. Jeff reads every one &mdash; and since nobody knows who sent it, watch for the answer on a call or in a team email.</p>
         <button type="button" class="again" id="again">Drop in another</button>
       </div>
     </div>
@@ -232,7 +278,22 @@
     var hint = document.getElementById('hint');
     var err = document.getElementById('err');
     var done = document.getElementById('done');
+    var contact = document.getElementById('contact');
+    var cname = document.getElementById('cname');
+    var cphone = document.getElementById('cphone');
+    var cemail = document.getElementById('cemail');
+    var doneMsg = document.getElementById('doneMsg');
+    var ANON_MSG = doneMsg.innerHTML;
+    var NAMED_MSG = 'Thanks for speaking up. Jeff reads every one &mdash; and since you left your contact info, he can reach out if he has questions.';
     var opened = Date.now();
+
+    function phoneOk(v) { var d = v.replace(/\D/g, ''); return !v || (d.length >= 7 && d.length <= 15 && /^[\d\s()+.\-x]+$/i.test(v)); }
+    function emailOk(v) { return !v || /^[^\s@<>",;]+@[^\s@<>",;]+\.[a-z]{2,}$/i.test(v); }
+    function hasContact() { return !!(cname.value.trim() || cphone.value.trim() || cemail.value.trim()); }
+    function contactValid() {
+      var p = phoneOk(cphone.value.trim()), e = emailOk(cemail.value.trim());
+      return p && e;
+    }
     var busy = false;
 
     function meaningful() {
@@ -246,10 +307,20 @@
       count.textContent = n + ' / ' + MAX;
       count.classList.toggle('warn', n > MAX * 0.9);
       var ok = meaningful();
-      send.disabled = !ok || busy;
-      hint.textContent = ok ? 'Nothing that identifies you is sent.' : 'Write a few words to send.';
+      var cOk = contactValid();
+      send.disabled = !ok || !cOk || busy;
+      contact.classList.toggle('has', hasContact());
+      hint.textContent = !ok ? 'Write a few words to send.'
+        : !cOk ? 'Fix the phone or email above, or clear it.'
+        : hasContact() ? 'Your contact info will be included.'
+        : 'Sent anonymously.';
     }
     ta.addEventListener('input', refresh);
+    [cname, cphone, cemail].forEach(function (el) {
+      el.addEventListener('input', function () { el.classList.remove('bad'); refresh(); });
+    });
+    cphone.addEventListener('blur', function () { cphone.classList.toggle('bad', !phoneOk(cphone.value.trim())); });
+    cemail.addEventListener('blur', function () { cemail.classList.toggle('bad', !emailOk(cemail.value.trim())); });
 
     document.getElementById('starter').addEventListener('click', function () {
       if (!ta.value.trim()) ta.value = TEMPLATE;
@@ -278,6 +349,11 @@
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       if (busy || !meaningful()) return;
+      if (!contactValid()) {
+        cphone.classList.toggle('bad', !phoneOk(cphone.value.trim()));
+        cemail.classList.toggle('bad', !emailOk(cemail.value.trim()));
+        return;
+      }
       busy = true; refresh();
       err.classList.remove('on');
       sendLabel.textContent = 'Sending…';
@@ -288,6 +364,11 @@
       var H = "(?:What's getting in the way:|My idea:|Why it would help:)";
       var text = ta.value.replace(new RegExp(H + '\\s*(?=' + H + '|$)', 'g'), '').trim();
       body.set('suggestion', text.slice(0, MAX));
+      // optional contact — only sent when the person filled it in
+      if (cname.value.trim()) body.set('name', cname.value.trim().slice(0, 80));
+      if (cphone.value.trim()) body.set('phone', cphone.value.trim().slice(0, 30));
+      if (cemail.value.trim()) body.set('email', cemail.value.trim().slice(0, 120));
+      doneMsg.innerHTML = hasContact() ? NAMED_MSG : ANON_MSG;
       body.set('website', document.getElementById('website').value);
       body.set('elapsed', String(Date.now() - opened));
 
@@ -312,6 +393,7 @@
 
     document.getElementById('again').addEventListener('click', function () {
       ta.value = '';
+      cname.value = ''; cphone.value = ''; cemail.value = '';
       opened = Date.now();
       document.body.classList.remove('sent');
       refresh();
