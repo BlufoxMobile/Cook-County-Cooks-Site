@@ -166,7 +166,7 @@ const SURFACES = [
     quad: [[43.12, 35.75], [49.05, 36.42], [49.12, 46.72], [43.48, 46.80]],
     zone: [0.10, 0.26, 0.93, 0.73],    align: 'start',
     paper: [228, 219, 209], ramp: [-0.019, 0.044],
-    kicker: 'BAPIS', lines: ['Online Order', 'Processing'], meta: 'Tap to open' },
+    kicker: 'BAPIS', lines: ['Scan, Pack', '& Pick Up'], meta: 'Tap to open' },
 
   { slug: 'bp-access', snap: true,      room: 'prep',   surface: 'card',
     quad: [[50.50, 36.79], [55.26, 37.31], [55.30, 46.80], [50.54, 46.88]],
