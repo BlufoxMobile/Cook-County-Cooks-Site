@@ -106,9 +106,12 @@ export const HOTSPOTS = {
   prep: [
     { slug:'porting-guide', kind:'tool', x:24.0, y:33.5, w:9.0, h:12.0, label:'PortPro — Porting Guide' },
     { slug:'credit-limit',  kind:'tool', x:35.0, y:33.5, w:7.5, h:11.0, label:'Credit Limit Increase' },
-    { slug:'bapis',         kind:'tool', x:43.5, y:34.5, w:6.5, h:10.0, label:'BAPIS — Scan, Pack & Pick Up' },
+    { slug:'exception-report', kind:'tool', x:43.5, y:34.5, w:6.5, h:10.0, label:'Exception Report' },
     { slug:'bp-access',     kind:'tool', x:51.0, y:35.0, w:5.0, h: 9.0, label:'Report BP Access Issues' },
-    { slug:'internet-essentials', kind:'tool', x:56.2, y:36.5, w:4.4, h:10.2, label:'Internet Essentials — Agent Portal' },
+    { slug:'fall-off',      kind:'tool', x:56.2, y:36.5, w:4.4, h:10.2, label:'Fall-Off Summary' },
+    /* v39 (2026-10-04): the client traded these two tickets with the Back Office
+       clipboards — Exception Report and Fall-Off Summary now hang on the rail,
+       BAPIS and Internet Essentials on the clipboards. Same boxes, new slugs. */
   ],
   office: [
     /* THE BACK OFFICE MONITOR — days since the last detractor, one district per
@@ -159,8 +162,8 @@ export const HOTSPOTS = {
        1024x768 included. The coordinates did not change: every % in this file
        is still a % of the original 2400x1340 frame. */
     { slug:'printouts',        kind:'tool', x:78.1, y:35.0, w:7.9, h:17.2, label:'Print Outs', edge:'right' },
-    { slug:'exception-report', kind:'tool', x:85.6, y:36.8, w:4.4, h:20.0, label:'Exception Report', edge:'right' },
-    { slug:'fall-off',         kind:'tool', x:91.5, y:34.4, w:6.0, h:24.2, label:'Fall-Off Summary', edge:'right' },
+    { slug:'bapis',            kind:'tool', x:85.6, y:36.8, w:4.4, h:20.0, label:'BAPIS — Scan, Pack & Pick Up', edge:'right' },
+    { slug:'internet-essentials', kind:'tool', x:91.5, y:34.4, w:6.0, h:24.2, label:'Internet Essentials — Agent Portal', edge:'right' },
   ],
   breakroom: [
     /* THE DAILY SALES REPORT, ON THE BREAK-ROOM WALL.
