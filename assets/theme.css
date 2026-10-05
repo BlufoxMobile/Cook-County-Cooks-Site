@@ -7455,7 +7455,21 @@ html[data-view="floor"] #kitchen { isolation: auto; }
 .hero-tour__txt b { font-weight: 700; font-size: 19px; letter-spacing: .02em; }
 .hero-tour__txt small { font-size: 12px; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; color: #e2b866; }
 @media (max-width: 560px) {
-  .hero-tour { right: 50%; transform: translateX(50%); }
-  .hero-tour:hover, .hero-tour:focus-visible { transform: translateX(50%) translateY(-2px); }
+ /* left:50% + translateX(-50%), not right:50%: with right:50% the
+     absolutely placed pill shrink-to-fit against HALF the width and wrapped
+     to three lines over the masthead (?view=full on a phone). Lifted clear of
+     the fixed .pocket-return pill too. (QA pass, 10/4.) */
+  .hero-tour {
+    left: 50%; right: auto; transform: translateX(-50%);
+    white-space: nowrap; max-width: calc(100vw - 2 * var(--gut));
+    bottom: calc(var(--sp-4) + 56px + env(safe-area-inset-bottom, 0px));
+  }
+  .hero-tour:hover, .hero-tour:focus-visible { transform: translateX(-50%) translateY(-2px); }
+  /* The masthead sits at the foot on a portrait screen; lift it above the pill
+     so the two never overlap. */
+  .room[data-room="hero"] .hero-inner,
+  .ccc-curtain .hero-inner {
+    padding-block-end: calc(var(--sp-4) + 56px + 68px + var(--sp-5) + env(safe-area-inset-bottom, 0px));
+  }
 }
 @media (prefers-reduced-motion: reduce) { .hero-tour { transition: none; } }

@@ -572,7 +572,12 @@ body[data-ccc-lock] {
 .ccc-ov.is-immersive .ccc-ov__panel {
   width: 100vw; height: 100svh; height: 100dvh; margin: 0 auto auto;
   border-radius: 0; box-shadow: none;
-  grid-template-rows: 0 1fr;
+  /* One track, not "0 1fr": the bar below is display:none, so the stage is the
+     panel's ONLY grid item and auto-places into the FIRST row. With "0 1fr" that
+     row was 0px and the game frame measured 390x0 — a black screen on every
+     browser where requestFullscreen() is unavailable (all iPhones) or after Esc.
+     Same shape as .is-typing above. (QA pass, 10/4.) */
+  grid-template-rows: 1fr;
 }
 .ccc-ov.is-immersive .ccc-ov__bar { display: none; }
 .ccc-ov.is-immersive .ccc-ov__stage { background: #000; }

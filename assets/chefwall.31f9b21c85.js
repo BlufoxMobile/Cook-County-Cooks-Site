@@ -1,102 +1,15 @@
-/* =============================================================================
- * Cook County Cooks — v3 "Cinema"
- * assets/chefwall.js — the Break Room "Head Chef of the Week" wall of fame
- * -----------------------------------------------------------------------------
- * WHAT THIS IS
- * The break-room plate (plates/breakroom.webp) is a photograph of a real room.
- * Painted into that photograph, in one horizontal row, are FIVE identical black
- * picture frames, each holding an empty grey mat. This module composites the five
- * real employee photographs into those five mats so the faces are visible on the
- * wall immediately — no click required ("the real deal so they are recognized").
- *
- * Clicking a framed photo opens that chef's full Win-the-Weekend slide in a modal.
- *
- * HARD CONSTRAINTS FROM THE CLIENT (Jeff)
- *   1. THE ART OWNS THE SLOT COUNT. There are as many frames as rooms.js's
- *      CHEF_FRAMES says there are — five on the old plate, six on the re-shot
- *      one — and this module renders exactly that many, whatever the data
- *      length is. It does NOT cap, and it has no opinion about the number.
- *   2. The photos must sit EXACTLY inside the painted frames. In v2 they floated
- *      offset and it read as broken. That is why placement is data-driven: the
- *      lead measures the actual generated plate and hands us `frames`.
- *   3. Faces visible without interaction.
- *   4. "If the slide is blank, leave the picture blank." A frame with no chef
- *      behind it gets an empty mat — never a substitute portrait, never a
- *      shifted-up neighbour.
- *   5. EVERY FRAME IS LABELLED WITH ITS DISTRICT, including an empty one. The
- *      label is engraved on a small plaque screwed to the wall under the frame
- *      (§2 ".cw-plate"), not printed as a web caption, and it comes from the
- *      DECK SLIDE TITLE via build/pull-headchefs.mjs — rename a district in the
- *      deck and the wall follows.
- *
- * PUBLIC API
- *   import { initChefWall, DEFAULT_FRAMES } from './chefwall.js';
- *   const wall = initChefWall({ host, chefs, frames, photoBase });
- *   wall.open(i) / wall.close() / wall.update({chefs, frames}) / wall.destroy()
- *
- * DEPENDENCIES: none. No build step. Plain ES module. Styles are self-injected
- * once into <head> and only ever read theme.css tokens through var(--x, fallback),
- * so this file is correct even if theme.css has not loaded yet.
- *
- * ⚠ --lit IS NOT READABLE FROM HERE, AND SILENTLY LIES IF YOU TRY.
- *   theme.css declares --lit (and --arr, --hold, --lift) on `.plate-wrap`.
- *   `.hotspots` — which is this module's host — is that element's SIBLING, not
- *   its child, so `var(--lit)` inside the wall resolves to the property's
- *   REGISTERED initial-value of 1 and every frame reads as fully lit at every
- *   scroll position. No error, no warning, just a wall that never comes up with
- *   the room. So §2 re-derives the same number from --enter / --bloom / --p,
- *   which the engine writes on `.stage` and which DO inherit down here. It is
- *   byte-for-byte theme.css §06b's formula; wallprint.js does the identical
- *   thing for the same reason (see its --wp-lit).
- *
- *   This module READS --enter / --bloom / --p and never writes them, and never
- *   touches --plate-x / --plate-y / --plate-scale.
- *
- * PERFORMANCE CONTRACT (SPEC.md "Performance rules")
- *   - No requestAnimationFrame loop here. The wall is static geometry; the engine's
- *     single page rAF loop already drives the plate.
- *   - The wall does NOT set `transform` on `.plate-wrap` and does NOT apply the
- *     `--plate-scale/--plate-x/--plate-y` transform itself. Per SPEC.md, hotspot
- *     layers live OUTSIDE `.plate-wrap` and inherit the identical transform from
- *     theme.css. `host` is expected to be (or to live inside) that hotspot layer,
- *     so the wall tracks the camera push-in for free. If we transformed here we
- *     would double-apply it and the frames would drift — exactly the v2 bug.
- *   - Only `transform`, `opacity` and `filter` are ever animated (hover lift, glass
- *     sweep, cast shadow opacity). Never top/left/width/height.
- * ========================================================================== */
 
-/* ---------------------------------------------------------------------------
- * 1. CONSTANTS
- * ------------------------------------------------------------------------ */
 
-/**
- * THE SLOT COUNT IS `frames.length`. THERE IS NO CAP.
- *
- * This used to be `WALL_SIZE = 5` and it was used to clamp the render, which
- * made the module wrong the moment the break-room plate was re-shot with six
- * frames: five photos in six openings, one permanently dark. The art owns the
- * number, rooms.js publishes it as CHEF_FRAMES, and this file counts it.
- *
- * The export survives only because it is public API. It is now what it says:
- * how many slots the built-in placeholder geometry has, for a caller that
- * mounts without `frames`.
- */
+
+
+
+
+
+
 export const WALL_SIZE = 6;
 
-/**
- * PLACEHOLDER GEOMETRY — the lead MUST replace this by measuring the real plate.
- *
- * Shape of one entry (see the `frames` docs on initChefWall for the full contract):
- *   x      left edge of the MAT OPENING, as a % of plate WIDTH
- *   y      top edge of the MAT OPENING, as a % of plate HEIGHT
- *   w      width of the mat opening, as a % of plate WIDTH
- *   h      height of the mat opening, as a % of plate HEIGHT
- *   rotate degrees clockwise, rotated about the box's own centre
- *
- * These six boxes are a plausible evenly-spaced row so the wall is never empty
- * during development. They are NOT measured and will not line up with the art.
- * rooms.js's CHEF_FRAMES is the real geometry and is owned by the lead.
- */
+
+
 export const DEFAULT_FRAMES = [
   { x:  8.0, y: 30.0, w: 11.0, h: 15.0, rotate: 0 },
   { x: 21.5, y: 29.6, w: 11.0, h: 15.0, rotate: 0 },
@@ -106,37 +19,18 @@ export const DEFAULT_FRAMES = [
   { x: 75.5, y: 30.0, w: 11.0, h: 15.0, rotate: 0 }
 ];
 
-/**
- * THE NARROW CONDITION — one string, used by both the injected CSS and by
- * matchMedia below, so the two can never drift apart.
- *
- * It must stay byte-for-byte equivalent to theme.css §16, which suppresses the
- * `.hotspots` layer at `(max-width: 900px), (max-aspect-ratio: 8/7)`. The
- * aspect half matters: a 16:9 plate under object-fit:cover in a portrait
- * viewport crops the sides away, so stage-space hotspots would point at pixels
- * that are not on screen. `.cw-wall` lives inside `.hotspots` and goes down
- * with it, so the strip MUST take over on exactly the same condition —
- * otherwise iPad Pro portrait (1024x1366, aspect 0.75) hides the wall via the
- * aspect test while a 1024px-wide viewport keeps the strip hidden, and nothing
- * renders at all.
- *
- * Note there is deliberately NO inverse `(min-width:900px) and
- * (min-aspect-ratio:8/7)` query. The wall is visible by DEFAULT and this one
- * query hides it; an inverse query would both match at exactly 8/7 and show
- * wall and strip at once. One query, one owner, no boundary ambiguity.
- */
+
+
 export const NARROW_MEDIA = '(max-width: 899.98px), (max-aspect-ratio: 8/7)';
 
-/** Bullet glyphs PowerPoint authors actually paste. Note: no space required. */
+ 
 const BULLET_RE = /^[-‐-―•·*▪●⁃]\s*/;
 
-/** Unique-id counter so two instances on one page never collide. */
+ 
 let instanceSeq = 0;
 
-/* ---------------------------------------------------------------------------
- * 2. STYLES — injected once, idempotent.
- *    Everything here is namespaced under .ccc-chefwall / .ccc-chefmodal.
- * ------------------------------------------------------------------------ */
+
+
 
 const STYLE_ID = 'ccc-chefwall-styles';
 
@@ -1226,10 +1120,8 @@ const CSS = `
 }
 `;
 
-/**
- * Inject the stylesheet exactly once per document.
- * Never throws — a CSP-blocked <style> just means an unstyled (but working) wall.
- */
+
+
 function ensureStyles(doc) {
   try {
     if (doc.getElementById(STYLE_ID)) return;
@@ -1237,69 +1129,60 @@ function ensureStyles(doc) {
     el.id = STYLE_ID;
     el.textContent = CSS;
     doc.head.appendChild(el);
-  } catch (_) { /* non-fatal by design */ }
+  } catch (_) {   }
 }
 
-/* ---------------------------------------------------------------------------
- * 3. TEXT UTILITIES
- *    The write-ups are raw text pasted out of PowerPoint. They contain literal
- *    newlines, leading hyphens used as bullets (sometimes with no space after
- *    the hyphen: "-200 T charts"), doubled spaces, and occasionally a first line
- *    that just repeats the chef's own name. We normalise rather than dump.
- * ------------------------------------------------------------------------ */
 
-/** Collapse whitespace runs and trim. Non-breaking spaces count as spaces. */
+
+
+ 
 function squish(s) {
   return String(s == null ? '' : s).replace(/[\s ]+/g, ' ').trim();
 }
 
-/**
- * Turn one raw PowerPoint write-up into a small render tree.
- * @returns {{kind:'list'|'paras', items:string[]}}
- */
+
+
 export function normaliseWriteup(raw, chefName) {
   const name = squish(chefName).toLowerCase();
 
-  // 1. Split on any newline flavour; normalise each line; drop empties.
+  
   let lines = String(raw == null ? '' : raw)
     .replace(/\r\n?/g, '\n')
     .split('\n')
     .map(squish)
     .filter(Boolean);
 
-  // 2. Did the author use explicit bullet glyphs anywhere?
+  
   const hadBullets = lines.some((l) => BULLET_RE.test(l));
 
-  // 3. Strip the bullet glyph; re-squish because "-  foo" leaves a gap.
+  
   lines = lines.map((l) => squish(l.replace(BULLET_RE, '')));
 
-  // 4. Drop a leading line that is just the chef's name repeated — the modal
-  //    already shows the name as an <h2>, so repeating it reads as a mistake.
+  
+  
   if (lines.length > 1 && lines[0].toLowerCase() === name) lines.shift();
 
-  // 5. Drop anything that became empty after stripping.
+  
   lines = lines.filter(Boolean);
   if (!lines.length) return { kind: 'paras', items: [] };
 
-  // 6. Decide list vs prose.
-  //    - explicit bullets  -> list
-  //    - several short lines (each a fragment, no terminal punctuation run-on)
-  //      -> the author was writing a list without glyphs -> list
-  //    - otherwise -> paragraphs
+  
+  
+  
+  
+  
   const shortish = lines.every((l) => l.length <= 140);
   const kind = (hadBullets || (lines.length >= 2 && shortish)) ? 'list' : 'paras';
 
-  // 7. Sentence-case the leading character of a bullet only when the author
-  //    clearly wrote fragments in lower case. (Cosmetic, never destructive.)
+  
+  
   const items = lines.map((l) => (kind === 'list' ? l.replace(/^([a-z])/, (m) => m.toUpperCase()) : l));
 
   return { kind, items };
 }
 
-/**
- * Initials for the monogram fallback.
- *  "Linda Weeks" -> "LW"   |   "Hammond" -> "H"   |   "" -> "•"
- */
+
+
 export function initialsFor(name) {
   const parts = squish(name).split(' ').filter(Boolean);
   if (!parts.length) return '•';
@@ -1307,95 +1190,49 @@ export function initialsFor(name) {
   return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
 }
 
-/** Segments of "Glenview • Assistant Manager" -> ["Glenview","Assistant Manager"]. */
+ 
 function roleSegments(storeRole) {
   return squish(storeRole).split(/\s*[•|]\s*/).filter(Boolean);
 }
 
-/**
- * The district this frame belongs to, long form, for the modal header and the
- * accessible name. Comes from the deck slide title via build/pull-headchefs.mjs.
- * Falls back to `region_deck` so a record from the old hand-made snapshot (which
- * had no district field) still says something true rather than nothing.
- */
+
+
 function districtOf(chef) {
   return squish(chef && (chef.district || chef.region_deck));
 }
 
-/**
- * The district, short form, as engraved on the plaque under the frame. The
- * parser supplies both because the plate is ~90px wide at 1024 and
- * "Xfinity Head Chef of the Week" does not go on it; "Xfinity" does.
- */
+
+
 function districtShort(chef) {
   return squish(chef && (chef.district_short || chef.district || chef.region_deck));
 }
 
-/**
- * Accessible name, e.g.
- *   "North Side, Head Chef of the Week: Antonio Carradine, Burbank"
- *   "Xfinity Head Chef of the Week: Alexis Bell, Greater Chicago"
- * The district leads because on a wall of six frames it is what tells one
- * button apart from the next — the plaque is the visual answer to the same
- * question and the two must say the same thing.
- * For the standard award the place is the FIRST segment (the store); for the
- * Xfinity award the first segment is the award title itself, so we take the last.
- */
+
+
 function accessibleName(chef) {
   const award = chef.is_xfinity ? 'Xfinity Head Chef of the Week' : 'Head Chef of the Week';
   const segs = roleSegments(chef.store_role);
   const place = chef.is_xfinity ? segs[segs.length - 1] : segs[0];
   const who = squish(chef.name) || 'Head Chef';
   const district = districtOf(chef);
-  // Do not say "Xfinity Head Chef of the Week, Xfinity Head Chef of the Week".
+  
   const lead = district && district.toLowerCase() !== award.toLowerCase()
     ? `${district}, ${award}` : award;
   const base = place ? `${lead}: ${who}, ${place}` : `${lead}: ${who}`;
-  // A held entry says so to a screen reader too. The tag on the frame is
-  // aria-hidden precisely so this is the one place it is announced.
+  
+  
   const held = heldInfo(chef);
   return held ? `${base}. ${held.line}.` : base;
 }
 
-/**
- * Is there a chef behind this frame?
- * The parser emits ONE ENTRY PER DISTRICT, so a district whose deck slide has
- * gone (or whose held entry aged past the staleness cap) still arrives — with
- * `vacant: true` and no name — precisely so the frame keeps its plaque. A
- * missing entry altogether (fewer records than frames) is the same thing.
- */
+
+
 function hasChef(chef) {
   return !!(chef && !chef.vacant && squish(chef.name));
 }
 
-/**
- * Resolve a chef's photo URL against the data root.
- * `photo_file` in headchefs.json is relative to the headchefs/ folder.
- *
- * ⚠ THE `?v=` IS NOT DECORATION. IT IS THE RIGHT NAME OVER THE WRONG FACE.
- *
- * headchefs/photos/<district>.webp is a STABLE FILENAME that is OVERWRITTEN in
- * place every time a district's winner changes — build/pull-headchefs.mjs owns
- * that pipeline and the fingerprinter deliberately leaves those files alone
- * (see its "NOT fingerprinted, on purpose" note). Live cache headers,
- * 2026-08-31:
- *
- *     headchefs/photos/*.webp   cache-control: max-age=14400   (4 hours)
- *     headchefs/headchefs.json  cache-control: max-age=600     (10 minutes)
- *
- * and initChefWall's refreshFrom fetch asks for the JSON with cache:'no-cache',
- * so it revalidates immediately. The name, the store, the stats and the
- * write-up therefore change the moment the deck does, while the PHOTOGRAPH can
- * be up to four hours behind: last week's winner's face captioned with this
- * week's winner's name, on the break-room wall, for half a shift.
- *
- * The fix costs nothing because the data already carries it: every entry has
- * `photo_sha`, the SHA-256 of the encoded WebP. Same photo, same URL, still
- * cached for four hours; new photo, new URL, fetched at once. Where the sha is
- * missing (an older run — the Xfinity entry has `photo_sha: null` today) fall
- * back to last_changed, which moves whenever the entry does. If neither is
- * there the URL is bare, exactly as it was, and nothing is worse than before.
- */
+
+
 function photoStamp(chef) {
   if (!chef) return '';
   const sha = chef.photo_sha;
@@ -1420,9 +1257,8 @@ function photoUrl(chef, base) {
   return (b && !b.endsWith('/') ? `${b}/${f}` : `${b}${f}`) + q;
 }
 
-/* ---------------------------------------------------------------------------
- * 4. SMALL DOM HELPERS
- * ------------------------------------------------------------------------ */
+
+
 
 function el(doc, tag, cls, text) {
   const n = doc.createElement(tag);
@@ -1431,7 +1267,7 @@ function el(doc, tag, cls, text) {
   return n;
 }
 
-/** The Xfinity star, inline so there is no extra request. */
+ 
 function starSvg(doc) {
   const NS = 'http://www.w3.org/2000/svg';
   const svg = doc.createElementNS(NS, 'svg');
@@ -1445,80 +1281,65 @@ function starSvg(doc) {
   return svg;
 }
 
-/**
- * Build the picture surface for one chef. Three states, deliberately distinct:
- *
- *   photo on the slide  -> the photo, unconditionally. No curation, no
- *                          judgement about whether it looks like a headshot.
- *   no photo            -> an empty mat (.cw-blank). Not an error.
- *   photo 404s          -> the monogram plate. This IS an error and is meant
- *                          to look different from an empty mat.
- *
- * NEVER throws and NEVER leaves a broken image.
- */
+
+
 function buildSurface(doc, chef, base, monoCaption) {
   const wrap = el(doc, 'span', 'cw-photo');
 
-  // Per-chef focal point support (optional field, e.g. "50% 22%").
+  
   if (chef.photo_focus) wrap.style.setProperty('--cw-focus-pos', String(chef.photo_focus));
 
   const src = chef.has_photo === false ? null : photoUrl(chef, base);
 
-  // Nothing on the slide this week -> leave it blank. The mat, the recess and
-  // the glass all still render; there is simply no print in the frame.
+  
+  
   if (!src) {
-    /* QA pass 10/4: an empty mat read as a BROKEN IMAGE to reps (two solid
-       black frames on the wall). A named chef with no photo gets the engraved
-       monogram plate instead; vacant frames (no chef) keep the empty mat. */
+    
+
     wrap.appendChild(buildMonogram(doc, chef, monoCaption));
     return wrap;
   }
 
   const img = doc.createElement('img');
-  img.alt = '';                       // the button carries the accessible name
+  img.alt = '';                       
   img.decoding = 'async';
-  img.loading = 'lazy';               // breakroom is room 6 (SPEC lazy rule)
+  img.loading = 'lazy';               
   img.draggable = false;
-  /* Intrinsic size, straight off headchefs.json, where build/pull-headchefs.mjs
-     recorded what it actually encoded. Nothing here reflows (every surface is
-     absolutely positioned at a size the CSS already knows), so this is not a CLS
-     fix — it is a MEMORY one. It lets the browser size the decode buffer before
-     the bytes arrive, which is the difference that matters on the phone build:
-     six 384x576 WebPs decode to ~5.3 MB of bitmap if they all land at once, and
-     the strip only ever has two or three on screen. */
+  
+
   if (chef.photo_w && chef.photo_h) {
     img.width = Number(chef.photo_w) || 0;
     img.height = Number(chef.photo_h) || 0;
   }
-  // A file that was supposed to load and did not is a FAULT, so it gets the
-  // monogram rather than the blank mat — an empty frame must keep meaning
-  // "no photo on the slide", not "the deploy is missing a file". Bound before
-  // src is set so a cached error still fires against a live handler.
+  
+  
+  
+  
   img.addEventListener('error', function onErr() {
     img.removeEventListener('error', onErr);
     try {
       wrap.replaceChildren(buildMonogram(doc, chef, monoCaption));
     } catch (_) {
-      // replaceChildren is very widely supported; fall back just in case.
+      
       while (wrap.firstChild) wrap.removeChild(wrap.firstChild);
       wrap.appendChild(buildMonogram(doc, chef, monoCaption));
     }
   }, { once: true });
   img.src = src;
   wrap.appendChild(img);
-  // The walnut multiply that unifies five differently-graded sources. Added
-  // only alongside a real photo — the monogram plate is already one look, and
-  // the fallback path replaces the whole surface, taking this with it.
+  
+  
+  
   const grade = el(doc, 'span', 'cw-grade');
   grade.setAttribute('aria-hidden', 'true');
   wrap.appendChild(grade);
   return wrap;
 }
 
-/** The monogram plate: engraved initials on ivory, brass hairlines. */
+ 
 function buildMonogram(doc, chef, caption) {
   const mono = el(doc, 'span', 'cw-mono');
-  mono.setAttribute('aria-hidden', 'true');   // name is on the button already
+  mono.setAttribute('aria-hidden', 'true');   
   mono.appendChild(el(doc, 'b', null, initialsFor(chef.name)));
   if (caption !== false) {
     const segs = roleSegments(chef.store_role);
@@ -1527,20 +1348,8 @@ function buildMonogram(doc, chef, caption) {
   return mono;
 }
 
-/**
- * The engraved district plaque that hangs under one frame.
- *
- * aria-hidden, always: for a frame with a chef behind it the button's
- * aria-label already opens with the district (accessibleName above), and
- * repeating it would make every frame announce its district twice. For a vacant
- * frame the whole slot is aria-hidden — there is nothing to do there and
- * "West Side, empty" is not information a screen-reader user needs read out six
- * times on the way past a photograph.
- *
- * Returns null when there is no district to engrave, so a data set with no
- * district field (the old hand-made snapshot) degrades to the wall it had
- * before rather than to a row of empty plates.
- */
+
+
 function buildPlate(doc, chef) {
   const text = districtShort(chef);
   if (!text) return null;
@@ -1549,43 +1358,13 @@ function buildPlate(doc, chef) {
   return plate;
 }
 
-/** The circular Xfinity badge, or null. */
-/* ---------------------------------------------------------------------------
- * 4b. HELD ENTRIES — saying so
- *
- * THE PIPELINE ALREADY KNOWS, AND THE WALL WAS THROWING IT AWAY.
- * build/pull-headchefs.mjs polls the Win-The-Weekend decks every 30 minutes and
- * HOLDS the last chef it saw for a district that is temporarily absent, because
- * blanking a frame on one bad read would make the wall flicker. Its own policy
- * block in headchefs.json says so, and gives the two clocks it keeps:
- *
- *     stale_warn_days: 8      past this the entry is flagged `stale: true`
- *     stale_drop_days: 14     past this the chef is dropped for an empty mat
- *
- * Every entry therefore carries `last_confirmed`, `days_since_confirmed` and
- * `stale` — and NOTHING in this file or in wallprint.js read any of the three
- * (`grep -c stale assets/chefwall.js` found one hit, inside a comment). A chef
- * confirmed a fortnight ago was rendered pixel-for-pixel like the four that
- * were confirmed on this run: same frame, same plaque, same "Head Chef of the
- * Week". The whole point of the hold is that it is a HOLD.
- *
- * ⚠ THE AGE IS COMPUTED FROM `last_confirmed`, NOT READ FROM
- *   `days_since_confirmed`. That field is baked at generation time, so a
- *   headchefs.json that is itself two days old reports two days too few — and
- *   this is a staleness cue, which is precisely the thing that must not be
- *   stale. (Today: the Xfinity entry's baked value is 2.4, its last_confirmed
- *   is 2026-08-26T04:16Z, and the true age is 5.2 days.) The baked value is
- *   only a fallback for an entry with no timestamp at all.
- *
- * THE THRESHOLD IS SEVEN DAYS, one below the pipeline's own warn line, because
- * these are weekly awards: at seven days the entry has missed the Friday
- * posting it should have been replaced at, and that is the first moment the
- * date is news rather than noise.
- * ------------------------------------------------------------------------ */
+ 
+
+
 
 const HELD_SHOW_DAYS = 7;
 
-/** Days since this entry was last confirmed against a deck, or null. */
+ 
 function heldDays(chef) {
   const iso = chef && (chef.last_confirmed || chef.last_changed);
   const t = iso ? Date.parse(iso) : NaN;
@@ -1594,7 +1373,7 @@ function heldDays(chef) {
   return Number.isFinite(baked) ? baked : null;
 }
 
-/** "Aug 26" — the shape the plaque and the modal both use. */
+ 
 function heldDate(chef) {
   const iso = chef && (chef.last_confirmed || chef.last_changed);
   const t = iso ? Date.parse(iso) : NaN;
@@ -1604,16 +1383,14 @@ function heldDate(chef) {
   } catch (_) { return ''; }
 }
 
-/**
- * Should this entry say when it was confirmed, and how loudly?
- * @returns {null | {days:number, stale:boolean, date:string, line:string}}
- */
+
+
 function heldInfo(chef) {
   if (!hasChef(chef)) return null;
   const days = heldDays(chef);
   const stale = chef && chef.stale === true;
-  // `stale` from the pipeline is honoured even when the clock disagrees: it is
-  // the generator's own verdict and it may know something this page does not.
+  
+  
   if (!stale && (days === null || days < HELD_SHOW_DAYS)) return null;
   const date = heldDate(chef);
   const whole = days === null ? null : Math.round(days);
@@ -1630,14 +1407,8 @@ function buildBadge(doc, chef) {
   return b;
 }
 
-/* ---------------------------------------------------------------------------
- * 5. SCROLL LOCK — iOS-correct.
- *    iOS Safari ignores `overflow:hidden` on <body>, so we pin the body with
- *    position:fixed and a negative top offset, then restore the exact scroll
- *    position afterwards. We snapshot the previous INLINE values so we hand the
- *    page back byte-for-byte (the cinema engine reads scroll position and must
- *    not be left at 0).
- * ------------------------------------------------------------------------ */
+
+
 
 function createScrollLock(win) {
   const doc = win.document;
@@ -1678,9 +1449,9 @@ function createScrollLock(win) {
       body.style.right = saved.right;
       body.style.width = saved.width;
       body.style.overflow = saved.overflow;
-      // Restore without a visible fly. v29: an explicit instant scroll instead
-      // of writing <html>'s scroll-behavior twice — each write restyled ~700
-      // elements (fix-round F1b measurement).
+      
+      
+      
       try { win.scrollTo({ top: saved.y, left: 0, behavior: 'instant' }); }
       catch (e) { win.scrollTo(0, saved.y); }
       saved = null;
@@ -1689,9 +1460,8 @@ function createScrollLock(win) {
   };
 }
 
-/* ---------------------------------------------------------------------------
- * 6. MODAL
- * ------------------------------------------------------------------------ */
+
+
 
 const FOCUSABLE = [
   'a[href]', 'button:not([disabled])', 'input:not([disabled])',
@@ -1737,13 +1507,8 @@ function createModal(win, uid, photoBase) {
 
   const supportsInert = typeof HTMLElement !== 'undefined' && 'inert' in HTMLElement.prototype;
 
-  /** Mark everything outside the modal inert so AT cannot reach it.
-   *  v29 fix round (G1 D2): NEVER the tool viewer (.ccc-ov) or a body child
-   *  that asked to stay live (the Find palette, [data-ccc-keep-live], C4). A
-   *  tool arriving by Forward or a #/tool/ link while a portrait was open used
-   *  to open inside an inert viewer — a dead ✕ — and the viewer then saved that
-   *  inert as the state to restore, wedging the whole page after Escape. The
-   *  viewer and the palette run their own focus traps. */
+  
+
   function setOutsideInert(on) {
     if (!supportsInert) return;
     if (on) {
@@ -1767,7 +1532,7 @@ function createModal(win, uid, photoBase) {
     );
   }
 
-  /** Focus trap + Escape. */
+   
   function onKeydown(e) {
     if (!open) return;
     if (e.key === 'Escape' || e.key === 'Esc') {
@@ -1790,7 +1555,7 @@ function createModal(win, uid, photoBase) {
     }
   }
 
-  /** Click on the backdrop (or the dialog padding) dismisses. */
+   
   function onPointerDown(e) {
     if (!open) return;
     if (!panel.contains(e.target)) api.close();
@@ -1799,30 +1564,28 @@ function createModal(win, uid, photoBase) {
   closeBtn.addEventListener('click', () => api.close());
   rootEl.addEventListener('mousedown', onPointerDown);
   doc.addEventListener('keydown', onKeydown, true);
-  // v29 fix round (G1 D2): a tool opening (Forward, a #/tool/ link, Find)
-  // takes the screen — the portrait gets out of its way at once.
+  
+  
   const onViewerOpen = () => { if (open) api.close({ immediate: true }); };
   doc.addEventListener('ccc:viewer-open', onViewerOpen);
 
-  /** Render one chef's slide into the panel. */
+   
   function render(chef) {
     const frag = doc.createDocumentFragment();
 
-    /* ---- head: portrait + identity ---- */
+     
     const head = el(doc, 'div', 'cw-head');
 
     const portrait = el(doc, 'div', 'cw-portrait');
-    // Reuse the exact same surface builder so the modal portrait and the wall
-    // photo can never disagree about which fallback a chef gets.
+    
+    
     portrait.appendChild(buildSurface(doc, chef, photoBase, true));
     if (chef.photo_focus) portrait.style.setProperty('--cw-focus-pos', String(chef.photo_focus));
 
     const idBox = el(doc, 'div', 'cw-id');
 
-    /* The eyebrow answers "which frame did I just click": the district on the
-       same engraved plate that is screwed under the frame, then the award.
-       When the district IS the award (the Xfinity plate) the award clause is
-       dropped rather than printed twice. */
+    
+
     const eyebrow = el(doc, 'p', 'cw-eyebrow');
     eyebrow.setAttribute('data-xfinity', chef.is_xfinity ? 'true' : 'false');
     if (chef.is_xfinity) {
@@ -1846,9 +1609,8 @@ function createModal(win, uid, photoBase) {
     idBox.appendChild(h2);
     if (role.textContent) idBox.appendChild(role);
 
-    /* The held line. Not an error and not styled like one: this IS last week's
-       winner and the write-up below is still theirs. It is a date, in words,
-       so nobody has to wonder whether the wall has moved on. */
+    
+
     const held = heldInfo(chef);
     if (held) {
       const p = el(doc, 'p', 'cw-held' + (held.stale ? ' is-stale' : ''), held.line);
@@ -1859,15 +1621,8 @@ function createModal(win, uid, photoBase) {
     head.appendChild(idBox);
     frag.appendChild(head);
 
-    /* ---- stats: a clean row of figures (omitted entirely when empty) ------
-       WHATEVER THE SLIDE CARRIES, IN SLIDE ORDER. The stat sets genuinely
-       differ chef to chef — Demarcus McKamey's Big South slide has four
-       (GP $, Plus, GIG Attach, Accy $/Box), the West Side slide has eight
-       (adding MCR, NPS, Mobile, FCR) and the Xfinity nomination has none at
-       all, because it is a paragraph rather than a scorecard. So this renders
-       the pairs that exist rather than a fixed grid with holes in it: the
-       parser does not invent a missing figure and this does not reserve a cell
-       for one. Zero stats means no <dl> at all, and the write-up moves up. */
+    
+
     const stats = Array.isArray(chef.stats) ? chef.stats.filter((s) => s && (s.value || s.label)) : [];
     if (stats.length) {
       const dl = el(doc, 'dl', 'cw-stats');
@@ -1875,8 +1630,8 @@ function createModal(win, uid, photoBase) {
         const cell = el(doc, 'div', 'cw-stat');
         const dt = el(doc, 'dt', 'cw-statl', squish(s.label));
         const dd = el(doc, 'dd', 'cw-statv', squish(s.value));
-        // DOM order stays semantic (label <dt> then value <dd>) for screen
-        // readers; CSS column-reverse paints the big figure above the label.
+        
+        
         cell.appendChild(dt);
         cell.appendChild(dd);
         dl.appendChild(cell);
@@ -1884,7 +1639,7 @@ function createModal(win, uid, photoBase) {
       frag.appendChild(dl);
     }
 
-    /* ---- body: normalised write-up ---- */
+     
     const body = el(doc, 'div', 'cw-body');
     const { kind, items } = normaliseWriteup(chef.writeup, chef.name);
     if (items.length) {
@@ -1909,17 +1664,17 @@ function createModal(win, uid, photoBase) {
 
     show(chef, returnFocusTo) {
       if (open) return;
-      try { render(chef); } catch (_) { /* never let a bad record break the site */ }
+      try { render(chef); } catch (_) {   }
       lastFocus = returnFocusTo || doc.activeElement;
       open = true;
       lock.lock();
       rootEl.setAttribute('data-open', 'true');
       setOutsideInert(true);
-      // Next frame so the opacity/transform transition actually runs.
+      
       win.requestAnimationFrame(() => {
         rootEl.setAttribute('data-shown', 'true');
         panel.scrollTop = 0;
-        // Focus the dialog itself: the heading is announced via aria-labelledby.
+        
         dialog.focus({ preventScroll: true });
       });
     },
@@ -1932,19 +1687,19 @@ function createModal(win, uid, photoBase) {
 
       const finish = (restoreFocus) => {
         rootEl.setAttribute('data-open', 'false');
-        lock.unlock();                       // restores iOS scroll position
+        lock.unlock();                       
         if (restoreFocus && lastFocus && doc.contains(lastFocus)) {
           try { lastFocus.focus({ preventScroll: true }); } catch (_) {}
         }
         lastFocus = null;
       };
 
-      // Handing the screen to the tool viewer (below): no fade and no focus
-      // restore. The page must be un-inert and un-locked NOW, in the viewer's
-      // own open task, before it snapshots the page and takes its own lock.
+      
+      
+      
       if (opts && opts.immediate) { finish(false); return; }
 
-      // Wait out the fade, but never hang if transitionend does not fire.
+      
       let done = false;
       const once = () => { if (done) return; done = true; finish(true); };
       panel.addEventListener('transitionend', once, { once: true });
@@ -1964,96 +1719,17 @@ function createModal(win, uid, photoBase) {
   return api;
 }
 
-/* ---------------------------------------------------------------------------
- * 7. PUBLIC ENTRY POINT
- * ------------------------------------------------------------------------ */
 
-/**
- * Mount the Head Chef wall.
- *
- * @param {Object}  opts
- * @param {Element|string} opts.host
- *        The container the wall fills. On the break-room section this is the
- *        `.hotspots` layer (which already carries the plate transform from
- *        theme.css). Must be `position:relative|absolute` — we set `absolute;
- *        inset:0` on our own root. A CSS selector string is also accepted.
- *
- * @param {Array<Object>} opts.chefs
- *        The `headchefs` array from headchefs.json, rebuilt every 30 minutes
- *        from the decks by build/pull-headchefs.mjs. ONE ENTRY PER DISTRICT, in
- *        a stable order, so entry i is always the same district. Any length is
- *        safe: entries fill the painted frames in order, leftover frames render
- *        as labelled empty mats, and entries past the last frame are dropped
- *        with a warning naming the districts that fell off.
- *        Fields used:
- *          district        long label, from the slide title ("North Side")
- *          district_short  what is engraved on the plaque ("Xfinity")
- *          vacant          true = this district has no chef right now; the
- *                          frame keeps its plaque and shows an empty mat
- *          name, store_role, stats[{value,label}], writeup, is_xfinity,
- *          has_photo, photo_file, photo_w, photo_h
- *          photo_focus     optional, any CSS object-position (default 50% 28%)
- *        A chef with no photo gets an empty mat too — whatever is on the slide
- *        is the picture.
- *
- * @param {Array<{x:number,y:number,w:number,h:number,rotate?:number}>} opts.frames
- *        rooms.js's CHEF_FRAMES: one box per picture frame painted into the
- *        break-room plate, measured off the render, in PERCENT. THE LENGTH OF
- *        THIS ARRAY IS THE NUMBER OF SLOTS THE WALL DRAWS — five, six or any
- *        other number; this module does not have an opinion and does not clamp.
- *        frames[i] receives chefs[i] — index order is the contract.
- *          x       left edge of the MAT OPENING as % of plate WIDTH   (0..100)
- *          y       top  edge of the MAT OPENING as % of plate HEIGHT  (0..100)
- *          w       mat opening width  as % of plate WIDTH
- *          h       mat opening height as % of plate HEIGHT
- *          rotate  optional, degrees clockwise about the box centre (default 0)
- *        Measure the INNER grey mat, not the outer black moulding — the photo
- *        fills this box edge to edge with object-fit:cover.
- *
- * @param {string} [opts.photoBase='headchefs/']
- *        Prefix for `photo_file` (which is relative to the headchefs/ folder).
- *
- * @param {Element|string} [opts.stripHost]
- *        Optional separate mount point for the narrow/portrait card-strip
- *        fallback (the NARROW_MEDIA condition, matching theme.css §16).
- *        STRONGLY recommended when `host` is the .hotspots layer: theme.css §16
- *        sets that layer to display:none on exactly this condition, which would
- *        hide the strip along with it, and it is also transform-scaled by the
- *        plate. Pass the room's `.rail` (or any untransformed, always-visible
- *        container). If omitted, the strip is relocated automatically when the
- *        host is found hidden, with a console warning.
- *
- * @param {string} [opts.refreshFrom]
- *        URL of headchefs.json. Optional, and it exists for one specific
- *        reason: index.html carries an INLINE bootstrap copy of the head chef
- *        data on window.__CCC_INLINE__ so the site boots off a USB stick over
- *        file://, and app.js PREFERS that copy over the network. That inline
- *        block is written at build time and is not touched by the 30-minute
- *        auto-pull (which commits headchefs/** and nothing else), so without
- *        this the page would keep rendering whatever was inline on the day the
- *        build ran while headchefs.json moved underneath it — the exact class
- *        of bug build/sync-inline-tools.mjs was written to kill for tools.json.
- *
- *        Given the URL, the wall mounts from the data it was handed (instant,
- *        no round trip, correct on file://) and then re-reads that one small
- *        JSON — ~13 KB, same origin, already deployed — and calls update() only
- *        if the districts actually differ. It NEVER fetches the decks: they are
- *        five megabytes each and are read on the runner, not in the page.
- *        Any failure (file://, offline, 404, bad JSON) is swallowed and the
- *        inline data stands.
- *
- * @param {Document} [opts.document] / @param {Window} [opts.window]  test seams.
- *
- * @returns {{open:Function, close:Function, update:Function, destroy:Function,
- *            root:Element|null, buttons:Element[]}}
- *          Always returns a usable controller — this function never throws.
- */
+
+
+
+
 export function initChefWall(opts) {
   const o = opts || {};
   const win = o.window || (typeof window !== 'undefined' ? window : null);
   const doc = o.document || (win && win.document) || null;
 
-  // -- no-op controller, returned whenever we cannot mount. Never throw. -----
+  
   const noop = {
     root: null, buttons: [],
     open() {}, close() {}, update() {}, destroy() {}
@@ -2078,25 +1754,25 @@ export function initChefWall(opts) {
   const root = el(doc, 'div', 'ccc-chefwall');
   root.setAttribute('data-chefwall', String(uid));
 
-  const wall = el(doc, 'div', 'cw-wall');   // wide + landscape : framed photos
-  const strip = el(doc, 'ul', 'cw-strip');  // narrow or portrait : card strip
+  const wall = el(doc, 'div', 'cw-wall');   
+  const strip = el(doc, 'ul', 'cw-strip');  
   strip.setAttribute('role', 'list');
 
   root.appendChild(wall);
   host.appendChild(root);
 
-  // The narrow-viewport card strip normally lives inside the same root. If the
-  // integrator passes `stripHost` (recommended when `host` is the transformed
-  // .hotspots layer) the strip is mounted there instead, in its own token
-  // scope, so it is not scaled/parallaxed along with the plate.
+  
+  
+  
+  
   const stripHost = typeof o.stripHost === 'string' ? doc.querySelector(o.stripHost) : o.stripHost;
   let detachedRoot = null;
   let warnedAboutStripHost = false;
 
-  /** Move the strip into its own root under `target`, out of `root`. */
+   
   function detachStripTo(target) {
     detachedRoot = el(doc, 'div', 'ccc-chefwall cw-detached');
-    detachedRoot.appendChild(strip);          // appendChild MOVES the node
+    detachedRoot.appendChild(strip);          
     target.appendChild(detachedRoot);
   }
 
@@ -2106,15 +1782,8 @@ export function initChefWall(opts) {
     root.appendChild(strip);
   }
 
-  /**
-   * SAFETY NET for the integration bug that took the wall down on iPad Pro
-   * portrait. When no `stripHost` was supplied the strip sits inside `root`,
-   * which lives inside `host` (.hotspots) — and theme.css §16 sets that host to
-   * display:none on exactly the narrow/portrait condition where the strip is
-   * supposed to take over. A hidden parent hides the strip too, so nothing
-   * renders. If we detect that state we relocate the strip beside the host
-   * (preferring the room's .rail) and warn once.
-   */
+  
+
   const narrowMQ = typeof win.matchMedia === 'function' ? win.matchMedia(NARROW_MEDIA) : null;
 
   function hostIsHidden() {
@@ -2122,7 +1791,7 @@ export function initChefWall(opts) {
   }
 
   function ensureStripMount() {
-    if (detachedRoot) return;                 // already outside the host
+    if (detachedRoot) return;                 
     if (!narrowMQ || !narrowMQ.matches) return;
     if (!hostIsHidden()) return;
     const stage = host.parentElement;
@@ -2139,8 +1808,8 @@ export function initChefWall(opts) {
     }
   }
 
-  // Re-check on every breakpoint/orientation flip. addEventListener on a
-  // MediaQueryList is the modern API; addListener is the Safari <14 fallback.
+  
+  
   const onNarrowChange = () => ensureStripMount();
   if (narrowMQ) {
     if (narrowMQ.addEventListener) narrowMQ.addEventListener('change', onNarrowChange);
@@ -2151,7 +1820,7 @@ export function initChefWall(opts) {
   const modal = createModal(win, uid, photoBase);
   doc.body.appendChild(modal.el);
 
-  /** Percent geometry -> exact mat placement. Shared by real and vacant slots. */
+   
   function placeFrame(node, box) {
     node.style.left = `${box.x}%`;
     node.style.top = `${box.y}%`;
@@ -2160,11 +1829,8 @@ export function initChefWall(opts) {
     if (box.rotate) node.style.transform = `rotate(${box.rotate}deg)`;
   }
 
-  /* -- a frame with no chef behind it -------------------------------------
-     The five frames are fixed by the painted art; the deck data is not. When
-     headchefs.json arrives with fewer than five slides the leftover frames are
-     filled in order with an empty mat — inert, unfocusable, and hidden from
-     assistive tech, because there is nothing to announce and nothing to open. */
+  
+
   function buildVacantFrame(box, i, chef) {
     const slot = el(doc, 'span', 'cw-frame cw-frame--vacant');
     slot.setAttribute('aria-hidden', 'true');
@@ -2183,15 +1849,14 @@ export function initChefWall(opts) {
 
     slot.appendChild(lift);
 
-    /* THE PLAQUE STAYS. The frame is empty, the district is not: it is the
-       West Side's frame whether or not the West Side posted a chef this week.
-       Outside the lift, so it does not travel with a hover it can never get. */
+    
+
     const plate = buildPlate(doc, chef);
     if (plate) slot.appendChild(plate);
     return slot;
   }
 
-  /* -- one framed photo ---------------------------------------------------- */
+   
   function buildFrame(chef, box, i) {
     const btn = el(doc, 'button', 'cw-frame');
     btn.type = 'button';
@@ -2199,7 +1864,7 @@ export function initChefWall(opts) {
     btn.setAttribute('aria-label', accessibleName(chef));
     btn.dataset.chefIndex = String(i);
 
-    // Static layout, never animated.
+    
     placeFrame(btn, box);
 
     const cast = el(doc, 'span', 'cw-cast');
@@ -2207,9 +1872,9 @@ export function initChefWall(opts) {
 
     const lift = el(doc, 'span', 'cw-lift');
 
-    // Our own mat, painted over the measured opening in the one mat colour,
-    // with the print and its recess shadow both inset 6% (CSS owns the 6%).
-    // The plate's painted mats vary in hue frame to frame; ours do not.
+    
+    
+    
     const mat = el(doc, 'span', 'cw-mat');
     mat.appendChild(buildSurface(doc, chef, photoBase, true));
 
@@ -2226,30 +1891,28 @@ export function initChefWall(opts) {
     const badge = buildBadge(doc, chef);
     if (badge) { badge.setAttribute('aria-hidden', 'true'); lift.appendChild(badge); }
 
-    // Name revealed beneath the frame on hover/focus. Decorative: the button's
-    // aria-label already carries "Head Chef of the Week: <name>, <store>".
+    
+    
     const nametag = el(doc, 'span', 'cw-nametag', squish(chef.name));
     nametag.setAttribute('aria-hidden', 'true');
     lift.appendChild(nametag);
 
-    // A held entry is marked ON THE WALL, not only inside the modal — the wall
-    // is what a district manager reads from the doorway.
+    
+    
     const heldW = heldInfo(chef);
     if (heldW) {
       btn.classList.add('is-held');
       if (heldW.stale) btn.classList.add('is-stale');
       const tag = el(doc, 'span', 'cw-heldtag', heldW.date || 'held');
-      tag.setAttribute('aria-hidden', 'true');   // the aria-label carries it
+      tag.setAttribute('aria-hidden', 'true');   
       lift.appendChild(tag);
     }
 
     btn.appendChild(cast);
     btn.appendChild(lift);
 
-    /* The plaque is a SIBLING of .cw-lift, not a child, and that is deliberate:
-       the plate is screwed to the wall and the picture is what lifts off it on
-       hover. Putting it inside .cw-lift would drag the engraving up with the
-       frame, which is the one thing a mounted plate does not do. */
+    
+
     const plate = buildPlate(doc, chef);
     if (plate) btn.appendChild(plate);
 
@@ -2257,7 +1920,7 @@ export function initChefWall(opts) {
     return btn;
   }
 
-  /* -- one narrow-viewport card -------------------------------------------- */
+   
   function buildCard(chef, i) {
     const li = el(doc, 'li');
     const btn = el(doc, 'button', 'cw-card');
@@ -2283,8 +1946,8 @@ export function initChefWall(opts) {
     const dist = el(doc, 'span', 'cw-carddistrict', districtShort(chef));
     const name = el(doc, 'span', 'cw-cardname', squish(chef.name));
     const role = el(doc, 'span', 'cw-cardrole', roleSegments(chef.store_role).join(' • '));
-    // aria-label already carries the district and the full name; hide the
-    // visual text duplicates so the card is announced once, not three times.
+    
+    
     dist.setAttribute('aria-hidden', 'true');
     name.setAttribute('aria-hidden', 'true');
     role.setAttribute('aria-hidden', 'true');
@@ -2299,40 +1962,19 @@ export function initChefWall(opts) {
     return li;
   }
 
-  /* -- (re)build both renderings ------------------------------------------- */
-  /**
-   * Render the wall.
-   *
-   * THE SLOT COUNT COMES FROM THE ART, AND ONLY FROM THE ART.
-   * `frames.length` is the number of picture frames painted into the
-   * photograph — five on the plate this shipped against, six on the re-shot
-   * one — and it is rendered verbatim. There is no cap and no expected number
-   * anywhere in this function: land a seven-entry CHEF_FRAMES and you get seven
-   * slots. That is the whole reason WALL_SIZE stopped being a clamp.
-   *
-   *   slot i has a chef   -> a real button, plus its engraved district plaque
-   *   slot i has no chef  -> an empty mat, inert and aria-hidden, and the SAME
-   *                          plaque, because the district owns the frame and
-   *                          the week only owns the picture
-   *
-   * headchefs.json is rebuilt every 30 minutes from the Win the Weekend decks
-   * (build/pull-headchefs.mjs), which emits ONE ENTRY PER DISTRICT in a stable
-   * order — a district with no slide this week arrives as `vacant: true` rather
-   * than being omitted, so slot i keeps meaning the same district week to week
-   * and nobody's photograph slides one frame to the left because someone else's
-   * deck was mid-edit. Records past the last frame are dropped with a warning;
-   * frames past the last record are blank, in place.
-   */
+   
+  
+
   function build(nextChefs, nextFrames) {
     chefs = (Array.isArray(nextChefs) ? nextChefs : []).filter(Boolean);
     frames = Array.isArray(nextFrames) && nextFrames.length ? nextFrames : DEFAULT_FRAMES;
 
     const slots = frames.length;
 
-    // More districts than frames is the only genuinely lossy case: say which
-    // ones fell off the end, by district, because that is what the client will
-    // notice ("where is the West Side?"). Fewer is routine and silent — that is
-    // what the blank mats are for.
+    
+    
+    
+    
     if (chefs.length > slots && win.console) {
       win.console.warn(
         `[chefwall] ${chefs.length} districts in the data; the room has ${slots} painted ` +
@@ -2344,8 +1986,8 @@ export function initChefWall(opts) {
 
     const wallFrag = doc.createDocumentFragment();
     const stripFrag = doc.createDocumentFragment();
-    // Indexed BY SLOT, so buttons[i] always lines up with chefs[i]. A vacant
-    // slot holds null rather than shifting everything after it along by one.
+    
+    
     buttons = [];
 
     for (let i = 0; i < slots; i++) {
@@ -2359,10 +2001,10 @@ export function initChefWall(opts) {
         rotate: Number(raw.rotate) || 0
       };
 
-      // No chef behind this frame -> a labelled blank mat, and no card in the
-      // strip (a card with no name and no write-up would just be a dead tile).
-      // `chef` may be absent entirely, or present-but-vacant carrying only the
-      // district — the plaque is built from whichever we have.
+      
+      
+      
+      
       if (!hasChef(chef)) {
         try { wallFrag.appendChild(buildVacantFrame(box, i, chef || {})); } catch (_) {}
         buttons[i] = null;
@@ -2375,8 +2017,8 @@ export function initChefWall(opts) {
         stripFrag.appendChild(buildCard(chef, i));
         buttons[i] = btn;
       } catch (err) {
-        // A malformed record must never take the room down: fall back to the
-        // blank mat so the wall still reads as five frames.
+        
+        
         if (win.console) win.console.warn('[chefwall] slot', i, 'failed; left blank.', err);
         try { wallFrag.appendChild(buildVacantFrame(box, i, chef || {})); } catch (_) {}
         buttons[i] = null;
@@ -2389,9 +2031,8 @@ export function initChefWall(opts) {
 
   build(o.chefs, o.frames);
 
-  /* -- follow the file, not the build ---------------------------------------
-     See the `refreshFrom` docs above. Deliberately fired AFTER the first build
-     so nothing waits on it, and deliberately silent on every failure path. */
+  
+
   if (o.refreshFrom && typeof win.fetch === 'function') {
     const signature = (list) => (Array.isArray(list) ? list : []).map((c) => [
       districtShort(c), squish(c && c.name), squish(c && c.store_role),
@@ -2403,42 +2044,38 @@ export function initChefWall(opts) {
       .then((docJson) => {
         const next = docJson && Array.isArray(docJson.headchefs) ? docJson.headchefs : null;
         if (!next || !next.length) return;
-        if (signature(next) === signature(chefs)) return;   // no churn, no reflow
+        if (signature(next) === signature(chefs)) return;   
         build(next, frames);
         if (win.console && win.console.info) {
           win.console.info('[chefwall] refreshed from ' + o.refreshFrom +
             ' (generated ' + (docJson.generated_at || 'unknown') + ').');
         }
       })
-      .catch(() => { /* file://, offline, 404 — the inline data stands */ });
+      .catch(() => {   });
   }
 
-  /* -- controller ---------------------------------------------------------- */
+   
   return {
     root,
 
-    /**
-     * The frame buttons, indexed BY SLOT so buttons[i] pairs with chefs[i].
-     * A slot with no chef behind it holds `null` — check before using one.
-     */
+    
+
     get buttons() { return buttons.slice(); },
 
-    /** True when the card strip is the active rendering (narrow OR portrait). */
+     
     get isNarrow() { return !!(narrowMQ && narrowMQ.matches); },
 
-    /** Programmatically open chef i's slide (used by deep links / the rail). */
+     
     open(i) {
       const chef = chefs[i];
-      if (!hasChef(chef)) return;      // an empty frame has nothing to open
+      if (!hasChef(chef)) return;      
       modal.show(chef, buttons[i] || null);
     },
 
     close() { modal.close(); },
 
-    /**
-     * Re-measure or re-sync. Pass either key; the other is kept.
-     * @param {{chefs?:Array, frames?:Array}} next
-     */
+    
+
     update(next) {
       const n = next || {};
       build(n.chefs || chefs, n.frames || frames);
