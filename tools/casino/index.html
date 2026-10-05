@@ -8,8 +8,10 @@
 <meta name="description" content="Blufox Casino & Lounge — seven 3D tables and machines dealt by Ace. Play chips only: nothing to buy, nothing to win.">
 <title>Blufox Casino & Lounge</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070a0e'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-family='Georgia' font-size='30' fill='%23e3c77e'%3EC3%3C/text%3E%3C/svg%3E">
-<link rel="preload" as="image" href="assets/img/lounge-still.webp" media="(min-width: 700px)" crossorigin="anonymous">
-<link rel="preload" as="image" href="assets/img/lounge-still-m.webp" media="(max-width: 699px)" crossorigin="anonymous">
+<!-- Must match js/core/dealer.mjs: the -m still is used whenever the quality tier is not
+     'high' (every touch device, stage.mjs detectTier) or the view is under 700px. -->
+<link rel="preload" as="image" href="assets/img/lounge-still.webp" media="(min-width: 700px) and (pointer: fine)" crossorigin="anonymous">
+<link rel="preload" as="image" href="assets/img/lounge-still-m.webp" media="(max-width: 699px), (pointer: coarse)" crossorigin="anonymous">
 <link rel="modulepreload" href="js/vendor/three.min.mjs">
 <style>
 @font-face{font-family:'Bodoni Moda';font-style:normal;font-weight:400 900;font-display:swap;src:url(assets/fonts/bodoni-moda-latin.woff2) format('woff2')}

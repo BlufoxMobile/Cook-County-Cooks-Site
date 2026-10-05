@@ -243,3 +243,5 @@ sup{font-size:.55em;vertical-align:.7em}
 }
 @media (max-aspect-ratio:3/4){.lobby-hero{margin-top:44vh}#lobby{background:linear-gradient(180deg,transparent 0,transparent 36vh,rgba(5,6,8,.78) 50vh,rgba(5,6,8,.97) 72vh)}}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;transition-duration:.01s!important}}
+/* Touch: invisible 44px hit areas for the 36–40px top-bar icons and the lobby strip's COLLECT/TAKE IT pill; nothing visible moves. */
+@media (pointer:coarse){.ico::before{content:'';position:absolute;inset:-4px -3px}.strip-card .go{position:relative}.strip-card .go::before{content:'';position:absolute;inset:-6px -2px}}
