@@ -232,6 +232,12 @@ self.addEventListener('fetch', (event) => {
   // assets/preflight.js, the streaks feed) must not be answered from a cache.
   if (req.cache === 'no-store') return;
 
+  // Big media and print files are not shell: the site-tour video is 84 MB of
+  // .ts segments and printouts are multi-MB PDFs. Storing them would evict the
+  // real offline floor (the cap is 160 entries, not bytes), and video players
+  // issue Range requests the cache cannot answer. (QA pass, 10/4.)
+  if (/\.(ts|m3u8|mp4|m4a|webm|mp3|pdf|vtt)$/i.test(url.pathname) || url.pathname.includes('/video/')) return;
+
   event.respondWith((async () => {
     if (await fromNoswPage(event)) return fetch(req);
     return CACHE_FIRST(url) ? cacheFirst(req, event) : networkFirst(req, 5000, event);
