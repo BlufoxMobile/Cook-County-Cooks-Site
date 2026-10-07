@@ -3860,6 +3860,100 @@ html.ccc-locked .chip[data-marquee]::after { animation-play-state: paused; }
 }
 
 
+/* ═════════════════════════════════════════════════════════════════════════
+   08c · A CHIP UNDER A CHIP  ·  the quote sheet How To videos (Oct 2026)
+   ═════════════════════════════════════════════════════════════════════════
+   The client: "add a button below the corresponding button for the 6th gen or
+   upgrade sheet". A tool in data/tools.json can name its parent with `under`,
+   and cinema.js (stackPlan) then marks that room's rail [data-stacked] and
+   gives EVERY chip in it a grid cell as custom properties: --c3/--r3 for a
+   three-column rail and --c2/--r2 for a two-column one.
+
+   So a stacked rail is a grid, not a wrapping row, and each How To sits in its
+   sheet's column, one row down. The chips are still direct children of
+   .rail-chips — no wrapper — so §09b's arrival stagger and the drawer below
+   apply to them exactly as they do to every other chip.
+
+   THREE COLUMNS ONLY WHERE THREE FIT. Measured, the Pass's three columns are
+   242 + 246 + 195 plus two gaps = 699px on a touch screen (226 + 230 + 179 =
+   651 with a mouse), and the rail is 52cqw wide there, so three columns need
+   a 1345px stage. 1350 is that number rounded up: an iPad Pro on its side
+   (1366) and every desktop get the two-row layout, which is the same height
+   the rail had before the videos existed, so the title does not move. Anything
+   narrower gets two columns and one more row. The 62ch cap of §08a is lifted
+   to 70ch for a stacked rail for the same sum — 62ch is 639px and would push
+   the third column out of the rail on every screen.
+
+   Scoped to the wide layout. The ≤900px / portrait drawer has its own grid and
+   its own half of this, in §17. */
+@media (min-width: 901px) and (min-aspect-ratio: 8 / 7) {
+  .rail-chips[data-stacked] {
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+    justify-content: start;
+  }
+  .rail-chips[data-stacked] > .chip {
+    grid-column: var(--c2);
+    grid-row: var(--r2);
+  }
+  /* (0,3,0), and later in the file than §08a's own cap for the raised rooms */
+  .room .rail-chips[data-stacked] {
+    max-inline-size: min(var(--rail-measure, 78cqi), 70ch);
+  }
+  @container stage (min-width: 1350px) {
+    .rail-chips[data-stacked] { grid-template-columns: repeat(3, max-content); }
+    .rail-chips[data-stacked] > .chip {
+      grid-column: var(--c3);
+      grid-row: var(--r3);
+    }
+  }
+}
+
+/* A SHORT WINDOW TAKES THE WIDTH INSTEAD OF THE HEIGHT.
+   Two columns means three rows, and §08a hangs the block from its foot: the
+   third row is paid for upward, out of the gap under the top bar. Below about
+   690px of height that gap is spent (the foot sits near 53% of the window, the
+   block is ~280px tall, the bar and its padding take ~86) and `safe end`
+   starts pushing the block DOWN instead — onto the tablets. Measured at
+   1024x600: the last row of chips lay 17px over the tablet glass.
+
+   So at 700px and under the Pass goes three-across at any width, which is the
+   two-row block the room always had, and the measure is lifted to let it: at
+   these sizes the row is 651-699px and the narrowest wide layout that can
+   occur (901px) still has room for it beside the rail's lead.
+
+   ⚠ PASS ONLY, on purpose. Lifting the measure is a statement about what is to
+   the right of the type in THIS photograph (the back kitchen: nothing with a
+   hotspot). A future room with a stack gets the two rules above and should be
+   looked at in a short window before it borrows this one. */
+@media (min-width: 901px) and (min-aspect-ratio: 8 / 7) and (max-height: 700px) {
+  .room[data-room="pass"] .rail-chips[data-stacked] {
+    grid-template-columns: repeat(3, max-content);
+    max-inline-size: none;
+  }
+  .room[data-room="pass"] .rail-chips[data-stacked] > .chip {
+    grid-column: var(--c3);
+    grid-row: var(--r3);
+  }
+}
+
+/* THE PLAY MARK. `"glyph":"play"` in tools.json swaps the brass tick for a
+   play triangle — the one thing that says "this is a video" before the label
+   is read. Same pseudo-element, same brass, same hover/press rules as the tick
+   (§08); only its shape changes, so nothing here repaints. */
+.chip[data-glyph="play"]::before {
+  inline-size: 7px;
+  block-size: 9px;
+  border-radius: 0;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  box-shadow: none;
+  opacity: .9;
+  /* 2px wider than the tick it replaces; give the 2px back so the label
+     starts on the same vertical as its sheet's label above it */
+  margin-inline-end: -2px;
+}
+
+
 /* ═══════════════════════════════════════════════════════════════════════════
    09 · HOTSPOTS
    ═══════════════════════════════════════════════════════════════════════════
@@ -6178,6 +6272,25 @@ html::-webkit-scrollbar-track, .keypad-scrim::-webkit-scrollbar-track,
      brass wash above, so §08's hover plate is not drawn here (the marquee
      row's ::after is a bulb rail and keeps it). */
   .rail-chips .chip:not([data-marquee])::after { content: none; }
+
+  /* ── A CHIP UNDER A CHIP, IN THE DRAWER (§08c) ────────────────────────────
+     One column: nothing to place. cinema.js already writes each How To
+     straight after its sheet, so the list reads sheet, its video, next sheet.
+     Two columns (an iPad held upright): the pairs go side by side, each video
+     under its own sheet, from the same --c2/--r2 the wide layout uses.
+     The first two rules only matter on the one aspect ratio (exactly 8:7)
+     where this block and §08c's wide block both apply. */
+  .rail-chips[data-stacked] { grid-template-columns: 1fr; }
+  .rail-chips[data-stacked] > .chip { grid-column: auto; grid-row: auto; }
+  @container stage (min-width: 600px) {
+    .rail-chips[data-stacked] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .rail-chips[data-stacked] > .chip {
+      grid-column: var(--c2);
+      grid-row: var(--r2);
+    }
+  }
+  /* the row's tick is 6px (above, same specificity, later) — keep the triangle */
+  .rail-chips .chip[data-glyph="play"]::before { inline-size: 8px; block-size: 10px; }
 
   /* ── THE MARQUEE CHIP IN THE DRAWER (§08b) ────────────────────────────────
      Below this breakpoint the rail stops being a row of glass tags and becomes

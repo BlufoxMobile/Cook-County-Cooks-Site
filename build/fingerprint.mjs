@@ -204,7 +204,13 @@ const HTML_FILES = ['index.html', ...listDir('tools/printouts', ['.html']),
   /* tools/site-tour — the Site Tour video (hero button + Host Stand chip, Oct 2026).
      Same reason: its <head> names ../../assets/fonts/*.woff2. Its video/ segments,
      poster and captions are addressed by name and NOT fingerprinted. */
-  ...listDir('tools/site-tour', ['.html'])];
+  ...listDir('tools/site-tour', ['.html']),
+  /* tools/quote-6th-gen-how-to and tools/quote-upgrade-how-to — the two quote sheet
+     How To videos (Pass chips hung under their sheets, Oct 2026). Same page and the
+     same reason as site-tour: the <head> names ../../assets/fonts/*.woff2. Their
+     video/ segments, posters and captions are addressed by name, NOT fingerprinted. */
+  ...listDir('tools/quote-6th-gen-how-to', ['.html']),
+  ...listDir('tools/quote-upgrade-how-to', ['.html'])];
   /* tools/request-access (Prep Station recipe-card-4, Oct 2026) is deliberately NOT in
      this list. Like tools/csg-how-to it is one passcode-locked file whose ~2.8 MB
      encrypted PAYLOAD sits on a single line, and the literal rewriter's backtracking

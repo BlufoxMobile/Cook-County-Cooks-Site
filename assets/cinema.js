@@ -668,6 +668,9 @@ function buildRail(roomId, index, data) {
   const titleId = `room-${roomId}-title`;
   // The freezer is the only gated room, and its chips have to LOOK gated.
   const gated = roomId === 'freezer' && !isFreezerUnlocked();
+  // A tool that names another with `under` hangs beneath that tool's chip.
+  // null for every rail that has none, which is all but the Pass today.
+  const stack = gated ? null : stackPlan(tools);
 
   const chips = el('nav', {
     class: 'rail-chips',
@@ -677,8 +680,22 @@ function buildRail(roomId, index, data) {
     // The hook playUnlockBeat() re-renders against. It is on the LIST, not on
     // the chips: what is gated here is the list's existence, not each row.
     'data-locked': gated ? '' : null,
-    'data-room-chips': roomId
-  }, gated ? [buildLockChip(sealedCount())] : tools.map((tool, i) => buildChip(tool, false, i)));
+    'data-room-chips': roomId,
+    // theme.css §08c lays a stacked rail out on a grid instead of a wrapping row.
+    'data-stacked': stack ? '' : null
+  }, gated ? [buildLockChip(sealedCount())]
+           : (stack ? stack.order : tools).map((tool, i) => {
+               const chip = buildChip(tool, false, i);
+               if (stack) {
+                 // Where this chip sits when the rail is three columns wide and
+                 // when it is two. The stylesheet picks which pair applies.
+                 const [c3, r3] = stack.wide.get(tool.slug);
+                 const [c2, r2] = stack.narrow.get(tool.slug);
+                 chip.style.setProperty('--c3', c3); chip.style.setProperty('--r3', r3);
+                 chip.style.setProperty('--c2', c2); chip.style.setProperty('--r2', r2);
+               }
+               return chip;
+             }));
 
   return el('div', { class: 'rail' }, [
     // The ticket rail numbers the seven rooms 01..07; `index` counts the hero as
@@ -730,6 +747,87 @@ function showsChip(tool) {
   return !tool || tool.object !== 'no-chip';
 }
 
+/**
+ * A CHIP THAT HANGS UNDER ANOTHER CHIP.  (Oct 2026 — the quote sheet How To videos)
+ *
+ * The client, on the two training videos: "add a button below the corresponding
+ * button for the 6th gen or upgrade sheet". So a tool can name its parent:
+ *
+ *     {"slug":"quote-upgrade-how-to", …, "under":"quote-upgrade"}
+ *
+ * and its chip is laid out directly beneath the parent's, in the parent's
+ * column, instead of taking the next free place in the row.
+ *
+ * THE CHIPS STAY DIRECT CHILDREN OF .rail-chips. There is no wrapper element
+ * round a parent and its child, on purpose: theme.css's arrival stagger and
+ * engine.js's reveal list both select `.rail-chips > .chip`, and the ≤900px
+ * drawer turns every chip into a full-width row. A wrapper would have taken the
+ * pair out of all three. Instead this works out a grid cell for every chip and
+ * hands it to the stylesheet as custom properties (see buildRail), and theme.css
+ * §08c switches the rail from a wrapping row to a grid — only for a rail that
+ * has a stack in it. A rail with no `under` tool returns null here and is
+ * exactly the wrapping row it always was.
+ *
+ * DOM ORDER is parent, its children, next parent — so Tab walks sheet → its
+ * How To → next sheet, the one-column drawer lists each video under its sheet
+ * with no placement at all, and a screen reader hears them together.
+ *
+ * TWO WIDTHS ARE SOLVED, three columns and two, because the rail cannot know
+ * which it will get: that is a container query in the stylesheet, not something
+ * to measure here. Each group (a parent and its children) is one column wide
+ * and as many rows tall as it has chips; groups are dropped first-fit, reading
+ * order, so a single chip tucks into the gap beside a stack rather than opening
+ * a new row. In the Pass at three columns that is
+ *
+ *     6th Gen sheet    Upgrade sheet    Internet sheet
+ *     6th Gen How To   Upgrade How To   T-Sheet Submissions
+ *
+ * — two rows, the same height the rail had before the videos existed, so the
+ * room title does not move (§08a hangs this block from its FOOT).
+ *
+ * FAIL-SOFT: an `under` that names a tool not in this rail, itself, or another
+ * child is ignored and the tool is an ordinary chip.
+ */
+function stackPlan(tools) {
+  const bySlug = new Map(tools.map((t) => [t.slug, t]));
+  const parentOf = (t) => {
+    const p = t.under ? bySlug.get(t.under) : null;
+    return p && p !== t && !p.under ? p : null;
+  };
+  const kids = new Map();
+  for (const t of tools) {
+    const p = parentOf(t);
+    if (!p) continue;
+    if (!kids.has(p.slug)) kids.set(p.slug, []);
+    kids.get(p.slug).push(t);
+  }
+  if (!kids.size) return null;
+
+  const groups = [];
+  for (const t of tools) {
+    if (parentOf(t)) continue;                    // emitted with its parent
+    groups.push([t, ...(kids.get(t.slug) || [])]);
+  }
+  const place = (cols) => {
+    const taken = new Set(), cells = new Map();
+    for (const group of groups) {
+      let done = false;
+      for (let r = 1; !done; r++) {
+        for (let c = 1; c <= cols && !done; c++) {
+          if (group.some((_, k) => taken.has(`${c}:${r + k}`))) continue;
+          group.forEach((tool, k) => {
+            taken.add(`${c}:${r + k}`);
+            cells.set(tool.slug, [c, r + k]);
+          });
+          done = true;
+        }
+      }
+    }
+    return cells;
+  };
+  return { order: groups.flat(), wide: place(3), narrow: place(2) };
+}
+
 /* A small padlock, sized by attribute so it needs no stylesheet of its own.
    It sits alongside the chip's brass tick rather than replacing it: the tick is
    a ::before and only theme.css can swap that (see the report). */
@@ -755,6 +853,10 @@ function buildChip(tool, staged, i) {
       : null
   });
   chip.append(tool.label);
+  /* A tool can ask for a different mark than the brass tick: `"glyph":"play"`
+     draws a play triangle (theme.css §08c), which is what says "this one is a
+     video" on the How To chips. Unknown values draw the ordinary tick. */
+  if (tool.glyph) chip.dataset.glyph = tool.glyph;
   /* THE MARQUEE. A tool carrying `marquee` in data/tools.json gets the bulb
      treatment in theme.css §08b and a live count appended to its label. Exactly
      one tool has it today (`arcade`), and this function still does not know
