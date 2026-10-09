@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-09T13:37:41.148Z",
+  "generated_at": "2026-10-09T14:59:55.316Z",
   "generator": "build/pull-headchefs.mjs",
   "note": "GENERATED FILE — do not hand-edit. Rebuilt from the Win-The-Weekend decks by .github/workflows/headchefs.yml every 30 minutes.",
   "policy": {
@@ -31,7 +31,7 @@
       "label": "Big South",
       "page": "https://blufoxmobile.github.io/Win-The-Weekend---Big-South/",
       "raw": "https://raw.githubusercontent.com/BlufoxMobile/Win-The-Weekend---Big-South/main/index.html",
-      "fetched_at": "2026-10-09T13:37:41.751Z",
+      "fetched_at": "2026-10-09T14:59:56.145Z",
       "bytes": 3254368,
       "head_chef_slides": 1,
       "districts": [
@@ -43,8 +43,8 @@
       "label": "Chicago",
       "page": "https://blufoxmobile.github.io/Win-The-Weekend---Chicago/",
       "raw": "https://raw.githubusercontent.com/BlufoxMobile/Win-The-Weekend---Chicago/main/index.html",
-      "fetched_at": "2026-10-09T13:37:42.293Z",
-      "bytes": 2549297,
+      "fetched_at": "2026-10-09T14:59:57.337Z",
+      "bytes": 7229422,
       "head_chef_slides": 4,
       "districts": [
         "North Side",
@@ -63,7 +63,7 @@
       "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-10-09T13:37:41.148Z",
+      "last_confirmed": "2026-10-09T14:59:55.316Z",
       "last_changed": "2026-10-09T13:37:41.148Z",
       "days_since_confirmed": 0
     },
@@ -75,8 +75,8 @@
       "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-10-09T13:37:41.148Z",
-      "last_changed": "2026-10-02T14:48:05.184Z",
+      "last_confirmed": "2026-10-09T14:59:55.316Z",
+      "last_changed": "2026-10-09T14:59:55.316Z",
       "days_since_confirmed": 0
     },
     "east-side": {
@@ -87,8 +87,8 @@
       "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-10-09T13:37:41.148Z",
-      "last_changed": "2026-10-02T14:48:05.184Z",
+      "last_confirmed": "2026-10-09T14:59:55.316Z",
+      "last_changed": "2026-10-09T14:59:55.316Z",
       "days_since_confirmed": 0
     },
     "north-side": {
@@ -99,8 +99,8 @@
       "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-10-09T13:37:41.148Z",
-      "last_changed": "2026-10-02T14:48:05.184Z",
+      "last_confirmed": "2026-10-09T14:59:55.316Z",
+      "last_changed": "2026-10-09T14:59:55.316Z",
       "days_since_confirmed": 0
     },
     "south-side": {
@@ -111,8 +111,8 @@
       "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-10-09T13:37:41.148Z",
-      "last_changed": "2026-10-02T14:48:05.184Z",
+      "last_confirmed": "2026-10-09T14:59:55.316Z",
+      "last_changed": "2026-10-09T14:59:55.316Z",
       "days_since_confirmed": 0
     },
     "xfinity": {
@@ -125,7 +125,7 @@
       "first_seen": "2026-08-26T04:16:23.645Z",
       "last_confirmed": "2026-10-02T13:36:23.095Z",
       "last_changed": "2026-09-25T15:11:31.813Z",
-      "days_since_confirmed": 7
+      "days_since_confirmed": 7.1
     }
   },
   "headchefs": [
@@ -151,7 +151,7 @@
       "photo_sha": "c5422e553a4db4eb318aa3d8d075404c9633de1922d434f6916eb540c928df4b",
       "photo_file_sha": "61c7a61ac1906de73a69ff84bf1dce2e280162c24c741b89ff7c58525798dce5",
       "photo_low_quality": false,
-      "last_confirmed": "2026-10-09T13:37:41.148Z",
+      "last_confirmed": "2026-10-09T14:59:55.316Z",
       "last_changed": "2026-10-09T13:37:41.148Z",
       "days_since_confirmed": 0,
       "stale": false
@@ -163,39 +163,39 @@
       "region_deck": "Chicago",
       "slide_title": "Head Chef Of The Week",
       "slide_index": 3,
-      "name": "Calumet City",
-      "store_role": "Store • National Rank #31",
+      "name": "Round Lake Beach",
+      "store_role": "Store • National Rank #8",
       "stats": [
         {
-          "value": "$64,789",
+          "value": "$48,010",
           "label": "GP $ Trend"
         },
         {
-          "value": "7.16%",
+          "value": "7.98%",
           "label": "MCR"
         },
         {
-          "value": "100.0%",
+          "value": "80.8%",
           "label": "Plus"
         },
         {
-          "value": "83.3%",
+          "value": "89.7%",
           "label": "NPS"
         },
         {
-          "value": "50.0%",
+          "value": "71.4%",
           "label": "GIG"
         },
         {
-          "value": "$16.75",
+          "value": "$31.94",
           "label": "Accy"
         },
         {
-          "value": "6",
+          "value": "26",
           "label": "Mobile"
         },
         {
-          "value": "7.65%",
+          "value": "10.08%",
           "label": "FCR"
         }
       ],
@@ -203,16 +203,16 @@
       "is_xfinity": false,
       "is_store": true,
       "vacant": false,
-      "has_photo": false,
-      "photo_file": null,
-      "photo_w": 0,
-      "photo_h": 0,
-      "photo_bytes": 0,
-      "photo_sha": null,
-      "photo_file_sha": null,
+      "has_photo": true,
+      "photo_file": "photos/west-side.webp",
+      "photo_w": 384,
+      "photo_h": 384,
+      "photo_bytes": 24360,
+      "photo_sha": "b0170d825f1b9da65161ebe91da32c08be038dc35ccb8837f27b0d017d77c5ca",
+      "photo_file_sha": "baf6e6ed21adf2f13a2a9b8efb4d9c40e55e8690bfc0d5f8c5f9437021434a40",
       "photo_low_quality": false,
-      "last_confirmed": "2026-10-09T13:37:41.148Z",
-      "last_changed": "2026-10-02T14:48:05.184Z",
+      "last_confirmed": "2026-10-09T14:59:55.316Z",
+      "last_changed": "2026-10-09T14:59:55.316Z",
       "days_since_confirmed": 0,
       "stale": false
     },
@@ -223,83 +223,23 @@
       "region_deck": "Chicago",
       "slide_title": "Head Chef Of The Week",
       "slide_index": 1,
-      "name": "Schererville",
-      "store_role": "Store • National Rank #2",
+      "name": "Victoria Moore",
+      "store_role": "Schererville • New Hire",
       "stats": [
         {
-          "value": "$104,003",
-          "label": "GP $ Trend"
-        },
-        {
-          "value": "7.20%",
-          "label": "MCR"
-        },
-        {
-          "value": "90.9%",
-          "label": "Plus"
-        },
-        {
-          "value": "83.3%",
-          "label": "NPS"
-        },
-        {
-          "value": "66.7%",
-          "label": "GIG"
-        },
-        {
-          "value": "$39.51",
-          "label": "Accy"
-        },
-        {
-          "value": "11",
-          "label": "Mobile"
-        },
-        {
-          "value": "10.38%",
-          "label": "FCR"
-        }
-      ],
-      "writeup": "",
-      "is_xfinity": false,
-      "is_store": true,
-      "vacant": false,
-      "has_photo": true,
-      "photo_file": "photos/east-side.webp",
-      "photo_w": 303,
-      "photo_h": 576,
-      "photo_bytes": 33236,
-      "photo_sha": "58bdc4c62b32c79b2b9d9bfd56259c9b309b896fac2a046294071e59152d77c3",
-      "photo_file_sha": "20bf1f1caf9abd1813c6191aba56b1a3368742fef7c91ab821dc072adb158e7c",
-      "photo_low_quality": false,
-      "last_confirmed": "2026-10-09T13:37:41.148Z",
-      "last_changed": "2026-10-02T14:48:05.184Z",
-      "days_since_confirmed": 0,
-      "stale": false
-    },
-    {
-      "district": "North Side",
-      "district_key": "north-side",
-      "district_short": "North Side",
-      "region_deck": "Chicago",
-      "slide_title": "Head Chef Of The Week",
-      "slide_index": 0,
-      "name": "Williams Perez-Arellano",
-      "store_role": "Cicero • Sales Rep",
-      "stats": [
-        {
-          "value": "$850",
+          "value": "$3,850",
           "label": "GP $"
         },
         {
-          "value": "67%",
+          "value": "73%",
           "label": "Plus"
         },
         {
-          "value": "50%",
+          "value": "67%",
           "label": "GIG Attach"
         },
         {
-          "value": "$0.00",
+          "value": "$20.95",
           "label": "Accy $/Box"
         }
       ],
@@ -315,8 +255,52 @@
       "photo_sha": null,
       "photo_file_sha": null,
       "photo_low_quality": false,
-      "last_confirmed": "2026-10-09T13:37:41.148Z",
-      "last_changed": "2026-10-02T14:48:05.184Z",
+      "last_confirmed": "2026-10-09T14:59:55.316Z",
+      "last_changed": "2026-10-09T14:59:55.316Z",
+      "days_since_confirmed": 0,
+      "stale": false
+    },
+    {
+      "district": "North Side",
+      "district_key": "north-side",
+      "district_short": "North Side",
+      "region_deck": "Chicago",
+      "slide_title": "Head Chef Of The Week",
+      "slide_index": 0,
+      "name": "Taiyeeb Chowdhury",
+      "store_role": "South Skokie • Sales Rep",
+      "stats": [
+        {
+          "value": "$4,195",
+          "label": "GP $"
+        },
+        {
+          "value": "92%",
+          "label": "Plus"
+        },
+        {
+          "value": "20%",
+          "label": "GIG Attach"
+        },
+        {
+          "value": "$9.25",
+          "label": "Accy $/Box"
+        }
+      ],
+      "writeup": "",
+      "is_xfinity": false,
+      "is_store": false,
+      "vacant": false,
+      "has_photo": true,
+      "photo_file": "photos/north-side.webp",
+      "photo_w": 266,
+      "photo_h": 576,
+      "photo_bytes": 8672,
+      "photo_sha": "5cf767bb7833bc375846d8c99519f5520bb6e67d1789b216ecd8e13609d7dc33",
+      "photo_file_sha": "2f7af1f98e000407856fd6c23034ca97836b66ffeb3c1c4dc46e4e2508e63bca",
+      "photo_low_quality": false,
+      "last_confirmed": "2026-10-09T14:59:55.316Z",
+      "last_changed": "2026-10-09T14:59:55.316Z",
       "days_since_confirmed": 0,
       "stale": false
     },
@@ -327,39 +311,39 @@
       "region_deck": "Chicago",
       "slide_title": "Head Chef Of The Week",
       "slide_index": 2,
-      "name": "Tinley Park",
-      "store_role": "Store • National Rank #52",
+      "name": "Frankfort",
+      "store_role": "Store • National Rank #41",
       "stats": [
         {
-          "value": "$56,265",
+          "value": "$75,433",
           "label": "GP $ Trend"
         },
         {
-          "value": "6.48%",
+          "value": "6.69%",
           "label": "MCR"
         },
         {
-          "value": "75.0%",
+          "value": "89.6%",
           "label": "Plus"
         },
         {
-          "value": "79.3%",
+          "value": "76.7%",
           "label": "NPS"
         },
         {
-          "value": "50.0%",
+          "value": "69.2%",
           "label": "GIG"
         },
         {
-          "value": "$8.29",
+          "value": "$11.34",
           "label": "Accy"
         },
         {
-          "value": "4",
+          "value": "48",
           "label": "Mobile"
         },
         {
-          "value": "9.13%",
+          "value": "8.22%",
           "label": "FCR"
         }
       ],
@@ -370,13 +354,13 @@
       "has_photo": true,
       "photo_file": "photos/south-side.webp",
       "photo_w": 384,
-      "photo_h": 381,
-      "photo_bytes": 8888,
-      "photo_sha": "28bea2e614b13f3db50a46ac9ab30b8e0296ecb746b2603bf8535c9d14d661bb",
-      "photo_file_sha": "08918fdf6ebfe403b0c1a264bf4490a1e93db8df5c640a14a1352f38cf455173",
-      "photo_low_quality": true,
-      "last_confirmed": "2026-10-09T13:37:41.148Z",
-      "last_changed": "2026-10-02T14:48:05.184Z",
+      "photo_h": 522,
+      "photo_bytes": 35718,
+      "photo_sha": "02f31d72c47c19ac3d6ccddd2ada35abcc6645300aad5b7577a199c6d4d7e071",
+      "photo_file_sha": "79cc03c6dda23dd652f0ee6e314dcd65075dc9a59d8e68c07f688cfb9a9435f0",
+      "photo_low_quality": false,
+      "last_confirmed": "2026-10-09T14:59:55.316Z",
+      "last_changed": "2026-10-09T14:59:55.316Z",
       "days_since_confirmed": 0,
       "stale": false
     },
@@ -421,7 +405,7 @@
       "photo_low_quality": false,
       "last_confirmed": "2026-10-02T13:36:23.095Z",
       "last_changed": "2026-09-25T15:11:31.813Z",
-      "days_since_confirmed": 7,
+      "days_since_confirmed": 7.1,
       "stale": false,
       "source_deck": "chicago"
     }
