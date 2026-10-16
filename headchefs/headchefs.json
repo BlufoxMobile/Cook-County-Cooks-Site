@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-16T13:32:51.041Z",
+  "generated_at": "2026-10-16T14:11:29.389Z",
   "generator": "build/pull-headchefs.mjs",
   "note": "GENERATED FILE — do not hand-edit. Rebuilt from the Win-The-Weekend decks by .github/workflows/headchefs.yml every 30 minutes.",
   "policy": {
@@ -31,7 +31,7 @@
       "label": "Big South",
       "page": "https://blufoxmobile.github.io/Win-The-Weekend---Big-South/",
       "raw": "https://raw.githubusercontent.com/BlufoxMobile/Win-The-Weekend---Big-South/main/index.html",
-      "fetched_at": "2026-10-16T13:32:51.312Z",
+      "fetched_at": "2026-10-16T14:11:29.648Z",
       "bytes": 879789,
       "head_chef_slides": 1,
       "districts": [
@@ -43,7 +43,7 @@
       "label": "Chicago",
       "page": "https://blufoxmobile.github.io/Win-The-Weekend---Chicago/",
       "raw": "https://raw.githubusercontent.com/BlufoxMobile/Win-The-Weekend---Chicago/main/index.html",
-      "fetched_at": "2026-10-16T13:32:52.116Z",
+      "fetched_at": "2026-10-16T14:11:30.336Z",
       "bytes": 7229422,
       "head_chef_slides": 4,
       "districts": [
@@ -63,7 +63,7 @@
       "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-10-16T13:32:51.041Z",
+      "last_confirmed": "2026-10-16T14:11:29.389Z",
       "last_changed": "2026-10-16T13:32:51.041Z",
       "days_since_confirmed": 0
     },
@@ -75,7 +75,7 @@
       "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-10-16T13:32:51.041Z",
+      "last_confirmed": "2026-10-16T14:11:29.389Z",
       "last_changed": "2026-10-09T14:59:55.316Z",
       "days_since_confirmed": 0
     },
@@ -87,7 +87,7 @@
       "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-10-16T13:32:51.041Z",
+      "last_confirmed": "2026-10-16T14:11:29.389Z",
       "last_changed": "2026-10-09T14:59:55.316Z",
       "days_since_confirmed": 0
     },
@@ -99,7 +99,7 @@
       "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-10-16T13:32:51.041Z",
+      "last_confirmed": "2026-10-16T14:11:29.389Z",
       "last_changed": "2026-10-09T14:59:55.316Z",
       "days_since_confirmed": 0
     },
@@ -111,7 +111,7 @@
       "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-10-16T13:32:51.041Z",
+      "last_confirmed": "2026-10-16T14:11:29.389Z",
       "last_changed": "2026-10-09T14:59:55.316Z",
       "days_since_confirmed": 0
     },
@@ -120,7 +120,7 @@
       "district_short": "Xfinity",
       "source_deck": "chicago",
       "source_url": "https://blufoxmobile.github.io/Win-The-Weekend---Chicago/",
-      "slide_title": "⭐ Xfinity Head Chef Of The Week",
+      "slide_title": null,
       "present_this_run": false,
       "first_seen": "2026-08-26T04:16:23.645Z",
       "last_confirmed": "2026-10-02T13:36:23.095Z",
@@ -168,7 +168,7 @@
       "photo_sha": "52e3fcee44924f162e869fce8c6a4f0f67d94936756ae3b794348a1abe751719",
       "photo_file_sha": "872e198a9b898234384f447dd308c4f22abbc58f39be4f08004892ad5e8c51e2",
       "photo_low_quality": true,
-      "last_confirmed": "2026-10-16T13:32:51.041Z",
+      "last_confirmed": "2026-10-16T14:11:29.389Z",
       "last_changed": "2026-10-16T13:32:51.041Z",
       "days_since_confirmed": 0,
       "stale": false
@@ -228,7 +228,7 @@
       "photo_sha": "b0170d825f1b9da65161ebe91da32c08be038dc35ccb8837f27b0d017d77c5ca",
       "photo_file_sha": "baf6e6ed21adf2f13a2a9b8efb4d9c40e55e8690bfc0d5f8c5f9437021434a40",
       "photo_low_quality": false,
-      "last_confirmed": "2026-10-16T13:32:51.041Z",
+      "last_confirmed": "2026-10-16T14:11:29.389Z",
       "last_changed": "2026-10-09T14:59:55.316Z",
       "days_since_confirmed": 0,
       "stale": false
@@ -272,7 +272,7 @@
       "photo_sha": null,
       "photo_file_sha": null,
       "photo_low_quality": false,
-      "last_confirmed": "2026-10-16T13:32:51.041Z",
+      "last_confirmed": "2026-10-16T14:11:29.389Z",
       "last_changed": "2026-10-09T14:59:55.316Z",
       "days_since_confirmed": 0,
       "stale": false
@@ -316,7 +316,7 @@
       "photo_sha": "5cf767bb7833bc375846d8c99519f5520bb6e67d1789b216ecd8e13609d7dc33",
       "photo_file_sha": "2f7af1f98e000407856fd6c23034ca97836b66ffeb3c1c4dc46e4e2508e63bca",
       "photo_low_quality": false,
-      "last_confirmed": "2026-10-16T13:32:51.041Z",
+      "last_confirmed": "2026-10-16T14:11:29.389Z",
       "last_changed": "2026-10-09T14:59:55.316Z",
       "days_since_confirmed": 0,
       "stale": false
@@ -376,7 +376,7 @@
       "photo_sha": "02f31d72c47c19ac3d6ccddd2ada35abcc6645300aad5b7577a199c6d4d7e071",
       "photo_file_sha": "79cc03c6dda23dd652f0ee6e314dcd65075dc9a59d8e68c07f688cfb9a9435f0",
       "photo_low_quality": false,
-      "last_confirmed": "2026-10-16T13:32:51.041Z",
+      "last_confirmed": "2026-10-16T14:11:29.389Z",
       "last_changed": "2026-10-09T14:59:55.316Z",
       "days_since_confirmed": 0,
       "stale": false
@@ -385,46 +385,22 @@
       "district": "Xfinity Head Chef of the Week",
       "district_key": "xfinity",
       "district_short": "Xfinity",
-      "region_deck": "Chicago",
-      "slide_title": "⭐ Xfinity Head Chef Of The Week",
-      "slide_index": 4,
-      "name": "Noah Cleveland",
-      "store_role": "Evergreen Park • Retail Sales Associate",
-      "stats": [
-        {
-          "value": "$12,711",
-          "label": "GP $"
-        },
-        {
-          "value": "92%",
-          "label": "Plus"
-        },
-        {
-          "value": "31%",
-          "label": "GIG Attach"
-        },
-        {
-          "value": "$5.98",
-          "label": "Accy $/Box"
-        }
-      ],
+      "region_deck": null,
+      "slide_title": null,
+      "name": null,
+      "store_role": "",
+      "stats": [],
       "writeup": "",
       "is_xfinity": true,
       "is_store": false,
-      "vacant": false,
-      "has_photo": true,
-      "photo_file": "photos/xfinity.webp",
-      "photo_w": 384,
-      "photo_h": 389,
-      "photo_bytes": 11166,
-      "photo_sha": "300bc7ebfd8c215eb3e3c9542fae9b91e52496fb0b5af80dcacba0a293f683e0",
-      "photo_file_sha": "40bfb34e4982a52406cda305c4bf3665c881f391319fbeca4f1f2eac49859227",
+      "vacant": true,
+      "has_photo": false,
+      "photo_file": null,
+      "photo_file_sha": null,
       "photo_low_quality": false,
       "last_confirmed": "2026-10-02T13:36:23.095Z",
-      "last_changed": "2026-09-25T15:11:31.813Z",
       "days_since_confirmed": 14,
-      "stale": true,
-      "source_deck": "chicago"
+      "stale": false
     }
   ]
 }
