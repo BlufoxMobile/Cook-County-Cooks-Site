@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-09T14:59:55.316Z",
+  "generated_at": "2026-10-16T13:32:51.041Z",
   "generator": "build/pull-headchefs.mjs",
   "note": "GENERATED FILE — do not hand-edit. Rebuilt from the Win-The-Weekend decks by .github/workflows/headchefs.yml every 30 minutes.",
   "policy": {
@@ -31,8 +31,8 @@
       "label": "Big South",
       "page": "https://blufoxmobile.github.io/Win-The-Weekend---Big-South/",
       "raw": "https://raw.githubusercontent.com/BlufoxMobile/Win-The-Weekend---Big-South/main/index.html",
-      "fetched_at": "2026-10-09T14:59:56.145Z",
-      "bytes": 3254368,
+      "fetched_at": "2026-10-16T13:32:51.312Z",
+      "bytes": 879789,
       "head_chef_slides": 1,
       "districts": [
         "Big South"
@@ -43,7 +43,7 @@
       "label": "Chicago",
       "page": "https://blufoxmobile.github.io/Win-The-Weekend---Chicago/",
       "raw": "https://raw.githubusercontent.com/BlufoxMobile/Win-The-Weekend---Chicago/main/index.html",
-      "fetched_at": "2026-10-09T14:59:57.337Z",
+      "fetched_at": "2026-10-16T13:32:52.116Z",
       "bytes": 7229422,
       "head_chef_slides": 4,
       "districts": [
@@ -63,8 +63,8 @@
       "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-10-09T14:59:55.316Z",
-      "last_changed": "2026-10-09T13:37:41.148Z",
+      "last_confirmed": "2026-10-16T13:32:51.041Z",
+      "last_changed": "2026-10-16T13:32:51.041Z",
       "days_since_confirmed": 0
     },
     "west-side": {
@@ -75,7 +75,7 @@
       "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-10-09T14:59:55.316Z",
+      "last_confirmed": "2026-10-16T13:32:51.041Z",
       "last_changed": "2026-10-09T14:59:55.316Z",
       "days_since_confirmed": 0
     },
@@ -87,7 +87,7 @@
       "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-10-09T14:59:55.316Z",
+      "last_confirmed": "2026-10-16T13:32:51.041Z",
       "last_changed": "2026-10-09T14:59:55.316Z",
       "days_since_confirmed": 0
     },
@@ -99,7 +99,7 @@
       "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-10-09T14:59:55.316Z",
+      "last_confirmed": "2026-10-16T13:32:51.041Z",
       "last_changed": "2026-10-09T14:59:55.316Z",
       "days_since_confirmed": 0
     },
@@ -111,7 +111,7 @@
       "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-10-09T14:59:55.316Z",
+      "last_confirmed": "2026-10-16T13:32:51.041Z",
       "last_changed": "2026-10-09T14:59:55.316Z",
       "days_since_confirmed": 0
     },
@@ -125,7 +125,7 @@
       "first_seen": "2026-08-26T04:16:23.645Z",
       "last_confirmed": "2026-10-02T13:36:23.095Z",
       "last_changed": "2026-09-25T15:11:31.813Z",
-      "days_since_confirmed": 7.1
+      "days_since_confirmed": 14
     }
   },
   "headchefs": [
@@ -136,23 +136,40 @@
       "region_deck": "Big South",
       "slide_title": "Head Chef Of The Week",
       "slide_index": 0,
-      "name": "Daniel Mitchell",
-      "store_role": "Head Chef Nominee",
-      "stats": [],
-      "writeup": "Daniel is a team player. he always delivers in both sales and customer service. He is a multiple time Winner's Circle recipient and it's because he is always thinking about how to win. We appreciate you, Daniel!",
+      "name": "Ashanday Hayles",
+      "store_role": "South Knoxville • Retail Sales Associate",
+      "stats": [
+        {
+          "value": "$4,130",
+          "label": "GP $"
+        },
+        {
+          "value": "80%",
+          "label": "Plus"
+        },
+        {
+          "value": "100%",
+          "label": "GIG Attach"
+        },
+        {
+          "value": "$13.04",
+          "label": "Accy $/Box"
+        }
+      ],
+      "writeup": "Ash has been absolutely crushing it for someone new to the business and fresh to the industry. She's coachable, teachable and trainable and picks up very quickly. She also has a great attitude and was out 2nd place winner in our fast Contest for Calendar October and will be going to see Lil Wayne and 2 Chains next weekend!",
       "is_xfinity": false,
       "is_store": false,
       "vacant": false,
       "has_photo": true,
       "photo_file": "photos/big-south.webp",
-      "photo_w": 384,
-      "photo_h": 501,
-      "photo_bytes": 13992,
-      "photo_sha": "c5422e553a4db4eb318aa3d8d075404c9633de1922d434f6916eb540c928df4b",
-      "photo_file_sha": "61c7a61ac1906de73a69ff84bf1dce2e280162c24c741b89ff7c58525798dce5",
-      "photo_low_quality": false,
-      "last_confirmed": "2026-10-09T14:59:55.316Z",
-      "last_changed": "2026-10-09T13:37:41.148Z",
+      "photo_w": 200,
+      "photo_h": 200,
+      "photo_bytes": 4150,
+      "photo_sha": "52e3fcee44924f162e869fce8c6a4f0f67d94936756ae3b794348a1abe751719",
+      "photo_file_sha": "872e198a9b898234384f447dd308c4f22abbc58f39be4f08004892ad5e8c51e2",
+      "photo_low_quality": true,
+      "last_confirmed": "2026-10-16T13:32:51.041Z",
+      "last_changed": "2026-10-16T13:32:51.041Z",
       "days_since_confirmed": 0,
       "stale": false
     },
@@ -211,7 +228,7 @@
       "photo_sha": "b0170d825f1b9da65161ebe91da32c08be038dc35ccb8837f27b0d017d77c5ca",
       "photo_file_sha": "baf6e6ed21adf2f13a2a9b8efb4d9c40e55e8690bfc0d5f8c5f9437021434a40",
       "photo_low_quality": false,
-      "last_confirmed": "2026-10-09T14:59:55.316Z",
+      "last_confirmed": "2026-10-16T13:32:51.041Z",
       "last_changed": "2026-10-09T14:59:55.316Z",
       "days_since_confirmed": 0,
       "stale": false
@@ -255,7 +272,7 @@
       "photo_sha": null,
       "photo_file_sha": null,
       "photo_low_quality": false,
-      "last_confirmed": "2026-10-09T14:59:55.316Z",
+      "last_confirmed": "2026-10-16T13:32:51.041Z",
       "last_changed": "2026-10-09T14:59:55.316Z",
       "days_since_confirmed": 0,
       "stale": false
@@ -299,7 +316,7 @@
       "photo_sha": "5cf767bb7833bc375846d8c99519f5520bb6e67d1789b216ecd8e13609d7dc33",
       "photo_file_sha": "2f7af1f98e000407856fd6c23034ca97836b66ffeb3c1c4dc46e4e2508e63bca",
       "photo_low_quality": false,
-      "last_confirmed": "2026-10-09T14:59:55.316Z",
+      "last_confirmed": "2026-10-16T13:32:51.041Z",
       "last_changed": "2026-10-09T14:59:55.316Z",
       "days_since_confirmed": 0,
       "stale": false
@@ -359,7 +376,7 @@
       "photo_sha": "02f31d72c47c19ac3d6ccddd2ada35abcc6645300aad5b7577a199c6d4d7e071",
       "photo_file_sha": "79cc03c6dda23dd652f0ee6e314dcd65075dc9a59d8e68c07f688cfb9a9435f0",
       "photo_low_quality": false,
-      "last_confirmed": "2026-10-09T14:59:55.316Z",
+      "last_confirmed": "2026-10-16T13:32:51.041Z",
       "last_changed": "2026-10-09T14:59:55.316Z",
       "days_since_confirmed": 0,
       "stale": false
@@ -405,8 +422,8 @@
       "photo_low_quality": false,
       "last_confirmed": "2026-10-02T13:36:23.095Z",
       "last_changed": "2026-09-25T15:11:31.813Z",
-      "days_since_confirmed": 7.1,
-      "stale": false,
+      "days_since_confirmed": 14,
+      "stale": true,
       "source_deck": "chicago"
     }
   ]
