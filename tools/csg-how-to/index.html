@@ -356,6 +356,33 @@ footer button{color:var(--text-2);text-decoration:underline}
   html{scroll-padding-top:130px}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- simplified layout (Oct 2026) ---------- */
+.pick{margin:8px 0 34px}
+.pick label{display:block;font:700 clamp(26px,5vw,36px)/1.15 var(--display);margin-bottom:14px}
+.sel{position:relative;max-width:640px}
+.sel select{appearance:none;-webkit-appearance:none;width:100%;height:60px;padding:0 52px 0 20px;background:var(--ink-2);color:var(--text);border:0;border-radius:6px;box-shadow:inset 0 0 0 1px var(--brass);font:600 19px var(--sans);cursor:pointer}
+.sel select:focus-visible{outline:2px solid var(--brass-2);outline-offset:2px}
+.sel::after{content:"";position:absolute;right:22px;top:50%;width:10px;height:10px;border-right:2px solid var(--brass-2);border-bottom:2px solid var(--brass-2);transform:translateY(-70%) rotate(45deg);pointer-events:none}
+.sel optgroup{font-weight:700;color:#111}.sel option{color:#111;font-weight:500}
+.pick small{display:block;margin-top:10px;color:var(--text-3);font-size:15px}
+.top .sel{max-width:260px;flex:0 0 260px}
+.top .sel select{height:48px;font-size:16px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--line-2);padding-left:18px}
+.top .sel::after{right:18px;width:8px;height:8px}
+@media(max-width:900px){.top .sel{display:none}}
+details.more{margin-top:10px}
+details.more>summary{display:inline-flex;align-items:center;gap:6px;cursor:pointer;list-style:none;font:600 15px var(--sans);color:var(--brass-2);padding:6px 0}
+details.more>summary::-webkit-details-marker{display:none}
+details.more>summary::before{content:"+";display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 1.5px currentColor;font-size:15px;line-height:1}
+details.more[open]>summary::before{content:"–"}
+details.more[open]>summary span::after{content:" (hide)";color:var(--text-3);font-weight:500}
+details.panel>summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px}
+details.panel>summary::-webkit-details-marker{display:none}
+details.panel>summary h3{margin:0}
+details.panel>summary::after{content:"Show";font:600 14px var(--sans);color:var(--brass-2);padding:6px 14px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--line-2)}
+details.panel[open]>summary::after{content:"Hide"}
+details.panel[open]>summary{margin-bottom:12px}
+p.do{font-size:20px}
 </style>
 </head>
 <body>
@@ -381,6 +408,7 @@ footer button{color:var(--text-2);text-decoration:underline}
     <div class="wrap">
       <div class="bar">
         <a class="brand" href="#/"><b>CSG <em>How To</em></b><span>Blufox Mobile</span></a>
+        <div class="sel"><label class="sr" for="jump">Jump to a guide</label><select id="jump" aria-label="Jump to a guide"></select></div>
         <div class="search" id="search">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
           <label class="sr" for="q">Search every guide</label>
@@ -405,7 +433,7 @@ footer button{color:var(--text-2);text-decoration:underline}
 <div id="lb" role="dialog" aria-modal="true" aria-label="Enlarged picture"><button aria-label="Close">×</button><div><img alt=""><p></p></div></div>
 
 <script>
-const PAYLOAD_V = "960572e9b9f4", PAYLOAD_PARTS = 2;
+const PAYLOAD_V = "92674fadf81c", PAYLOAD_PARTS = 2;
 let PAYLOAD_P=null;
 function loadPayload(){
   if(!PAYLOAD_P){
@@ -500,7 +528,7 @@ function buildIndex(){
   IDX.forEach(r=>{r.text=r.text.replace(/\{\{img:[^}]+\}\}/g,'').replace(/\s+/g,' ').trim();r.lc=r.text.toLowerCase();});
 }
 function route(){
-  row.i=0;
+  row.i=0; setTimeout(syncJump,0);
   const h=decodeURIComponent(location.hash.replace(/^#\/?/,''));
   const [a,b]=h.split('/');
   document.querySelectorAll('#cats a').forEach(x=>x.toggleAttribute('aria-current',x.dataset.cat===(a==='guide'?DATA.guides.find(g=>g.id===(b||'').split('~')[0])?.cat:a)));
@@ -524,14 +552,24 @@ function row(g){
   const c=g.cat;
   return `<a class="g-row rise" href="#/guide/${g.id}" style="--c:var(--${c});--i:${row.i=(row.i||0)+1}"><span class="dot"></span><div><h4>${esc(g.title)}</h4><p>${esc(g.summary)}</p><div class="meta">${ready(g)?`<span class="tag">${g.sections.reduce((n,s)=>n+(s.steps||[]).length,0)} steps</span>${g.imgCount?`<span class="tag">${g.imgCount} picture${g.imgCount===1?"":"s"}</span>`:''}`:'<span class="tag soon">Coming soon</span>'}</div></div></a>`;
 }
+function pickOptions(sel){
+  return `<option value="">${sel?'Jump to a guide…':'Choose a task…'}</option>`+DATA.categories.map(c=>{const gs=guidesIn(c.id).slice().sort((x,y)=>x.title.localeCompare(y.title)); return gs.length?`<optgroup label="${esc(c.name)}">${gs.map(g=>`<option value="${esc(g.id)}">${esc(g.title)}</option>`).join('')}</optgroup>`:'';}).join('');
+}
+function wirePick(el){ if(!el) return; el.addEventListener('change',()=>{ if(el.value){ location.hash='#/guide/'+el.value; } }); }
+function syncJump(){ const j=document.getElementById('jump'); if(!j) return; if(!j.options.length){ j.innerHTML=pickOptions(true); wirePick(j); } const m=location.hash.match(/#\/guide\/([^~/]+)/); j.value=m?decodeURIComponent(m[1]):''; }
+window.addEventListener('hashchange',()=>setTimeout(syncJump,0));
 function renderHome(){
   const total=DATA.guides.length;
   setView(`
   <section class="hero">
     <div class="eyebrow">Blufox Mobile · Order Entry Playbook</div>
     <h1>CSG, <em>step by step.</em></h1>
-    <p>Pick a product below or search any word — a code, a screen name, a campaign — and jump straight to the step you need.</p>
   </section>
+  <div class="pick">
+    <label for="pick">What are you doing today?</label>
+    <div class="sel"><select id="pick">${pickOptions(false)}</select></div>
+    <small>Or tap a menu below, or search any code or screen name at the top.</small>
+  </div>
   <div class="hair"></div>
   <div class="section-h"><h2>Menus</h2><span>${total} guides</span></div>
   <div class="grid">${DATA.categories.map(c=>`
@@ -541,9 +579,8 @@ function renderHome(){
       <span class="n">${guidesIn(c.id).length} guide${guidesIn(c.id).length===1?'':'s'} →</span>
     </a>`).join('')}
   </div>
-  <div class="section-h"><h2>Every guide</h2><span>A–Z</span></div>
-  <div class="list">${[...DATA.guides].sort((x,y)=>x.title.localeCompare(y.title)).map(row).join('')}</div>
   <div style="height:80px"></div>`);
+  wirePick(document.getElementById('pick')); syncJump();
 }
 function renderCat(id){
   const c=catOf(id), gs=guidesIn(id);
@@ -564,11 +601,10 @@ function figHtml(st){
   return h;
 }
 function stepInner(st){
-  return `${st.where?`<div class="mrow">${SV.pin}<span><b>Where:</b> ${rich(st.where)}</span></div>`:''}
-    ${st.result?`<div class="mrow">${SV.eye}<span><b>You'll see:</b> ${rich(st.result)}</span></div>`:''}
-    ${st.note?`<div class="callout"><span class="lbl">Tip</span>${rich(st.note)}</div>`:''}
-    ${st.warn?`<div class="callout warn"><span class="lbl">Heads up</span>${rich(st.warn)}</div>`:''}
-    ${figHtml(st)}`;
+  const extra=`${st.where?`<div class="mrow">${SV.pin}<span><b>Where:</b> ${rich(st.where)}</span></div>`:''}${st.result?`<div class="mrow">${SV.eye}<span><b>You'll see:</b> ${rich(st.result)}</span></div>`:''}${st.note?`<div class="callout"><span class="lbl">Tip</span>${rich(st.note)}</div>`:''}`;
+  return `${st.warn?`<div class="callout warn"><span class="lbl">Heads up</span>${rich(st.warn)}</div>`:''}
+    ${figHtml(st)}
+    ${extra?`<details class="more"><summary><span>More info</span></summary>${extra}</details>`:''}`;
 }
 function stepHtml(st,id,n,done,i){
   return `<li id="${id}" class="rise${done?' done':''}" style="--i:${i}"><button class="num" data-sid="${id}" aria-pressed="${done}" aria-label="Mark step ${n} done"><span>${n}</span>${SV.check}</button><div class="step-body"><p class="do">${rich(st.text)}</p>${stepInner(st)}</div></li>`;
@@ -595,10 +631,10 @@ function renderGuide(param){
   const DONE=getDone(g); CUR=g;
   const body = ready(g) ? `
     ${allSteps(g).length?`<div class="dock"><div class="meter"><small><span>Your progress</span><b class="cnt"></b></small><div class="bar-o"><div class="bar-i"></div></div></div><button class="go" id="go">${SV.play}<b>Start step-by-step</b></button><button class="go fab" id="go2" aria-label="Start step-by-step">${SV.play}<b>Step-by-step</b></button><button class="ghost" id="reset">Reset</button></div>`:''}
-    ${g.before&&g.before.length?`<div class="panel"><h3>Before you start</h3><ul>${g.before.map(x=>`<li>${rich(x)}</li>`).join('')}</ul></div>`:''}
+    ${g.before&&g.before.length?`<details class="panel"><summary><h3>Before you start</h3></summary><ul>${g.before.map(x=>`<li>${rich(x)}</li>`).join('')}</ul></details>`:''}
     ${g.sections.map((s,si)=>`<section class="g-sec" id="s${si}"><h2>${esc(s.title)}</h2>${s.intro?`<p class="intro">${rich(s.intro)}</p>`:''}
       ${(s.steps||[]).length?`<ol class="steps">${s.steps.map((st,ti)=>stepHtml(st,`s${si}-${ti}`,ti+1,DONE.has(`s${si}-${ti}`),ti)).join('')}</ol>`:''}${s.table?tableHtml(s.table,`s${si}-t`):''}</section>`).join('')}
-    ${g.tips&&g.tips.length?`<div class="panel" id="tips"><h3>Good to know</h3><ul>${g.tips.map(x=>`<li>${rich(x)}</li>`).join('')}</ul></div>`:''}`
+    ${g.tips&&g.tips.length?`<details class="panel" id="tips"><summary><h3>Good to know</h3></summary><ul>${g.tips.map(x=>`<li>${rich(x)}</li>`).join('')}</ul></details>`:''}`
   : `<div class="soon-box"><b>This guide is being written.</b><p>The simplified step-by-step version with pictures is on its way. Until then, use the full article in Celestial.</p>${g.source?`<a class="src" href="${esc(g.source)}" target="_blank" rel="noopener">Open in Celestial ↗</a>`:''}</div>`;
   setView(`
   <div style="--c:var(--${g.cat})">
