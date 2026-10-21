@@ -1245,11 +1245,11 @@ function buildHero() {
       // optical centring above is untouched. data-tool routes it through the
       // overlay like every other tool: #/tool/site-tour, framed, fresh.
       el('a', { class: 'hero-tour', href: '#/tool/site-tour', 'data-tool': 'site-tour',
-                'aria-label': 'Watch the site tour, 3 minutes 43 seconds' }, [
+                'aria-label': 'Watch the site tour, 4 minutes 1 second' }, [
         el('span', { class: 'hero-tour__play', 'aria-hidden': 'true' }),
         el('span', { class: 'hero-tour__txt' }, [
           el('b', { text: 'Watch the site tour' }),
-          el('small', { text: 'Start here · 3:43' })
+          el('small', { text: 'Start here · 4:01' })
         ])
       ])
     ])
