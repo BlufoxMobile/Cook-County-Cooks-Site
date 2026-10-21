@@ -1,0 +1,704 @@
+{
+ "_provenance": "Written by an independent QA agent on 2026-10-20 without seeing build/ask-eval-questions.json (7 turned out to duplicate tuning questions). Copied verbatim from /tmp/claude-0/ask-qa/questions.json; freezer rows rewritten to this file format (expect \"none\" + freezer:true). Ask-engine was tuned against it AFTER it was reported (second round), so it is no longer a clean holdout.",
+ "questions": [
+  {
+   "q": "customer says their esim wont download",
+   "expect": [
+    "esim-activation/s6"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "how do i get a port pin from cricket",
+   "expect": [
+    "porting-guide/cricket-wireless/pin"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "where's the google review card",
+   "expect": [
+    "printouts/google-review-print-out"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "add hbo csg",
+   "expect": [
+    "csg-how-to/premium-new-tv",
+    "csg-how-to/premium-new-tv/s0",
+    "csg-how-to/premium-existing-tv/s0"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "new customer wants internet only",
+   "expect": [
+    "csg-how-to/new-connect",
+    "csg-how-to/new-connect/s0",
+    "tool/quote-internet"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "how do I check someone in",
+   "expect": [
+    "training-pos/checkin-member",
+    "training-pos/checkin-prospect",
+    "training-pos/cs-access"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "whats my commission",
+   "expect": [
+    "tool/commission-payouts",
+    "tool/rep-hourly-rate"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "how do I open the store in celestial",
+   "expect": [
+    "training-pos/open-drawer",
+    "training-pos/fund-drawer",
+    "training-pos/bo-home"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "where do I print the start stop cards",
+   "expect": [
+    "printouts/nps-start-stop-qr-codes"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "tmobile acct number",
+   "expect": [
+    "porting-guide/t-mobile/account"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "verizon acct manager pin",
+   "expect": [
+    "porting-guide/verizon/pin"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "att port pin how long is it good for",
+   "expect": [
+    "porting-guide/att/pin"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "metro pcs pin",
+   "expect": [
+    "porting-guide/metro-by-t-mobile/pin"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "cust coming from spectrum mobile what do they need",
+   "expect": [
+    "porting-guide/spectrum-mobile"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "is the phone locked to att",
+   "expect": [
+    "porting-guide/att/unlock"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "visible acount number where",
+   "expect": [
+    "porting-guide/visible/account"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "straight talk port",
+   "expect": [
+    "porting-guide/straight-talk",
+    "porting-guide/straight-talk/pin",
+    "porting-guide/straight-talk/account"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "mint transfer pin",
+   "expect": [
+    "porting-guide/mint-mobile/pin"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "jitterbug customer switching to us",
+   "expect": [
+    "porting-guide/lively"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "how to check if samsung is network unlocked",
+   "expect": [
+    "porting-guide/common/check-network-lock-on-a-samsung-phone"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "tracfone acct #",
+   "expect": [
+    "porting-guide/tracfone/account"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "verizon prepaid how do they get the pin",
+   "expect": [
+    "porting-guide/verizon-prepaid/pin"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "boost mobile pin",
+   "expect": [
+    "porting-guide/boost-mobile/pin"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "porting cheat sheet all carriers",
+   "expect": [
+    "porting-guide/table",
+    "tool/porting-guide"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "esim qr code",
+   "expect": [
+    "esim-activation/s0",
+    "esim-activation/qr-codes"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "activate apple watch",
+   "expect": [
+    "esim-activation/s13"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "customer deleted there esim by accident",
+   "expect": [
+    "esim-activation/s11"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "phone says no sim",
+   "expect": [
+    "esim-activation/s9"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "switch physical sim to esim",
+   "expect": [
+    "esim-activation/s10"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "move esim from old iphone to new iphone",
+   "expect": [
+    "esim-activation/s3"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "activate device xm360",
+   "expect": [
+    "esim-activation/s4"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "assurant replacement phone activate",
+   "expect": [
+    "esim-activation/s5"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "getting an error activating phone",
+   "expect": [
+    "esim-activation/s8"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "esim manual code samsung",
+   "expect": [
+    "esim-activation/s6"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "can the customer activate it themselves while i help someone else",
+   "expect": [
+    "esim-activation/s14"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "factory reset but keep esim",
+   "expect": [
+    "esim-activation/s12"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "xm360 network status red",
+   "expect": [
+    "esim-activation/s7"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "bapis pickup",
+   "expect": [
+    "bapis/s2"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "how do i pack an online order",
+   "expect": [
+    "bapis/s1"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "customer never picked up there order",
+   "expect": [
+    "bapis/s5"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "wife trying to pick up husbands phone order",
+   "expect": [
+    "bapis/s6"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "reprint packing slip",
+   "expect": [
+    "bapis/s7"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "where do i see the online orders",
+   "expect": [
+    "bapis/s0"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "customer has a mobile order and an internet order to pick up",
+   "expect": [
+    "bapis/s3"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "ie income limit family of 4",
+   "expect": [
+    "internet-essentials/s11"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "how much is internet essentials",
+   "expect": [
+    "internet-essentials/s10"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "set my sales id ie portal",
+   "expect": [
+    "internet-essentials/s0"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "upgrade internet essentials to plus",
+   "expect": [
+    "internet-essentials/s8",
+    "csg-how-to/ie-plus-existing/s0",
+    "csg-how-to/ie-plus-new/s0"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "ie order not showing in csg",
+   "expect": [
+    "internet-essentials/s5"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "cust needs to upload docs for ie",
+   "expect": [
+    "internet-essentials/s6"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "ie customer service number",
+   "expect": [
+    "internet-essentials/s12"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "does snap qualify for internet essentials",
+   "expect": [
+    "internet-essentials/s3"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "return a case customer bought",
+   "expect": [
+    "training-pos/return-steps"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "count the drawer at close",
+   "expect": [
+    "training-pos/tender-count",
+    "training-pos/settle-drawer"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "close store celestial",
+   "expect": [
+    "training-pos/close-drawer",
+    "training-pos/settle-drawer"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "make an appt for a customer tmrw",
+   "expect": [
+    "training-pos/appointment"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "hand off my guest to another rep",
+   "expect": [
+    "training-pos/session-end"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "ring up a screen protector",
+   "expect": [
+    "training-pos/sale-steps"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "pos is broken who do i contact",
+   "expect": [
+    "training-pos/pos-help"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "comcast business customer walked in",
+   "expect": [
+    "training-pos/checkin-cb"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "csg add shield",
+   "expect": [
+    "csg-how-to/shield-select",
+    "csg-how-to/shield-select/s0"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "add wifi extender csg",
+   "expect": [
+    "csg-how-to/wifi-extenders",
+    "csg-how-to/wifi-extenders/s0",
+    "csg-how-to/gsk-wifi-extender-request/s0"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "customer is moving transfer service",
+   "expect": [
+    "csg-how-to/transfer-service",
+    "csg-how-to/transfer-service/s0"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "restart a disconnected acct",
+   "expect": [
+    "csg-how-to/restart-account",
+    "csg-how-to/restart-account/s0"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "add a 2nd phone line home voice",
+   "expect": [
+    "csg-how-to/voice-add-line/s0",
+    "csg-how-to/legacy-second-voice/s0"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "add a tv box in another room",
+   "expect": [
+    "csg-how-to/tv-additional-outlet",
+    "csg-how-to/tv-additional-outlet/s0"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "change billing address csg",
+   "expect": [
+    "csg-how-to/billing-address-change",
+    "csg-how-to/billing-address-change/s0"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "snowbird customer wants to pause service for winter",
+   "expect": [
+    "csg-how-to/seasonal-signup",
+    "csg-how-to/seasonal-signup/s0"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "customer owns their own modem how do i add it",
+   "expect": [
+    "csg-how-to/customer-owned-equipment",
+    "csg-how-to/customer-owned-equipment/s0",
+    "csg-how-to/legacy-owned-modem/s0"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "locked out of csg password",
+   "expect": [
+    "bp-access/csg-password",
+    "bp-access/csg-password/s0"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "cant log into xm360",
+   "expect": [
+    "bp-access/xm360",
+    "bp-access/xm360/s0"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "how to order supplies hub2u",
+   "expect": [
+    "bp-access/hub2u",
+    "bp-access/hub2u/s0",
+    "bp-access/hub2u/s1"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "quote 4 lines coming from verizon",
+   "expect": [
+    "tool/quote-6th-gen",
+    "video/quote-6th-gen-how-to/step-5"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "upgrade quote with trade in",
+   "expect": [
+    "tool/quote-upgrade",
+    "video/quote-upgrade-how-to/step-4"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "dress code",
+   "expect": [
+    "printouts/employee-handbook/5.7"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "pto policy",
+   "expect": [
+    "printouts/employee-handbook/10.1"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "spanish survey card",
+   "expect": [
+    "printouts/nps-text-template-spanish"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "play blackjack",
+   "expect": [
+    "game/casino/blackjack"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "go kart game",
+   "expect": [
+    "game/overdrive"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "customer wants 6 lines but credit limit is 4",
+   "expect": [
+    "tool/credit-limit"
+   ],
+   "split": "qa1"
+  },
+  {
+   "q": "whats the weather tmrw",
+   "expect": "none",
+   "split": "qa1"
+  },
+  {
+   "q": "best tacos near the store",
+   "expect": "none",
+   "split": "qa1"
+  },
+  {
+   "q": "what time does the store close sunday",
+   "expect": "none",
+   "split": "qa1"
+  },
+  {
+   "q": "my schedule next week",
+   "expect": "none",
+   "split": "qa1"
+  },
+  {
+   "q": "adp login",
+   "expect": "none",
+   "split": "qa1"
+  },
+  {
+   "q": "who are the bulls playing tonight",
+   "expect": "none",
+   "split": "qa1"
+  },
+  {
+   "q": "write me a poem",
+   "expect": "none",
+   "split": "qa1"
+  },
+  {
+   "q": "cricket wireless store hours",
+   "expect": "none",
+   "split": "qa1"
+  },
+  {
+   "q": "verizon fios install date",
+   "expect": "none",
+   "split": "qa1"
+  },
+  {
+   "q": "asdfgh",
+   "expect": "none",
+   "split": "qa1"
+  },
+  {
+   "q": "reset voicemail password xfinity mobile",
+   "expect": "none",
+   "split": "qa1"
+  },
+  {
+   "q": "set up stream app on roku",
+   "expect": "none",
+   "split": "qa1"
+  },
+  {
+   "q": "xfinity mobile international roaming rates",
+   "expect": "none",
+   "split": "qa1"
+  },
+  {
+   "q": "whats the alarm code for the store",
+   "expect": "none",
+   "split": "qa1"
+  },
+  {
+   "q": "order business cards",
+   "expect": "none",
+   "split": "qa1"
+  },
+  {
+   "q": "manager tools",
+   "expect": "none",
+   "freezer": true,
+   "split": "qa1"
+  },
+  {
+   "q": "open the walk in",
+   "expect": "none",
+   "freezer": true,
+   "split": "qa1"
+  },
+  {
+   "q": "wheres the keypad code",
+   "expect": "none",
+   "freezer": true,
+   "split": "qa1"
+  },
+  {
+   "q": "manager only section",
+   "expect": "none",
+   "freezer": true,
+   "split": "qa1"
+  },
+  {
+   "q": "freezer",
+   "expect": "none",
+   "freezer": true,
+   "split": "qa1"
+  }
+ ]
+}

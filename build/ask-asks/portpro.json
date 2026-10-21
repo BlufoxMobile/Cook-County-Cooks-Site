@@ -1,0 +1,1693 @@
+{
+ "tool/porting-guide": [
+  "portpro",
+  "how do i port a number",
+  "number won't port",
+  "port keeps failing",
+  "customer wants to keep his number",
+  "transfer number from another carrier",
+  "where do i find account number and pin to port",
+  "port got rejected what do i need",
+  "port in help",
+  "cx switching carriers keep same number",
+  "porting guide all carriers",
+  "number transfer pin lookup"
+ ],
+ "porting-guide/cat/major": [
+  "big carriers port",
+  "porting from verizon att or tmobile",
+  "postpaid carrier port in",
+  "customer coming from one of the big carriers",
+  "monthly bill carrier switching to xm",
+  "vz att tmo port steps",
+  "major carrier transfer pin"
+ ],
+ "porting-guide/cat/prepaid": [
+  "prepaid port",
+  "port from a prepaid phone",
+  "pay as you go phone switching to xm",
+  "customer has a prepaid phone wants to switch",
+  "cricket metro straight talk port",
+  "walmart phone or tracfone port in",
+  "prepaid brands list porting",
+  "refill card phone keep number"
+ ],
+ "porting-guide/cat/cable": [
+  "cable company phone port",
+  "spectrum cox optimum mobile port in",
+  "port out of xfinity mobile",
+  "cable mobile carriers",
+  "customer has spectrum phone switching",
+  "other cable provider cell phone port"
+ ],
+ "porting-guide/cat/mvno": [
+  "online carrier port",
+  "app only carrier port",
+  "mint visible google fi port in",
+  "mvno port",
+  "carrier with no stores how to port",
+  "customer bought phone service online switching",
+  "boost us mobile ting port"
+ ],
+ "porting-guide/cat/voip": [
+  "port a google voice number",
+  "app number port in",
+  "voip number transfer",
+  "port a number with no phone attached",
+  "number only port",
+  "internet phone number move to xm"
+ ],
+ "porting-guide/table": [
+  "all carriers at a glance",
+  "porting cheat sheet",
+  "carrier quick reference port",
+  "how long is the transfer pin good for each carrier",
+  "compare carrier unlock rules",
+  "port chart every carrier",
+  "list of carriers account number and pin",
+  "port table"
+ ],
+ "porting-guide/common/check-network-lock-on-a-samsung-phone": [
+  "check if samsung is unlocked",
+  "how to see network lock on samsung",
+  "is his galaxy locked",
+  "samsung sim lock status",
+  "galaxy carrier locked or not",
+  "where is network lock in samsung settings",
+  "android phone locked to carrier how do i check",
+  "samsung more connection settings network lock"
+ ],
+ "porting-guide/att": [
+  "port from att",
+  "at and t port in",
+  "customer coming from at&t",
+  "switching from att to xm",
+  "att number transfer",
+  "a t and t keep number",
+  "guy has att wants xfinity mobile",
+  "at&t port steps",
+  "lady has att wants to switch"
+ ],
+ "porting-guide/att/account": [
+  "att account number",
+  "where is the account number on the att app",
+  "at and t acct number on bill",
+  "myatt account number",
+  "find account number at&t",
+  "customer cant find his att account number",
+  "att welcome back account number",
+  "at&t acct # for port",
+  "customer says where do i find my att account number"
+ ],
+ "porting-guide/att/pin": [
+  "att transfer pin",
+  "at and t number transfer pin",
+  "how do i get att port pin",
+  "*port att",
+  "dial star port at&t",
+  "att pin request in app",
+  "wireless account lock att",
+  "att pin wont generate",
+  "how long is att transfer pin good for",
+  "customer only has passcode not transfer pin att",
+  "customer says att pin isnt working",
+  "att customer only primary can get pin"
+ ],
+ "porting-guide/att/unlock": [
+  "att phone unlock",
+  "is the att phone unlocked",
+  "unlock at&t iphone",
+  "att device unlock request",
+  "at and t phone still locked",
+  "att paid off phone locked",
+  "how long before att unlocks",
+  "att carrier lock check",
+  "customer wants to bring his att phone is it locked"
+ ],
+ "porting-guide/att/tips": [
+  "att port failing",
+  "att port rejected",
+  "wireless account lock blocking port",
+  "att port keeps failing new pin",
+  "att business account port",
+  "firstnet port",
+  "cx cancelled att before port",
+  "att disconnected line port",
+  "att suspended account port",
+  "at&t gotchas porting",
+  "guy's att number won't port"
+ ],
+ "porting-guide/att-prepaid": [
+  "att prepaid port",
+  "at&t prepaid switching to xm",
+  "att pay as you go port",
+  "go phone port in",
+  "at and t prepaid keep number",
+  "customer on att prepaid",
+  "prepaid att transfer",
+  "guy on att prepaid wants xm"
+ ],
+ "porting-guide/att-prepaid/account": [
+  "att prepaid account number",
+  "where is at&t prepaid account number",
+  "att prepaid acct number call",
+  "cant find att prepaid account number in app",
+  "at and t prepaid account number by phone",
+  "prepaid att acct # for port",
+  "lady cant find her att prepaid acct number"
+ ],
+ "porting-guide/att-prepaid/pin": [
+  "att prepaid transfer pin",
+  "does att prepaid need a transfer pin",
+  "at&t prepaid port pin",
+  "att prepaid passcode for port",
+  "*port not working att prepaid",
+  "att prepaid pin set at activation",
+  "customer doesnt know att prepaid passcode",
+  "how does he get a att prepaid transfer pin"
+ ],
+ "porting-guide/att-prepaid/unlock": [
+  "att prepaid unlock",
+  "unlock at&t prepaid phone",
+  "att prepaid phone locked",
+  "how long till att prepaid unlocks",
+  "att prepaid one year unlock",
+  "at and t prepaid device unlock app",
+  "byod att prepaid phone locked"
+ ],
+ "porting-guide/att-prepaid/tips": [
+  "att prepaid port failing",
+  "att prepaid port rejected",
+  "att prepaid no transfer pin",
+  "liberty wireless port",
+  "att prepaid gotchas",
+  "prepaid att phone under a year old locked",
+  "att prepaid port keeps failing"
+ ],
+ "porting-guide/boost-mobile": [
+  "boost port",
+  "boost mobile port in",
+  "customer coming from boost",
+  "switching from boost to xm",
+  "boost infinite port",
+  "boost keep number",
+  "boost mobile number transfer",
+  "cx with boost what do i need to port"
+ ],
+ "porting-guide/boost-mobile/account": [
+  "boost account number",
+  "where is boost mobile account number",
+  "boost app account number",
+  "boost acct number settings",
+  "find boost account number online",
+  "cx cant find boost account number",
+  "cx doesnt know boost account number"
+ ],
+ "porting-guide/boost-mobile/pin": [
+  "boost transfer pin",
+  "boost port out pin",
+  "how do i get a boost pin",
+  "boost port out lock",
+  "boost pin per line",
+  "boost port pin call care",
+  "boost mobile number transfer pin",
+  "cx needs boost port pin"
+ ],
+ "porting-guide/boost-mobile/unlock": [
+  "boost phone unlock",
+  "is boost phone unlocked",
+  "boost mobile device unlock",
+  "boost phone still locked",
+  "boost prepaid phone unlock one year",
+  "boost paid off phone locked",
+  "lady wants to keep her boost phone"
+ ],
+ "porting-guide/boost-mobile/tips": [
+  "boost port failing",
+  "boost port rejected",
+  "port out lock boost wont come off",
+  "boost infinite customer port",
+  "cx wants to cancel boost first",
+  "boost port keeps failing",
+  "boost device balance after port",
+  "cx says boost port got rejected"
+ ],
+ "porting-guide/consumer-cellular": [
+  "consumer cellular port",
+  "consumer cell port in",
+  "customer coming from consumer cellular",
+  "older customer on consumer cellular switching",
+  "consumer cellular keep number",
+  "cc wireless port",
+  "port from consumer cellular"
+ ],
+ "porting-guide/consumer-cellular/account": [
+  "consumer cellular account number",
+  "where is consumer cellular account number",
+  "consumer cellular bill account number",
+  "consumer cellular customer number",
+  "consumer cell acct number",
+  "consumer cellular account number where"
+ ],
+ "porting-guide/consumer-cellular/pin": [
+  "consumer cellular transfer pin",
+  "consumer cellular port pin",
+  "how to get consumer cellular pin",
+  "consumer cellular pin last four of social",
+  "consumer cellular port out pin call",
+  "lady says what pin does consumer cellular want"
+ ],
+ "porting-guide/consumer-cellular/unlock": [
+  "consumer cellular unlock",
+  "consumer cellular phone locked",
+  "unlock consumer cellular phone",
+  "consumer cellular unlock code",
+  "is consumer cellular phone unlocked",
+  "can he use his consumer cellular phone on xm"
+ ],
+ "porting-guide/consumer-cellular/tips": [
+  "consumer cellular port failing",
+  "consumer cellular port rejected",
+  "grandpa has consumer cellular doesnt use online",
+  "consumer cellular gotchas",
+  "consumer cellular website wont load",
+  "consumer cellular default pin",
+  "consumer cellular port stuck what now"
+ ],
+ "porting-guide/cox-mobile": [
+  "cox mobile port",
+  "cox port in",
+  "customer coming from cox mobile",
+  "switching from cox phone to xm",
+  "cox mobile keep number",
+  "cox cell phone transfer",
+  "customer says he has cox mobile keep his number"
+ ],
+ "porting-guide/cox-mobile/account": [
+  "cox mobile account number",
+  "where is cox mobile account number",
+  "cox bill account number mobile",
+  "cox my account mobile acct number",
+  "cox acct number for port",
+  "customer says where do i find my cox mobile account number"
+ ],
+ "porting-guide/cox-mobile/pin": [
+  "cox mobile transfer pin",
+  "cox port out pin",
+  "how to get cox mobile pin",
+  "cox mobile pin call",
+  "cox pin for porting",
+  "customer says cox mobile pin isnt working"
+ ],
+ "porting-guide/cox-mobile/unlock": [
+  "cox mobile unlock",
+  "cox phone locked",
+  "unlock cox iphone",
+  "cox device unlock request",
+  "cox citizens pay phone unlock",
+  "is cox phone unlocked",
+  "customer wants to bring his cox mobile phone is it locked"
+ ],
+ "porting-guide/cox-mobile/tips": [
+  "cox port failing",
+  "cox port rejected",
+  "cox voice pin vs mobile pin",
+  "cox home phone pin not working for port",
+  "cox mobile gotchas",
+  "cox unlock wifi only doesnt count",
+  "guy's cox mobile number won't port"
+ ],
+ "porting-guide/cricket-wireless": [
+  "cricket port",
+  "cricket wireless port in",
+  "customer coming from cricket",
+  "switching from cricket to xm",
+  "crickett keep number",
+  "cricket number transfer",
+  "lady has cricket wants to switch"
+ ],
+ "porting-guide/cricket-wireless/account": [
+  "cricket account number",
+  "where is cricket account number",
+  "mycricket app account number",
+  "cricket account number vs account pin",
+  "cricket acct number gear icon",
+  "cx gave me cricket pin instead of account number",
+  "lady cant find her cricket acct number",
+  "cricket acct number nine digits where"
+ ],
+ "porting-guide/cricket-wireless/pin": [
+  "cricket transfer pin",
+  "cricket ntp",
+  "cricket number transfer pin",
+  "*port cricket",
+  "dial star port cricket",
+  "cricket account lock",
+  "get my number transfer pin cricket",
+  "how long is cricket pin good for",
+  "how does he get a cricket transfer pin"
+ ],
+ "porting-guide/cricket-wireless/unlock": [
+  "cricket unlock",
+  "cricket phone locked",
+  "unlock cricket iphone",
+  "cricket device unlock app",
+  "how long before cricket unlocks",
+  "cricket phone still locked six months",
+  "byod cricket phone locked"
+ ],
+ "porting-guide/cricket-wireless/tips": [
+  "cricket port failing",
+  "cricket port rejected",
+  "cricket account lock blocking port",
+  "cricket lost phone transfer pin",
+  "cricket one pin all lines",
+  "cricket port keeps failing wrong pin",
+  "cricket scam call pin",
+  "cricket port keeps failing"
+ ],
+ "porting-guide/google-fi": [
+  "google fi port",
+  "fi port in",
+  "project fi port",
+  "customer coming from google fi",
+  "switching from google fi to xm",
+  "google fi keep number",
+  "guy on google fi wants xm"
+ ],
+ "porting-guide/google-fi/account": [
+  "google fi account number",
+  "where is google fi account number",
+  "fi get transfer info account number",
+  "google fi acct number leave fi",
+  "project fi account number",
+  "cx doesnt know google fi account number"
+ ],
+ "porting-guide/google-fi/pin": [
+  "google fi transfer pin",
+  "fi port pin",
+  "google fi number lock",
+  "google fi pin case sensitive",
+  "how long is google fi pin good for",
+  "get transfer info google fi",
+  "cx needs google fi port pin"
+ ],
+ "porting-guide/google-fi/unlock": [
+  "google fi unlock",
+  "is google fi phone unlocked",
+  "google store phone locked",
+  "fi pixel unlock",
+  "google fi phone unlock needed",
+  "lady wants to keep her google fi phone"
+ ],
+ "porting-guide/google-fi/tips": [
+  "google fi port failing",
+  "google fi port rejected",
+  "fi cancellation pending",
+  "google fi paused port fails",
+  "google fi group member iphone pin",
+  "fi gotchas porting",
+  "cx says google fi port got rejected"
+ ],
+ "porting-guide/google-voice": [
+  "google voice port",
+  "gv number port in",
+  "customer wants to move google voice number",
+  "port google voice to xm",
+  "google voice keep number",
+  "google voice number transfer",
+  "cx with google voice what do i need to port"
+ ],
+ "porting-guide/google-voice/account": [
+  "google voice account number",
+  "what is the account number for google voice",
+  "gv account number",
+  "google voice acct number is the phone number",
+  "google voice account number where",
+  "what do i put for account number google voice port"
+ ],
+ "porting-guide/google-voice/pin": [
+  "google voice transfer pin",
+  "google voice port pin",
+  "google voice voicemail pin port",
+  "unlock google voice number fee",
+  "gv pin for porting",
+  "google voice no voicemail pin",
+  "lady says what pin does google voice want"
+ ],
+ "porting-guide/google-voice/unlock": [
+  "unlock google voice number",
+  "release google voice number",
+  "google voice unlock",
+  "google voice number locked",
+  "can he use his google voice phone on xm",
+  "google voice says number locked cant port"
+ ],
+ "porting-guide/google-voice/tips": [
+  "google voice port failing",
+  "google voice port rejected",
+  "google workspace voice number port",
+  "google voice port taking long",
+  "google voice gotchas",
+  "dont delete google voice number",
+  "google voice port stuck what now"
+ ],
+ "porting-guide/h2o-wireless": [
+  "h two o port",
+  "h two o wireless port in",
+  "customer coming from h two o",
+  "switching from h two o to xm",
+  "h two o keep number",
+  "locus telecom h two o port",
+  "port from h two o"
+ ],
+ "porting-guide/h2o-wireless/account": [
+  "h two o account number",
+  "where is h two o account number",
+  "h two o wireless acct number",
+  "h two o account number call",
+  "h two o account number format",
+  "customer says where do i find my h two o account number"
+ ],
+ "porting-guide/h2o-wireless/pin": [
+  "h two o transfer pin",
+  "h two o port pin",
+  "h two o wireless pin",
+  "h two o default pin",
+  "h two o pin last four",
+  "h two o pin call care",
+  "customer says h two o pin isnt working"
+ ],
+ "porting-guide/h2o-wireless/unlock": [
+  "h two o unlock",
+  "h two o phone locked",
+  "unlock h two o phone",
+  "is h two o phone unlocked",
+  "customer wants to bring his h two o phone is it locked",
+  "h two o byop phone locked check"
+ ],
+ "porting-guide/h2o-wireless/tips": [
+  "h two o port failing",
+  "h two o port rejected",
+  "h two o zip code mismatch port",
+  "h two o suspended line port",
+  "h two o gotchas",
+  "h two o port keeps failing",
+  "guy's h two o number won't port"
+ ],
+ "porting-guide/helium-mobile": [
+  "helium port",
+  "helium mobile port in",
+  "customer coming from helium",
+  "switching from helium to xm",
+  "helium keep number",
+  "customer says he has helium keep his number"
+ ],
+ "porting-guide/helium-mobile/account": [
+  "helium account number",
+  "where is helium mobile account number",
+  "helium app account number",
+  "helium cancel plan account number",
+  "lady cant find her helium acct number",
+  "helium acct number plan page"
+ ],
+ "porting-guide/helium-mobile/pin": [
+  "helium transfer pin",
+  "helium port pin",
+  "helium mobile port out pin",
+  "helium pin expired",
+  "how long is helium pin good for",
+  "how does he get a helium transfer pin"
+ ],
+ "porting-guide/helium-mobile/unlock": [
+  "helium unlock",
+  "helium phone locked",
+  "is helium phone unlocked",
+  "helium mobile device unlock",
+  "byod helium phone locked",
+  "helium byop phone locked"
+ ],
+ "porting-guide/helium-mobile/tips": [
+  "helium port failing",
+  "helium port rejected",
+  "helium zero plan customer switching",
+  "helium disconnected number port",
+  "helium no phone support",
+  "helium gotchas",
+  "helium port keeps failing"
+ ],
+ "porting-guide/lively": [
+  "lively port",
+  "jitterbug port",
+  "greatcall port",
+  "customer coming from lively",
+  "grandma has a jitterbug switching",
+  "lively keep number",
+  "jitterbug number transfer",
+  "lady has jitterbug wants to switch"
+ ],
+ "porting-guide/lively/account": [
+  "lively account number",
+  "jitterbug account number",
+  "where is lively account number",
+  "lively bill account number",
+  "greatcall acct number",
+  "cx doesnt know jitterbug account number"
+ ],
+ "porting-guide/lively/pin": [
+  "lively transfer pin",
+  "jitterbug port pin",
+  "lively number lock",
+  "lively pin hsa details",
+  "jitterbug transfer password",
+  "cx needs jitterbug port pin"
+ ],
+ "porting-guide/lively/unlock": [
+  "lively unlock",
+  "jitterbug phone unlock",
+  "unlock jitterbug",
+  "lively phone locked",
+  "will jitterbug work on xm",
+  "lady wants to keep her jitterbug phone"
+ ],
+ "porting-guide/lively/tips": [
+  "lively port failing",
+  "jitterbug port rejected",
+  "son manages moms lively account",
+  "lively number lock blocking port",
+  "lively gotchas",
+  "lively cancellation after port",
+  "cx says jitterbug port got rejected"
+ ],
+ "porting-guide/lycamobile-us": [
+  "lyca port",
+  "lycamobile port in",
+  "customer coming from lyca",
+  "switching from lyca to xm",
+  "lyca mobile keep number",
+  "guy on lyca wants xm"
+ ],
+ "porting-guide/lycamobile-us/account": [
+  "lyca account number",
+  "lycamobile account number",
+  "where is lyca account number",
+  "lyca acct number",
+  "lyca account number not phone number",
+  "lyca account number where"
+ ],
+ "porting-guide/lycamobile-us/pin": [
+  "lyca transfer pin",
+  "lyca cip number",
+  "lycamobile port pin",
+  "lyca pin text from registration",
+  "lyca pin call care",
+  "lady says what pin does lyca want"
+ ],
+ "porting-guide/lycamobile-us/unlock": [
+  "lyca unlock",
+  "lycamobile phone locked",
+  "unlock lyca phone",
+  "is lyca phone unlocked",
+  "can he use his lyca phone on xm",
+  "lyca sim only phone unlocked"
+ ],
+ "porting-guide/lycamobile-us/tips": [
+  "lyca port failing",
+  "lyca port rejected",
+  "lyca plan expired port",
+  "lyca port stuck",
+  "lyca gotchas",
+  "lyca top up before port",
+  "lyca port stuck what now"
+ ],
+ "porting-guide/metro-by-t-mobile": [
+  "metro port",
+  "metro pcs port",
+  "metropcs port in",
+  "metro by tmobile port",
+  "customer coming from metro",
+  "switching from metro to xm",
+  "metro keep number",
+  "cx with metro what do i need to port"
+ ],
+ "porting-guide/metro-by-t-mobile/account": [
+  "metro account number",
+  "metro pcs account number",
+  "where is metro account number",
+  "mymetro account number",
+  "metro acct number statement",
+  "metro account number not phone number",
+  "customer says where do i find my metro account number"
+ ],
+ "porting-guide/metro-by-t-mobile/pin": [
+  "metro transfer pin",
+  "metro pcs transfer pin",
+  "metro request a pin transfer",
+  "metro port pin",
+  "metro port out protection",
+  "metro pin dial",
+  "metro by tmobile pin",
+  "customer says metro pin isnt working",
+  "metro customer gave me his login pin port failed"
+ ],
+ "porting-guide/metro-by-t-mobile/unlock": [
+  "metro unlock",
+  "metro pcs phone locked",
+  "unlock metro phone",
+  "how long till metro unlocks",
+  "metro phone locked one year",
+  "metro device unlock",
+  "customer wants to bring his metro phone is it locked"
+ ],
+ "porting-guide/metro-by-t-mobile/tips": [
+  "metro port failing",
+  "metro port rejected",
+  "metro account pin vs transfer pin",
+  "metro high security pin",
+  "metro gotchas",
+  "metro pcs port keeps failing",
+  "guy's metro number won't port"
+ ],
+ "porting-guide/mint-mobile": [
+  "mint port",
+  "mint mobile port in",
+  "customer coming from mint",
+  "switching from mint to xm",
+  "mint keep number",
+  "port from mint"
+ ],
+ "porting-guide/mint-mobile/account": [
+  "mint account number",
+  "where is mint mobile account number",
+  "mint account number chat",
+  "mint acct number not in app",
+  "mint mobile account number to port out",
+  "lady cant find her mint acct number"
+ ],
+ "porting-guide/mint-mobile/pin": [
+  "mint transfer pin",
+  "mint mobile port pin",
+  "mint number lock",
+  "mint pin chat",
+  "turn off number lock mint",
+  "mint security pin vs transfer pin",
+  "how does he get a mint transfer pin"
+ ],
+ "porting-guide/mint-mobile/unlock": [
+  "mint unlock",
+  "mint phone locked",
+  "unlock mint phone",
+  "how long till mint unlocks",
+  "mint financed phone locked",
+  "byod mint phone locked"
+ ],
+ "porting-guide/mint-mobile/tips": [
+  "mint port failing",
+  "mint port rejected",
+  "mint number lock turned back on",
+  "mint gotchas",
+  "mint wrong pin port",
+  "mint port keeps failing"
+ ],
+ "porting-guide/net10-wireless": [
+  "net ten port",
+  "netten port in",
+  "customer coming from net ten",
+  "switching from net ten to xm",
+  "net ten keep number",
+  "customer says he has net ten keep his number"
+ ],
+ "porting-guide/net10-wireless/account": [
+  "net ten account number",
+  "netten acct number",
+  "where is net ten account number",
+  "net ten imei account number",
+  "net ten sim number account",
+  "cx doesnt know net ten account number"
+ ],
+ "porting-guide/net10-wireless/pin": [
+  "net ten transfer pin",
+  "net ten port pin",
+  "net ten line lock",
+  "net ten linelock text",
+  "net ten ntp text",
+  "net ten pin call",
+  "cx needs net ten port pin"
+ ],
+ "porting-guide/net10-wireless/unlock": [
+  "net ten unlock",
+  "net ten phone locked",
+  "unlock net ten phone",
+  "net ten one year unlock",
+  "net ten unlock request",
+  "lady wants to keep her net ten phone"
+ ],
+ "porting-guide/net10-wireless/tips": [
+  "net ten port failing",
+  "net ten port rejected",
+  "net ten deactivated number port",
+  "net ten number recycled",
+  "net ten gotchas",
+  "net ten line lock wait",
+  "cx says net ten port got rejected"
+ ],
+ "porting-guide/optimum-mobile": [
+  "optimum mobile port",
+  "optimum port in",
+  "altice mobile port",
+  "customer coming from optimum",
+  "switching from optimum mobile to xm",
+  "optimum keep number",
+  "lady has optimum wants to switch"
+ ],
+ "porting-guide/optimum-mobile/account": [
+  "optimum mobile account number",
+  "where is optimum mobile account number",
+  "mymobile account number",
+  "optimum mobile vs internet account number",
+  "optimum acct number",
+  "optimum account number where"
+ ],
+ "porting-guide/optimum-mobile/pin": [
+  "optimum transfer pin",
+  "optimum mobile port pin",
+  "optimum port out pin",
+  "how to get optimum pin",
+  "optimum pin email or text",
+  "how long is optimum pin good for",
+  "lady says what pin does optimum want"
+ ],
+ "porting-guide/optimum-mobile/unlock": [
+  "optimum unlock",
+  "optimum mobile phone locked",
+  "unlock optimum phone",
+  "optimum unlock request",
+  "how long does optimum unlock take",
+  "can he use his optimum phone on xm"
+ ],
+ "porting-guide/optimum-mobile/tips": [
+  "optimum port failing",
+  "optimum port rejected",
+  "optimum pin from purchase not working",
+  "optimum internet account number wrong",
+  "optimum gotchas",
+  "optimum unlock not automatic",
+  "optimum port stuck what now"
+ ],
+ "porting-guide/page-plus": [
+  "page plus port",
+  "pageplus port in",
+  "customer coming from page plus",
+  "switching from page plus to xm",
+  "page plus cellular keep number",
+  "guy on page plus wants xm"
+ ],
+ "porting-guide/page-plus/account": [
+  "page plus account number",
+  "where is page plus account number",
+  "page plus imei account number",
+  "page plus meid",
+  "page plus acct number serial",
+  "customer says where do i find my page plus account number"
+ ],
+ "porting-guide/page-plus/pin": [
+  "page plus transfer pin",
+  "page plus port pin",
+  "page plus line lock",
+  "page plus pin last four",
+  "page plus default pin",
+  "customer says page plus pin isnt working"
+ ],
+ "porting-guide/page-plus/unlock": [
+  "page plus unlock",
+  "page plus phone locked",
+  "unlock page plus phone",
+  "page plus unlock request",
+  "customer wants to bring his page plus phone is it locked",
+  "pageplus phone still locked"
+ ],
+ "porting-guide/page-plus/tips": [
+  "page plus port failing",
+  "page plus port rejected",
+  "page plus website unsupported browser",
+  "page plus gotchas",
+  "page plus account number is the imei",
+  "guy's page plus number won't port"
+ ],
+ "porting-guide/patriot-mobile": [
+  "patriot mobile port",
+  "patriot port in",
+  "customer coming from patriot mobile",
+  "switching from patriot to xm",
+  "patriot keep number",
+  "cx with patriot what do i need to port"
+ ],
+ "porting-guide/patriot-mobile/account": [
+  "patriot mobile account number",
+  "where is patriot account number",
+  "patriot dashboard account number",
+  "patriot member services account number",
+  "lady cant find her patriot acct number",
+  "patriot acct number my account"
+ ],
+ "porting-guide/patriot-mobile/pin": [
+  "patriot transfer pin",
+  "patriot mobile port pin",
+  "does patriot need a pin",
+  "patriot pin blank or zeros",
+  "patriot pin rejected",
+  "how does he get a patriot transfer pin"
+ ],
+ "porting-guide/patriot-mobile/unlock": [
+  "patriot unlock",
+  "patriot mobile phone locked",
+  "unlock patriot phone",
+  "is patriot phone unlocked",
+  "byod patriot phone locked",
+  "patriot phone still locked"
+ ],
+ "porting-guide/patriot-mobile/tips": [
+  "patriot port failing",
+  "patriot port rejected",
+  "patriot charges after port",
+  "patriot which network",
+  "patriot gotchas",
+  "patriot port keeps failing"
+ ],
+ "porting-guide/puretalk": [
+  "pure talk port",
+  "puretalk port in",
+  "customer coming from pure talk",
+  "switching from puretalk to xm",
+  "pure talk keep number",
+  "port from pure talk"
+ ],
+ "porting-guide/puretalk/account": [
+  "pure talk account number",
+  "where is puretalk account number",
+  "pure talk account portal acct number",
+  "puretalk acct number call",
+  "cx doesnt know pure talk account number",
+  "pure talk acct number portal"
+ ],
+ "porting-guide/puretalk/pin": [
+  "pure talk transfer pin",
+  "puretalk port pin",
+  "pure talk request transfer pin",
+  "pure talk pin plan tab",
+  "how long is pure talk pin good for",
+  "puretalk pin text",
+  "cx needs pure talk port pin"
+ ],
+ "porting-guide/puretalk/unlock": [
+  "pure talk unlock",
+  "puretalk phone locked",
+  "is pure talk phone unlocked",
+  "unlock pure talk phone",
+  "lady wants to keep her pure talk phone",
+  "pure talk phone sold unlocked"
+ ],
+ "porting-guide/puretalk/tips": [
+  "pure talk port failing",
+  "puretalk port rejected",
+  "pure talk account pin vs transfer pin",
+  "pure talk pin expired",
+  "pure talk gotchas",
+  "pure talk name address mismatch",
+  "cx says pure talk port got rejected"
+ ],
+ "porting-guide/red-pocket": [
+  "red pocket port",
+  "redpocket port in",
+  "customer coming from red pocket",
+  "switching from red pocket to xm",
+  "red pocket keep number",
+  "customer says he has red pocket keep his number"
+ ],
+ "porting-guide/red-pocket/account": [
+  "red pocket account number",
+  "where is red pocket account number",
+  "red pocket manage number account",
+  "red pocket gsma account number",
+  "red pocket cdma account number",
+  "red pocket account number where"
+ ],
+ "porting-guide/red-pocket/pin": [
+  "red pocket transfer pin",
+  "red pocket port pin",
+  "red pocket port out blocker",
+  "transfer this number red pocket",
+  "red pocket verizon line pin",
+  "lady says what pin does red pocket want"
+ ],
+ "porting-guide/red-pocket/unlock": [
+  "red pocket unlock",
+  "red pocket phone locked",
+  "unlock red pocket phone",
+  "red pocket rebate unlock",
+  "red pocket twelve months unlock",
+  "can he use his red pocket phone on xm"
+ ],
+ "porting-guide/red-pocket/tips": [
+  "red pocket port failing",
+  "red pocket port rejected",
+  "red pocket which network gsma cdma",
+  "red pocket blocker on",
+  "red pocket gotchas",
+  "red pocket port stuck what now"
+ ],
+ "porting-guide/simple-mobile": [
+  "simple mobile port",
+  "simple port in",
+  "customer coming from simple mobile",
+  "switching from simple mobile to xm",
+  "simple mobile keep number",
+  "lady has simple mobile wants to switch"
+ ],
+ "porting-guide/simple-mobile/account": [
+  "simple mobile account number",
+  "where is simple mobile account number",
+  "simple mobile sim number account",
+  "simple mobile imei account number",
+  "customer says where do i find my simple mobile account number",
+  "simple mobile acct number call"
+ ],
+ "porting-guide/simple-mobile/pin": [
+  "simple mobile transfer pin",
+  "simple mobile port pin",
+  "simple mobile line lock",
+  "simple mobile ntp text",
+  "simple mobile line security",
+  "customer says simple mobile pin isnt working"
+ ],
+ "porting-guide/simple-mobile/unlock": [
+  "simple mobile unlock",
+  "simple mobile phone locked",
+  "unlock simple mobile phone",
+  "simple mobile unlock sixty days or a year",
+  "simple mobile unlock request",
+  "customer wants to bring his simple mobile phone is it locked"
+ ],
+ "porting-guide/simple-mobile/tips": [
+  "simple mobile port failing",
+  "simple mobile port rejected",
+  "simple mobile line lock wait",
+  "simple mobile home internet discount",
+  "simple mobile gotchas",
+  "guy's simple mobile number won't port"
+ ],
+ "porting-guide/spectrum-mobile": [
+  "spectrum mobile port",
+  "spectrum port in",
+  "charter phone port",
+  "customer coming from spectrum",
+  "switching from spectrum mobile to xm",
+  "spectrum keep number",
+  "guy on spectrum wants xm"
+ ],
+ "porting-guide/spectrum-mobile/account": [
+  "spectrum mobile account number",
+  "where is spectrum account number",
+  "spectrum statement account number",
+  "spectrum mobile vs internet account number",
+  "spectrum billing tab account number",
+  "lady cant find her spectrum acct number"
+ ],
+ "porting-guide/spectrum-mobile/pin": [
+  "spectrum transfer pin",
+  "spectrum mobile port pin",
+  "spectrum get transfer pin",
+  "how long is spectrum pin good for",
+  "spectrum pin expired",
+  "spectrum security code for port",
+  "how does he get a spectrum transfer pin"
+ ],
+ "porting-guide/spectrum-mobile/unlock": [
+  "spectrum unlock",
+  "spectrum phone locked",
+  "unlock spectrum phone",
+  "spectrum unlock call",
+  "spectrum device unlock request",
+  "byod spectrum phone locked"
+ ],
+ "porting-guide/spectrum-mobile/tips": [
+  "spectrum port failing",
+  "spectrum port rejected",
+  "spectrum old security code not transfer pin",
+  "spectrum no mobile contact number",
+  "spectrum pin expired at counter",
+  "spectrum gotchas",
+  "spectrum port keeps failing"
+ ],
+ "porting-guide/straight-talk": [
+  "straight talk port",
+  "straighttalk port in",
+  "customer coming from straight talk",
+  "switching from straight talk to xm",
+  "straight talk keep number",
+  "walmart straight talk phone port",
+  "cx with straight talk what do i need to port"
+ ],
+ "porting-guide/straight-talk/account": [
+  "straight talk account number",
+  "where is straight talk account number",
+  "straight talk imei account number",
+  "straight talk sim number for port",
+  "straight talk acct number app",
+  "cx doesnt know straight talk account number",
+  "straight talk doesnt have an account number"
+ ],
+ "porting-guide/straight-talk/pin": [
+  "straight talk transfer pin",
+  "straight talk number transfer pin",
+  "straight talk port pin",
+  "straight talk ntp text",
+  "straight talk pin verification code",
+  "straight talk number lock",
+  "cx needs straight talk port pin"
+ ],
+ "porting-guide/straight-talk/unlock": [
+  "straight talk unlock",
+  "straight talk phone locked",
+  "unlock straight talk phone",
+  "straight talk one year unlock",
+  "straight talk unlock email",
+  "lady wants to keep her straight talk phone"
+ ],
+ "porting-guide/straight-talk/tips": [
+  "straight talk port failing",
+  "straight talk port rejected",
+  "straight talk service days lost after port",
+  "straight talk only owner can get pin",
+  "straight talk gotchas",
+  "straight talk unlock email in spam",
+  "cx says straight talk port got rejected"
+ ],
+ "porting-guide/t-mobile": [
+  "tmobile port",
+  "t mobile port in",
+  "tmo port",
+  "customer coming from tmobile",
+  "switching from tmo to xm",
+  "sprint port",
+  "t-mobile keep number",
+  "tmo number transfer",
+  "port from tmo"
+ ],
+ "porting-guide/t-mobile/account": [
+  "tmobile account number",
+  "t mobile account number",
+  "where is tmo account number",
+  "t life account number",
+  "tmobile bill account number",
+  "sprint account number now tmobile",
+  "tmo account number where"
+ ],
+ "porting-guide/t-mobile/pin": [
+  "tmobile transfer pin",
+  "tmo transfer pin",
+  "t mobile tpop",
+  "temporary port out pin",
+  "tmobile port out protection",
+  "t life transfer pin",
+  "tmo pin wont generate on wifi",
+  "tmobile pin primary account holder",
+  "lady says what pin does tmo want",
+  "customer says tmo wont give him a pin he's on wifi"
+ ],
+ "porting-guide/t-mobile/unlock": [
+  "tmobile unlock",
+  "tmo phone locked",
+  "unlock t mobile phone",
+  "tmobile device lock status",
+  "how long before tmobile unlocks",
+  "tmobile paid off phone still locked",
+  "can he use his tmo phone on xm"
+ ],
+ "porting-guide/t-mobile/tips": [
+  "tmobile port failing",
+  "tmo port rejected",
+  "tmobile pin on wifi doesnt work",
+  "authorized user cant get tmo pin",
+  "port out protection every line",
+  "legacy sprint port",
+  "tmobile port keeps failing",
+  "tmo gotchas",
+  "tmo port stuck what now"
+ ],
+ "porting-guide/t-mobile-prepaid": [
+  "tmobile prepaid port",
+  "tmo prepaid port in",
+  "customer coming from t mobile prepaid",
+  "switching from tmobile prepaid to xm",
+  "t mobile prepaid keep number",
+  "customer says he has tmo prepaid keep his number"
+ ],
+ "porting-guide/t-mobile-prepaid/account": [
+  "tmobile prepaid account number",
+  "tmo prepaid account number",
+  "where is t mobile prepaid account number",
+  "tmobile prepaid acct number",
+  "customer says where do i find my tmo prepaid account number",
+  "tmo prepaid account number my t mobile"
+ ],
+ "porting-guide/t-mobile-prepaid/pin": [
+  "tmobile prepaid transfer pin",
+  "tmo prepaid pin",
+  "t mobile prepaid request transfer pin",
+  "tmobile prepaid port out protection",
+  "customer says tmo prepaid pin isnt working",
+  "tmo prepaid tpop my profile"
+ ],
+ "porting-guide/t-mobile-prepaid/unlock": [
+  "tmobile prepaid unlock",
+  "tmo prepaid phone locked",
+  "unlock t mobile prepaid phone",
+  "how long till tmobile prepaid unlocks",
+  "tmobile prepaid refills unlock",
+  "customer wants to bring his tmo prepaid phone is it locked"
+ ],
+ "porting-guide/t-mobile-prepaid/tips": [
+  "tmobile prepaid port failing",
+  "tmo prepaid port rejected",
+  "tmobile prepaid vs metro",
+  "tmobile prepaid gotchas",
+  "tmobile prepaid account number wrong",
+  "guy's tmo prepaid number won't port"
+ ],
+ "porting-guide/tello": [
+  "tello port",
+  "tello port in",
+  "customer coming from tello",
+  "switching from tello to xm",
+  "tello keep number",
+  "lady has tello wants to switch"
+ ],
+ "porting-guide/tello/account": [
+  "tello account number",
+  "where is tello account number",
+  "tello number transfer tab",
+  "tello acct number browser",
+  "lady cant find her tello acct number",
+  "tello account number not in app"
+ ],
+ "porting-guide/tello/pin": [
+  "tello transfer pin",
+  "tello port out pin",
+  "tello pin not in app",
+  "tello retrieve port out information",
+  "how long is tello pin good for",
+  "how does he get a tello transfer pin"
+ ],
+ "porting-guide/tello/unlock": [
+  "tello unlock",
+  "tello phone locked",
+  "is tello phone unlocked",
+  "unlock tello phone",
+  "byod tello phone locked",
+  "tello phone sold unlocked"
+ ],
+ "porting-guide/tello/tips": [
+  "tello port failing",
+  "tello port rejected",
+  "tello security pin vs port pin",
+  "tello app wont show pin",
+  "tello gotchas",
+  "tello pin expired",
+  "tello port keeps failing"
+ ],
+ "porting-guide/ting-mobile": [
+  "ting port",
+  "ting mobile port in",
+  "customer coming from ting",
+  "switching from ting to xm",
+  "ting keep number",
+  "guy on ting wants xm"
+ ],
+ "porting-guide/ting-mobile/account": [
+  "ting account number",
+  "where is ting account number",
+  "ting port out information account",
+  "ting account settings acct number",
+  "cx doesnt know ting account number",
+  "ting acct number porting out"
+ ],
+ "porting-guide/ting-mobile/pin": [
+  "ting transfer pin",
+  "ting port pin",
+  "ting pin per line",
+  "ting port out information pin",
+  "cx needs ting port pin",
+  "ting pin for which line"
+ ],
+ "porting-guide/ting-mobile/unlock": [
+  "ting unlock",
+  "ting phone locked",
+  "unlock ting phone",
+  "ting unlock request",
+  "lady wants to keep her ting phone",
+  "ting phone still locked"
+ ],
+ "porting-guide/ting-mobile/tips": [
+  "ting port failing",
+  "ting port rejected",
+  "ting multi line wrong pin",
+  "ting weekend no phone support",
+  "ting gotchas",
+  "cx says ting port got rejected"
+ ],
+ "porting-guide/total-wireless": [
+  "total wireless port",
+  "total by verizon port in",
+  "customer coming from total wireless",
+  "switching from total to xm",
+  "total wireless keep number",
+  "cx with total wireless what do i need to port"
+ ],
+ "porting-guide/total-wireless/account": [
+  "total wireless account number",
+  "where is total wireless account number",
+  "total wireless imei account number",
+  "total wireless sim number account",
+  "total acct number",
+  "total wireless account number where"
+ ],
+ "porting-guide/total-wireless/pin": [
+  "total wireless transfer pin",
+  "total wireless ntp",
+  "text ntp total wireless",
+  "total wireless port pin",
+  "total wireless line lock",
+  "total wireless no phone pin",
+  "lady says what pin does total wireless want"
+ ],
+ "porting-guide/total-wireless/unlock": [
+  "total wireless unlock",
+  "total wireless phone locked",
+  "unlock total wireless phone",
+  "total wireless one year unlock",
+  "total wireless unlock email",
+  "can he use his total wireless phone on xm"
+ ],
+ "porting-guide/total-wireless/tips": [
+  "total wireless port failing",
+  "total wireless port rejected",
+  "total wireless imei or sim try both",
+  "total wireless plan days lost",
+  "total wireless gotchas",
+  "total wireless unlock email spam",
+  "total wireless port stuck what now"
+ ],
+ "porting-guide/tracfone": [
+  "tracfone port",
+  "trac fone port in",
+  "tracphone port",
+  "customer coming from tracfone",
+  "switching from tracfone to xm",
+  "tracfone keep number",
+  "grandma tracfone switching",
+  "port from tracfone"
+ ],
+ "porting-guide/tracfone/account": [
+  "tracfone account number",
+  "where is tracfone account number",
+  "tracfone imei account number",
+  "tracfone sim number for port",
+  "tracfone acct number my account",
+  "customer says where do i find my tracfone account number"
+ ],
+ "porting-guide/tracfone/pin": [
+  "tracfone transfer pin",
+  "tracfone number transfer pin",
+  "tracfone #port",
+  "tracfone line lock",
+  "tracfone ntp text",
+  "tracfone generate pin",
+  "tracfone security pin vs transfer pin",
+  "customer says tracfone pin isnt working",
+  "tracfone customer says no account pin works"
+ ],
+ "porting-guide/tracfone/unlock": [
+  "tracfone unlock",
+  "tracfone phone locked",
+  "unlock tracfone phone",
+  "tracfone one year unlock",
+  "tracfone unlock email",
+  "tracfone unlock request",
+  "customer wants to bring his tracfone phone is it locked"
+ ],
+ "porting-guide/tracfone/tips": [
+  "tracfone port failing",
+  "tracfone port rejected",
+  "tracfone line lock wait",
+  "tracfone deactivated number",
+  "tracfone account split",
+  "tracfone scam call pin",
+  "tracfone gotchas",
+  "guy's tracfone number won't port"
+ ],
+ "porting-guide/ultra-mobile": [
+  "ultra mobile port",
+  "ultra port in",
+  "customer coming from ultra mobile",
+  "switching from ultra to xm",
+  "ultra keep number",
+  "customer says he has ultra keep his number"
+ ],
+ "porting-guide/ultra-mobile/account": [
+  "ultra mobile account number",
+  "where is ultra account number",
+  "ultra portal account number",
+  "ultra acct number call care",
+  "lady cant find her ultra acct number",
+  "ultra acct number top left portal"
+ ],
+ "porting-guide/ultra-mobile/pin": [
+  "ultra mobile transfer pin",
+  "ultra port pin",
+  "ultra pin last four",
+  "ultra care port pin",
+  "how does he get a ultra transfer pin",
+  "ultra port out pin chat"
+ ],
+ "porting-guide/ultra-mobile/unlock": [
+  "ultra unlock",
+  "ultra mobile phone locked",
+  "unlock ultra phone",
+  "how long till ultra unlocks",
+  "ultra military unlock",
+  "byod ultra phone locked"
+ ],
+ "porting-guide/ultra-mobile/tips": [
+  "ultra port failing",
+  "ultra port rejected",
+  "ultra plan lapsed port",
+  "ultra website wont load",
+  "ultra gotchas",
+  "ultra port keeps failing"
+ ],
+ "porting-guide/us-mobile": [
+  "us mobile port",
+  "usmobile port in",
+  "customer coming from us mobile",
+  "switching from us mobile to xm",
+  "us mobile keep number",
+  "lady has us mobile wants to switch"
+ ],
+ "porting-guide/us-mobile/account": [
+  "us mobile account number",
+  "where is us mobile account number",
+  "us mobile account number not in app",
+  "usmobile acct number support",
+  "cx doesnt know us mobile account number",
+  "us mobile acct number chat"
+ ],
+ "porting-guide/us-mobile/pin": [
+  "us mobile transfer pin",
+  "usmobile port pin",
+  "us mobile pin chat",
+  "us mobile pin from support",
+  "cx needs us mobile port pin",
+  "us mobile pin email support"
+ ],
+ "porting-guide/us-mobile/unlock": [
+  "us mobile unlock",
+  "us mobile phone locked",
+  "unlock us mobile phone",
+  "is us mobile phone unlocked",
+  "lady wants to keep her us mobile phone",
+  "us mobile not unlocking phones"
+ ],
+ "porting-guide/us-mobile/tips": [
+  "us mobile port failing",
+  "us mobile port rejected",
+  "us mobile nothing self serve",
+  "us mobile warp dark star",
+  "us mobile gotchas",
+  "cx says us mobile port got rejected"
+ ],
+ "porting-guide/uscellular": [
+  "us cellular port",
+  "uscellular port in",
+  "u s cellular port",
+  "customer coming from us cellular",
+  "switching from us cellular to xm",
+  "us cellular keep number",
+  "us cellular now tmobile port",
+  "guy on us cellular wants xm"
+ ],
+ "porting-guide/uscellular/account": [
+  "us cellular account number",
+  "where is us cellular account number",
+  "uscellular account number now tmobile",
+  "us cellular acct number t life",
+  "us cellular moved to tmobile account number",
+  "us cellular account number where"
+ ],
+ "porting-guide/uscellular/pin": [
+  "us cellular transfer pin",
+  "uscellular port pin",
+  "us cellular port out protection",
+  "us cellular tpop",
+  "us cellular prepaid pin",
+  "us cellular pin t life",
+  "lady says what pin does us cellular want"
+ ],
+ "porting-guide/uscellular/unlock": [
+  "us cellular unlock",
+  "uscellular phone locked",
+  "unlock us cellular phone",
+  "us cellular motorola locked",
+  "can he use his us cellular phone on xm",
+  "us cellular phone still locked t life"
+ ],
+ "porting-guide/uscellular/tips": [
+  "us cellular port failing",
+  "us cellular port rejected",
+  "us cellular not migrated",
+  "us cellular prepaid number lost",
+  "uscellular website redirects",
+  "us cellular login doesnt work",
+  "us cellular gotchas",
+  "us cellular port stuck what now"
+ ],
+ "porting-guide/verizon": [
+  "verizon port",
+  "vz port in",
+  "vzw port",
+  "verizion port",
+  "customer coming from verizon",
+  "switching from verizon to xm",
+  "verizon keep number",
+  "verizon number transfer",
+  "cx with verizon what do i need to port"
+ ],
+ "porting-guide/verizon/account": [
+  "verizon account number",
+  "vz account number",
+  "where do i find his account number on the verizon app",
+  "my verizon account number",
+  "verizon bill account number",
+  "verizon acct number profile",
+  "cx cant find verizon account number",
+  "customer says where do i find my verizon account number",
+  "lady says which number is my account number verizon"
+ ],
+ "porting-guide/verizon/pin": [
+  "verizon transfer pin",
+  "vz number transfer pin",
+  "verizon #port",
+  "dial pound port verizon",
+  "verizon number lock",
+  "verizon pin account owner",
+  "how long is verizon pin good for",
+  "verizon generate pin",
+  "customer says verizon pin isnt working",
+  "customer says verizon pin isnt the four digit one"
+ ],
+ "porting-guide/verizon/unlock": [
+  "verizon unlock",
+  "vz phone locked",
+  "unlock verizon phone",
+  "verizon paid off phone locked",
+  "verizon gift card unlock delay",
+  "is verizon phone unlocked",
+  "customer wants to bring his verizon phone is it locked"
+ ],
+ "porting-guide/verizon/tips": [
+  "verizon port failing",
+  "vz port rejected",
+  "verizon account pin vs transfer pin",
+  "verizon number lock blocking port",
+  "verizon account member cant get pin",
+  "verizon port keeps failing",
+  "verizon device balance after port",
+  "verizon gotchas",
+  "guy's verizon number won't port"
+ ],
+ "porting-guide/verizon-prepaid": [
+  "verizon prepaid port",
+  "vz prepaid port in",
+  "customer coming from verizon prepaid",
+  "switching from verizon prepaid to xm",
+  "verizon prepaid keep number",
+  "port from verizon prepaid"
+ ],
+ "porting-guide/verizon-prepaid/account": [
+  "verizon prepaid account number",
+  "vz prepaid account number",
+  "where is verizon prepaid account number",
+  "display my prepaid account number",
+  "lady cant find her verizon prepaid acct number",
+  "verizon prepaid acct number my verizon"
+ ],
+ "porting-guide/verizon-prepaid/pin": [
+  "verizon prepaid transfer pin",
+  "vz prepaid pin",
+  "verizon prepaid account pin for port",
+  "verizon prepaid account security code",
+  "verizon prepaid forgot pin",
+  "how does he get a verizon prepaid transfer pin"
+ ],
+ "porting-guide/verizon-prepaid/unlock": [
+  "verizon prepaid unlock",
+  "vz prepaid phone locked",
+  "unlock verizon prepaid phone",
+  "verizon prepaid one year unlock",
+  "byod verizon prepaid phone locked",
+  "verizon prepaid phone still locked"
+ ],
+ "porting-guide/verizon-prepaid/tips": [
+  "verizon prepaid port failing",
+  "vz prepaid port rejected",
+  "verizon prepaid vs total or straight talk",
+  "verizon prepaid phone locked a year",
+  "verizon prepaid gotchas",
+  "verizon prepaid port keeps failing"
+ ],
+ "porting-guide/visible": [
+  "visible port",
+  "visible port in",
+  "customer coming from visible",
+  "switching from visible to xm",
+  "visible keep number",
+  "visible wireless transfer",
+  "customer says he has visible keep his number"
+ ],
+ "porting-guide/visible/account": [
+  "visible account number",
+  "where is visible account number",
+  "visible app account number",
+  "visible acct number email",
+  "cx doesnt know visible account number",
+  "visible acct number came in email"
+ ],
+ "porting-guide/visible/pin": [
+  "visible transfer pin",
+  "visible port out pin",
+  "visible generate pin",
+  "visible line lock",
+  "visible pin email text",
+  "how long is visible pin good for",
+  "cx needs visible port pin"
+ ],
+ "porting-guide/visible/unlock": [
+  "visible unlock",
+  "visible phone locked",
+  "unlock visible phone",
+  "visible one year unlock",
+  "visible affirm phone unlock",
+  "lady wants to keep her visible phone"
+ ],
+ "porting-guide/visible/tips": [
+  "visible port failing",
+  "visible port rejected",
+  "visible pin taking forever",
+  "visible free trial port",
+  "visible pin button not working",
+  "visible gotchas",
+  "cx says visible port got rejected"
+ ],
+ "porting-guide/walmart-family-mobile": [
+  "family mobile port",
+  "walmart family mobile port in",
+  "walmart phone port",
+  "customer coming from family mobile",
+  "switching from walmart family mobile to xm",
+  "family mobile keep number",
+  "lady has family mobile wants to switch"
+ ],
+ "porting-guide/walmart-family-mobile/account": [
+  "family mobile account number",
+  "walmart family mobile account number",
+  "where is family mobile account number",
+  "family mobile imei account number",
+  "family mobile account number where",
+  "family mobile acct number call"
+ ],
+ "porting-guide/walmart-family-mobile/pin": [
+  "family mobile transfer pin",
+  "walmart family mobile port pin",
+  "family mobile line lock",
+  "family mobile pin call",
+  "walmart family mobile line security",
+  "lady says what pin does family mobile want"
+ ],
+ "porting-guide/walmart-family-mobile/unlock": [
+  "family mobile unlock",
+  "walmart family mobile phone locked",
+  "unlock family mobile phone",
+  "family mobile unlock request",
+  "can he use his family mobile phone on xm",
+  "family mobile phone still locked"
+ ],
+ "porting-guide/walmart-family-mobile/tips": [
+  "family mobile port failing",
+  "walmart family mobile port rejected",
+  "family mobile website",
+  "family mobile legacy tmobile sim",
+  "family mobile gotchas",
+  "family mobile port stuck what now"
+ ],
+ "porting-guide/xfinity-mobile": [
+  "xm port out",
+  "customer leaving xm keep number",
+  "cx wants to switch from xfinity mobile",
+  "xfinity mobile number transfer out",
+  "leaving xfinity mobile",
+  "customer leaving us for another carrier needs port info"
+ ],
+ "porting-guide/xfinity-mobile/account": [
+  "xfinity mobile account number",
+  "xm account number",
+  "where is xfinity mobile account number",
+  "xm vs internet account number",
+  "xfinity mobile acct number app",
+  "customer porting away needs his xm acct number"
+ ],
+ "porting-guide/xfinity-mobile/pin": [
+  "xfinity mobile transfer pin",
+  "xm port out pin",
+  "xfinity mobile security pin",
+  "xm number lock",
+  "transfer or cancel this line xm",
+  "xm pin texted to which line",
+  "cx leaving xm needs transfer pin"
+ ],
+ "porting-guide/xfinity-mobile/unlock": [
+  "xfinity mobile unlock",
+  "xm phone locked",
+  "unlock xfinity mobile phone",
+  "xm paid off phone still locked",
+  "xm unlock code android",
+  "customer leaving xm wants phone unlocked"
+ ],
+ "porting-guide/xfinity-mobile/tips": [
+  "xm port out failing",
+  "xfinity mobile port out rejected",
+  "xm pin went to another line",
+  "xm number lock on",
+  "xm gotchas porting out",
+  "customer says xm port out failed"
+ ]
+}

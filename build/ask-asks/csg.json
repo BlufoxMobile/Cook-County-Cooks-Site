@@ -1,0 +1,1308 @@
+{
+ "tool/csg-how-to": [
+  "csg how to",
+  "how do i put in an order in csg",
+  "csg order entry help",
+  "where's the csg guide",
+  "step by step csg",
+  "csg training",
+  "new to csg how do i do orders",
+  "csg screens walkthrough",
+  "cable order entry how to",
+  "csg tutorial"
+ ],
+ "csg-how-to/internet": [
+  "csg internet orders",
+  "how do i add internet in csg",
+  "cx wants wifi how do i enter it",
+  "internet order entry",
+  "add internet to existing acct csg",
+  "sell home internet in csg",
+  "internet only order csg",
+  "interent order how to"
+ ],
+ "csg-how-to/tv": [
+  "csg tv orders",
+  "how to add tv in csg",
+  "cable tv order entry",
+  "cx wants cable tv",
+  "add tv service to acct",
+  "x1 order entry",
+  "tv box order csg",
+  "add channels csg"
+ ],
+ "csg-how-to/voice": [
+  "csg voice orders",
+  "home phone order csg",
+  "landline setup in csg",
+  "add home phone to acct",
+  "xfinity voice how to",
+  "cx wants a house phone line",
+  "digital voice order",
+  "home phone number stuff csg"
+ ],
+ "csg-how-to/xh": [
+  "csg xh orders",
+  "home security order csg",
+  "xfinity home how to",
+  "cx wants alarm system",
+  "add cameras csg",
+  "xh order entry",
+  "smart lock or shield order",
+  "security system order csg"
+ ],
+ "csg-how-to/orders": [
+  "orders and moves csg",
+  "customer moving how do i do it in csg",
+  "transfer service csg",
+  "new connect csg",
+  "restart an account",
+  "pro install order",
+  "seasonal hold csg",
+  "cx moving to new apartment"
+ ],
+ "csg-how-to/billing": [
+  "csg billing",
+  "where do i see the bill in csg",
+  "cx says bill is wrong where do i look",
+  "change billing address csg",
+  "ledger and statements csg",
+  "bulk tenant accts",
+  "account billing info csg",
+  "billing and accounts"
+ ],
+ "csg-how-to/equipment": [
+  "csg equipment",
+  "add a box to acct",
+  "move equipment to another account",
+  "equipment status codes csg",
+  "customer owned modem csg",
+  "add rented equipment",
+  "add gateway to account",
+  "equipmnt csg"
+ ],
+ "csg-how-to/basics": [
+  "csg basics",
+  "csg icons what do they mean",
+  "new to csg where do i start",
+  "what does this icon mean in csg",
+  "csg screens explained",
+  "line of business icons csg",
+  "how to navigate csg",
+  "csg for beginners"
+ ],
+ "csg-how-to/wifi-ready-kit": [
+  "wifi ready kit",
+  "wifi ready getting started kit",
+  "cx wants to take the modem home today",
+  "wifi ready gsk order",
+  "self install wifi kit order",
+  "take home gateway kit",
+  "how do i order wifi ready kit",
+  "wifi redy kit csg"
+ ],
+ "csg-how-to/wifi-ready-kit/s0": [
+  "wifi ready kit internet only",
+  "wifi ready kit with home phone",
+  "wifi ready kit internet and voice",
+  "wifi ready kit for internet customer"
+ ],
+ "csg-how-to/wifi-ready-kit/s1": [
+  "wifi ready kit tv only",
+  "wifi ready kit with tv",
+  "wifi ready kit tv and internet bundle",
+  "tv only cx needs wifi ready kit"
+ ],
+ "csg-how-to/epon-two-box": [
+  "epon two box",
+  "xfinity communities epon",
+  "epon order entry",
+  "fiber apartment two boxes",
+  "apartment complex epon order",
+  "xfinity communities fiber building",
+  "epon property how to order",
+  "two box install xfinity communities"
+ ],
+ "csg-how-to/epon-two-box/s0": [
+  "how to enter epon order",
+  "epon two box order entry",
+  "enter order for epon property",
+  "fiber building order how do i put it in"
+ ],
+ "csg-how-to/epon-two-box/s1": [
+  "epon property examples",
+  "which buildings are epon",
+  "is this apartment epon",
+  "how do i know if its an epon building"
+ ],
+ "csg-how-to/getting-started-kit": [
+  "getting started kit",
+  "gsk order",
+  "self install kit csg",
+  "cx wants to install it himself",
+  "self install instead of tech",
+  "how to order a gsk",
+  "take home self install kit",
+  "getting startd kit"
+ ],
+ "csg-how-to/getting-started-kit/s0": [
+  "gsk order entry guidelines",
+  "getting started kit rules",
+  "when can i do a gsk",
+  "self install kit order rules"
+ ],
+ "csg-how-to/getting-started-kit/s1": [
+  "extenders with getting started kit",
+  "add wifi extenders to gsk",
+  "gsk extender order",
+  "pods with self install kit"
+ ],
+ "csg-how-to/internet-essentials": [
+  "internet essentials",
+  "ie order csg",
+  "low income internet",
+  "cx on snap wants cheap internet",
+  "affordable internet program",
+  "internet essentials plus",
+  "cx has medicaid wants discounted internet",
+  "ie application help",
+  "internet esentials"
+ ],
+ "csg-how-to/internet-essentials/s0": [
+  "new ie application",
+  "internet essentials portal",
+  "sign cx up for internet essentials",
+  "apply for ie",
+  "start internet essentials application"
+ ],
+ "csg-how-to/internet-essentials/s1": [
+  "ie needs more documents",
+  "internet essentials asking for proof",
+  "cx needs to upload proof of snap",
+  "ie application needs documentation"
+ ],
+ "csg-how-to/internet-essentials/s2": [
+  "rush ie document review",
+  "speed up internet essentials approval",
+  "expedite ie docs in store",
+  "ie review taking forever"
+ ],
+ "csg-how-to/internet-essentials/s3": [
+  "ie customer moving",
+  "internet essentials new address",
+  "ie cx moving apartments",
+  "move internet essentials service"
+ ],
+ "csg-how-to/internet-essentials/s4": [
+  "upgrade existing ie to plus",
+  "internet essentials plus upgrade",
+  "ie cx wants faster speed",
+  "current ie customer wants ie plus"
+ ],
+ "csg-how-to/internet-essentials/s5": [
+  "new customer ie plus",
+  "sign up new cx for internet essentials plus",
+  "ie plus new connect",
+  "start ie plus for new customer"
+ ],
+ "csg-how-to/internet-essentials/s6": [
+  "ie rate codes",
+  "internet essentials rate code",
+  "which rate code for ie",
+  "rate code internet essentials plus"
+ ],
+ "csg-how-to/internet-essentials/s7": [
+  "ie bulk rate codes",
+  "internet essentials bulk property",
+  "bulk ie rate code",
+  "ie in bulk apartment building"
+ ],
+ "csg-how-to/wifi-extenders": [
+  "wifi extenders",
+  "extender self install",
+  "cx has dead spots upstairs",
+  "wifi doesnt reach the basement",
+  "add pods",
+  "order extender csg",
+  "weak wifi in back bedroom",
+  "how to sell wifi extenders",
+  "wifi extendor"
+ ],
+ "csg-how-to/wifi-extenders/s0": [
+  "find extender campaign",
+  "wifi extender campaign csg",
+  "cant find wifi extender campaign",
+  "where is the extender campaign"
+ ],
+ "csg-how-to/wifi-extenders/s1": [
+  "how many extenders can i add",
+  "choose number of extenders",
+  "cx wants two extenders",
+  "add more than one extender"
+ ],
+ "csg-how-to/wifi-extenders/s2": [
+  "finish extender order",
+  "check extender order before submit",
+  "complete wifi extender order",
+  "submit extender order"
+ ],
+ "csg-how-to/tv-additional-outlet": [
+  "add tv to another room",
+  "additional outlet",
+  "cx wants tv in the bedroom",
+  "add another tv box",
+  "additional tv central division",
+  "second tv box order",
+  "add outlet csg",
+  "extra tv service"
+ ],
+ "csg-how-to/tv-additional-outlet/s0": [
+  "add equipment for additional tv",
+  "add box for extra tv",
+  "additional outlet equipment",
+  "extra tv box csg"
+ ],
+ "csg-how-to/tv-additional-outlet/s1": [
+  "additional outlet install codes",
+  "outlet codes for extra tv",
+  "installation code additional tv",
+  "tech needs to wire new outlet"
+ ],
+ "csg-how-to/tv-additional-outlet/s2": [
+  "finish additional tv order",
+  "complete extra outlet order",
+  "submit additional tv",
+  "wrap up extra tv order"
+ ],
+ "csg-how-to/now-tv": [
+  "now tv",
+  "now tv latino",
+  "cheap tv package",
+  "now tv post paid",
+  "spanish tv package",
+  "add now tv csg",
+  "cx wants cheaper tv",
+  "now latino order"
+ ],
+ "csg-how-to/now-tv/s0": [
+  "add now tv",
+  "add now tv latino",
+  "sign up for now tv",
+  "cx wants spanish channels cheap",
+  "now tv order entry"
+ ],
+ "csg-how-to/now-tv/s1": [
+  "downgrade x1 to now tv",
+  "cx wants cheaper tv drop x1",
+  "move from cable box to now tv",
+  "x1 to now tv latino"
+ ],
+ "csg-how-to/now-tv/s2": [
+  "xumo to now tv",
+  "flex to now tv",
+  "upgrade xumo stream box to now tv",
+  "flex customer wants now tv"
+ ],
+ "csg-how-to/premium-channels": [
+  "premium channels",
+  "add hbo",
+  "add max",
+  "add showtime",
+  "add starz",
+  "cx wants premium channels",
+  "add cinemax",
+  "premium add on csg",
+  "premeium channels"
+ ],
+ "csg-how-to/premium-channels/s0": [
+  "premiums for new tv customer",
+  "new tv cx wants hbo",
+  "add premium on new connect",
+  "new customer premium channels"
+ ],
+ "csg-how-to/premium-channels/s1": [
+  "existing tv cx add premium",
+  "add hbo to current account",
+  "cx already has tv wants showtime",
+  "start premium order existing customer"
+ ],
+ "csg-how-to/premium-channels/s2": [
+  "premium channels central division",
+  "central division premium order",
+  "add premium existing cx central",
+  "premium order chicago"
+ ],
+ "csg-how-to/premium-channels/s4": [
+  "finish premium order",
+  "complete premium channel order",
+  "submit premium add",
+  "wrap up hbo add"
+ ],
+ "csg-how-to/voice-remote-gsk": [
+  "voice remote",
+  "cx needs new remote",
+  "voice remote getting started kit",
+  "remote broken send a new one",
+  "order remote csg",
+  "replacement remote",
+  "x1 voice remote order",
+  "remote kit order"
+ ],
+ "csg-how-to/voice-remote-gsk/s0": [
+  "start change of service for remote",
+  "cos for voice remote",
+  "change of service remote order",
+  "begin remote order"
+ ],
+ "csg-how-to/voice-remote-gsk/s1": [
+  "gsk campaign with remotes",
+  "which campaign has remotes",
+  "remote gsk campaign",
+  "find remote campaign"
+ ],
+ "csg-how-to/voice-remote-gsk/s2": [
+  "remote code csg",
+  "pick remote code",
+  "which code for voice remote",
+  "voice remote equipment code"
+ ],
+ "csg-how-to/voice-remote-gsk/s3": [
+  "finish remote order",
+  "complete voice remote order",
+  "submit remote gsk",
+  "remote order done"
+ ],
+ "csg-how-to/voice-order": [
+  "xfinity voice order",
+  "add home phone",
+  "landline order entry",
+  "install new home phone",
+  "voice premier",
+  "add second phone line",
+  "new voice service csg",
+  "cx wants unlimited home phone"
+ ],
+ "csg-how-to/voice-order/s0": [
+  "install new xfinity voice",
+  "new home phone service",
+  "new landline order",
+  "add voice to acct",
+  "cx wants a house phone"
+ ],
+ "csg-how-to/voice-order/s1": [
+  "repackage to voice premier",
+  "upgrade home phone plan",
+  "voice premier upgrade",
+  "change voice plan"
+ ],
+ "csg-how-to/voice-order/s2": [
+  "add additional phone line",
+  "2nd line home phone",
+  "second landline",
+  "extra phone line for fax",
+  "add another voice line"
+ ],
+ "csg-how-to/phone-number": [
+  "telephone number order entry",
+  "home phone number csg",
+  "assign phone number",
+  "cx wants different home phone number",
+  "cx wants to keep their number",
+  "port number",
+  "phone number order entry",
+  "telefone number"
+ ],
+ "csg-how-to/phone-number/s0": [
+  "assign new number",
+  "new xfinity phone number",
+  "cx needs a new home phone number",
+  "pick a number for voice"
+ ],
+ "csg-how-to/phone-number/s1": [
+  "change xfinity phone number",
+  "cx getting spam calls wants new number",
+  "change home phone number",
+  "swap number on existing voice"
+ ],
+ "csg-how-to/phone-number/s2": [
+  "port telephone number",
+  "port in home number",
+  "cx wants to keep att landline number",
+  "bring number from other carrier"
+ ],
+ "csg-how-to/phone-number/s3": [
+  "restore phone number",
+  "get old number back",
+  "move telephone number",
+  "restore disconnected number"
+ ],
+ "csg-how-to/phone-number/s4": [
+  "port back request",
+  "port number back to xfinity",
+  "xfinity port back",
+  "number ported out by mistake"
+ ],
+ "csg-how-to/phone-number/s5": [
+  "escalate telephone number issue",
+  "tn inventory issue",
+  "phone number problem escalate",
+  "number not available in inventory"
+ ],
+ "csg-how-to/number-porting": [
+  "number porting overview",
+  "how does porting work",
+  "port home phone",
+  "keep number when switching",
+  "guy's number won't port",
+  "how long does a port take",
+  "porting landline to xfinity",
+  "port proccess"
+ ],
+ "csg-how-to/number-porting/s0": [
+  "what do i enter for port",
+  "port at order entry",
+  "what info do i need to port",
+  "port info needed from cx"
+ ],
+ "csg-how-to/number-porting/s1": [
+  "port verification",
+  "what happens after port submitted",
+  "port being verified",
+  "port pending verification"
+ ],
+ "csg-how-to/number-porting/s2": [
+  "port activation",
+  "when does ported number go live",
+  "activate ported number",
+  "port order activation"
+ ],
+ "csg-how-to/shield-select": [
+  "shield select",
+  "xfinity shield",
+  "add shield",
+  "shield select order",
+  "shield order entry csg",
+  "shield equipment",
+  "cx wants cameras",
+  "self monitored security"
+ ],
+ "csg-how-to/shield-select/s0": [
+  "add shield select",
+  "sign up for shield",
+  "add shield to acct",
+  "start shield order"
+ ],
+ "csg-how-to/shield-select/s1": [
+  "shield equipment installments",
+  "put shield equipment on payments",
+  "thirty six month installments shield",
+  "split shield equipment cost monthly"
+ ],
+ "csg-how-to/shield-select/s2": [
+  "add more shield equipment",
+  "extra camera shield select",
+  "cx wants another camera on shield",
+  "additional shield sensors"
+ ],
+ "csg-how-to/shield-select/s3": [
+  "shield in store fulfillment",
+  "give shield equipment in store",
+  "take shield home today",
+  "retail shield fulfillment"
+ ],
+ "csg-how-to/shield-select/s4": [
+  "shield manager override",
+  "manager override shield select",
+  "need override for shield order",
+  "shield order blocked override"
+ ],
+ "csg-how-to/xh-security": [
+  "xfinity home security order",
+  "home alarm system",
+  "xh order",
+  "cx wants home security",
+  "professionally monitored security",
+  "add xh",
+  "security system install",
+  "xh campaigns",
+  "xfinty home security"
+ ],
+ "csg-how-to/xh-security/s0": [
+  "find xh campaigns",
+  "home security campaign",
+  "where are xh campaigns",
+  "xh campaign search"
+ ],
+ "csg-how-to/xh-security/s1": [
+  "add xh picklist",
+  "xh picklist",
+  "home security picklist",
+  "fill out xh picklist"
+ ],
+ "csg-how-to/xh-security/s2": [
+  "add touchscreen",
+  "add home system xh",
+  "xh touchscreen",
+  "security hub order"
+ ],
+ "csg-how-to/xh-security/s3": [
+  "extra xh equipment pro install",
+  "add sensors with tech install",
+  "more cameras professional install",
+  "extra equipment professional installation"
+ ],
+ "csg-how-to/xh-security/s4": [
+  "customer supplied equipment xh",
+  "cx has own cameras",
+  "customer owned security equipment",
+  "byo xh equipment"
+ ],
+ "csg-how-to/xh-security/s5": [
+  "extra xh equipment self install",
+  "xh equipment getting started kit",
+  "add sensors gsk",
+  "self install xh extras"
+ ],
+ "csg-how-to/xh-security/s6": [
+  "schedule xh order",
+  "schedule security install",
+  "xh appointment",
+  "book xh tech"
+ ],
+ "csg-how-to/xh-security/s7": [
+  "xh pro install scheduling",
+  "separate trip xh",
+  "schedule second trip security",
+  "xh separate tech visit"
+ ],
+ "csg-how-to/xh-security/s8": [
+  "xh gsk scheduling",
+  "schedule getting started kit xh",
+  "self install xh schedule",
+  "xh kit scheduling"
+ ],
+ "csg-how-to/smart-entry": [
+  "smart entry kit",
+  "kwikset smart lock",
+  "smart lock order",
+  "cx wants keyless door lock",
+  "add smart lock xh",
+  "smart door lock",
+  "kwikset order csg",
+  "smart entery kit"
+ ],
+ "csg-how-to/smart-entry/s0": [
+  "smart lock campaign",
+  "find smart entry campaign",
+  "add smart lock campaign",
+  "which campaign for kwikset"
+ ],
+ "csg-how-to/smart-entry/s1": [
+  "smart entry kit picklist",
+  "picklist smart entry",
+  "smart entry kit options",
+  "fill smart entry picklist"
+ ],
+ "csg-how-to/smart-entry/s2": [
+  "kwikset picklist",
+  "kwikset smart lock picklist",
+  "picklist for lock only",
+  "kwikset lock options"
+ ],
+ "csg-how-to/smart-entry/s3": [
+  "smart lock shipping",
+  "ship smart lock",
+  "pick shipping smart entry",
+  "smart lock delivery option"
+ ],
+ "csg-how-to/smart-entry/s4": [
+  "xb7 error smart lock",
+  "xb6 error smart entry",
+  "gateway error smart lock order",
+  "smart lock order wont go through gateway error"
+ ],
+ "csg-how-to/smart-entry/s5": [
+  "smart lock installments",
+  "split smart lock payment",
+  "monthly payments smart lock",
+  "kwikset payment plan"
+ ],
+ "csg-how-to/xh-tech-recovery": [
+  "xh technician recovery",
+  "xh tech recovery",
+  "tech recovery campaign xh",
+  "home security tech recovery",
+  "xh tech recovery order"
+ ],
+ "csg-how-to/xh-tech-recovery/s0": [
+  "add tech recovery campaign",
+  "where is tech recovery campaign",
+  "tech recovery campaign"
+ ],
+ "csg-how-to/xh-tech-recovery/s1": [
+  "tech recovery picklist",
+  "complete xh recovery picklist",
+  "xh tech recovery picklist"
+ ],
+ "csg-how-to/xh-tech-recovery/s2": [
+  "schedule tech recovery",
+  "finish xh tech recovery",
+  "book tech recovery appointment"
+ ],
+ "csg-how-to/legacy-customer": [
+  "legacy customer order",
+  "cx on legacy pricing",
+  "legacy account order entry",
+  "grandfathered plan cx",
+  "old package wants to change",
+  "legacy tv upgrade",
+  "legacy cx moving to new place",
+  "legacy custmer"
+ ],
+ "csg-how-to/legacy-customer/s0": [
+  "upgrade legacy tv",
+  "legacy cable cx wants x1",
+  "old tv package upgrade",
+  "legacy tv service change"
+ ],
+ "csg-how-to/legacy-customer/s1": [
+  "rented to customer owned modem",
+  "cx bought own modem stop renting",
+  "switch legacy cx to own modem",
+  "stop renting modem"
+ ],
+ "csg-how-to/legacy-customer/s2": [
+  "transfer legacy service",
+  "legacy cx moving",
+  "move legacy account",
+  "keep legacy plan when moving"
+ ],
+ "csg-how-to/legacy-customer/s3": [
+  "legacy second voice line",
+  "add 2nd line legacy voice",
+  "legacy cx wants another phone line",
+  "second voice line old plan"
+ ],
+ "csg-how-to/transfer-service": [
+  "transfer of service",
+  "cx moving",
+  "lady wants to move her internet to her new apartment",
+  "tos",
+  "move service to new address",
+  "moving to new house",
+  "transfer internet new place",
+  "how do i do a move in csg",
+  "tranfer of service"
+ ],
+ "csg-how-to/transfer-service/s0": [
+  "type of transfer",
+  "same system vs different system transfer",
+  "which transfer type",
+  "is it a same system move"
+ ],
+ "csg-how-to/transfer-service/s1": [
+  "check new address",
+  "is new address serviceable",
+  "verify move address",
+  "check new apartment for service"
+ ],
+ "csg-how-to/transfer-service/s2": [
+  "create new customer record transfer",
+  "different system new record",
+  "new record for move different system",
+  "transfer different system setup"
+ ],
+ "csg-how-to/transfer-service/s3": [
+  "start transfer order",
+  "begin tos",
+  "start the move order",
+  "open transfer order"
+ ],
+ "csg-how-to/transfer-service/s4": [
+  "add new address transfer",
+  "enter new address for move",
+  "new location transfer",
+  "add move to address"
+ ],
+ "csg-how-to/transfer-service/s5": [
+  "transfer equipment",
+  "cx taking modem to new house",
+  "move equipment with transfer",
+  "bring boxes to new place"
+ ],
+ "csg-how-to/transfer-service/s6": [
+  "schedule disconnect old address",
+  "disconnect date move",
+  "turn off old place",
+  "schedule old address disconnect"
+ ],
+ "csg-how-to/transfer-service/s7": [
+  "schedule new connect transfer",
+  "install date new address",
+  "schedule service at new place",
+  "new address install appointment"
+ ],
+ "csg-how-to/transfer-service/s8": [
+  "verify transfer link",
+  "edit transfer link",
+  "transfer link wrong",
+  "check tos link"
+ ],
+ "csg-how-to/pro-install": [
+  "pro install",
+  "professional installation",
+  "cx wants a tech to install",
+  "schedule technician",
+  "tech install order",
+  "book install appointment",
+  "cx doesnt want self install",
+  "pro instal"
+ ],
+ "csg-how-to/pro-install/s0": [
+  "pro install order details tab",
+  "order details tab pro install",
+  "pro install order details"
+ ],
+ "csg-how-to/pro-install/s1": [
+  "job details tab",
+  "pro install job details",
+  "job details tab csg"
+ ],
+ "csg-how-to/pro-install/s2": [
+  "pro install summary tab",
+  "summary tab pro install",
+  "review pro install summary"
+ ],
+ "csg-how-to/restart-account": [
+  "restart account",
+  "reconnect account",
+  "cx was disconnected wants service back",
+  "restart service",
+  "reactivate old account",
+  "former customer coming back",
+  "cx cancelled wants to come back",
+  "restart disconnected acct"
+ ],
+ "csg-how-to/restart-account/s0": [
+  "find account to restart",
+  "check account before restart",
+  "look up disconnected account",
+  "can this account be restarted"
+ ],
+ "csg-how-to/restart-account/s1": [
+  "choose services restart",
+  "pick services for restart",
+  "restart which services",
+  "restart with new services"
+ ],
+ "csg-how-to/restart-account/s2": [
+  "restart account details tab",
+  "account details tab restart",
+  "account details restart"
+ ],
+ "csg-how-to/restart-account/s3": [
+  "provisioning details tab",
+  "restart provisioning details",
+  "provisioning tab"
+ ],
+ "csg-how-to/restart-account/s4": [
+  "restart order details tab",
+  "order details restart",
+  "restart order tab"
+ ],
+ "csg-how-to/restart-account/s5": [
+  "restart approval",
+  "schedule restart",
+  "restart needs approval",
+  "approve and schedule restart"
+ ],
+ "csg-how-to/new-connect": [
+  "new connect",
+  "new customer csg",
+  "create customer csg",
+  "brand new cx",
+  "sign up new customer",
+  "new account order",
+  "first time customer",
+  "search address create customer",
+  "new conect"
+ ],
+ "csg-how-to/new-connect/s0": [
+  "search for address",
+  "address search csg",
+  "find address new connect",
+  "cant find address in csg"
+ ],
+ "csg-how-to/new-connect/s1": [
+  "review serviceability",
+  "is address serviceable",
+  "check if we service that address",
+  "serviceability check"
+ ],
+ "csg-how-to/new-connect/s2": [
+  "associate customer",
+  "associate customer to address",
+  "link customer new connect",
+  "attach cx to location"
+ ],
+ "csg-how-to/new-connect/s3": [
+  "new connect voice only",
+  "voice new connect extra step",
+  "new connect home phone",
+  "voice orders new connect"
+ ],
+ "csg-how-to/link-transferred": [
+  "link transferred accounts",
+  "link old and new account",
+  "transfer link",
+  "accounts not linked after move",
+  "unlink a transfer",
+  "two accounts after move",
+  "link legacy accounts",
+  "link transfered accts"
+ ],
+ "csg-how-to/link-transferred/s0": [
+  "which link option",
+  "find option to link",
+  "link transfer option one or two",
+  "how to pick link option"
+ ],
+ "csg-how-to/link-transferred/s1": [
+  "find to account",
+  "find the new account link",
+  "option one find new account",
+  "locate to account"
+ ],
+ "csg-how-to/link-transferred/s2": [
+  "start transfer from old account",
+  "from account transfer link",
+  "option one start from old acct",
+  "link from old account"
+ ],
+ "csg-how-to/link-transferred/s3": [
+  "add to location",
+  "add new location link",
+  "option one add new location",
+  "link new address location"
+ ],
+ "csg-how-to/link-transferred/s4": [
+  "confirm and link",
+  "finish linking accounts",
+  "option one confirm link",
+  "link accounts confirm"
+ ],
+ "csg-how-to/link-transferred/s5": [
+  "option two start transfer",
+  "link option two start",
+  "start transfer link option two"
+ ],
+ "csg-how-to/link-transferred/s6": [
+  "option two add new address",
+  "link option two new address",
+  "add address option two"
+ ],
+ "csg-how-to/link-transferred/s7": [
+  "option two review tabs",
+  "review tabs link transfer",
+  "link transfer tabs review"
+ ],
+ "csg-how-to/link-transferred/s8": [
+  "option two disconnect connect finish",
+  "link option two finish",
+  "disconnect and connect link transfer"
+ ],
+ "csg-how-to/link-transferred/s9": [
+  "linking legacy accounts",
+  "legacy account linking",
+  "link old legacy transfer"
+ ],
+ "csg-how-to/link-transferred/s10": [
+  "unlink transfer",
+  "unlink accounts",
+  "remove transfer link",
+  "linked wrong account undo"
+ ],
+ "csg-how-to/seasonal-plan": [
+  "seasonal plan",
+  "seasonal convenience plan",
+  "pause service for winter",
+  "snowbird",
+  "vacation hold",
+  "cx going to florida for winter",
+  "suspend service seasonal",
+  "summer home pause",
+  "seasonal hold"
+ ],
+ "csg-how-to/seasonal-plan/s0": [
+  "sign up seasonal plan",
+  "put cx on seasonal",
+  "add seasonal convenience plan",
+  "start seasonal hold",
+  "pause service while away"
+ ],
+ "csg-how-to/seasonal-plan/s1": [
+  "update seasonal details",
+  "change seasonal dates",
+  "cx coming back early seasonal",
+  "edit seasonal plan",
+  "extend seasonal hold"
+ ],
+ "csg-how-to/billing-info": [
+  "find billing info",
+  "where is the bill in csg",
+  "cx says bill went up",
+  "check balance",
+  "how much does cx owe",
+  "billing info csg",
+  "cx wants to see last bill",
+  "statements and ledger"
+ ],
+ "csg-how-to/billing-info/s0": [
+  "customer central billing",
+  "quick look billing",
+  "balance on customer central",
+  "check balance quick"
+ ],
+ "csg-how-to/billing-info/s1": [
+  "ledger tab",
+  "check payments ledger",
+  "see payment history",
+  "did cx payment post"
+ ],
+ "csg-how-to/billing-info/s2": [
+  "ledger balance different from payment due",
+  "balance doesnt match amount due",
+  "why ledger and bill differ",
+  "payment due different"
+ ],
+ "csg-how-to/billing-info/s3": [
+  "statements tab",
+  "view past statements",
+  "see old bill",
+  "previous bill csg"
+ ],
+ "csg-how-to/billing-info/s4": [
+  "statement summary",
+  "statement breakdown",
+  "bill summary csg",
+  "whats on this statement"
+ ],
+ "csg-how-to/billing-info/s5": [
+  "future statements tab",
+  "next bill amount",
+  "what will next bill be",
+  "upcoming statement"
+ ],
+ "csg-how-to/billing-info/s6": [
+  "future statement summary",
+  "next bill breakdown",
+  "preview next bill summary",
+  "future statement details"
+ ],
+ "csg-how-to/billing-info/s7": [
+  "future statements during order",
+  "show cx new bill before submitting",
+  "preview bill while ordering",
+  "what will bill be after change"
+ ],
+ "csg-how-to/billing-address": [
+  "change billing address",
+  "update mailing address",
+  "cx moved wants bills sent elsewhere",
+  "billing address csg",
+  "responsible party",
+  "military address",
+  "bill going to wrong address",
+  "update bill adress"
+ ],
+ "csg-how-to/billing-address/s0": [
+  "change billing address account information",
+  "account information window billing address",
+  "edit address account info"
+ ],
+ "csg-how-to/billing-address/s1": [
+  "billing address error",
+  "address wont save",
+  "address error billing",
+  "invalid address billing"
+ ],
+ "csg-how-to/billing-address/s2": [
+  "change billing address account details",
+  "account details billing address",
+  "edit address account details screen"
+ ],
+ "csg-how-to/billing-address/s3": [
+  "add responsible party",
+  "responsible party billing",
+  "someone else paying the bill",
+  "add person responsible for bill"
+ ],
+ "csg-how-to/billing-address/s4": [
+  "military billing address",
+  "apo address",
+  "fpo address",
+  "cx deployed billing address"
+ ],
+ "csg-how-to/billing-address/s5": [
+  "verify billing address disconnect",
+  "disconnect billing address",
+  "final bill address",
+  "where to send final bill"
+ ],
+ "csg-how-to/bulk-tenant": [
+  "bulk tenant accounts",
+  "bulk building",
+  "apartment includes internet",
+  "bulk property",
+  "bulk agreement",
+  "cx says internet included in rent",
+  "bulk account order",
+  "debulk property"
+ ],
+ "csg-how-to/bulk-tenant/s0": [
+  "bulk agreement details",
+  "check bulk agreement",
+  "what does bulk include",
+  "bulk details"
+ ],
+ "csg-how-to/bulk-tenant/s1": [
+  "bulk new install",
+  "new installation bulk building",
+  "bulk tenant new connect",
+  "set up service bulk apartment"
+ ],
+ "csg-how-to/bulk-tenant/s2": [
+  "bulk transfer of service",
+  "bulk tenant moving",
+  "transfer bulk account",
+  "moving out of bulk building"
+ ],
+ "csg-how-to/bulk-tenant/s3": [
+  "bulk upgrade",
+  "upgrade bulk tenant",
+  "bulk cx wants faster internet",
+  "upgrade above bulk package"
+ ],
+ "csg-how-to/bulk-tenant/s4": [
+  "bulk disconnect",
+  "disconnect bulk tenant",
+  "cancel bulk service",
+  "bulk tenant disconnect"
+ ],
+ "csg-how-to/bulk-tenant/s5": [
+  "missing bulk details",
+  "bulk details not showing",
+  "no bulk info on account",
+  "bulk agreement missing"
+ ],
+ "csg-how-to/bulk-tenant/s6": [
+  "missing residential codes debulk",
+  "debulk property codes",
+  "debulk residential code",
+  "property no longer bulk"
+ ],
+ "csg-how-to/add-move-equipment": [
+  "add or move equipment",
+  "move box to another account",
+  "add equipment csg",
+  "add rental equipment",
+  "move modem between accounts",
+  "add tv box",
+  "equipment on wrong account",
+  "add a gateway"
+ ],
+ "csg-how-to/add-move-equipment/s0": [
+  "remove equipment from old account",
+  "take equipment off account",
+  "move equipment remove",
+  "equipment still on old acct"
+ ],
+ "csg-how-to/add-move-equipment/s1": [
+  "add equipment to new account",
+  "move equipment add",
+  "put equipment on new account",
+  "move box to new acct"
+ ],
+ "csg-how-to/add-move-equipment/s2": [
+  "add rental equipment change of service",
+  "add equipment during cos",
+  "rental equipment cos",
+  "add box while changing service"
+ ],
+ "csg-how-to/add-move-equipment/s3": [
+  "add rental equipment existing account",
+  "add equipment to existing acct",
+  "rent another box",
+  "add rental gateway"
+ ],
+ "csg-how-to/equipment-status": [
+  "equipment status codes",
+  "what does equipment status mean",
+  "status code equipment",
+  "how to change equipment status",
+  "equipment stuck in status",
+  "equipment status csg",
+  "r status s status"
+ ],
+ "csg-how-to/equipment-status/s0": [
+  "list of equipment status codes",
+  "equipment status meanings",
+  "what do status letters mean"
+ ],
+ "csg-how-to/equipment-status/s1": [
+  "change equipment status",
+  "update status code equipment",
+  "fix equipment status"
+ ],
+ "csg-how-to/equipment-status/s2": [
+  "equipment in r status",
+  "sales rep status equipment",
+  "r status equipment",
+  "equipment showing sales rep"
+ ],
+ "csg-how-to/equipment-status/s3": [
+  "equipment in s status",
+  "stock shelved status",
+  "s status equipment",
+  "equipment shows shelved"
+ ],
+ "csg-how-to/customer-owned-equipment": [
+  "customer owned equipment",
+  "einstein add device",
+  "cx bought own modem",
+  "activate customer owned modem",
+  "byo modem",
+  "add own modem",
+  "emta customer owned",
+  "einstien"
+ ],
+ "csg-how-to/customer-owned-equipment/s0": [
+  "open add device einstein",
+  "where is add device einstein",
+  "einstein add device screen"
+ ],
+ "csg-how-to/customer-owned-equipment/s1": [
+  "add customer owned cable modem",
+  "cx owned modem einstein",
+  "activate own cable modem",
+  "bought modem at best buy"
+ ],
+ "csg-how-to/customer-owned-equipment/s2": [
+  "customer owned emta",
+  "own modem with phone",
+  "emta einstein",
+  "voice modem customer owned"
+ ],
+ "csg-how-to/customer-owned-equipment/s3": [
+  "activate customer device",
+  "add and activate own modem",
+  "finish activating customer modem",
+  "own modem not activating"
+ ],
+ "csg-how-to/csg-icons": [
+  "csg icons",
+  "what does this icon mean",
+  "csg symbols",
+  "icon meanings csg",
+  "csg buttons",
+  "icon guide"
+ ],
+ "csg-how-to/csg-icons/s0": [
+  "where are the icons",
+  "find icons csg",
+  "where icons are in csg"
+ ],
+ "csg-how-to/csg-icons/s1": [
+  "toolbar icons",
+  "csg toolbar",
+  "toolbar buttons meaning"
+ ],
+ "csg-how-to/csg-icons/s2": [
+  "account information window icons",
+  "icons account info",
+  "account information icons"
+ ],
+ "csg-how-to/csg-icons/s3": [
+  "billing window icons",
+  "billing icons",
+  "icons on billing screen"
+ ],
+ "csg-how-to/csg-icons/s4": [
+  "order history icons",
+  "order history icon meaning",
+  "order history csg"
+ ],
+ "csg-how-to/csg-icons/s5": [
+  "location icons",
+  "location icon csg",
+  "icons location screen"
+ ],
+ "csg-how-to/csg-icons/s6": [
+  "customer equipment icons",
+  "customer services icons",
+  "equipment and services icons"
+ ],
+ "csg-how-to/csg-icons/s7": [
+  "customer central icons",
+  "action icons customer central",
+  "customer central buttons"
+ ],
+ "csg-how-to/csg-icons/s8": [
+  "work order icons",
+  "work order icon meaning",
+  "wo icons"
+ ],
+ "csg-how-to/csg-icons/s9": [
+  "navigation icons",
+  "csg navigation buttons",
+  "nav icons"
+ ],
+ "csg-how-to/lob-icons": [
+  "line of business icons",
+  "lob icons",
+  "what is lob",
+  "line of business labels",
+  "video data voice icons",
+  "lob csg"
+ ],
+ "csg-how-to/lob-icons/s0": [
+  "lines of business",
+  "what are lines of business",
+  "lob list"
+ ],
+ "csg-how-to/lob-icons/s1": [
+  "lob labels by screen",
+  "lob labels",
+  "lob names per screen"
+ ],
+ "csg-how-to/lob-icons/s2": [
+  "lob customer central",
+  "customer central lob icons",
+  "lob icons customer central screen"
+ ],
+ "csg-how-to/lob-icons/s3": [
+  "lob account information screen",
+  "account info lob",
+  "lob icons account information"
+ ],
+ "csg-how-to/lob-icons/s4": [
+  "lob available campaigns",
+  "campaign lob icons",
+  "available campaigns icons"
+ ],
+ "csg-how-to/lob-icons/s5": [
+  "lob disconnect window",
+  "disconnect window icons",
+  "disconnect lob"
+ ],
+ "csg-how-to/lob-icons/s6": [
+  "lob location information",
+  "location information screen lob",
+  "lob icons location screen"
+ ],
+ "csg-how-to/lob-icons/s7": [
+  "lob ledger",
+  "ledger statement icons",
+  "lob statements"
+ ]
+}

@@ -1,0 +1,1273 @@
+[
+ {
+  "q": "how 2 add shield",
+  "expect": [
+   "csg-how-to/shield-select/s0",
+   "csg-how-to/shield-select"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "customer wants esim",
+  "expect": [
+   "tool/esim-activation",
+   "esim-activation/s0",
+   "esim-activation/qr-codes"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "where do i print the google review card",
+  "expect": [
+   "printouts/google-review-print-out"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "porting from tmobile",
+  "expect": [
+   "porting-guide/t-mobile"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "open store celestial",
+  "expect": [
+   "training-pos/open-drawer"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "commission",
+  "expect": [
+   "tool/commission-payouts"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "how much do i make",
+  "expect": [
+   "tool/commission-payouts"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "dsr",
+  "expect": [
+   "tool/daily-sales"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "play a game",
+  "expect": [
+   "tool/arcade"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "what's for lunch",
+  "expect": "none",
+  "split": "tune"
+ },
+ {
+  "q": "add shield in csg",
+  "expect": [
+   "csg-how-to/shield-select/s0",
+   "csg-how-to/shield-select"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "add a second phone line",
+  "expect": [
+   "csg-how-to/voice-add-line/s0"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "transfer of service",
+  "expect": [
+   "csg-how-to/transfer-service",
+   "csg-how-to/transfer-service/s0"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "reset csg password",
+  "expect": [
+   "bp-access/csg-password",
+   "bp-access/csg-password/s0"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "request celestial access",
+  "expect": [
+   "bp-access/celestial",
+   "bp-access/celestial/s0"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "how do i close the store",
+  "expect": [
+   "training-pos/close-drawer",
+   "training-pos/settle-drawer"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "close out drawer",
+  "expect": [
+   "training-pos/close-drawer"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "fund the drawer",
+  "expect": [
+   "training-pos/fund-drawer"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "tender count",
+  "expect": [
+   "training-pos/tender-count"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "how do i do a return in celestial",
+  "expect": [
+   "training-pos/return-steps"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "ring up a sale",
+  "expect": [
+   "training-pos/sale-steps"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "checkout a customer pos",
+  "expect": [
+   "training-pos/sale-steps"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "check in a guest",
+  "expect": [
+   "training-pos/checkin-member",
+   "training-pos/checkin-prospect"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "check in walk in customer",
+  "expect": [
+   "training-pos/checkin-prospect",
+   "training-pos/checkin-member"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "book an appt",
+  "expect": [
+   "training-pos/appointment"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "make appointment for customer",
+  "expect": [
+   "training-pos/appointment"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "techspot ticket pos broken",
+  "expect": [
+   "training-pos/pos-help"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "pos not working",
+  "expect": [
+   "training-pos/pos-help"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "launch back office",
+  "expect": [
+   "training-pos/launch-backoffice"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "end a session",
+  "expect": [
+   "training-pos/session-end"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "transfer session to another rep",
+  "expect": [
+   "training-pos/session-end"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "mercury assistant",
+  "expect": [
+   "training-pos/cs-mercury",
+   "training-pos/cs-ama",
+   "training-pos/cs-agentic"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "customer space lookup account",
+  "expect": [
+   "training-pos/cs-lookup"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "online order pickup",
+  "expect": [
+   "bapis/s2",
+   "tool/bapis"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "how to pack a bapis order",
+  "expect": [
+   "bapis/s1"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "scan and pack",
+  "expect": [
+   "bapis/s1"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "unpack order nobody picked up",
+  "expect": [
+   "bapis/s5"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "customer never came for online order",
+  "expect": [
+   "bapis/s5"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "reprint packing slip",
+  "expect": [
+   "bapis/s7"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "where are the bapis orders",
+  "expect": [
+   "bapis/s0"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "two orders one account bapis",
+  "expect": [
+   "bapis/s3"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "account owner required pickup",
+  "expect": [
+   "bapis/s6"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "bopis",
+  "expect": [
+   "tool/bapis"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "customer doesnt have pickup code",
+  "expect": [
+   "bapis/s2",
+   "bapis/tips"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "esim qr code",
+  "expect": [
+   "esim-activation/s0",
+   "esim-activation/qr-codes"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "esim wont download",
+  "expect": [
+   "esim-activation/s6",
+   "esim-activation/s7"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "manual esim code samsung",
+  "expect": [
+   "esim-activation/s6"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "activate apple watch",
+  "expect": [
+   "esim-activation/s13"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "smartwatch activation",
+  "expect": [
+   "esim-activation/s13"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "activate phone in xm360",
+  "expect": [
+   "esim-activation/s4"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "quick transfer old phone to new",
+  "expect": [
+   "esim-activation/s3"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "customer deleted their esim",
+  "expect": [
+   "esim-activation/s11"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "switch psim to esim",
+  "expect": [
+   "esim-activation/s10"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "sim card not working",
+  "expect": [
+   "esim-activation/s9"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "phone says sos only",
+  "expect": [
+   "esim-activation/s9",
+   "esim-activation/s8",
+   "esim-activation/s7",
+   "esim-activation/tips"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "insurance replacement phone activate",
+  "expect": [
+   "esim-activation/s5"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "byo200 error",
+  "expect": [
+   "esim-activation/s8"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "activation error",
+  "expect": [
+   "esim-activation/s8"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "activate in xfinity app",
+  "expect": [
+   "esim-activation/s1"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "customer wants to activate themselves",
+  "expect": [
+   "esim-activation/s14"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "new line setup on phone",
+  "expect": [
+   "esim-activation/s2"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "e-sim",
+  "expect": [
+   "tool/esim-activation"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "internet essentials",
+  "expect": [
+   "tool/internet-essentials"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "ie application",
+  "expect": [
+   "tool/internet-essentials",
+   "internet-essentials/s1"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "sales id ie so i get paid",
+  "expect": [
+   "internet-essentials/s0"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "ie income limits",
+  "expect": [
+   "internet-essentials/s11"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "does school lunch qualify for ie",
+  "expect": [
+   "internet-essentials/s3"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "upgrade ie to ie plus",
+  "expect": [
+   "internet-essentials/s8"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "ie selfie upload",
+  "expect": [
+   "internet-essentials/s6"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "internet essentials spanish",
+  "expect": [
+   "internet-essentials/s9"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "ie price",
+  "expect": [
+   "internet-essentials/s10"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "ie rate codes",
+  "expect": [
+   "internet-essentials/s13"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "confirm ie order in csg",
+  "expect": [
+   "internet-essentials/s5"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "low income internet",
+  "expect": [
+   "tool/internet-essentials"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "getting started kit",
+  "expect": [
+   "internet-essentials/s7",
+   "csg-how-to/gsk-send"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "port in from verizon",
+  "expect": [
+   "porting-guide/verizon"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "att transfer pin",
+  "expect": [
+   "porting-guide/att/pin",
+   "porting-guide/att"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "cricket account number",
+  "expect": [
+   "porting-guide/cricket-wireless/account",
+   "porting-guide/cricket-wireless"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "metro pcs port",
+  "expect": [
+   "porting-guide/metro-by-t-mobile"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "visible port out pin",
+  "expect": [
+   "porting-guide/visible/pin",
+   "porting-guide/visible"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "google voice number transfer",
+  "expect": [
+   "porting-guide/google-voice"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "portpro",
+  "expect": [
+   "tool/porting-guide"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "customer wants to keep their number",
+  "expect": [
+   "tool/porting-guide"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "straight talk pin",
+  "expect": [
+   "porting-guide/straight-talk/pin",
+   "porting-guide/straight-talk"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "boost mobile port",
+  "expect": [
+   "porting-guide/boost-mobile"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "spectrum mobile account number",
+  "expect": [
+   "porting-guide/spectrum-mobile/account",
+   "porting-guide/spectrum-mobile"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "open the dsr",
+  "expect": [
+   "tool/daily-sales"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "daily sales report",
+  "expect": [
+   "tool/daily-sales"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "log my sales",
+  "expect": [
+   "tool/daily-sales"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "wtw",
+  "expect": [
+   "tool/wtw-chicago",
+   "tool/wtw-big-south"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "win the weekend big south",
+  "expect": [
+   "tool/wtw-big-south"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "wtw chicago",
+  "expect": [
+   "tool/wtw-chicago"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "tsheet",
+  "expect": [
+   "tool/tsheet-submissions"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "t sheets",
+  "expect": [
+   "tool/tsheet-submissions"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "nps score",
+  "expect": [
+   "tool/nps"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "detractors",
+  "expect": [
+   "tool/nps"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "quote sheet",
+  "expect": [
+   "tool/quote-6th-gen"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "6th gen",
+  "expect": [
+   "tool/quote-6th-gen"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "upgrade quote",
+  "expect": [
+   "tool/quote-upgrade"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "how to use the 6th gen quote sheet video",
+  "expect": [
+   "tool/quote-6th-gen-how-to",
+   "video/quote-6th-gen-how-to"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "upgrade quote sheet video",
+  "expect": [
+   "tool/quote-upgrade-how-to",
+   "video/quote-upgrade-how-to"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "internet pricing calculator",
+  "expect": [
+   "tool/quote-internet"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "byod quote",
+  "expect": [
+   "tool/quote-6th-gen"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "credit limit increase",
+  "expect": [
+   "tool/credit-limit"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "customer needs more lines than credit allows",
+  "expect": [
+   "tool/credit-limit"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "exception report",
+  "expect": [
+   "tool/exception-report"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "fall off",
+  "expect": [
+   "tool/fall-off"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "chargebacks",
+  "expect": [
+   "tool/fall-off"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "print outs",
+  "expect": [
+   "tool/printouts"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "channel lineup",
+  "expect": [
+   "printouts/channel-line-up"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "now latino channels",
+  "expect": [
+   "printouts/now-tv-now-latino-channel-guide"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "whole home bundle flyer",
+  "expect": [
+   "printouts/whole-home-bundle-xfinity"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "welcome kit",
+  "expect": [
+   "printouts/welcome-kit-xfinity"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "brinks log",
+  "expect": [
+   "printouts/brinks-pick-up-log"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "employee handbook",
+  "expect": [
+   "printouts/employee-handbook-jan-2026"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "start stop qr cards",
+  "expect": [
+   "printouts/nps-start-stop-qr-codes"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "nps text card spanish",
+  "expect": [
+   "printouts/nps-text-template-spanish"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "sign in sheet",
+  "expect": [
+   "printouts/welcome-sign-in-sheet-xfinity"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "daily menu sales tracker",
+  "expect": [
+   "printouts/daily-menu-sales-tracker-pdf"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "suggestion box",
+  "expect": [
+   "tool/suggestion-box"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "i have an idea",
+  "expect": [
+   "tool/suggestion-box"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "anonymous complaint",
+  "expect": [
+   "tool/suggestion-box"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "hourly rate",
+  "expect": [
+   "tool/rep-hourly-rate"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "what is my hourly with commission",
+  "expect": [
+   "tool/rep-hourly-rate"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "site tour",
+  "expect": [
+   "tool/site-tour",
+   "video/site-tour"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "im new where do i start",
+  "expect": [
+   "tool/site-tour",
+   "video/site-tour",
+   "video/site-tour/intro"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "product training quiz",
+  "expect": [
+   "tool/training-xfinity"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "yesterdays conversion",
+  "expect": [
+   "tool/yesterdays-conversion"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "casino",
+  "expect": [
+   "game/casino"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "home run derby",
+  "expect": [
+   "game/windy-city-derby"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "fox run",
+  "expect": [
+   "game/fox-run"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "locked out of einstein",
+  "expect": [
+   "bp-access/einstein-360",
+   "bp-access/einstein-360/s0"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "need xm360 access",
+  "expect": [
+   "bp-access/xm360",
+   "bp-access/xm360/s0"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "csg how to",
+  "expect": [
+   "tool/csg-how-to"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "how to move service to new address",
+  "expect": [
+   "csg-how-to/transfer-service",
+   "csg-how-to/transfer-service/s0"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "add voice csg",
+  "expect": [
+   "csg-how-to/voice-install",
+   "csg-how-to/voice-install/s0"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "swap gateway in csg",
+  "expect": [
+   "csg-how-to/equipment-move",
+   "csg-how-to/equipment-add-existing/s0"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "change billing address csg",
+  "expect": [
+   "csg-how-to/billing-address-change",
+   "csg-how-to/billing-address-change/s0"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "comission",
+  "expect": [
+   "tool/commission-payouts"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "celestail job aid",
+  "expect": [
+   "tool/training-pos"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "retail 360 open store",
+  "expect": [
+   "training-pos/open-drawer"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "portng tmobil",
+  "expect": [
+   "porting-guide/t-mobile"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "spiffs",
+  "expect": [
+   "tool/commission-payouts"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "whats the weather",
+  "expect": "none",
+  "split": "holdout"
+ },
+ {
+  "q": "tell me a joke",
+  "expect": "none",
+  "split": "tune"
+ },
+ {
+  "q": "who won the bears game",
+  "expect": "none",
+  "split": "tune"
+ },
+ {
+  "q": "best pizza near me",
+  "expect": "none",
+  "split": "holdout"
+ },
+ {
+  "q": "asdfgh",
+  "expect": "none",
+  "split": "tune"
+ },
+ {
+  "q": "what time is it",
+  "expect": "none",
+  "split": "tune"
+ },
+ {
+  "q": "song lyrics",
+  "expect": "none",
+  "split": "holdout"
+ },
+ {
+  "q": "i am bored and hungry",
+  "expect": "none",
+  "split": "tune"
+ },
+ {
+  "q": "recipe for chicken",
+  "expect": "none",
+  "split": "tune"
+ },
+ {
+  "q": "how old is the president",
+  "expect": "none",
+  "split": "holdout"
+ },
+ {
+  "q": "bitcoin price",
+  "expect": "none",
+  "split": "tune"
+ },
+ {
+  "q": "meaning of life",
+  "expect": "none",
+  "split": "tune"
+ },
+ {
+  "q": "qwerty zxcv",
+  "expect": "none",
+  "split": "holdout"
+ },
+ {
+  "q": "movie tonight",
+  "expect": "none",
+  "split": "tune"
+ },
+ {
+  "q": "manager tools",
+  "expect": "none",
+  "split": "tune",
+  "freezer": true
+ },
+ {
+  "q": "walk-in freezer",
+  "expect": "none",
+  "split": "holdout",
+  "freezer": true
+ },
+ {
+  "q": "keypad code",
+  "expect": "none",
+  "split": "tune",
+  "freezer": true
+ },
+ {
+  "q": "premium channels csg",
+  "expect": [
+   "csg-how-to/premium-new-tv"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "add hbo",
+  "expect": [
+   "csg-how-to/premium-new-tv"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "now tv order in csg",
+  "expect": [
+   "csg-how-to/nowtv-add"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "kwikset smart lock",
+  "expect": [
+   "csg-how-to/smart-entry"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "restart an account",
+  "expect": [
+   "csg-how-to/restart-account"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "new connect csg",
+  "expect": [
+   "csg-how-to/new-connect"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "pro install",
+  "expect": [
+   "csg-how-to/pro-install"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "equipment status codes",
+  "expect": [
+   "csg-how-to/equipment-status"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "port home phone number csg",
+  "expect": [
+   "csg-how-to/tn-port/s0",
+   "csg-how-to/number-porting"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "hub2u profile",
+  "expect": [
+   "bp-access/hub2u",
+   "bp-access/hub2u/s0"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "ecm access",
+  "expect": [
+   "bp-access/ecm",
+   "bp-access/ecm/s0"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "neptune access",
+  "expect": [
+   "bp-access/neptune",
+   "bp-access/neptune/s0"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "wifi extenders",
+  "expect": [
+   "csg-how-to/wifi-extenders"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "seasonal plan",
+  "expect": [
+   "csg-how-to/seasonal-signup"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "how much pto do i get",
+  "expect": [
+   "printouts/employee-handbook/10.1"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "dress code",
+  "expect": [
+   "printouts/employee-handbook/5.7"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "when is payday",
+  "expect": [
+   "printouts/employee-handbook/5.8"
+  ],
+  "split": "holdout"
+ },
+ {
+  "q": "blackjack",
+  "expect": [
+   "game/casino/blackjack"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "upgrade trade in video",
+  "expect": [
+   "video/quote-upgrade-how-to/step-4"
+  ],
+  "split": "tune"
+ },
+ {
+  "q": "change tv box csg",
+  "expect": [
+   "csg-how-to/equipment-move",
+   "csg-how-to/equipment-add-existing/s0",
+   "csg-how-to/equipment-add-cos/s0"
+  ],
+  "split": "holdout"
+ }
+]

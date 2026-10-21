@@ -618,4 +618,22 @@ export async function boot() {
 
   // A tiny handle for debugging in a store, matching the cinema's window.CCC.
   window.CCC = Object.assign(window.CCC || {}, { view: 'pocket', data, render });
+
+  /* ASK THE CHEF (Oct 2026) — the bell, on the phone too ([stated] "a floating
+     button that follows through every room AND the phone"). Loaded AFTER the
+     list is on screen and only once the main thread is idle, so the two-second
+     list is still a two-second list; a 404 here costs the bell and nothing
+     else. The engine and the index wait for the first tap (ask.js header). */
+  const idle = window.requestIdleCallback || ((f) => setTimeout(f, 600));
+  idle(() => {
+    import('./ask.js')
+      .then(async (mod) => {
+        await mod.loadStyles();
+        window.CCC.ask = mod.mountAsk({
+          data, view: 'pocket',
+          isLocked: () => !isFreezerUnlocked() && sealedCount() > 0
+        });
+      })
+      .catch((err) => console.error('[ask] did not load; the list works without it.', err));
+  });
 }

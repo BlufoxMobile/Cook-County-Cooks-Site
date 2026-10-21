@@ -1,0 +1,966 @@
+{
+ "tool/bapis": [
+  "bapis",
+  "how do i do a bapis order",
+  "customer ordered online picking up in store",
+  "buy online pick up in store",
+  "web order pickup how",
+  "lady ordered on the website and is here to pick it up",
+  "where do online orders show up in celestial",
+  "scan and pack guide",
+  "online order pickup steps",
+  "bopis order xfinity"
+ ],
+ "bapis/s0": [
+  "where do i find bapis orders",
+  "how do i see online pickup orders",
+  "where are the pickups in store space",
+  "cant find the web order in celestial",
+  "pickup queue where",
+  "new pickup order received where is it",
+  "list of online orders waiting",
+  "find bapis order"
+ ],
+ "bapis/s1": [
+  "how do i pack a bapis order",
+  "scan and pack online order",
+  "ready to pack queue",
+  "pack the web order before customer gets here",
+  "how early do i pack the pickup order",
+  "scanning items into the bapis bag",
+  "order sitting in ready to pack",
+  "pack order for pickup"
+ ],
+ "bapis/s2": [
+  "customer here to pick up online order",
+  "how do i complete a pickup",
+  "complete bapis pickup",
+  "where do i enter the pickup code",
+  "guy has his pickup code now what",
+  "hand over online order",
+  "scan packing slip and get signature",
+  "process payment on pickup order",
+  "bapis pickup steps",
+  "customer picking up phone they bought online"
+ ],
+ "bapis/s3": [
+  "two bapis orders one account",
+  "customer has a mobile order and an internet order to pick up",
+  "two banners on bapis pickup",
+  "xm order and core order same customer",
+  "two bags two pickups",
+  "phone and modem ordered online separate pickups"
+ ],
+ "bapis/s4": [
+  "exit and resume pickup",
+  "had to leave a bapis pickup halfway",
+  "how do i get back to a pickup i started",
+  "resume bapis pickup",
+  "cancelled out of pickup by mistake",
+  "come back to pickup later"
+ ],
+ "bapis/s5": [
+  "unpack order nobody picked up",
+  "customer never came for online order",
+  "unpack queue",
+  "order not picked up after four days",
+  "put unclaimed bapis back on shelf",
+  "how do i unpack a bapis order",
+  "abandoned online order what do i do"
+ ],
+ "bapis/s6": [
+  "account owner required error",
+  "wife trying to pick up husbands phone order",
+  "bapis owner required",
+  "only primary can pick up mobile order",
+  "someone else picking up xm order",
+  "authorized user cant pick up phone order",
+  "error during pickup says owner required"
+ ],
+ "bapis/s7": [
+  "reprint bapis receipt",
+  "reprint packing slip",
+  "bapis not working who do i call",
+  "techspot ticket for bapis",
+  "bapis broken report issue",
+  "customer needs receipt for pickup order",
+  "help with bapis error"
+ ],
+ "bapis/before": [
+  "bapis basics",
+  "what are the bapis queues",
+  "ready to pack packed unpack meaning",
+  "who can pick up an online order",
+  "can an authorized user pick up internet order",
+  "how long do they have to pick up online order",
+  "core and mobile ordered together how many bags",
+  "before you start bapis"
+ ],
+ "bapis/tips": [
+  "customer didnt get pickup code",
+  "pickup code never came",
+  "where does the pickup code get sent",
+  "entered wrong pickup code too many times",
+  "wrong pickup code cancels order",
+  "pickup code goes to what email",
+  "bapis tips",
+  "bapis training ulearn"
+ ],
+ "tool/internet-essentials": [
+  "internet essentials",
+  "ie application",
+  "how do i sign someone up for ie",
+  "customer needs cheap internet low income",
+  "lady cant afford internet any discount",
+  "ie portal",
+  "internet essentials agent portal",
+  "affordable internet program",
+  "sign up for ie plus",
+  "customer on snap wants internet"
+ ],
+ "internet-essentials/s0": [
+  "ie sales id",
+  "how do i get paid for ie",
+  "set my sales id in ie portal",
+  "ie portal login",
+  "where do i put my sales id internet essentials",
+  "ie sale not credited to me",
+  "update sales id ie",
+  "cant log into ie portal"
+ ],
+ "internet-essentials/s1": [
+  "ie address and identity",
+  "ie application asks for ssn",
+  "ie verify identity",
+  "ie one time passcode",
+  "customer doesnt want to give social for ie",
+  "ie service address step",
+  "ie date of birth screen",
+  "ie application start screen"
+ ],
+ "internet-essentials/s2": [
+  "ie or ie plus which plan",
+  "choose ie plan",
+  "where do i put sponsor code ie",
+  "ie promo code",
+  "pick internet essentials plus in portal",
+  "ie plus toggle"
+ ],
+ "internet-essentials/s3": [
+  "how does a customer qualify for ie",
+  "ie qualify household",
+  "ie kids school approval",
+  "upload proof of income ie",
+  "ie eligibility document",
+  "customer has medicaid does that qualify for ie",
+  "ie approved on the spot",
+  "what programs qualify for internet essentials"
+ ],
+ "internet-essentials/s4": [
+  "ie installation options",
+  "ie self install or pickup",
+  "ie ship the kit",
+  "ie review and submit",
+  "ie pick up equipment in store",
+  "ie install appointment time",
+  "submit ie order"
+ ],
+ "internet-essentials/s5": [
+  "ie order worklisted",
+  "check ie order made it to csg",
+  "ie approved but no account number",
+  "ie order never went through",
+  "ie application id search",
+  "verify ie in csg",
+  "ie account number blank",
+  "did my ie sale count"
+ ],
+ "internet-essentials/s6": [
+  "ie upload documents",
+  "ie selfie with id",
+  "customer needs to upload docs for ie at home",
+  "how does cx upload proof for ie",
+  "ie take photo of id",
+  "ie resume application upload later",
+  "ie camera wont open for selfie",
+  "ie document upload from phone"
+ ],
+ "internet-essentials/s7": [
+  "rush ie document review",
+  "verify id in store for ie",
+  "ie getting started kit hand out",
+  "ie gsk in store",
+  "ie escalation ecm",
+  "ie stuck in review",
+  "give customer ie kit",
+  "ie case management"
+ ],
+ "internet-essentials/s8": [
+  "upgrade ie to ie plus",
+  "existing ie customer wants faster speed",
+  "ie plus upgrade in csg",
+  "move ie customer to ie plus",
+  "change of service ie plus",
+  "ie customer wants more speed"
+ ],
+ "internet-essentials/s9": [
+  "ie application in spanish",
+  "ie other languages",
+  "ie asl",
+  "customer only speaks spanish ie",
+  "translate ie application",
+  "ie sign language help",
+  "internet essentials en espanol"
+ ],
+ "internet-essentials/s10": [
+  "how much is internet essentials",
+  "ie price",
+  "ie plus price",
+  "ie speeds",
+  "ie fees",
+  "does ie have a modem fee",
+  "ie laptop price",
+  "ie late fee",
+  "ie install cost",
+  "ie data cap",
+  "ie tech visit charge"
+ ],
+ "internet-essentials/s11": [
+  "ie income limits",
+  "how much can they make for ie",
+  "ie income chart",
+  "household income internet essentials",
+  "poverty level ie",
+  "ie family of four income",
+  "qualify on income alone ie"
+ ],
+ "internet-essentials/s12": [
+  "ie phone number",
+  "internet essentials customer number",
+  "ie team contact",
+  "dell number for ie laptop",
+  "ie spanish phone line",
+  "who do i call for ie",
+  "ie support contact"
+ ],
+ "internet-essentials/s13": [
+  "ie rate codes csg",
+  "what does ie hsd pnd mean",
+  "ie codes on account",
+  "ie gsk pending code",
+  "ie bulk codes",
+  "ie mdu bulk tenant",
+  "rate code reference ie"
+ ],
+ "internet-essentials/s14": [
+  "ie celestial articles",
+  "internet essentials knowledge articles",
+  "ie source articles",
+  "ie policy article",
+  "where is ie info in celestial",
+  "is this ie info up to date"
+ ],
+ "internet-essentials/before": [
+  "ie before you start",
+  "ie portal wont load",
+  "ie portal only on retail wifi",
+  "ie need vpn",
+  "who qualifies for ie quick check",
+  "had internet recently can they get ie",
+  "ie refreshed page lost application",
+  "ie customer owes comcast money",
+  "what do i need before ie application"
+ ],
+ "internet-essentials/tips": [
+  "can ie be bundled",
+  "ie customer moving",
+  "ie transfer new address",
+  "ie amnesty",
+  "ie old debt forgiven",
+  "ie application status",
+  "how long does ie approval take",
+  "can ie customer add tv",
+  "ie customer wants flex",
+  "ie dell laptop",
+  "ie own modem"
+ ],
+ "tool/esim-activation": [
+  "esim activation",
+  "how do i activate an esim",
+  "activate xm phone",
+  "new phone wont activate",
+  "esim guide",
+  "activate phone on xfinity mobile",
+  "activate tablet or watch xm",
+  "esim not working",
+  "sim card activation xm"
+ ],
+ "esim-activation/s0": [
+  "esim qr code",
+  "where is the esim qr",
+  "qr code to activate phone",
+  "show customer the qr code full screen",
+  "xfinity app qr code",
+  "self activation qr",
+  "scan qr to download esim"
+ ],
+ "esim-activation/qr-codes": [
+  "esim download qr code",
+  "qr for xfinity app",
+  "in store self activation qr",
+  "activation qr codes",
+  "qr code esim server",
+  "what does each activation qr open"
+ ],
+ "esim-activation/s1": [
+  "activate in xfinity app",
+  "new phone existing line app",
+  "customer upgraded phone activate in app",
+  "how does cx activate new phone themselves",
+  "activate xfinity mobile device in app",
+  "bought phone elsewhere activate on existing line",
+  "app activation steps"
+ ],
+ "esim-activation/s2": [
+  "new line activation",
+  "set up new line on phone",
+  "new line no app",
+  "activate new line iphone",
+  "samsung new line esim setup",
+  "set xfinity as default line",
+  "new line pixel setup",
+  "new line motorola setup",
+  "where does number port happen new line"
+ ],
+ "esim-activation/s3": [
+  "quick transfer",
+  "transfer esim old phone to new phone",
+  "iphone to iphone transfer number",
+  "android to android esim transfer",
+  "customer has old phone with them move line",
+  "transfer from nearby iphone",
+  "move sim to new phone without app"
+ ],
+ "esim-activation/s4": [
+  "activate in xm360",
+  "xm360 activation",
+  "byod activation xm360",
+  "app activation failed activate for customer",
+  "verification status not started xm360",
+  "no seasoned contact",
+  "id proofing ipad activation",
+  "activate device for customer in store"
+ ],
+ "esim-activation/s5": [
+  "insurance replacement phone activate",
+  "assurant replacement",
+  "warranty replacement phone",
+  "oem replacement activate",
+  "replacement device from apple",
+  "xmc claim replacement phone",
+  "replacement phone not activating",
+  "convert to byo replacement"
+ ],
+ "esim-activation/s6": [
+  "esim wont download",
+  "enter esim manually",
+  "manual esim code",
+  "sm-dp address",
+  "lpa code",
+  "customer only has one phone cant scan qr",
+  "esim code samsung",
+  "manual code iphone esim",
+  "type in esim activation code"
+ ],
+ "esim-activation/s7": [
+  "troubleshoot esim xm360",
+  "manage sim troubleshooting",
+  "network status red",
+  "reissue esim",
+  "esim downloaded but no service",
+  "phone no service after activation",
+  "xm360 network status meaning",
+  "turn line off and on esim"
+ ],
+ "esim-activation/s8": [
+  "activation error message",
+  "system error activating phone",
+  "timeout during activation",
+  "iphone stuck on sos",
+  "activation keeps failing",
+  "esim error in buy flow",
+  "error activating xm"
+ ],
+ "esim-activation/s9": [
+  "no sim card error",
+  "insert sim card message",
+  "physical sim not working",
+  "bad sim card",
+  "ship a new sim card",
+  "defective sim",
+  "sos on phone with sim card",
+  "swap sim card in store",
+  "clean sim card"
+ ],
+ "esim-activation/s10": [
+  "switch psim to esim",
+  "convert sim card to esim",
+  "change physical sim to esim same phone",
+  "customer wants esim instead of sim card",
+  "convert to esim iphone",
+  "switch sim activation type"
+ ],
+ "esim-activation/s11": [
+  "deleted esim",
+  "customer deleted esim by accident",
+  "recover esim",
+  "no service after deleting esim",
+  "get a new esim",
+  "esim erased",
+  "how to redownload esim"
+ ],
+ "esim-activation/s12": [
+  "delete esim",
+  "how to remove esim",
+  "factory reset keep esim",
+  "sim transferred error",
+  "remove esim before replace sim",
+  "customer wants to reset phone will they lose service",
+  "erase phone keep esim",
+  "trade in phone delete esim"
+ ],
+ "esim-activation/s13": [
+  "activate apple watch",
+  "smartwatch activation",
+  "activate galaxy watch",
+  "watch wont activate",
+  "add watch line xm360",
+  "paired watch activation",
+  "how long does watch activation take",
+  "watch needs own number"
+ ],
+ "esim-activation/s14": [
+  "customer self activation",
+  "self activate in store",
+  "let customer activate while i help next guest",
+  "self activation handouts",
+  "reorder self activation flyers",
+  "community table activation"
+ ],
+ "esim-activation/s15": [
+  "who can activate",
+  "can store do byod",
+  "can i do psim to esim in store",
+  "can i convert esim to psim",
+  "who can do early upgrade activation",
+  "what can retail do for esim",
+  "esim permissions"
+ ],
+ "esim-activation/s16": [
+  "esim celestial articles",
+  "esim source articles",
+  "esim knowledge articles",
+  "activation article celestial",
+  "esim celestial how to articles",
+  "where did this esim info come from"
+ ],
+ "esim-activation/before": [
+  "before activating phone what do i need",
+  "esim prerequisites",
+  "porting number need account number and pin",
+  "byod imei check",
+  "phone locked to other carrier",
+  "number lock on cant activate",
+  "member cant activate other line",
+  "wifi needed for esim"
+ ],
+ "esim-activation/tips": [
+  "how long does activation take",
+  "esim to psim",
+  "customer wants sim card not esim",
+  "psim option greyed out",
+  "activation fee",
+  "when does billing start for new phone",
+  "dual sim other carrier",
+  "can phone scan its own qr",
+  "deleting esim cancel plan",
+  "now mobile activation"
+ ],
+ "tool/training-pos": [
+  "celestial job aid",
+  "how do i use celestial",
+  "celestial training",
+  "pos job aid",
+  "celestial store space help",
+  "how to use new register",
+  "celestial pos how to",
+  "retail360 replacement guide",
+  "new system training"
+ ],
+ "training-pos/overview": [
+  "what is store space",
+  "what does celestial store space do",
+  "celestial store space overview",
+  "what can i do in store space",
+  "store space basics",
+  "what is celestial",
+  "what replaced the old store queue tool"
+ ],
+ "training-pos/overview-2": [
+  "what does the celestial job aid cover",
+  "celestial job aid sections",
+  "can i sell services in pos",
+  "pos scope",
+  "job aid overview",
+  "what parts are in the celestial guide"
+ ],
+ "training-pos/queue": [
+  "celestial queue",
+  "queue home screen",
+  "store queue celestial",
+  "how do i see whos waiting",
+  "guests vs calendar tab",
+  "switch store in celestial",
+  "queue columns",
+  "where is the check in button"
+ ],
+ "training-pos/queue-appointments": [
+  "todays appointments celestial",
+  "appointments screen",
+  "see todays appts",
+  "who has an appointment today",
+  "appointment list in queue",
+  "is the appointment a new or existing customer",
+  "upcoming appts screen"
+ ],
+ "training-pos/queue-waiting": [
+  "waiting screen",
+  "how long has guest been waiting",
+  "waiting list celestial",
+  "who is waiting in store",
+  "guest wait time",
+  "customers waiting how long",
+  "waiting column"
+ ],
+ "training-pos/queue-inprogress": [
+  "in progress screen",
+  "which rep has which customer",
+  "who is helping that guest",
+  "in progress column",
+  "guests being helped right now",
+  "session start time for guest",
+  "is someone already helping this customer"
+ ],
+ "training-pos/checkin-member": [
+  "check in existing customer",
+  "check in xfinity member",
+  "add customer to queue",
+  "check in member celestial",
+  "customer walked in already has xfinity",
+  "how do i check someone in",
+  "checkin existing acct"
+ ],
+ "training-pos/checkin-prospect": [
+  "check in new customer",
+  "check in prospect",
+  "walk in doesnt have xfinity",
+  "serviceability check at check in",
+  "check in prospective customer",
+  "new customer check in celestial"
+ ],
+ "training-pos/checkin-cb": [
+  "check in comcast business customer",
+  "business customer walked in",
+  "comcast business checkin",
+  "cb customer in store",
+  "business account walk in check in",
+  "small business customer check in",
+  "check in cb guest"
+ ],
+ "training-pos/appointment": [
+  "create appointment celestial",
+  "book appointment for customer",
+  "schedule appt",
+  "customer wants to come back tomorrow",
+  "make a future appointment",
+  "how do i book an appt",
+  "set up appointment in store space"
+ ],
+ "training-pos/details": [
+  "customer details screen",
+  "what does details screen show",
+  "see why customer came in",
+  "how do i find the guest in the store",
+  "customer notes celestial",
+  "visit reason check in",
+  "attach account to check in"
+ ],
+ "training-pos/details-ai": [
+  "account review opportunity",
+  "recommended actions banner",
+  "ai deals for member",
+  "ai powered interaction",
+  "account review opportunity banner what is it",
+  "swivel to csg for personalized deals",
+  "member has better deal available"
+ ],
+ "training-pos/details-insights": [
+  "acquisition insights",
+  "ai insights prospect",
+  "likely to buy",
+  "edge out the competition",
+  "insights not showing",
+  "competitor info for prospect",
+  "persona for new customer"
+ ],
+ "training-pos/session-start": [
+  "start a session",
+  "how do i start session celestial",
+  "start guest session",
+  "begin helping customer celestial",
+  "start session pop up",
+  "pick point of sale when starting session",
+  "how do i start helping a guest in the queue"
+ ],
+ "training-pos/session-end": [
+  "end session",
+  "transfer guest to another rep",
+  "hand customer off to coworker",
+  "cant check in next guest",
+  "end the current session",
+  "transfer customer celestial"
+ ],
+ "training-pos/pos-what": [
+  "what is pos for",
+  "can i sell internet in pos",
+  "what can i ring in pos",
+  "pos for accessories",
+  "take bill payment pos",
+  "can i sell xfinity camera in pos",
+  "what not to ring in celestial pos"
+ ],
+ "training-pos/pos-rules": [
+  "pos rules",
+  "how do i do an exchange",
+  "can i take a check",
+  "check payment ipad",
+  "who gets commission on pos sale",
+  "suspended transaction at close",
+  "do ipads need to be opened",
+  "exchange in celestial pos"
+ ],
+ "training-pos/launch-new": [
+  "open pos from new session",
+  "launch point of sale",
+  "quick purchase no customer info",
+  "customer wont give address just buying a case",
+  "address not available pos",
+  "ring up accessory fast",
+  "how do i get into pos"
+ ],
+ "training-pos/launch-inprogress": [
+  "open pos during session",
+  "launch pos already helping customer",
+  "continue guest session point of sale",
+  "get to pos mid session",
+  "already in session need to ring accessory",
+  "add accessory sale while helping customer"
+ ],
+ "training-pos/launch-backoffice": [
+  "launch back office",
+  "open back office celestial",
+  "how to get to back office",
+  "manage store celestial",
+  "where is back office in pos",
+  "get to till and close store screen"
+ ],
+ "training-pos/pos-home": [
+  "pos homepage",
+  "pos tiles",
+  "quick sale",
+  "look up item",
+  "comcast services bill payment pos",
+  "resume suspended transaction",
+  "transaction history pos",
+  "find item by sku"
+ ],
+ "training-pos/sale-steps": [
+  "how do i ring a sale",
+  "complete a sale",
+  "sell a phone case",
+  "ring up accessories",
+  "checkout steps pos",
+  "scan item and take payment",
+  "sale steps celestial",
+  "print receipt"
+ ],
+ "training-pos/sale-tips": [
+  "sale tips",
+  "manually enter sku",
+  "add item without barcode",
+  "customer info not showing at checkout",
+  "edit customer details at checkout",
+  "receipt printer cash sale",
+  "skip to menu search bar"
+ ],
+ "training-pos/return-steps": [
+  "how do i do a return",
+  "return accessory",
+  "process refund pos",
+  "customer wants money back for charger",
+  "return steps celestial",
+  "return from transaction history",
+  "refund steps"
+ ],
+ "training-pos/return-tips": [
+  "exchange steps",
+  "how long for credit card refund",
+  "refund not showing on card",
+  "return then sale for exchange",
+  "customer wants to swap case for different one",
+  "exchange item"
+ ],
+ "training-pos/bo-home": [
+  "back office homepage",
+  "store open or closed status",
+  "till functions",
+  "back office tiles",
+  "transaction history back office",
+  "where is close store button"
+ ],
+ "training-pos/open-drawer": [
+  "open the store",
+  "open cash drawer",
+  "opening register",
+  "how to open store in celestial",
+  "morning opening pos",
+  "open till"
+ ],
+ "training-pos/fund-drawer": [
+  "fund drawer",
+  "add starting cash to drawer",
+  "drawer amount not equal at open",
+  "fund till",
+  "starting bank",
+  "load cash into drawer"
+ ],
+ "training-pos/settle-drawer": [
+  "settle drawer",
+  "settle till end of day",
+  "close out drawer",
+  "end of day drawer",
+  "settle the register at close",
+  "settle drawer steps"
+ ],
+ "training-pos/tender-count": [
+  "tender count",
+  "count the drawer",
+  "drawer short at close",
+  "drawer over",
+  "declare tender",
+  "recount drawer",
+  "deposit amount close"
+ ],
+ "training-pos/close-drawer": [
+  "close the store",
+  "close register",
+  "closing cash drawer",
+  "end business day pos",
+  "how do i close store celestial",
+  "closing steps"
+ ],
+ "training-pos/pos-help": [
+  "pos not working",
+  "register broken",
+  "techspot ticket pos",
+  "submit ticket celestial pos",
+  "pos frozen",
+  "who do i call pos issue",
+  "pos help"
+ ],
+ "training-pos/cs-glance": [
+  "customer space at a glance",
+  "when does customer space launch",
+  "customer space replaces retail 360",
+  "is retail360 going away",
+  "what happened to retail 360",
+  "mercury rollout"
+ ],
+ "training-pos/cs-what": [
+  "what is customer space",
+  "customer space benefits",
+  "customer space vs retail360",
+  "why customer space",
+  "customer space explained",
+  "one screen for customer account"
+ ],
+ "training-pos/cs-access": [
+  "how do i get into customer space",
+  "access customer account celestial",
+  "do i have to check in to see account",
+  "cant open customer account without check in",
+  "why check in first",
+  "account wont open in customer space"
+ ],
+ "training-pos/cs-lookup": [
+  "quick account lookup",
+  "look up customer account",
+  "account lookup for equipment return",
+  "find account without full check in",
+  "search account celestial",
+  "customer returning modem look up acct"
+ ],
+ "training-pos/cs-new": [
+  "start new sale customer space",
+  "new customer sale from queue",
+  "prospect new sale",
+  "sell new service to walk in",
+  "new sale path celestial",
+  "customer space for someone without xfinity"
+ ],
+ "training-pos/cs-existing": [
+  "open member account",
+  "existing customer account customer space",
+  "verify customer account celestial",
+  "pull up existing account",
+  "how do i open an existing customers account",
+  "open account from queue"
+ ],
+ "training-pos/cs-features": [
+  "customer profile",
+  "customer space features",
+  "tools menu customer space",
+  "customer space layout",
+  "where are the customer tools",
+  "account overview screen"
+ ],
+ "training-pos/cs-tools": [
+  "tools menu",
+  "get to xm360 from customer space",
+  "open einstein 360",
+  "onesupport link",
+  "xm sales buy flow from customer space",
+  "swivel to xm360"
+ ],
+ "training-pos/cs-account": [
+  "member account details",
+  "update customer contact info",
+  "see account number customer space",
+  "user role on account",
+  "change customer email or phone",
+  "preferred name on account"
+ ],
+ "training-pos/cs-billing": [
+  "billing details customer space",
+  "see customer bill",
+  "take bill payment customer space",
+  "check autopay",
+  "customer wants to pay bill",
+  "account ledger"
+ ],
+ "training-pos/cs-service": [
+  "service details",
+  "disconnect service customer space",
+  "cancel internet in customer space",
+  "change services customer space",
+  "see active services",
+  "serviceability info for member"
+ ],
+ "training-pos/cs-devices": [
+  "device details",
+  "swap modem customer space",
+  "add or remove equipment",
+  "run diagnostics",
+  "check data usage",
+  "reorder equipment",
+  "cx wants new gateway"
+ ],
+ "training-pos/cs-mobile": [
+  "mobile service customer space",
+  "see mobile lines",
+  "check upgrade eligibility",
+  "add a line customer space",
+  "xm plan details",
+  "how many lines does cx have"
+ ],
+ "training-pos/cs-mercury": [
+  "mercury assistant",
+  "what is mercury",
+  "ai panel customer space",
+  "mercury summary",
+  "mercury next steps",
+  "ai assistant in celestial"
+ ],
+ "training-pos/cs-agentic": [
+  "agentic tasks",
+  "bill summary mercury",
+  "summary of credits",
+  "summary of service issues",
+  "interaction summary",
+  "quick summary of customer account"
+ ],
+ "training-pos/cs-recommended": [
+  "recommended tasks mercury",
+  "explain my bill",
+  "explain xm due date",
+  "suggested actions customer space",
+  "mercury suggests add internet",
+  "mercury suggestions based on visit reason"
+ ],
+ "training-pos/cs-ama": [
+  "ask me anything",
+  "ama mercury",
+  "search knowledge in customer space",
+  "ask policy question mercury",
+  "ama product question",
+  "instead of searching knowledge"
+ ],
+ "training-pos/cs-training": [
+  "customer space training",
+  "ulearn customer space",
+  "mercury training",
+  "create training branded partner",
+  "where is celestial training course",
+  "customer space course"
+ ],
+ "training-pos/cs-faqs/q1": [
+  "mercury for prospect",
+  "can i use mercury on new customer",
+  "mercury not showing for new customer",
+  "customer space for prospect",
+  "mercury only after pending services",
+  "prospect info where"
+ ],
+ "training-pos/cs-faqs/q2": [
+  "ama in spanish",
+  "mercury spanish",
+  "type question in spanish",
+  "does mercury speak spanish",
+  "ask ama in espanol",
+  "spanish question mercury"
+ ],
+ "training-pos/cs-faqs/q3": [
+  "can mercury see account info",
+  "mercury account questions",
+  "ask mercury about customer account",
+  "mercury generic answer",
+  "mercury wont answer about account",
+  "why mercury gives general answer"
+ ],
+ "training-pos/cs-faqs/q4": [
+  "does customer space change xm360",
+  "still use xoe",
+  "do i still use csg",
+  "tools still the same",
+  "is xm360 still the same",
+  "core service changes still in csg"
+ ],
+ "training-pos/cs-faqs/q5": [
+  "report customer space issue",
+  "customer space not working",
+  "care application issue form",
+  "techspot customer space",
+  "customer space bug",
+  "mercury broken who do i tell"
+ ]
+}

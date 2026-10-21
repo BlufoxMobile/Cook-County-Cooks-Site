@@ -86,6 +86,12 @@ const MOTION_MODULE = optional('motion',
   import('./motion.js'));
 const FIND_MODULE = optional('find',
   import('./find.js'));
+/* ASK THE CHEF (Oct 2026) — the third optional module, for the same reason as
+   the two above: a 404 in it must cost the hero bar and the bell, never the
+   restaurant. It is UI only (~12 KB gz); its engine and the 107 KB index are
+   fetched by ask.js on the rep's first focus, not here. */
+const ASK_MODULE = optional('ask',
+  import('./ask.js'));
 const OPTIONAL_WAIT_MS = 1500;
 /** The module, null if it failed, or undefined if it is not here yet. */
 function within(pending, ms) {
@@ -1244,6 +1250,12 @@ function buildHero() {
       // placed (theme.css "Site tour button"), so the masthead's measured
       // optical centring above is untouched. data-tool routes it through the
       // overlay like every other tool: #/tool/site-tour, framed, fresh.
+      // ASK THE CHEF (Oct 2026). [stated] Jeff wanted "a big Ask the Chef bar
+      // in the hero". An empty, absolutely placed slot, a sibling of the tour
+      // pill for the same reason the pill is one: the masthead's centring is
+      // untouched. ask.js fills it once its stylesheet is in; if ask.js never
+      // arrives the slot is an empty div and the hero is exactly as before.
+      el('div', { class: 'ask-hero-slot', 'data-ask-hero': '' }),
       el('a', { class: 'hero-tour', href: '#/tool/site-tour', 'data-tool': 'site-tour',
                 'aria-label': 'Watch the site tour, 4 minutes 1 second' }, [
         el('span', { class: 'hero-tour__play', 'aria-hidden': 'true' }),
@@ -1901,6 +1913,24 @@ export async function boot() {
     if (mod) startFind(mod);
     else if (mod === undefined) FIND_MODULE.then((late) => { if (late) startFind(late); });
   }
+  /* ASK THE CHEF. Never awaited: the bar in the hero slot and the bell in
+     every room arrive when ask.js and ask.css do. It reads the same live
+     `data` the palette does (adoptCold() grows it on unlock), and offers the
+     walk-in only through the existing [data-freezer-lock] row. */
+  ASK_MODULE.then(async (mod) => {
+    if (!mod) return;
+    try {
+      await mod.loadStyles();
+      const api = mod.mountAsk({
+        data,
+        view: 'cinema',
+        heroSlot: $('#room-hero .ask-hero-slot'),
+        isLocked: () => !isFreezerUnlocked() && sealedCount() > 0,
+        goToRoom: (id) => scrollToRoom(id, { offset: 0 })
+      });
+      if (window.CCC) window.CCC.ask = api;
+    } catch (err) { console.error('[ask] mount failed:', err); }
+  });
   // After the rails exist, never awaited: see the note on the function. The
   // chip is fully usable before this resolves and stays usable if it never does.
   armArcadeChips();

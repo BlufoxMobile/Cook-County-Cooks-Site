@@ -1,0 +1,620 @@
+/* =============================================================================
+ * Cook County Cooks — assets/ask.css
+ * ASK THE CHEF  ·  the hero bar, the bell, the panel
+ * -----------------------------------------------------------------------------
+ * Every class and id here starts with `ask-` (theme.css grepped clear of the
+ * prefix). The only things outside that namespace this file touches are
+ * positional: html.ask-pocket .pocket (room for the bell under the last row).
+ *
+ * THE LOOK, AND WHY. It is the restaurant's own vocabulary, not a chat app's:
+ *   · the hero bar is a sibling of the site-tour pill and wears the same brass
+ *     plate, so the two read as one family at the foot of the storefront; the
+ *     rotating example is set in the masthead's Bodoni italic, in the same
+ *     brass as "County";
+ *   · the bell is the service bell at the pass — "order up";
+ *   · in the panel the rep's question is the ORDER (Bodoni italic, brass rule)
+ *     and the answer is the PLATE: crumbs, a title in Bodoni, the numbered
+ *     steps with their real screens on the light ground the guides use.
+ * No backdrop-filter anywhere (theme.css §17: the store iPads pay for every
+ * one), transform/opacity only, nothing loops except the one "thinking" dot,
+ * which stops under reduced motion and html[data-motion=off|lite].
+ * ========================================================================== */
+
+/* ── tokens (theme.css's, with fallbacks for a stylesheet that failed) ──── */
+#ask-root, .ask-fab, .ask-hero-slot {
+  --ask-ink: var(--ink-950, #05070a);
+  --ask-ground: color-mix(in oklab, var(--ink-850, #0d131b) 92%, var(--walnut, #4b3526));
+  --ask-raised: color-mix(in oklab, var(--ink-800, #131a24) 88%, var(--walnut, #4b3526));
+  --ask-bone: var(--bone, #f4efe6);
+  --ask-bone-2: var(--bone-2, #dcd5c8);
+  --ask-bone-3: var(--bone-3, #b4aba0);
+  --ask-brass: var(--brass, #c8973f);
+  --ask-brass-hi: var(--brass-300, #ebce93);
+  --ask-plate: linear-gradient(135deg, #e2b866, #c8973f);   /* = .hero-tour__play */
+  --ask-line: color-mix(in oklab, var(--bone, #f4efe6) 12%, transparent);
+  --ask-line-brass: color-mix(in oklab, var(--brass, #c8973f) 46%, transparent);
+  --ask-display: var(--font-display, "Bodoni Moda", Didot, Georgia, serif);
+  --ask-text: var(--font-text, "Archivo", ui-sans-serif, system-ui, sans-serif);
+  --ask-ease: var(--m-ease-out, cubic-bezier(.22, .61, .24, 1));
+  --ask-ease-in: var(--m-ease-in, cubic-bezier(.5, 0, .75, 0));
+}
+
+.ask-sr {
+  position: absolute !important; inline-size: 1px; block-size: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+.ask-ico { inline-size: 18px; block-size: 18px; flex: none; }
+
+
+/* ═══ 1 · THE HERO BAR ════════════════════════════════════════════════════
+   A sibling of .hero-inner (cinema.js buildHero), absolutely placed like
+   .hero-tour so the masthead's measured optical centring is untouched.
+   Landscape: bottom-left, baseline-matched to the tour pill on the right.
+   Portrait (the theme's own 6:5 line): full width on the threshold of the
+   storefront, where the plate's floor runs out into the ink — between the
+   doorway and the masthead. */
+.ask-hero-slot {
+  position: absolute;
+  z-index: var(--z-rail, 20);
+  pointer-events: auto;                 /* .stage is pointer-events: none */
+  inset-inline-start: var(--gut, 24px);
+  inset-block-end: calc(var(--sp-8, 3.75rem) + env(safe-area-inset-bottom, 0px));
+  inline-size: min(640px, calc(100% - 2 * var(--gut, 24px) - 300px - var(--sp-6, 2rem)));
+}
+.ask-hero {
+  position: relative;
+  display: flex; align-items: center; gap: 12px;
+  block-size: 68px; box-sizing: border-box;
+  padding: 0 10px 0 22px;
+  border-radius: 999px;
+  background: rgb(5 7 10 / .74);
+  box-shadow: inset 0 0 0 1px rgb(226 184 102 / .5), 0 18px 50px rgb(0 0 0 / .45);
+  color: var(--ask-bone);
+  font-family: var(--ask-text);
+  transition: box-shadow var(--m-t-2, 160ms) var(--ask-ease), background-color var(--m-t-2, 160ms) var(--ask-ease);
+}
+.ask-hero:hover { background: rgb(5 7 10 / .84); }
+.ask-hero:focus-within {
+  background: rgb(5 7 10 / .9);
+  box-shadow: inset 0 0 0 1px #e2b866, 0 0 0 4px rgb(226 184 102 / .22), 0 18px 50px rgb(0 0 0 / .5);
+}
+.ask-hero-bell { inline-size: 26px; block-size: 26px; flex: none; color: #e2b866; }
+.ask-hero-field { position: relative; flex: 1 1 auto; min-inline-size: 0; align-self: stretch; display: flex; align-items: center; }
+.ask-hero-input {
+  inline-size: 100%; block-size: 100%; margin: 0; padding: 0;
+  border: 0; outline: none; background: transparent; color: var(--ask-bone);
+  font: 500 18px/1.2 var(--ask-text); letter-spacing: .005em;
+  -webkit-appearance: none; appearance: none;
+}
+/* The hint is the placeholder, drawn so the example can be set in the
+   masthead's italic. It is aria-hidden; the field's name is the <label>. */
+.ask-hero-hint {
+  position: absolute; inset-inline: 0; inset-block-start: 50%;
+  translate: 0 -50%;
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  pointer-events: none;
+  color: var(--ask-bone-3);
+  font: 400 17px/1.3 var(--ask-text);
+  transition: opacity 200ms var(--ask-ease), translate 200ms var(--ask-ease);
+}
+.ask-hero-hint-text {
+  font-family: var(--ask-display); font-style: italic; font-weight: 450;
+  font-size: 19px; color: var(--ask-brass-hi); letter-spacing: 0;
+}
+.ask-hero-hint.is-swap { opacity: 0; translate: 0 calc(-50% - 6px); }
+.ask-hero-hint.is-gone { opacity: 0; transition: none; }
+.ask-hero-go {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  block-size: 48px; padding: 0 22px; margin: 0;
+  border: 0; border-radius: 999px; cursor: pointer;
+  background: var(--ask-plate); color: #141008;
+  font: 700 15px/1 var(--ask-text); letter-spacing: .02em; white-space: nowrap;
+  box-shadow: 0 0 0 5px rgb(226 184 102 / .14);
+  transition: transform var(--m-t-1, 90ms) var(--ask-ease), filter var(--m-t-2, 160ms) var(--ask-ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.ask-hero-go:hover { filter: brightness(1.06); }
+.ask-hero-go:active { transform: scale(.97); }
+.ask-hero-go:focus-visible { outline: 3px solid #e2b866; outline-offset: 4px; }
+
+@media (min-width: 1280px) and (pointer: fine) {
+  .ask-hero { block-size: 72px; }
+  .ask-hero-input { font-size: 19px; }
+}
+/* Landscape tablets and small laptops: the tour pill needs its room. */
+@media (max-width: 1100px) and (min-aspect-ratio: 6 / 5) {
+  .ask-hero-go { padding: 0 18px; }
+  .ask-hero-hint-text { font-size: 18px; }
+}
+
+/* Portrait: on the threshold. The plate is 1.55 x the stage width, hung from
+   the course menu (theme.css "6:5" block) — so its floor line is computable,
+   and the bar sits across it, over the fade into ink. */
+@media (max-aspect-ratio: 6 / 5) {
+  .ask-hero-slot {
+    inset-block-end: auto;
+    inset-inline: var(--gut, 24px);
+    inline-size: auto;
+    inset-block-start: calc(var(--topbar-h, 56px) - 1.8svh + 100cqw * 1.55 / 1.79104 - 34px - 40px);
+  }
+}
+@media (max-width: 560px) {
+  .ask-hero { block-size: 60px; padding-inline-start: 16px; gap: 8px; }
+  .ask-hero-bell { inline-size: 22px; block-size: 22px; }
+  .ask-hero-input { font-size: 16px; }             /* 16px: iOS does not zoom */
+  .ask-hero-hint { font-size: 15px; }
+  .ask-hero-hint > span:first-child { display: none; }
+  .ask-hero-hint-text { font-size: 17px; }
+  .ask-hero-go { block-size: 44px; padding: 0 14px; font-size: 14px; }
+}
+
+
+/* ═══ 2 · THE BELL ═══════════════════════════════════════════════════════
+   Fixed, bottom-right, in every room and on the phone list. Hidden on the
+   hero (the bar is there), while a tool is open, and while the panel is.
+   --ask-lift is written by ask.js after a room settles, to step over a
+   control drawn under the home spot (the chef strip on an iPad in portrait). */
+.ask-fab {
+  position: fixed;
+  z-index: 105;                          /* over the rooms, under the C³ menu (120) */
+  inset-inline-end: calc(var(--gut, 24px) + env(safe-area-inset-right, 0px));
+  inset-block-end: calc(var(--sp-5, 1.5rem) + env(safe-area-inset-bottom, 0px));
+  translate: 0 calc(-1 * var(--ask-lift, 0px));
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-inline-size: 56px; block-size: 56px; box-sizing: border-box;
+  padding: 0; margin: 0; border: 0; border-radius: 999px; cursor: pointer;
+  background: var(--ask-plate); color: #141008;
+  box-shadow: 0 0 0 5px rgb(226 184 102 / .16), 0 14px 34px -8px rgb(0 0 0 / .7);
+  font: 700 15px/1 var(--ask-text); letter-spacing: .02em; white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity var(--m-t-2, 160ms) var(--ask-ease),
+              scale var(--m-t-2, 160ms) var(--ask-ease),
+              translate var(--m-t-3, 240ms) var(--ask-ease),
+              filter var(--m-t-2, 160ms) var(--ask-ease);
+}
+.ask-fab:hover { filter: brightness(1.06); }
+.ask-fab:active { scale: .96; }
+.ask-fab:focus-visible { outline: 3px solid var(--ring-core, #05070a); outline-offset: 2px; box-shadow: 0 0 0 7px var(--ring-halo, #ebce93); }
+.ask-fab.is-hidden { opacity: 0; scale: .86; pointer-events: none; visibility: hidden;
+  transition: opacity var(--m-t-2, 160ms) var(--ask-ease-in), scale var(--m-t-2, 160ms) var(--ask-ease-in), visibility 0s linear var(--m-t-2, 160ms); }
+.ask-fab-bell { inline-size: 26px; block-size: 26px; flex: none; }
+.ask-fab-label { display: none; }
+/* A desk has the room to say what it is. */
+@media (min-width: 1280px) and (pointer: fine) {
+  .ask-fab { padding: 0 22px 0 16px; }
+  .ask-fab-label { display: inline; }
+}
+/* The phone list: a labelled pill (the list has no other hint it exists) and
+   room under the last row so the pill never sits on it at the end of a scroll. */
+/* The phone dock: an opaque strip of its own at the foot of the list, the
+   full-width bell inside it, and the list padded by exactly its height — so
+   no row is ever under it (QA round 3: the floating pill covered the end of
+   the last visible name). */
+.ask-dock {
+  --ask-dock-h: 76px;
+  position: fixed; z-index: 105; inset-inline: 0; inset-block-end: 0;
+  box-sizing: border-box; block-size: calc(var(--ask-dock-h) + env(safe-area-inset-bottom, 0px));
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: center;
+  background: color-mix(in oklab, var(--ink-950, #05070a) 96%, transparent);
+  box-shadow: 0 -1px 0 color-mix(in oklab, var(--bone, #f4efe6) 10%, transparent), 0 -14px 28px -10px rgb(0 0 0 / .7);
+}
+.ask-dock.is-hidden { display: none; }
+html.ask-pocket .ask-dock .ask-fab {
+  position: static; translate: none; inline-size: 100%; block-size: 56px; padding: 0 18px;
+}
+html.ask-pocket .ask-fab-label { display: inline; }
+html.ask-pocket .pocket { padding-block-end: calc(76px + 24px + env(safe-area-inset-bottom, 0px)); }
+html.ask-pocket { scroll-padding-block-end: calc(76px + env(safe-area-inset-bottom, 0px)); }
+html.is-viewing .ask-dock, html.ccc-locked .ask-dock { display: none; }
+html.is-viewing .ask-fab, html.ccc-locked .ask-fab { display: none; }
+
+
+/* ═══ 3 · THE PANEL ══════════════════════════════════════════════════════ */
+#ask-root { position: fixed; inset: 0; z-index: 9050; }
+#ask-root[hidden] { display: none !important; }
+#ask-root.is-closing { pointer-events: none; }
+.ask-scrim { position: absolute; inset: 0; background: rgb(5 7 10 / .62); touch-action: none; }
+
+.ask-panel {
+  position: absolute;
+  inset-block: 12px; inset-inline-end: 12px;
+  inline-size: min(480px, calc(100vw - 24px));
+  display: flex; flex-direction: column;
+  box-sizing: border-box;
+  color: var(--ask-bone);
+  background: var(--ask-ground);
+  border-radius: var(--r-lg, 10px);
+  box-shadow: inset 0 0 0 1px var(--ask-line), inset 0 1px 0 rgb(255 255 255 / .05),
+              0 30px 90px -18px rgb(3 5 9 / .85);
+  overflow: hidden;
+  font-family: var(--ask-text);
+  text-align: start;
+}
+@media (min-width: 1280px) { .ask-panel { inline-size: 520px; } }
+
+.ask-head {
+  flex: none; display: flex; align-items: center; gap: 10px;
+  min-block-size: 60px; padding: 8px 8px 8px 18px; box-sizing: border-box;
+  border-block-end: 1px solid var(--ask-line);
+}
+.ask-head-bell { inline-size: 22px; block-size: 22px; flex: none; color: var(--ask-brass); }
+.ask-head-title {
+  flex: 1 1 auto; margin: 0;
+  font: 500 23px/1.1 var(--ask-display); letter-spacing: -.01em; color: var(--ask-bone);
+}
+.ask-head-btn {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  min-inline-size: 44px; block-size: 44px; padding: 0 12px; margin: 0;
+  border: 0; border-radius: var(--r-sm, 3px); background: transparent; cursor: pointer;
+  color: var(--ask-bone-3); font: 600 14px/1 var(--ask-text);
+}
+.ask-head-btn:hover { color: var(--ask-bone); background: color-mix(in oklab, var(--ask-bone) 7%, transparent); }
+.ask-close { padding: 0; }
+
+.ask-log {
+  flex: 1 1 auto; min-block-size: 0;
+  overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  padding: 18px 18px 28px;
+  scroll-padding-block: 12px;
+}
+.ask-log:focus { outline: none; }
+
+/* the empty state */
+.ask-welcome[hidden] { display: none; }
+.ask-welcome-line {
+  margin: 4px 0 22px; max-inline-size: 34ch;
+  font: 400 22px/1.3 var(--ask-display); color: var(--ask-bone-2);
+}
+.ask-welcome-head { margin: 18px 0 8px; font: 600 13px/1 var(--ask-text); color: var(--ask-bone-3); }
+.ask-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.ask-chip {
+  min-block-size: 44px; padding: 0 14px; margin: 0; border: 0; cursor: pointer;
+  border-radius: 999px; text-align: start;
+  background: color-mix(in oklab, var(--ask-bone) 5%, transparent);
+  box-shadow: inset 0 0 0 1px var(--ask-line);
+  color: var(--ask-bone-2); font: 500 15px/1.25 var(--ask-text);
+}
+.ask-chip:hover { color: var(--ask-bone); box-shadow: inset 0 0 0 1px var(--ask-line-brass); }
+
+/* a turn: the order, then the plate */
+.ask-turn { padding-block: 6px 26px; }
+.ask-turn + .ask-turn { border-block-start: 1px solid var(--ask-line); padding-block-start: 22px; }
+.ask-q {
+  display: flex; gap: 12px; align-items: baseline; margin: 0 0 14px;
+  font: italic 450 21px/1.25 var(--ask-display); color: var(--ask-brass-hi);
+  overflow-wrap: anywhere;
+}
+.ask-q::before { content: ""; flex: none; inline-size: 18px; block-size: 1px; background: var(--ask-brass); translate: 0 -6px; }
+.ask-wait { margin: 0; color: var(--ask-bone-3); font-size: 15px; }
+
+.ask-thinking {
+  display: flex; align-items: center; gap: 10px; margin: 0 0 12px;
+  color: var(--ask-bone-3); font: 500 14px/1.2 var(--ask-text);
+}
+.ask-thinking-dot {
+  inline-size: 8px; block-size: 8px; border-radius: 50%; background: var(--ask-brass);
+  animation: ask-pulse 1.1s var(--m-ease-inout, ease-in-out) infinite alternate;
+}
+@keyframes ask-pulse { from { opacity: .3; scale: .8; } to { opacity: 1; scale: 1; } }
+
+.ask-reply {
+  display: flex; gap: 10px; align-items: flex-start; margin: 0 0 14px; padding: 12px 14px;
+  border-radius: var(--r-md, 6px);
+  background: color-mix(in oklab, var(--ask-brass) 12%, transparent);
+  box-shadow: inset 2px 0 0 var(--ask-brass);
+  color: var(--ask-bone); font: 400 15px/1.45 var(--ask-text);
+}
+.ask-reply .ask-ico { color: var(--ask-brass-hi); margin-block-start: 1px; }
+
+/* the plate */
+.ask-card { display: grid; gap: 12px; }
+.ask-crumbs {
+  margin: 0; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center;
+  font: 600 13px/1.3 var(--ask-text); color: var(--ask-bone-3);
+}
+.ask-crumb-sep { color: var(--ask-brass); }
+.ask-card-title {
+  margin: 0; font: 500 27px/1.12 var(--ask-display); letter-spacing: -.012em; color: var(--ask-bone);
+  overflow-wrap: anywhere;
+}
+/* The answer's heading takes focus only as a READING POSITION after an answer
+   lands on a touch screen (so VoiceOver starts there). It is not a control and
+   not a Tab stop, so it never draws a ring — theme.css's global :focus-visible
+   paints an outline AND a 6px brass box-shadow halo, and a programmatic focus
+   that follows a key press counts as focus-visible, so both are cancelled.
+   Every interactive control in the panel keeps its ring. */
+#ask-root [tabindex="-1"]:focus,
+#ask-root [tabindex="-1"]:focus-visible { outline: none; box-shadow: none; }
+.ask-card-title--small { font-size: 22px; }
+.ask-card-text { margin: 0; color: var(--ask-bone-2); font: 400 15.5px/1.55 var(--ask-text); max-inline-size: 60ch; }
+
+.ask-locked {
+  justify-self: start; display: inline-flex; align-items: center; gap: 8px; margin: 0;
+  padding: 8px 12px; border-radius: 999px;
+  background: color-mix(in oklab, var(--ask-brass) 14%, transparent);
+  color: var(--ask-brass-hi); font: 700 14px/1 var(--ask-text);
+}
+
+/* the steps — a real sequence, so they are numbered */
+.ask-steps { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 4px; }
+.ask-step {
+  display: grid; grid-template-columns: 34px 1fr; gap: 10px;
+  padding: 12px 0; border-block-start: 1px solid var(--ask-line);
+}
+.ask-step:first-child { border-block-start: 0; padding-block-start: 4px; }
+.ask-step-n {
+  font: 500 24px/1 var(--ask-display); color: var(--ask-brass);
+  font-variant-numeric: lining-nums; text-align: end; padding-block-start: 1px;
+}
+.ask-step-body { min-inline-size: 0; display: grid; gap: 10px; }
+.ask-step-text { margin: 0; color: var(--ask-bone); font: 400 16px/1.5 var(--ask-text); }
+
+/* a screenshot: the guides' light ground, tap to enlarge */
+.ask-shot {
+  display: block; inline-size: 100%; padding: 0; margin: 0; border: 0; cursor: zoom-in;
+  border-radius: var(--r-md, 6px); overflow: hidden;
+  background: #e8ebef;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / .14), 0 10px 28px -10px rgb(0 0 0 / .6);
+  min-block-size: 120px;
+}
+.ask-shot-img {
+  display: block; inline-size: 100%; block-size: auto; max-block-size: 300px;
+  object-fit: contain; object-position: center top;
+}
+.ask-shot-img:not([src]) { block-size: 160px; }
+.ask-shot:focus-visible { outline: 3px solid var(--ask-brass-hi); outline-offset: 2px; }
+
+/* video */
+.ask-media { display: grid; gap: 8px; }
+.ask-video-play {
+  position: relative; display: block; inline-size: 100%; aspect-ratio: 16 / 9;
+  padding: 0; margin: 0; border: 0; cursor: pointer; overflow: hidden;
+  border-radius: var(--r-md, 6px); background: var(--ask-ink);
+  box-shadow: inset 0 0 0 1px var(--ask-line);
+  color: var(--ask-bone);
+}
+.ask-video-poster { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; object-fit: cover; opacity: .82; }
+.ask-video-disc {
+  position: absolute; inset-inline-start: 50%; inset-block-start: 50%; translate: -50% -50%;
+  display: grid; place-items: center; inline-size: 64px; block-size: 64px; border-radius: 50%;
+  background: var(--ask-plate); color: #141008; box-shadow: 0 0 0 7px rgb(226 184 102 / .2);
+}
+.ask-video-disc .ask-ico { inline-size: 26px; block-size: 26px; translate: 2px 0; }
+.ask-video-label {
+  position: absolute; inset-inline: 0; inset-block-end: 0; padding: 26px 14px 12px; text-align: start;
+  background: linear-gradient(to top, rgb(5 7 10 / .85), transparent);
+  font: 600 15px/1.3 var(--ask-text);
+}
+.ask-video-play:hover .ask-video-disc { filter: brightness(1.06); }
+.ask-video-play:focus-visible { outline: 3px solid var(--ask-brass-hi); outline-offset: 2px; }
+.ask-video { display: block; inline-size: 100%; aspect-ratio: 16 / 9; border-radius: var(--r-md, 6px); background: #000; }
+
+/* pdf / printable */
+.ask-media--pdf {
+  grid-template-columns: auto 1fr; align-items: center; column-gap: 12px;
+  padding: 12px; border-radius: var(--r-md, 6px); background: var(--ask-raised);
+  box-shadow: inset 0 0 0 1px var(--ask-line);
+}
+.ask-pdf-tag {
+  padding: 6px 7px; border-radius: 3px; background: var(--ask-bone); color: #3a0f0f;
+  font: 800 11px/1 var(--ask-text); letter-spacing: .06em;
+}
+.ask-pdf-name { font: 600 15px/1.3 var(--ask-text); color: var(--ask-bone); overflow-wrap: anywhere; }
+.ask-media--pdf .ask-file { grid-column: 1 / -1; }
+.ask-file { display: grid; gap: 6px; }
+.ask-file-row { display: flex; gap: 8px; }
+.ask-file-btn {
+  display: inline-flex; align-items: center; justify-content: center; flex: 1 1 0;
+  min-block-size: 44px; padding: 0 16px; margin: 0; border: 0; cursor: pointer; text-decoration: none;
+  border-radius: var(--r-sm, 3px);
+  background: color-mix(in oklab, var(--ask-bone) 6%, transparent);
+  box-shadow: inset 0 0 0 1px var(--ask-line-brass);
+  color: var(--ask-bone); font: 600 15px/1 var(--ask-text);
+}
+.ask-file-btn:hover { background: color-mix(in oklab, var(--ask-bone) 11%, transparent); }
+.ask-file-note { margin: 0; color: var(--ask-bone-3); font-size: 13.5px; line-height: 1.4; }
+.ask-file-note:empty { display: none; }
+.ask-print-frame { position: fixed; inline-size: 0; block-size: 0; border: 0; inset: 0; visibility: hidden; }
+
+/* the way in */
+.ask-actions { display: flex; margin-block-start: 4px; }
+.ask-open {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  inline-size: 100%; min-block-size: 50px; padding: 0 18px; box-sizing: border-box;
+  border-radius: var(--r-md, 6px); text-decoration: none; cursor: pointer;
+  background: var(--ask-plate); color: #141008;
+  font: 700 16px/1.15 var(--ask-text); letter-spacing: .01em; text-align: center;
+}
+.ask-open:hover { filter: brightness(1.06); }
+.ask-open:focus-visible { outline: 3px solid var(--ask-brass-hi); outline-offset: 3px; }
+.ask-open--quiet {
+  background: color-mix(in oklab, var(--ask-bone) 5%, transparent);
+  box-shadow: inset 0 0 0 1px var(--ask-line-brass); color: var(--ask-bone);
+}
+.ask-open--quiet .ask-ico { color: var(--ask-brass-hi); }
+
+/* choices and near misses */
+.ask-choices, .ask-none { display: grid; gap: 12px; }
+.ask-also { display: grid; gap: 8px; margin-block-start: 8px; }
+.ask-also-head { margin: 0; font: 600 13px/1 var(--ask-text); color: var(--ask-bone-3); }
+.ask-opts { display: grid; gap: 6px; }
+.ask-opts--lock { margin-block-start: 12px; }
+.ask-opt {
+  display: flex; align-items: center; gap: 12px;
+  inline-size: 100%; min-block-size: 56px; padding: 8px 14px; box-sizing: border-box; margin: 0;
+  border: 0; border-radius: var(--r-md, 6px); cursor: pointer; text-align: start;
+  background: var(--ask-raised); box-shadow: inset 0 0 0 1px var(--ask-line);
+  color: var(--ask-bone);
+}
+.ask-opt:hover { box-shadow: inset 0 0 0 1px var(--ask-line-brass); }
+.ask-opt:focus-visible { outline: 3px solid var(--ask-brass-hi); outline-offset: 1px; }
+.ask-opt-n { flex: none; inline-size: 22px; font: 500 22px/1 var(--ask-display); color: var(--ask-brass); text-align: center; }
+.ask-opt-words { flex: 1 1 auto; min-inline-size: 0; display: grid; gap: 3px; }
+.ask-opt-title { font: 600 15.5px/1.3 var(--ask-text); }
+.ask-opt-crumbs { font: 500 12.5px/1.3 var(--ask-text); color: var(--ask-bone-3); }
+.ask-opt-lock { color: var(--ask-brass-hi); }
+/* the walk-in's row: the freezer's own ice, as in the Find palette */
+.ask-opt--lock, .ask-opt--lock .ask-ico { color: var(--ice-100, #dbe8ef); }
+.ask-opt--lock { background: color-mix(in oklab, var(--ice-700, #1d2831) 70%, transparent); }
+
+/* the composer */
+.ask-form {
+  flex: none; display: flex; align-items: center; gap: 8px;
+  padding: 10px 10px calc(10px + env(safe-area-inset-bottom, 0px)) 16px;
+  border-block-start: 1px solid var(--ask-line);
+  background: color-mix(in oklab, var(--ask-ink) 40%, var(--ask-ground));
+}
+.ask-input {
+  flex: 1 1 auto; min-inline-size: 0; block-size: 48px; box-sizing: border-box;
+  margin: 0; padding: 0 14px; border: 0; outline: none; border-radius: var(--r-md, 6px);
+  background: color-mix(in oklab, var(--ask-ink) 60%, transparent);
+  box-shadow: inset 0 0 0 1px var(--ask-line);
+  color: var(--ask-bone); font: 400 16px/1.2 var(--ask-text);
+  -webkit-appearance: none; appearance: none;
+}
+.ask-input::placeholder { color: var(--ask-bone-3); opacity: 1; }
+.ask-input:focus { box-shadow: inset 0 0 0 1px var(--ask-brass); }
+.ask-send {
+  flex: none; display: grid; place-items: center; inline-size: 48px; block-size: 48px;
+  margin: 0; padding: 0; border: 0; border-radius: var(--r-md, 6px); cursor: pointer;
+  background: var(--ask-plate); color: #141008;
+}
+.ask-send:focus-visible, .ask-head-btn:focus-visible, .ask-chip:focus-visible {
+  outline: 3px solid var(--ask-brass-hi); outline-offset: 2px;
+}
+
+/* ═══ 4 · THE LIGHTBOX ══════════════════════════════════════════════════ */
+.ask-lb {
+  position: absolute; inset: 0; z-index: 2;
+  display: grid; place-items: center;
+  padding: 56px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  background: rgb(5 7 10 / .94);
+}
+.ask-lb[hidden] { display: none; }
+.ask-lb-fig { margin: 0; display: grid; gap: 10px; justify-items: center; max-inline-size: 100%; max-block-size: 100%; }
+.ask-lb-img {
+  display: block; max-inline-size: min(1400px, 100%); max-block-size: calc(100dvh - 140px);
+  inline-size: auto; block-size: auto; object-fit: contain;
+  border-radius: var(--r-md, 6px); background: #e8ebef;
+}
+.ask-lb-cap { margin: 0; max-inline-size: 70ch; color: var(--ask-bone-2); font: 400 14px/1.4 var(--ask-text); text-align: center; }
+.ask-lb-btn {
+  position: absolute; display: grid; place-items: center;
+  inline-size: 48px; block-size: 48px; margin: 0; padding: 0; border: 0; border-radius: 50%; cursor: pointer;
+  background: rgb(5 7 10 / .7); color: var(--ask-bone);
+  box-shadow: inset 0 0 0 1px var(--ask-line);
+}
+.ask-lb-btn[hidden] { display: none; }
+.ask-lb-btn:focus-visible { outline: 3px solid var(--ask-brass-hi); outline-offset: 2px; }
+.ask-lb-close { inset-block-start: calc(8px + env(safe-area-inset-top, 0px)); inset-inline-end: 8px; }
+.ask-lb-prev { inset-inline-start: 8px; inset-block-start: 50%; translate: 0 -50%; }
+.ask-lb-next { inset-inline-end: 8px; inset-block-start: 50%; translate: 0 -50%; }
+
+
+/* ═══ 5 · THE SHEET (phones, and the pocket list) ════════════════════════
+   Pinned to the VISUAL viewport (ask.js writes --ask-vvh/--ask-vvt) so the
+   composer rides above the on-screen keyboard instead of under it. */
+@media (max-width: 560px), (pointer: coarse) and (max-height: 500px) {
+  .ask-panel {
+    inset-inline: 0; inset-block-end: auto;
+    inset-block-start: calc(var(--ask-vvt, 0px) + 12px + env(safe-area-inset-top, 0px));
+    inline-size: 100%;
+    block-size: calc(var(--ask-vvh, 100dvh) - 12px - env(safe-area-inset-top, 0px));
+    border-radius: 16px 16px 0 0;
+  }
+  .ask-head { padding-inline-start: 16px; }
+  .ask-log { padding: 16px 16px 24px; }
+  .ask-card-title { font-size: 25px; }
+  .ask-step { grid-template-columns: 26px 1fr; gap: 8px; }
+  .ask-step-n { font-size: 21px; }
+}
+
+
+/* ═══ 6 · MOTION ════════════════════════════════════════════════════════
+   One orchestrated moment: the panel arrives from the bell's side. */
+@keyframes ask-fade-in { from { opacity: 0; } }
+@keyframes ask-fade-out { to { opacity: 0; } }
+@keyframes ask-side-in { from { opacity: 0; transform: translate3d(24px, 0, 0); } }
+@keyframes ask-side-out { to { opacity: 0; transform: translate3d(16px, 0, 0); } }
+@keyframes ask-sheet-in { from { transform: translate3d(0, 40px, 0); opacity: 0; } }
+@keyframes ask-sheet-out { to { transform: translate3d(0, 24px, 0); opacity: 0; } }
+#ask-root.is-open .ask-scrim { animation: ask-fade-in var(--m-t-2, 160ms) var(--ask-ease) backwards; }
+#ask-root.is-open .ask-panel { animation: ask-side-in var(--m-t-3, 240ms) var(--m-ease-cine, cubic-bezier(.16,1,.3,1)) backwards; }
+#ask-root.is-closing .ask-scrim { animation: ask-fade-out var(--m-t-2, 160ms) var(--ask-ease-in) both; }
+#ask-root.is-closing .ask-panel { animation: ask-side-out var(--m-t-2, 160ms) var(--ask-ease-in) both; }
+@media (max-width: 560px), (pointer: coarse) and (max-height: 500px) {
+  #ask-root.is-open .ask-panel { animation-name: ask-sheet-in; }
+  #ask-root.is-closing .ask-panel { animation-name: ask-sheet-out; }
+}
+html[data-motion="lite"] #ask-root.is-open .ask-panel { animation: ask-fade-in 160ms var(--ask-ease) backwards; }
+html[data-motion="lite"] #ask-root.is-closing .ask-panel { animation: ask-fade-out 160ms var(--ask-ease-in) both; }
+html[data-motion="lite"] .ask-thinking-dot { animation: none; }
+html[data-motion="off"] #ask-root *, html[data-motion="off"] .ask-fab, html[data-motion="off"] .ask-hero,
+html[data-motion="off"] .ask-hero-hint { animation: none !important; transition: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  #ask-root *, .ask-fab, .ask-hero, .ask-hero-hint, .ask-hero-go { animation: none !important; transition: none !important; }
+}
+
+/* index extras: a PDF page, a video chapter */
+.ask-pdf-name { display: grid; gap: 2px; }
+.ask-pdf-page, .ask-video-at { font: 600 12.5px/1.2 var(--ask-text); color: var(--ask-brass-hi); }
+.ask-video-label { display: grid; gap: 2px; }
+/* the newest turn can always scroll to the top of the log */
+.ask-turn:last-child { min-block-size: calc(100% - 24px); box-sizing: border-box; }
+/* The bar arrives a beat after the curtain lifts (ask.js is not on the boot
+   path): it fades in rather than popping. Covered by the reduced-motion and
+   data-motion=off rules above. */
+.ask-hero { animation: ask-fade-in var(--m-t-4, 360ms) var(--ask-ease) backwards; }
+
+/* ── a step's labelled sub-lines (Where / You'll see / Heads up / Tip) ──── */
+.ask-step-subs { margin: 2px 0 0; padding: 0; display: grid; gap: 6px; }
+.ask-step-sub { display: grid; grid-template-columns: 5.6em 1fr; gap: 8px; margin: 0;
+  font: 400 14.5px/1.45 var(--ask-text); color: var(--ask-bone-2); }
+.ask-step-sub dt { margin: 0; font: 700 12.5px/1.6 var(--ask-text); color: var(--ask-bone-3); }
+.ask-step-sub dd { margin: 0; min-inline-size: 0; overflow-wrap: anywhere; }
+.ask-step-sub--tip dt { color: var(--ask-brass-hi); }
+.ask-step-sub--warn dt { color: #ff9b7a; }
+@media (max-width: 560px) {
+  .ask-step-sub { grid-template-columns: 1fr; gap: 0; }
+}
+
+/* ── Related: the rest of the same guide, under a direct answer ───────── */
+.ask-related { display: grid; gap: 8px; margin-block-start: 8px; }
+.ask-related-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.ask-related .ask-chip { font-size: 14px; min-block-size: 44px; }
+
+/* ── round 3 ────────────────────────────────────────────────────────────── */
+/* the privacy line on the empty panel */
+.ask-welcome-note {
+  margin: -10px 0 18px; padding: 8px 12px; border-radius: var(--r-sm, 3px);
+  background: color-mix(in oklab, var(--ask-bone) 5%, transparent);
+  color: var(--ask-bone-3); font: 500 13.5px/1.4 var(--ask-text);
+}
+/* "Best guess": said quietly, in the heading, never hidden */
+.ask-guess {
+  display: block; margin-block-end: 4px;
+  font: 700 12.5px/1.2 var(--ask-text); letter-spacing: .02em; color: var(--ask-bone-3);
+}
+.ask-card--guess .ask-card-title { font-size: 23px; }
+/* crumbs: a phone shows the last two levels only */
+.ask-opt-crumbs--short { display: none; }
+@media (max-width: 560px), (pointer: coarse) and (max-height: 500px) {
+  .ask-crumb--deep { display: none; }
+  .ask-opt-crumbs--full { display: none; }
+  .ask-opt-crumbs--short { display: block; }
+}
+
+/* ── round 4 ────────────────────────────────────────────────────────────── */
+/* "Is it one of these?": the top answer open in full, the others under it */
+.ask-likely { display: grid; gap: 12px; }
+.ask-likely > .ask-card {
+  padding: 14px 14px 16px; border-radius: var(--r-md, 6px);
+  background: color-mix(in oklab, var(--ask-bone) 3%, transparent);
+  box-shadow: inset 0 0 0 1px var(--ask-line-brass);
+}
+.ask-likely > .ask-card .ask-card-title { font-size: 24px; }
+/* the "Chef is checking…" state that stands in for a weak answer */
+.ask-thinking--solo { margin: 2px 0 0; font-size: 15px; }
+/* two ways on from "couldn't find" */
+.ask-actions--stack { flex-direction: column; gap: 8px; }

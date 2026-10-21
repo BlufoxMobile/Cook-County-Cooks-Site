@@ -98,8 +98,19 @@ const SLOW_NOTE_MS = 6000;
  *  hour of a rep's typing) and silently reloading one would throw that away. */
 const STALE_AFTER_MS = 10 * 60 * 1000;
 
-/** Deep-link shape: #/tool/<slug> */
-const HASH_RE = /^#\/tool\/([A-Za-z0-9_-]+)\/?$/;
+/** Deep-link shape: #/tool/<slug>, optionally #/tool/<slug>/<anchor>.
+ *
+ *  THE ANCHOR TAIL (Ask the Chef, Oct 2026). The chatbot answers with the exact
+ *  step, not just the guide: `#/tool/bapis/~s3` must open BAPIS AND land the
+ *  framed guide on its own `#/~s3`. Until this the regex ended at the slug, so
+ *  a link with a tail matched nothing and opened nothing at all. The tail is
+ *  only ever handed to a SAME-ORIGIN guide (tools/<slug>/), whose router reads
+ *  it as its own hash; a tool on another origin opens exactly as before and the
+ *  tail is ignored. ANCHOR_RE is deliberately narrow — the guides' anchors are
+ *  `~s3`, `~tips`, `~xh-shield-add`, `search/<q>` — so nothing that could be
+ *  read as markup or a URL ever reaches a frame's src. */
+const HASH_RE = /^#\/tool\/([A-Za-z0-9_-]+)(?:\/([^?#]*))?$/;
+const ANCHOR_RE = /^[A-Za-z0-9~_.:\/-]{1,160}$/;
 
 /* v29 motion (design audit M7). Twins of the durations in STYLES, used only as
  * safety nets behind the panel's own `transitionend` (see afterPanelFade). */
@@ -227,9 +238,44 @@ function openNewTab(url) {
   return win;
 }
 
-/** The site's own address for a tool: what a copied link must say. */
-function internalHref(slug) {
-  return `#/tool/${encodeURIComponent(slug)}`;
+/** The site's own address for a tool: what a copied link must say. With an
+ *  anchor (Ask the Chef), the guide's own place rides along as the tail. */
+function internalHref(slug, anchor) {
+  const a = cleanAnchor(anchor);
+  return `#/tool/${encodeURIComponent(slug)}${a ? `/${a}` : ''}`;
+}
+
+/** An anchor tail we are willing to forward, or '' (see ANCHOR_RE). */
+function cleanAnchor(anchor) {
+  if (typeof anchor !== 'string' || !anchor) return '';
+  let a = anchor;
+  try { a = decodeURIComponent(anchor); } catch { /* keep it as written */ }
+  a = a.replace(/^\/+|\/+$/g, '');
+  return ANCHOR_RE.test(a) ? a : '';
+}
+
+/** How each guide spells its own hash. Most route on `#/<anchor>`; a guide
+ *  with no hash router (plain in-page ids) wants `#<anchor>`. This module names
+ *  no tool: the map arrives from whoever knows it — Ask the Chef reads it off
+ *  data/ask-index.json (`frame_hash_prefix`) and sends it as the
+ *  `ccc:frame-hash-prefix` event, { default: '#/', <slug>: '#' }. Until then
+ *  every guide gets the default. */
+const FRAME_HASH = { default: '#/', bySlug: new Map() };
+function frameHashPrefix(slug) {
+  const p = FRAME_HASH.bySlug.get(slug);
+  return p === '#' || p === '#/' ? p : FRAME_HASH.default;
+}
+
+/** The URL the frame is pointed at: the tool's own, plus the guide's hash when
+ *  there is an anchor and the guide is ours. Cross-origin tools never get one. */
+function frameUrl(tool, anchor) {
+  const a = cleanAnchor(anchor);
+  if (!a || isCrossOrigin(tool.url)) return tool.url;
+  try {
+    const u = new URL(tool.url, location.href);
+    u.hash = frameHashPrefix(tool.slug) + a;
+    return u.href;
+  } catch { return tool.url; }
 }
 
 /**
@@ -262,7 +308,8 @@ function normaliseTriggerLinks(root) {
   for (const a of list) {
     const slug = a.getAttribute('data-tool');
     if (!slug) continue;
-    const want = internalHref(slug);
+    // data-tool-anchor (Ask the Chef): the copied link keeps the exact step.
+    const want = internalHref(slug, a.getAttribute('data-tool-anchor'));
     if (a.getAttribute('href') !== want) a.setAttribute('href', want);
     if (a.hasAttribute('target')) a.removeAttribute('target');
     if (a.hasAttribute('rel')) a.removeAttribute('rel');
@@ -281,7 +328,7 @@ function watchTriggerLinks() {
     childList: true, subtree: true,
     // pocket.js used to rewrite href after the fact; if anything else does,
     // the rewrite is undone in the same task.
-    attributes: true, attributeFilter: ['href', 'target']
+    attributes: true, attributeFilter: ['href', 'target', 'data-tool-anchor']
   };
   const watched = new WeakSet();
   const deep = new MutationObserver((muts) => {
@@ -337,6 +384,8 @@ const state = {
   ui: null,
   /** slug currently displayed, or null */
   activeSlug: null,
+  /** the guide-internal anchor the frame was pointed at ('' = none) — see HASH_RE */
+  activeAnchor: '',
   /** the element that opened the viewer, so focus can go home */
   lastFocus: null,
   /** true when *we* pushed the #/tool/ entry (so close() can history.back()) */
@@ -1833,7 +1882,9 @@ function showFrame(tool, { force = false } = {}) {
 
   // A FRESH element per navigation — see navigateStageFrame() for why.
   const startedAt = Date.now();
-  const frame = navigateStageFrame(ui, tool.url);
+  // frameUrl(): a same-origin guide is pointed at its own `#/<anchor>` when the
+  // open asked for one (Ask the Chef deep links); everything else is tool.url.
+  const frame = navigateStageFrame(ui, frameUrl(tool, state.activeAnchor));
   frame.title = `${tool.label} — live tool`;
   frame.onload = onLoad;
   frame.onerror = onError;
@@ -1958,6 +2009,35 @@ function showFrame(tool, { force = false } = {}) {
 function hashSlug() {
   const m = HASH_RE.exec(location.hash || '');
   return m ? m[1] : null;
+}
+
+/** The `/<anchor>` tail of a `#/tool/<slug>/<anchor>` hash, cleaned, or ''. */
+function hashAnchor() {
+  const m = HASH_RE.exec(location.hash || '');
+  return m ? cleanAnchor(m[2] || '') : '';
+}
+
+/**
+ * Same tool, new place in it (Ask the Chef: a second answer in the same guide).
+ * The guide is already up, so it is not reloaded — its own hash is REPLACED in
+ * place, which its router hears as a hashchange and which adds no history
+ * entry (see navigateStageFrame for why that matters to ✕ and Back). Returns
+ * false when the frame cannot be steered (cross-origin, or not loaded yet), and
+ * the caller re-points the frame instead.
+ */
+function steerFrame(tool, anchor) {
+  const ui = state.ui;
+  const a = cleanAnchor(anchor);
+  if (!ui || !ui.frame || !a || isCrossOrigin(tool.url)) return false;
+  try {
+    const w = ui.frame.contentWindow;
+    if (!w || !w.location || w.location.href === 'about:blank') return false;
+    const target = new URL(tool.url, location.href);
+    const here = new URL(w.location.href);
+    if (here.pathname !== target.pathname) return false;
+    w.location.replace(`${here.origin}${here.pathname}${here.search}${frameHashPrefix(tool.slug)}${a}`);
+    return true;
+  } catch { return false; }
 }
 
 /**
@@ -2183,6 +2263,7 @@ function clearCloseWatch() {
  */
 export function openTool(slug, opts = {}) {
   const { history: doPush = true, trigger = null, bypassGate = false, source = 'api', replace = false } = opts;
+  const anchor = cleanAnchor(opts.anchor || '');
   const tool = getTool(slug);
 
   if (!tool) {
@@ -2233,6 +2314,16 @@ export function openTool(slug, opts = {}) {
 
   const from = state.phase;
   const swapping = from === 'opening' || from === 'open';
+
+  /* THE SAME GUIDE, A DIFFERENT PLACE IN IT (Ask the Chef). Steer the live
+     frame to the new anchor rather than reloading the whole guide; the entry
+     in the address bar is replaced, never stacked, so one ✕ still closes. */
+  if (swapping && state.activeSlug === slug && anchor !== state.activeAnchor) {
+    state.activeAnchor = anchor;
+    if (!steerFrame(tool, anchor)) showFrame(tool);
+    if (doPush) { try { history.replaceState({ cccTool: slug }, '', internalHref(slug, anchor)); } catch { /* noop */ } }
+    return;
+  }
   // Where the window grows from. Read first, while nothing has been written.
   const origin = !swapping && from !== 'closing' && motionTier() === 'full' ? triggerPoint(trigger) : null;
 
@@ -2240,6 +2331,7 @@ export function openTool(slug, opts = {}) {
   const ui = buildUI();
 
   state.activeSlug = slug;
+  state.activeAnchor = anchor;
   ui.title.textContent = tool.label;
   ui.blurb.textContent = tool.blurb || '';
   state.openedAt = Date.now();
@@ -2267,10 +2359,10 @@ export function openTool(slug, opts = {}) {
     // entry instead of stacking one per tool, so one ✕ / Escape / Back closes
     // the viewer (S4's request). pushedHistory is left as it was: an entry we
     // pushed is still ours to pop; a deep link still has none.
-    try { history.replaceState({ cccTool: slug }, '', internalHref(slug)); } catch { /* noop */ }
+    try { history.replaceState({ cccTool: slug }, '', internalHref(slug, anchor)); } catch { /* noop */ }
   } else if (doPush) {
     try {
-      history.pushState({ cccTool: slug }, '', internalHref(slug));
+      history.pushState({ cccTool: slug }, '', internalHref(slug, anchor));
       state.pushedHistory = true;
     } catch { state.pushedHistory = false; }
   }
@@ -2333,6 +2425,7 @@ function teardown() {
   const ui = state.ui;
   const slug = state.activeSlug;
   state.activeSlug = null;
+  state.activeAnchor = '';
   state.pushedHistory = false;
   clearFrameTimer();
   clearCloseWatch();
@@ -2586,7 +2679,7 @@ function canonicaliseLocation() {
   const tool = getTool(raw);
   if (!tool || tool.slug === raw) return raw;
   try {
-    history.replaceState(history.state, '', location.pathname + location.search + internalHref(tool.slug));
+    history.replaceState(history.state, '', location.pathname + location.search + internalHref(tool.slug, hashAnchor()));
   } catch { /* noop: the lookup below is case-insensitive anyway */ }
   return tool.slug;
 }
@@ -2595,11 +2688,16 @@ function canonicaliseLocation() {
 function syncFromLocation() {
   const slug = canonicaliseLocation();
   if (slug) {
-    if (slug === state.activeSlug) return;
+    const anchor = hashAnchor();
+    if (slug === state.activeSlug) {
+      // Same tool, new tail (a second Ask the Chef answer, or Back between two).
+      if (anchor !== state.activeAnchor) openTool(slug, { history: false, source: 'hash', anchor });
+      return;
+    }
     // Arrived by history, so don't push another entry — but remember that the
     // entry exists so ✕ still rewinds correctly.
     const had = state.activeSlug !== null;
-    openTool(slug, { history: false, source: 'hash' });
+    openTool(slug, { history: false, source: 'hash', anchor });
     // If the gate refused, nothing opened — don't claim an entry we don't own.
     if (state.activeSlug === slug) state.pushedHistory = had || state.pushedHistory;
   } else if (state.activeSlug !== null) {
@@ -2631,7 +2729,9 @@ function onDocumentClick(ev) {
   try {
     fromPalette = ev.composedPath().some((n) => n && n.nodeType === 1 && n.hasAttribute('data-ccc-keep-live'));
   } catch { /* noop */ }
-  openTool(slug, { trigger, source: 'click', replace: fromPalette });
+  // data-tool-anchor: a trigger that names a place inside a guide (Ask the Chef).
+  openTool(slug, { trigger, source: 'click', replace: fromPalette,
+                   anchor: trigger.getAttribute('data-tool-anchor') || '' });
 }
 
 /** Keyboard activation for non-native triggers (a div with data-tool). */
@@ -2712,6 +2812,16 @@ export function initOverlay(options = {}) {
        identity test inside it reads state.ui.frame live, so it is correct for
        whichever frame is mounted at the moment a message arrives. */
     window.addEventListener('message', onFrameMessage);
+    /* The guides' hash spellings (see FRAME_HASH). If a guide is already open
+       on an anchor in the old spelling — a cold deep link that beat the map —
+       it is steered to the right one in place. */
+    document.addEventListener('ccc:frame-hash-prefix', (ev) => {
+      const d = (ev && ev.detail) || {};
+      if (d.default === '#' || d.default === '#/') FRAME_HASH.default = d.default;
+      for (const [k, v] of Object.entries(d)) if (k !== 'default' && (v === '#' || v === '#/')) FRAME_HASH.bySlug.set(k, v);
+      const tool = state.activeSlug && getTool(state.activeSlug);
+      if (tool && state.activeAnchor) steerFrame(tool, state.activeAnchor);
+    });
     /* THE VIEWER HAD NO IDEA THE TAB HAD EVER GONE AWAY. This module carried no
        visibilitychange and no pageshow handler at all, so a tool opened before
        lunch was still, on the rep's return, the pre-lunch document with a

@@ -1,0 +1,705 @@
+{
+ "room/pass": [
+  "where are the quote sheets",
+  "quote tools room",
+  "where do i build a quote",
+  "the pass",
+  "room with the tsheets",
+  "where r the quoting tools"
+ ],
+ "room/host": [
+  "host stand",
+  "where are todays numbers",
+  "front of house room",
+  "where is the daily sales and conversion",
+  "room with yesterdays conversion"
+ ],
+ "room/dining": [
+  "dining room",
+  "where are the leaderboards",
+  "room with the win the weekend boards",
+  "where is nps and leaderboards",
+  "wheres the weekend contest board"
+ ],
+ "room/prep": [
+  "prep station",
+  "where is credit limit and exception report",
+  "room with porting and request access",
+  "recipe cards room",
+  "where are the tricky stuff tools ports credit access"
+ ],
+ "room/office": [
+  "back office",
+  "where are the how to binders",
+  "where is the paperwork room",
+  "room with csg how to and celestial job aid",
+  "where are the training guides"
+ ],
+ "room/breakroom": [
+  "break room",
+  "where are the games",
+  "where is my pay sheet and commission",
+  "room with the suggestion box",
+  "where is the head chef wall"
+ ],
+ "tool/quote-6th-gen": [
+  "quote a family of four coming from verizon",
+  "cx has four lines with tmobile how much would xm be",
+  "how much would customer save switching to xfinity mobile",
+  "build a mobile quote",
+  "new lines quote",
+  "guy wants to bring his own phone what would it cost",
+  "byod quote for switching carriers",
+  "price out unlimited for a family",
+  "compare att bill vs xfinity mobile",
+  "customer paying too much at verizon show savings",
+  "lady wants new phones and lines how much",
+  "mobile qoute sheet"
+ ],
+ "tool/quote-6th-gen-how-to": [
+  "how do i use the 6th gen quote sheet",
+  "how to work the mobile quote sheet with a customer",
+  "quote sheet tutorial",
+  "how do i show the yearly savings",
+  "training on the mobile quote",
+  "how to present the t chart side by side",
+  "what do i put in core savings on the quote sheet"
+ ],
+ "tool/quote-upgrade": [
+  "existing xm customer wants a new iphone",
+  "upgrade quote",
+  "price out an upgrade with trade in",
+  "cx already has xfinity mobile wants to upgrade phone",
+  "upgrade anytime pricing",
+  "how much is the new phone with their trade in",
+  "customer wants to upgrade and add a watch",
+  "trade in value on upgrade",
+  "quote a phone upgrade for current mobile customer",
+  "upgrade sheet"
+ ],
+ "tool/quote-upgrade-how-to": [
+  "how do i use the upgrade quote sheet",
+  "how to turn an upgrade into a bundle",
+  "upgrade quote sheet tutorial",
+  "how to add a watch and tablet to an upgrade",
+  "how does the trade in math work on upgrades",
+  "how do i use upgrade sheet training"
+ ],
+ "tool/quote-internet": [
+  "how much is internet",
+  "internet pricing",
+  "customer just wants wifi how much",
+  "quote home internet",
+  "internet rate plans",
+  "price out internet and tv bundle",
+  "what speeds and prices for internet",
+  "gig internet cost",
+  "internet only quote no mobile",
+  "hsd quote",
+  "intenet price for new apartment"
+ ],
+ "tool/site-tour": [
+  "first day how does this site work",
+  "im new where do i start",
+  "how do i use cook county cooks",
+  "site tour",
+  "orientation video",
+  "new hire walkthrough of the website",
+  "what tools are on this site",
+  "show me around",
+  "how do i find stuff on this sight",
+  "help how does this work"
+ ],
+ "tool/daily-sales": [
+  "daily sales report",
+  "todays numbers",
+  "dsr",
+  "how is my store doing today",
+  "store rankings today",
+  "where do i log my sales",
+  "whats the promo of the day",
+  "where we rank today",
+  "sales numbers by store"
+ ],
+ "tool/tsheet-submissions": [
+  "where are my submitted tsheets",
+  "t sheet submissions",
+  "follow up on a quote i did",
+  "find a customer quote i submitted",
+  "track my tsheets",
+  "customer came back for the quote from last week",
+  "list of quotes to follow up on"
+ ],
+ "tool/yesterdays-conversion": [
+  "yesterdays conversion",
+  "conversion rate by store",
+  "how many walk ins turned into sales yesterday",
+  "traffic vs sales yesterday",
+  "what was our close rate yesterday",
+  "store conversion numbers",
+  "yc report"
+ ],
+ "tool/commission-payouts": [
+  "how much will i make",
+  "what does a watch pay",
+  "commission",
+  "how much do i get for a new line",
+  "what does mobile plus pay vs mobile select",
+  "pay sheet",
+  "spiffs",
+  "what does an upgrade pay",
+  "how much do i make on gig internet",
+  "what pays the most",
+  "comp plan",
+  "how much comission do i get"
+ ],
+ "tool/wtw-chicago": [
+  "win the weekend chicago",
+  "chicago weekend leaderboard",
+  "who is winning the weekend in chicago",
+  "weekend contest standings chicago",
+  "wtw chicago",
+  "where does my chicago store rank this weekend"
+ ],
+ "tool/wtw-big-south": [
+  "win the weekend big south",
+  "tennessee weekend leaderboard",
+  "big south standings",
+  "who is winning the weekend in tennessee",
+  "wtw big south",
+  "nashville stores weekend contest"
+ ],
+ "tool/nps": [
+  "nps scores",
+  "medallia",
+  "how are our surveys",
+  "customer reviews by store",
+  "what are customers saying about us",
+  "detractors",
+  "nps report",
+  "my store survey score"
+ ],
+ "tool/credit-limit": [
+  "customer only approved for two lines wants five",
+  "credit limit increase",
+  "cx maxed out on lines",
+  "how do i get more lines approved",
+  "credit check came back low",
+  "line limit reached cant add a line",
+  "cli request",
+  "customer cant add a watch credit limit",
+  "eligibility review for more lines",
+  "credit says only one line allowed",
+  "cx says credit wont let them add lines"
+ ],
+ "tool/exception-report": [
+  "exception report",
+  "transactions not done right",
+  "exceptions by rep",
+  "my exceptions",
+  "what got flagged on my sales",
+  "sale didnt go by the book",
+  "exceptions by store"
+ ],
+ "tool/fall-off": [
+  "fall off report",
+  "sale fell off",
+  "chargebacks",
+  "customer cancelled before install",
+  "order never activated",
+  "clawback",
+  "why did my sales fall off",
+  "falloff rate by store",
+  "chase back cancelled sales"
+ ],
+ "tool/rep-hourly-rate": [
+  "how much am i making per hour",
+  "rep hourly rate",
+  "what does my commission come to hourly",
+  "how is my month tracking pay",
+  "estimate my paycheck",
+  "blended wage",
+  "effective hourly rate with commission"
+ ],
+ "tool/training-xfinity": [
+  "product training",
+  "xfinity product mastery",
+  "battle cards",
+  "learn the plans and pricing",
+  "difference between mobile plus and mobile select",
+  "product quiz",
+  "training class",
+  "new rep product knowledge"
+ ],
+ "tool/suggestion-box": [
+  "suggestion box",
+  "i have an idea",
+  "anonymous complaint",
+  "how do i give feedback to jeff",
+  "i have a gripe about scheduling",
+  "submit a suggestion",
+  "report a concern anonymously",
+  "idea to improve the website"
+ ],
+ "video/quote-6th-gen-how-to": [
+  "6th gen quote sheet video",
+  "watch the mobile quote sheet how to",
+  "video on how to quote mobile",
+  "quote sheet training video",
+  "how to close with the yearly savings video"
+ ],
+ "video/quote-6th-gen-how-to/step-1": [
+  "where do i put membership tier on quote sheet",
+  "silver gold diamond tier on mobile quote",
+  "start the quote sheet with tier",
+  "tier specific promos"
+ ],
+ "video/quote-6th-gen-how-to/step-2": [
+  "core savings on the quote sheet",
+  "rebundle internet savings",
+  "how much they save on internet with mobile",
+  "what is core savings"
+ ],
+ "video/quote-6th-gen-how-to/step-3": [
+  "mobile discount on quote sheet",
+  "enter their current carrier bill",
+  "quote apples to apples same number of lines",
+  "customer has four lines quote four",
+  "who do you have your cell phones with"
+ ],
+ "video/quote-6th-gen-how-to/step-4": [
+  "mobile plus or byod",
+  "should i finance the phone or bring your own",
+  "keep them on mobile plus",
+  "no money down today"
+ ],
+ "video/quote-6th-gen-how-to/step-5": [
+  "customer said no to switching",
+  "how to handle the objection on mobile quote",
+  "customer declines mobile offer",
+  "cx wont switch phones what now",
+  "present side by side and ask what do you think",
+  "lower the bill with mobile select"
+ ],
+ "video/quote-upgrade-how-to": [
+  "upgrade quote sheet video",
+  "watch the upgrade how to",
+  "video on bundling an upgrade",
+  "upgrade training video",
+  "how to make more on an upgrade video"
+ ],
+ "video/quote-upgrade-how-to/step-1": [
+  "find leverage on the core account",
+  "look for discounts before talking phones",
+  "what they pay today vs after changes",
+  "upgrade leverage"
+ ],
+ "video/quote-upgrade-how-to/step-2": [
+  "enter current cell phone bill upgrade sheet",
+  "where do i type their phone bill",
+  "upgrade sheet current bill box"
+ ],
+ "video/quote-upgrade-how-to/step-3": [
+  "pick the phone they want",
+  "quote more than one phone upgrade",
+  "multiple phones on upgrade sheet",
+  "running savings tally"
+ ],
+ "video/quote-upgrade-how-to/step-4": [
+  "trade in on upgrade sheet",
+  "android trade in value",
+  "how do i enter the trade in condition",
+  "upgrade credit plus trade in",
+  "trade in covers the whole phone"
+ ],
+ "video/quote-upgrade-how-to/step-5": [
+  "add a watch to the upgrade",
+  "upgrade only pays a little how to make more",
+  "diamond customers wearable discount",
+  "add tablet and accessories to upgrade",
+  "view customer preview",
+  "build the bundle"
+ ],
+ "video/site-tour": [
+  "site tour video",
+  "watch the tour",
+  "video of every room",
+  "start here video",
+  "new here watch first"
+ ],
+ "video/site-tour/intro": [
+  "what is cook county cooks",
+  "what is this site",
+  "intro to the site"
+ ],
+ "video/site-tour/getting-around-the-site": [
+  "how do i get around the site",
+  "how to navigate rooms",
+  "menu across the top",
+  "close a tool and go back"
+ ],
+ "video/site-tour/the-pass": [
+  "tour of the pass",
+  "what are the quote sheets for",
+  "which quote sheet do i use",
+  "difference between upgrade and mobile quote sheet"
+ ],
+ "video/site-tour/host-stand": [
+  "tour of the host stand",
+  "what is in the host stand",
+  "where is daily sales and conversion explained"
+ ],
+ "video/site-tour/dining-room": [
+  "tour of the dining room",
+  "what are the boards on the wall",
+  "leaderboards explained"
+ ],
+ "video/site-tour/prep-station": [
+  "tour of the prep station",
+  "what is portpro and credit limit",
+  "what tools are in prep station"
+ ],
+ "video/site-tour/back-office": [
+  "tour of the back office",
+  "what are the how to binders",
+  "what guides are in back office"
+ ],
+ "video/site-tour/passcode-guides": [
+  "why does it need a passcode",
+  "guide passcode",
+  "who gives me the passcode"
+ ],
+ "video/site-tour/break-room": [
+  "tour of the break room",
+  "what is in the break room",
+  "head chef wall and arcade"
+ ],
+ "tool/arcade": [
+  "games",
+  "arcade",
+  "im on break what can i play",
+  "play a game",
+  "bored on break",
+  "video games on the site"
+ ],
+ "game/fox-run": [
+  "fox run",
+  "running fox game",
+  "dodge obstacles game high score"
+ ],
+ "game/after-hours": [
+  "after hours game",
+  "after hours",
+  "lights off store game"
+ ],
+ "game/deep-six": [
+  "deep six",
+  "battleship",
+  "sink ships game",
+  "fleet command"
+ ],
+ "game/overdrive": [
+  "overdrive",
+  "racing game",
+  "kart racing",
+  "mario kart",
+  "car game"
+ ],
+ "game/casino": [
+  "casino",
+  "blufox casino",
+  "card games",
+  "gamble with play chips",
+  "poker blackjack games"
+ ],
+ "game/windy-city-derby": [
+  "windy city derby",
+  "home run derby",
+  "baseball game",
+  "wrigley game",
+  "sox cubs batting game"
+ ],
+ "game/casino/blackjack": [
+  "blackjack",
+  "play twenty one",
+  "blackjack table"
+ ],
+ "game/casino/holdem": [
+  "texas holdem",
+  "poker",
+  "holdem table"
+ ],
+ "game/casino/roulette": [
+  "roulette",
+  "spin the wheel",
+  "roulette table"
+ ],
+ "game/casino/slots": [
+  "slots",
+  "slot machine",
+  "midnight fox"
+ ],
+ "game/casino/baccarat": [
+  "baccarat",
+  "punto banco",
+  "baccarat table"
+ ],
+ "game/casino/craps": [
+  "craps",
+  "roll the dice",
+  "dice game"
+ ],
+ "game/casino/videopoker": [
+  "video poker",
+  "jacks or better",
+  "poker machine"
+ ],
+ "faq/find-a-tool": [
+  "how do i find a tool",
+  "cant find a tool",
+  "where is the search",
+  "full list of tools",
+  "how to get around the site"
+ ],
+ "faq/passcode": [
+  "guide is asking for a passcode",
+  "what is the passcode",
+  "locked guide passcode",
+  "csg how to wants a code",
+  "need passcode for request access"
+ ],
+ "faq/head-chef-wall": [
+  "head chef wall",
+  "top performers this week",
+  "who won this week",
+  "why did they win head chef"
+ ],
+ "faq/days-since-nps": [
+  "days since last bad survey",
+  "tv in back office",
+  "how long since bad nps",
+  "last detractor counter"
+ ],
+ "faq/todays-promo": [
+  "todays mobile promo",
+  "whats the deal today",
+  "current mobile promotion",
+  "promo on the screen"
+ ],
+ "tool/bp-access": [
+  "request access",
+  "locked out of everything",
+  "new hire need access to systems",
+  "how do i get access to celestial",
+  "password reset",
+  "access denied",
+  "cant log in to my tools",
+  "first day no logins",
+  "need access to a new tool",
+  "lost access after transfer"
+ ],
+ "bp-access/start": [
+  "request access start here",
+  "where do i start requesting access",
+  "new hire which tools do i need access to"
+ ],
+ "bp-access/billing": [
+  "access to billing systems",
+  "celestial csg einstein neptune access",
+  "cant get into billing system"
+ ],
+ "bp-access/cases": [
+  "access to ticket tools",
+  "tickets and cases access",
+  "case management access"
+ ],
+ "bp-access/store": [
+  "store ordering access",
+  "cant order supplies for my store",
+  "ordering access for store"
+ ],
+ "bp-access/start-here": [
+  "where does every access request go",
+  "where do i submit an access request",
+  "who handles access requests",
+  "which site do i request access on"
+ ],
+ "bp-access/start-here/s0": [
+  "find my tool to request access",
+  "which tool do i need access for",
+  "access request by tool"
+ ],
+ "bp-access/celestial": [
+  "request access to celestial",
+  "new hire needs celestial",
+  "celestial access denied",
+  "no celestial login",
+  "cant get into celestial"
+ ],
+ "bp-access/celestial/s0": [
+  "request celestial in techspot",
+  "celestial access through onesupport",
+  "techspot ticket for celestial"
+ ],
+ "bp-access/celestial/s1": [
+  "request celestial in mycomcastaccess",
+  "mycomcastaccess celestial",
+  "celestial role request"
+ ],
+ "bp-access/celestial/s2": [
+  "business partner celestial access",
+  "dealer celestial access",
+  "authorized retailer celestial login"
+ ],
+ "bp-access/celestial/s3": [
+  "celestial access questions",
+  "celestial access still not working",
+  "how long does celestial access take"
+ ],
+ "bp-access/einstein-360": [
+  "einstein access",
+  "request einstein",
+  "cant get into einstein",
+  "update my einstein profile",
+  "einstein access denied"
+ ],
+ "bp-access/einstein-360/s0": [
+  "einstein access for frontline",
+  "store rep einstein access",
+  "frontline employee einstein"
+ ],
+ "bp-access/einstein-360/s1": [
+  "einstein access corporate",
+  "national employee einstein",
+  "corporate einstein profile"
+ ],
+ "bp-access/einstein-360/s2": [
+  "check my einstein profile",
+  "einstein profile wrong",
+  "einstein role wrong store"
+ ],
+ "bp-access/neptune": [
+  "neptune access",
+  "request neptune",
+  "cant get into neptune",
+  "new hire neptune"
+ ],
+ "bp-access/neptune/s0": [
+  "how to request neptune access",
+  "neptune access request",
+  "neptune login denied"
+ ],
+ "bp-access/csg-password": [
+  "locked out of csg",
+  "csg password reset",
+  "csg says account locked",
+  "forgot csg password",
+  "too many attempts csg",
+  "unlock csg"
+ ],
+ "bp-access/csg-password/s0": [
+  "unlock csg account",
+  "reset csg password",
+  "csg password expired"
+ ],
+ "bp-access/onesupport": [
+  "onesupport access request",
+  "request access to any tool",
+  "techspot ticket",
+  "open a onesupport ticket",
+  "how do i request a tool in onesupport"
+ ],
+ "bp-access/onesupport/s0": [
+  "which ticket type in onesupport",
+  "find the right ticket type",
+  "onesupport ticket type"
+ ],
+ "bp-access/onesupport/s1": [
+  "request access to a tool in onesupport",
+  "onesupport access ticket",
+  "need a tool added to my login"
+ ],
+ "bp-access/onesupport/s2": [
+  "report an outage",
+  "system down in store",
+  "everything is down who do i call",
+  "outage ticket"
+ ],
+ "bp-access/onesupport/s3": [
+  "printer not working ticket",
+  "store network down ticket",
+  "hardware request",
+  "ipad broken request",
+  "internet down in store"
+ ],
+ "bp-access/onesupport/s4": [
+  "check my onesupport tickets",
+  "my cases onesupport",
+  "onesupport favorites",
+  "status of my ticket"
+ ],
+ "bp-access/ecm": [
+  "ecm access",
+  "enterprise case management access",
+  "cant open a case",
+  "request ecm"
+ ],
+ "bp-access/ecm/s0": [
+  "how do i request ecm access",
+  "ecm access request",
+  "new hire ecm"
+ ],
+ "bp-access/ecm/s1": [
+  "ecm group types",
+  "which ecm group do i pick",
+  "ecm group"
+ ],
+ "bp-access/ecm/s2": [
+  "ecm access for whole team",
+  "request access for many people",
+  "bulk ecm request"
+ ],
+ "bp-access/ecm/s3": [
+  "change someones ecm access",
+  "update ecm access",
+  "ecm wrong group"
+ ],
+ "bp-access/ecm/s4": [
+  "fix agent to originator",
+  "ecm originator",
+  "cant create cases in ecm only fix agent"
+ ],
+ "bp-access/ecm/s5": [
+  "remove ecm access",
+  "employee left remove access",
+  "take away ecm access"
+ ],
+ "bp-access/xm360": [
+  "cant get into xm three sixty",
+  "xm portal access",
+  "xfinity mobile tool login not working",
+  "xm three sixty access denied"
+ ],
+ "bp-access/xm360/s0": [
+  "report xm three sixty issue",
+  "xm three sixty ticket",
+  "xm tool broken onesupport"
+ ],
+ "bp-access/hub2u": [
+  "hub to u profile",
+  "order supplies for my store",
+  "cant order for my store",
+  "store ordering profile",
+  "hub u access"
+ ],
+ "bp-access/hub2u/s0": [
+  "switch my profile to store user",
+  "store user role hub",
+  "hub profile wrong role"
+ ],
+ "bp-access/hub2u/s1": [
+  "set store as delivery location",
+  "supplies shipping to wrong store",
+  "change delivery location for orders"
+ ]
+}

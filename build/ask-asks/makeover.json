@@ -1,0 +1,421 @@
+{
+ "esim-activation/new-line-byod": [
+  "byod new line",
+  "customer brought own phone wants new line",
+  "cx bought iphone at apple store wants a line with us",
+  "bring your own phone new line setup",
+  "new line on unlocked phone they already have",
+  "guy has his own samsung wants to add a line",
+  "byod esim new line not bought from xfinity",
+  "new line own device how do they set it up",
+  "set up cellular notification byod",
+  "byod new line keep old number transfer later",
+  "own phone new line no app needed"
+ ],
+ "esim-activation/quick-transfer-android": [
+  "quick transfer android",
+  "pixel to pixel transfer line",
+  "samsung to samsung esim transfer",
+  "move esim from old galaxy to new galaxy",
+  "transfer a sim from another device android",
+  "old phone scans qr on new android",
+  "cx got new samsung has old one with them",
+  "moto to moto transfer number",
+  "samsung verification code transfer sim",
+  "can android convert its own sim card to esim"
+ ],
+ "esim-activation/verify-replacement": [
+  "verify replacement device",
+  "billing imei update pending",
+  "verify button replacement imei",
+  "escalate to xm support replacement phone",
+  "confirm replacement device xm360",
+  "insurance replacement not verified yet",
+  "we couldnt confirm your new device email",
+  "not a replacement device align button",
+  "replacement phone works but shows pending",
+  "how long for insurance replacement to confirm",
+  "convert to byo not a replacement"
+ ],
+ "esim-activation/watch-replace": [
+  "replace apple watch",
+  "swap old watch for new one same line",
+  "cx got new watch replace the old one",
+  "replace active watch xm360",
+  "watch broke new one keep same line",
+  "galaxy watch replacement activation",
+  "move watch line to new watch",
+  "replace paired watch host line",
+  "old watch deactivated when replaced"
+ ],
+ "esim-activation/watch-standalone": [
+  "standalone watch",
+  "smartwatch data plan",
+  "standalone watch with own phone number",
+  "watch not paired to phone plan",
+  "kid watch own line",
+  "standalone apple watch activation",
+  "watch data plan instead of paired",
+  "activate watch as its own line",
+  "emergency address standalone watch"
+ ],
+ "esim-activation/iphone-sos": [
+  "iphone says sos only",
+  "sos instead of bars after activation",
+  "iphone sos after number transfer",
+  "no bars just sos iphone",
+  "reset network settings sos fix",
+  "carrier cellular plan ready to be installed",
+  "cx iphone showing sos in top corner",
+  "airplane mode fix sos",
+  "iphone se sos after esim"
+ ],
+ "esim-activation/psim-ship": [
+  "ship sim card to customer",
+  "mail a new sim card",
+  "order sim card xm360",
+  "no sim cards in store ship one",
+  "sim order error",
+  "how long does a shipped sim take",
+  "damaged sim card send replacement",
+  "lost phone need new sim mailed",
+  "place order new sim card"
+ ],
+ "esim-activation/psim-store": [
+  "swap sim card from store stock",
+  "scan iccid new sim",
+  "replace sim card in store today",
+  "error defective sim",
+  "add sim iccid xm360",
+  "we have sim cards here put one in",
+  "new sim card error after scan",
+  "give cx a new sim card in store",
+  "physical sim replacement in store"
+ ],
+ "esim-activation/iphone-convert-esim": [
+  "iphone convert to esim settings",
+  "iphone shortcut psim to esim",
+  "take sim card out iphone esim",
+  "customer wants to switch iphone sim card to esim themselves",
+  "convert to esim option in iphone settings",
+  "change back from esim to physical sim iphone",
+  "converted to esim under number"
+ ],
+ "training-pos/checkin-prospect/tips": [
+  "why do i need serviceability check for prospect",
+  "prospect address not available",
+  "address not serviceable at check in",
+  "mytown address check in",
+  "serviceability turns on insights"
+ ],
+ "training-pos/details-insights/tips": [
+  "why no acquisition insights",
+  "insights missing comcast business customer",
+  "no insights for out of footprint address",
+  "insights blank address already has account",
+  "how to use insights in conversation"
+ ],
+ "training-pos/transfer-guest": [
+  "transfer guest celestial",
+  "give my customer to another rep",
+  "pass guest to coworker",
+  "three dots menu transfer guest",
+  "going on break hand off guest",
+  "switch rep on a session",
+  "move guest to different rep"
+ ],
+ "training-pos/pos-what/tips": [
+  "check guest in and take payment same tool",
+  "is pos inside celestial",
+  "does pos fill in customer info from check in",
+  "why launch pos from check in",
+  "pos part of celestial or separate app"
+ ],
+ "training-pos/sale-steps/s1": [
+  "pos search bar",
+  "jump to function pos",
+  "cant find tile in pos",
+  "shortcut to quick sale",
+  "skip to specific menu items"
+ ],
+ "training-pos/pos-help/tips": [
+  "session id for techspot ticket",
+  "care app team links",
+  "care application issues pos",
+  "what info do i need for pos ticket"
+ ],
+ "training-pos/open-drawer/tips": [
+  "do i open the ipads at open",
+  "only registers need opened",
+  "open store ipad or register",
+  "business date wrong at open",
+  "store shows closed in morning"
+ ],
+ "training-pos/cs-access/tips": [
+  "look up account without checking in",
+  "skip check in see account",
+  "no check in quick lookup",
+  "pull account with no checkin"
+ ],
+ "training-pos/cs-features/tips": [
+  "change equipment from customer profile",
+  "where do i change equipment customer space",
+  "change modem from customer space",
+  "swap equipment from account features"
+ ],
+ "csg-how-to/wifi-ready-tv": [
+  "wifi ready kit plus tv service",
+  "wifi ready kit xfinity tv",
+  "self install kit tv and internet csg",
+  "wifi ready kit for cable customer",
+  "enter wifi ready kit when cx has tv",
+  "wifi ready order with cable",
+  "wifi ready tv bundle order entry"
+ ],
+ "csg-how-to/gsk-wifi-extender-request": [
+  "wifi extender request csg",
+  "customer asking for an extender getting started kit",
+  "extender gsk order",
+  "handle extender request",
+  "ship extender getting started kit",
+  "cx called asking for extender",
+  "extender request order entry"
+ ],
+ "csg-how-to/ie-documents": [
+  "help customer upload ie documents",
+  "ie app says more docs required",
+  "ie application needs additional docs",
+  "help cx upload ie paperwork",
+  "ie pending documentation",
+  "ie asking for more proof"
+ ],
+ "csg-how-to/ie-rate-codes": [
+  "internet essentials rate codes",
+  "ie rate code list",
+  "what rate code goes on ie account",
+  "ie rate codes for bulk building",
+  "ie codes csg lookup",
+  "rate codes internet essentials plus"
+ ],
+ "csg-how-to/ie-move": [
+  "move ie customer new address",
+  "ie customer moving to new apartment",
+  "internet essentials move",
+  "ie transfer of service",
+  "ie cx moving keep discount",
+  "does ie follow them when they move"
+ ],
+ "csg-how-to/ie-rush-review": [
+  "rush ie review",
+  "speed up ie approval",
+  "ie docs stuck rush it",
+  "expedite internet essentials documents",
+  "ie review taking too long",
+  "rush ie in store"
+ ],
+ "csg-how-to/ie-plus-new": [
+  "ie plus for someone not on xfinity yet",
+  "sign up new cx for ie plus",
+  "brand new ie customer wants ie plus",
+  "new connect straight to ie plus",
+  "new ie application upgrade to plus",
+  "ie plus for new customer csg"
+ ],
+ "csg-how-to/ie-plus-existing": [
+  "existing ie customer upgrade to plus",
+  "current ie cx wants ie plus",
+  "ie plus existing account csg",
+  "already on ie wants faster plan",
+  "upgrade existing internet essentials to plus"
+ ],
+ "csg-how-to/premium-existing-tv": [
+  "add hbo existing tv customer",
+  "add premium channels existing account",
+  "cx has tv wants showtime",
+  "add max to existing cable",
+  "premium channels add on current customer",
+  "add starz to tv",
+  "add premiums to existing tv",
+  "cx wants to add a movie channel"
+ ],
+ "csg-how-to/nowtv-downgrade-x1": [
+  "downgrade cable box to now tv",
+  "cx wants cheaper tv now tv",
+  "switch cable to now tv latino",
+  "cable too expensive move to now tv",
+  "downgrade cable to now tv",
+  "now tv latino downgrade",
+  "drop cable box keep now tv"
+ ],
+ "csg-how-to/nowtv-upgrade-xumo-flex": [
+  "xumo box customer wants now tv",
+  "flex box upgrade to now tv",
+  "upgrade xumo stream box now tv",
+  "flex upgrade to now tv latino",
+  "cx has xumo box wants live tv",
+  "add now tv on flex",
+  "xumo stream box upgrade"
+ ],
+ "csg-how-to/voice-add-line": [
+  "add another phone line",
+  "add second home phone line",
+  "additional voice line",
+  "cx wants a second landline",
+  "extra phone number for house",
+  "add line to xfinity voice",
+  "second phone line for fax"
+ ],
+ "csg-how-to/tn-change": [
+  "change phone number",
+  "cx wants new home phone number",
+  "getting spam calls change number",
+  "change xfinity telephone number",
+  "new number for landline",
+  "swap home phone number"
+ ],
+ "csg-how-to/tn-escalate": [
+  "escalate phone number problem csg",
+  "telephone number inventory problem",
+  "no numbers available csg",
+  "phone number not in inventory",
+  "number stuck escalate",
+  "telephone number problem who do i escalate"
+ ],
+ "csg-how-to/tn-port-back": [
+  "cx wants number ported back to xfinity",
+  "port back xfinity",
+  "number ported away by mistake",
+  "customer wants old number ported back",
+  "undo a port",
+  "handle port back"
+ ],
+ "csg-how-to/tn-port": [
+  "port a telephone number",
+  "port number into xfinity voice",
+  "how to port home phone in csg",
+  "port landline from att",
+  "bring old home number over",
+  "enter port order"
+ ],
+ "csg-how-to/voice-premier-repackage": [
+  "voice premier package change",
+  "repackage home phone to premier",
+  "voice premier unlimited calling",
+  "change voice package",
+  "switch voice plan to premier",
+  "move to xfinity voice premier"
+ ],
+ "csg-how-to/tn-restore": [
+  "restore old telephone number",
+  "get old number back after disconnect",
+  "move telephone number to new address",
+  "restore tn",
+  "number got disconnected want it back",
+  "keep phone number when moving"
+ ],
+ "csg-how-to/legacy-second-voice": [
+  "legacy customer second voice line",
+  "add second line legacy account",
+  "old plan customer wants another phone line",
+  "second voice line legacy",
+  "legacy voice add line"
+ ],
+ "csg-how-to/legacy-owned-modem": [
+  "legacy modem rented to owned",
+  "change modem to customer owned legacy",
+  "cx bought own modem legacy plan stop rental",
+  "stop modem rental fee legacy",
+  "legacy customer own modem",
+  "remove rental charge modem"
+ ],
+ "csg-how-to/legacy-transfer": [
+  "legacy service transfer to new home",
+  "legacy customer moving",
+  "keep old plan when moving",
+  "move legacy account new address",
+  "legacy tos",
+  "grandfathered plan move"
+ ],
+ "csg-how-to/seasonal-update": [
+  "update seasonal plan",
+  "change seasonal plan dates",
+  "snowbird coming back early",
+  "edit seasonal convenience plan",
+  "extend seasonal convenience plan",
+  "seasonal return date change",
+  "cx back from florida turn service on"
+ ],
+ "csg-how-to/bulk-disconnect": [
+  "bulk tenant disconnect order",
+  "bulk tenant moving out disconnect",
+  "cancel service apartment bulk",
+  "bulk account disconnect",
+  "tenant in bulk building cancel"
+ ],
+ "csg-how-to/bulk-disconnect/s0": [
+  "bulk agreement details disconnect",
+  "check bulk agreement before disconnect",
+  "what does bulk agreement include disconnect"
+ ],
+ "csg-how-to/bulk-missing-details": [
+  "bulk details missing fix",
+  "bulk details missing on account",
+  "fix bulk info csg",
+  "bulk tenant account missing info",
+  "bulk property details blank"
+ ],
+ "csg-how-to/bulk-debulk-codes": [
+  "debulk",
+  "residential codes missing after debulk",
+  "property debulked codes missing",
+  "building no longer bulk",
+  "after debulk fix codes",
+  "debulked apartment account"
+ ],
+ "csg-how-to/bulk-transfer": [
+  "transfer bulk tenant",
+  "bulk tenant moving to new apartment",
+  "move bulk service",
+  "bulk tenant tos",
+  "tenant moving out of bulk building"
+ ],
+ "csg-how-to/bulk-transfer/s0": [
+  "bulk agreement details transfer",
+  "check bulk agreement before move",
+  "bulk agreement new building transfer"
+ ],
+ "csg-how-to/bulk-upgrade": [
+  "bulk tenant upgrade order",
+  "bulk tenant wants faster internet",
+  "add tv bulk tenant",
+  "bulk tenant upgrade services",
+  "apartment included internet wants more"
+ ],
+ "csg-how-to/bulk-upgrade/s0": [
+  "bulk agreement details upgrade",
+  "what bulk includes before upgrade",
+  "check bulk agreement before adding services"
+ ],
+ "csg-how-to/billing-address-disconnect": [
+  "confirm billing address when disconnecting",
+  "billing address for final bill",
+  "where does final bill go after disconnect",
+  "disconnect billing address check",
+  "cx cancelling confirm mailing address",
+  "final bill mailing address on cancel"
+ ],
+ "csg-how-to/equipment-add-cos": [
+  "rental equipment on a change of service",
+  "add box during cos",
+  "add equipment while changing services",
+  "rent gateway during service change",
+  "add tv box with package change"
+ ],
+ "csg-how-to/equipment-add-existing": [
+  "rental equipment on existing account",
+  "cx needs another rented box",
+  "add rented gateway to current account",
+  "rent modem existing customer",
+  "add equipment no service change"
+ ]
+}

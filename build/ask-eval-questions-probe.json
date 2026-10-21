@@ -1,0 +1,439 @@
+{
+ "_provenance": "Written by the engine agent on 2026-10-20 midway through round 2, labelled against data/ask-index.json before its first run. Its first run (55% top-1) exposed overfitting; the engine was then tuned against it, so it is NOT a holdout. The engine agent's untouched check is a separate self-sealed 40-question probe kept out of the repo (run once; reported in build/ask-engine-report.md).",
+ "questions": [
+  {
+   "q": "customer wants to keep there number from boost",
+   "expect": [
+    "porting-guide/boost-mobile",
+    "porting-guide/boost-mobile/pin",
+    "porting-guide/boost-mobile/account"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "where is the account number on a tmobile bill",
+   "expect": [
+    "porting-guide/t-mobile/account"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "visible pin expired",
+   "expect": [
+    "porting-guide/visible/pin"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "google fi port out",
+   "expect": [
+    "porting-guide/google-fi",
+    "porting-guide/google-fi/pin"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "is the iphone unlocked from verizon",
+   "expect": [
+    "porting-guide/verizon/unlock"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "cricket phone locked",
+   "expect": [
+    "porting-guide/cricket-wireless/unlock"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "us cellular transfer pin",
+   "expect": [
+    "porting-guide/uscellular/pin"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "esim qr not scanning",
+   "expect": [
+    "esim-activation/s0",
+    "esim-activation/qr-codes",
+    "esim-activation/s6"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "customer bought iphone at apple store wants xfinity mobile",
+   "expect": [
+    "esim-activation/s1",
+    "esim-activation/s2"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "put old sim in new phone",
+   "expect": [
+    "esim-activation/s9",
+    "esim-activation/s3"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "watch wont connect to the phone line",
+   "expect": [
+    "esim-activation/s13"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "customer accidentally erased esim",
+   "expect": [
+    "esim-activation/s11"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "insurance sent a new phone how to activate",
+   "expect": [
+    "esim-activation/s5"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "who is allowed to activate a line",
+   "expect": [
+    "esim-activation/s15"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "bapis order didnt show in pickups",
+   "expect": [
+    "bapis/s0"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "how long do we hold online orders before unpacking",
+   "expect": [
+    "bapis/s5",
+    "bapis/before"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "customer lost the pickup code",
+   "expect": [
+    "bapis/s2",
+    "bapis/tips"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "son picking up moms order",
+   "expect": [
+    "bapis/s6"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "customer walked away during pickup",
+   "expect": [
+    "bapis/s4"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "ie application id",
+   "expect": [
+    "internet-essentials/s5"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "what documents does ie need",
+   "expect": [
+    "internet-essentials/s6"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "ie in spanish",
+   "expect": [
+    "internet-essentials/s9"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "how do i get paid for ie sales",
+   "expect": [
+    "internet-essentials/s0"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "what does ie plus cost",
+   "expect": [
+    "internet-essentials/s10"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "ie phone number for customers",
+   "expect": [
+    "internet-essentials/s12"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "does medicaid count for internet essentials",
+   "expect": [
+    "internet-essentials/s3"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "open the drawer in the morning",
+   "expect": [
+    "training-pos/open-drawer",
+    "training-pos/fund-drawer"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "end of day cash count",
+   "expect": [
+    "training-pos/tender-count",
+    "training-pos/settle-drawer"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "exchange a phone case for a different color",
+   "expect": [
+    "training-pos/return-steps",
+    "training-pos/return-tips"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "sell a charger",
+   "expect": [
+    "training-pos/sale-steps"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "customer is a comcast business account",
+   "expect": [
+    "training-pos/checkin-cb"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "look up an account in customer space",
+   "expect": [
+    "training-pos/cs-lookup"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "what is mercury",
+   "expect": [
+    "training-pos/cs-mercury"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "pass the customer to another rep",
+   "expect": [
+    "training-pos/session-end"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "submit a techspot ticket for pos",
+   "expect": [
+    "training-pos/pos-help"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "add showtime",
+   "expect": [
+    "csg-how-to/premium-new-tv",
+    "csg-how-to/premium-new-tv/s0",
+    "csg-how-to/premium-existing-tv/s0"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "add home security in csg",
+   "expect": [
+    "csg-how-to/xh-security",
+    "csg-how-to/shield-select",
+    "csg-how-to/shield-select/s0"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "customer relocating to a new apartment",
+   "expect": [
+    "csg-how-to/transfer-service",
+    "csg-how-to/transfer-service/s0"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "reconnect service after disconnect",
+   "expect": [
+    "csg-how-to/restart-account",
+    "csg-how-to/restart-account/s0"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "new landline order",
+   "expect": [
+    "csg-how-to/voice-install",
+    "csg-how-to/voice-install/s0"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "customer has a weak wifi spot",
+   "expect": [
+    "csg-how-to/wifi-extenders",
+    "csg-how-to/gsk-wifi-extender-request/s0"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "send a tech to install",
+   "expect": [
+    "csg-how-to/pro-install"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "customer bought their own router",
+   "expect": [
+    "csg-how-to/customer-owned-equipment"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "where do i see the customers balance in csg",
+   "expect": [
+    "csg-how-to/billing-info",
+    "csg-how-to/billing-info/s0"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "locked out of celestial",
+   "expect": [
+    "bp-access/celestial",
+    "bp-access/celestial/s0"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "cant order supplies for store",
+   "expect": [
+    "bp-access/hub2u",
+    "bp-access/hub2u/s0"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "how do i see the sales leaderboard",
+   "expect": [
+    "tool/wtw-chicago",
+    "tool/wtw-big-south",
+    "tool/daily-sales"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "fell off sales list",
+   "expect": [
+    "tool/fall-off"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "bereavement leave",
+   "expect": [
+    "printouts/employee-handbook/10.6"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "jury duty policy",
+   "expect": [
+    "printouts/employee-handbook/10.7"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "print welcome sign in sheet",
+   "expect": [
+    "printouts/welcome-sign-in-sheet-xfinity"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "todays promo",
+   "expect": [
+    "faq/todays-promo"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "roulette",
+   "expect": [
+    "game/casino/roulette"
+   ],
+   "split": "probe"
+  },
+  {
+   "q": "what is a good movie to watch",
+   "expect": "none",
+   "split": "probe"
+  },
+  {
+   "q": "how do i fix my car",
+   "expect": "none",
+   "split": "probe"
+  },
+  {
+   "q": "where is the nearest gas station",
+   "expect": "none",
+   "split": "probe"
+  },
+  {
+   "q": "order lunch for the team",
+   "expect": "none",
+   "split": "probe"
+  },
+  {
+   "q": "change my direct deposit",
+   "expect": [
+    "printouts/employee-handbook/5.8"
+   ],
+   "split": "probe",
+   "note": "relabelled round 3: the asks writer mapped direct deposit to Handbook 5.8 Payday, which is the right place on the site (the handbook covers pay); was \"none\""
+  },
+  {
+   "q": "what is the store wifi password",
+   "expect": "none",
+   "split": "probe"
+  },
+  {
+   "q": "translate hello to french",
+   "expect": "none",
+   "split": "probe"
+  }
+ ]
+}

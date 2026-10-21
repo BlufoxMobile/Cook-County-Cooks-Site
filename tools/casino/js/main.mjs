@@ -63,7 +63,10 @@ class Casino {
     await this.route(true);
     setTimeout(() => $('#loader').classList.add('off'), 250);
     if (this.bank.refunded) this.hud.toast(`Ace returned <b>${fmt(this.bank.refunded)}</b> chips from a hand you left mid-deal.`, 'gold');
-    else if (this.bank.fresh) setTimeout(() => this.welcome(), 900);
+    // A first visit that arrives WITH a table (#blackjack — Ask the Chef's
+    // deep link, or a shared link) goes straight to that table: Ace's welcome
+    // sheet would cover it (on a phone, completely). The lobby still welcomes.
+    else if (this.bank.fresh && !GAMES.some(x => x.id === location.hash.slice(1))) setTimeout(() => this.welcome(), 900);
   }
   fatal(msg) {
     $('#loader').innerHTML = `<div class="ld-mark">C<sup>3</sup></div><div class="ld-title">BLUFOX <em>Casino</em></div><p class="ld-msg" style="max-width:320px;text-align:center;line-height:1.7;letter-spacing:.08em">${esc(msg)}</p>`;

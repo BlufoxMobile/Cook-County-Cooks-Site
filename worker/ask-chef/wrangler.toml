@@ -1,0 +1,66 @@
+# Ask the Chef — AI fallback Worker for cookcountycooks.com
+#
+# Deployed by Cloudflare Workers Builds (dashboard > the Worker > Settings > Builds,
+# root directory "worker/ask-chef") or by hand with:  npx wrangler@4 deploy
+# The Durable Object below can only be created by a wrangler deploy, which is why the
+# dashboard "paste the code" route is not used for this Worker. See README.md.
+#
+# Secrets are NOT in this file. Add them in the dashboard (Settings > Variables and
+# Secrets, type Secret) or with `npx wrangler@4 secret put <NAME>`:
+#   ANTHROPIC_API_KEY   the Claude API key
+#   IP_SALT             any long random text (required; the Worker refuses to run without it)
+
+name = "ask-chef"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+# Serve the Worker only at https://ask.cookcountycooks.com (a Custom Domain on the
+# cookcountycooks.com zone, so zone security rules such as the WAF rate-limiting rule
+# in README.md can sit in front of it). The *.workers.dev address is switched off so
+# there is no second, unprotected way in.
+# If the deploy fails because the domain can't be added (zone not in this Cloudflare
+# account, or an existing DNS record named "ask"), delete the [[routes]] block and set
+# workers_dev = true. The Worker then lives at ask-chef.<subdomain>.workers.dev, which
+# works, but the WAF rule cannot be applied there.
+workers_dev = false
+
+[[routes]]
+pattern = "ask.cookcountycooks.com"
+custom_domain = true
+
+# Settings. A deploy resets these to what is written here, so change them HERE (and
+# push), not in the dashboard.
+[vars]
+# Keep "false" in production. "true" lets http://localhost:* call /ask while testing.
+ALLOW_LOCALHOST = "false"
+# Most Claude calls per day for the whole site. Resets at midnight Central. This is a
+# true ceiling: the Durable Object reserves a slot before every Claude call.
+DAILY_CAP = "300"
+# Per network (IPv4 address, or IPv6 /64). A whole store shares one connection.
+PER_IP_MINUTE = "20"
+PER_IP_DAY = "300"
+MODEL = "claude-haiku-5-5"
+
+# The counter: one SQLite-backed Durable Object (works on the Workers Free plan).
+[[durable_objects.bindings]]
+name = "ASK_LIMITER"
+class_name = "AskLimiter"
+
+# Creates the AskLimiter class the first time this is deployed. Never edit or remove
+# this block once deployed. (Cloudflare's newer declarative equivalent is
+#   [exports.AskLimiter] type = "durable-object", storage = "sqlite"
+# but the two forms can't be mixed, and this one works with every wrangler 3/4.)
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["AskLimiter"]
+
+# Optional extra burst guard: Cloudflare's Rate Limiting binding (20 / 60 s per IP,
+# counted per Cloudflare location, approximate). The Durable Object already enforces
+# the real limits, so this is off by default. To turn it on, remove the leading "# ".
+# [[ratelimits]]
+# name = "RL"
+# namespace_id = "4207"
+#
+#   [ratelimits.simple]
+#   limit = 20
+#   period = 60

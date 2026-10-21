@@ -577,8 +577,19 @@
       .po-stage { block-size: 20rem; }
     }
 
+    /* ── a sheet someone linked to (#/<sheet-id>) ─────────────────────────
+       Ask the Chef's "Open in Print Outs" lands here: the card is scrolled
+       into view, ringed in brass for a moment, and — for a handbook section —
+       its preview opens at the right page. Nothing changes for a plain visit. */
+    .po-sheet { scroll-margin-block: var(--sp-6); }
+    .po-sheet.is-target { border-color: var(--accent); box-shadow: var(--shadow-1), 0 0 0 3px color-mix(in oklab, var(--accent) 45%, transparent); }
+    .po-sheet.is-target { animation: po-target 1.8s var(--ease-out) both; }
+    @keyframes po-target { from { background: color-mix(in oklab, var(--accent) 20%, var(--surface)); } }
+    .po-page-note { margin: var(--sp-2) 0 0; color: var(--accent-lit); font-size: var(--t--1); font-weight: 600; }
+
     @media (prefers-reduced-motion: reduce) {
       .po-btn .po-caret { transition: none; }
+      .po-sheet.is-target { animation: none; }
     }
   </style>
 </head>
@@ -923,8 +934,8 @@
 
     /* ── rendering ───────────────────────────────────────────────────────── */
 
-    function buildPreview(item) {
-      var url = fileUrl(item);
+    function buildPreview(item, page) {
+      var url = fileUrl(item) + (page && item.type === 'pdf' ? '#page=' + page : '');
       var stage = el('div', { class: 'po-stage' });
 
       if (item.type === 'image') {
@@ -950,7 +961,7 @@
       var url = fileUrl(item);
       var isDoc = item.type === 'doc';
 
-      var row = el('article', { class: 'po-sheet' + (isDoc ? ' is-doc' : '') });
+      var row = el('article', { class: 'po-sheet' + (isDoc ? ' is-doc' : ''), id: 'sheet-' + sheetId(item), 'data-sheet': sheetId(item) });
       var body = el('div', { class: 'po-sheet-body' });
 
       body.append(el('div', { class: 'po-tab', 'aria-hidden': 'true', text: tabLabel(item) }));
@@ -1037,7 +1048,8 @@
             say(item.label + ' preview closed.');
           } else {
             drawer.textContent = '';
-            drawer.append(buildPreview(item));
+            var page = Number(row.getAttribute('data-page')) || 0;
+            drawer.append(buildPreview(item, page));
             drawer.append(el('p', {
               class: 'po-hint micro',
               text: item.type === 'image'
@@ -1097,6 +1109,57 @@
       return row;
     }
 
+    /* ── deep links: #/<sheet-id> and #/<sheet-id>~p<N> ─────────────────────
+     * sheetId() is the file name without its extension, lower-cased, runs of
+     * anything else to "-": "Employee Handbook - Jan 2026.pdf" ->
+     * "employee-handbook-jan-2026". build/ask-index.mjs printoutAnchor() makes
+     * the same id — KEEP THE TWO IN STEP. Data-driven like the rest of the
+     * page: no sheet is named here. A page number opens the sheet's preview at
+     * that page (the browser's own PDF viewer reads #page=N) and points the
+     * row's Open link there too. An unknown id does nothing at all. */
+    function sheetId(item) {
+      return String(item.file || '').replace(/\.[a-z0-9]+$/i, '').toLowerCase()
+        .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    }
+    var lastTarget = null;
+    function routeToSheet() {
+      var h = '';
+      try { h = decodeURIComponent((location.hash || '').replace(/^#\/?/, '')); } catch (e) { h = ''; }
+      var m = /^([a-z0-9-]{1,120})(?:~p(\d{1,4}))?$/.exec(h);
+      if (!m) return;
+      var row = document.querySelector('.po-sheet[data-sheet="' + m[1] + '"]');
+      if (!row) return;
+      var page = m[2] ? Number(m[2]) : 0;
+      if (lastTarget && lastTarget !== row) lastTarget.classList.remove('is-target');
+      lastTarget = row;
+      row.classList.remove('is-target'); void row.offsetWidth; row.classList.add('is-target');
+      var openA = row.querySelector('.po-actions a.po-btn[target="_blank"]');
+      if (openA && !row.hasAttribute('data-base-href')) row.setAttribute('data-base-href', openA.getAttribute('href') || '');
+      var old = row.querySelector('.po-page-note');
+      if (old) old.remove();
+      if (page) {
+        row.setAttribute('data-page', String(page));
+        if (openA) openA.setAttribute('href', row.getAttribute('data-base-href') + '#page=' + page);
+        var body = row.querySelector('.po-sheet-body > div:nth-child(2)');
+        if (body) body.append(el('p', { class: 'po-page-note', text: 'Page ' + page + ' — the preview opens there.' }));
+        var pv = row.querySelector('.po-actions button[aria-expanded]');
+        if (pv) {
+          if (pv.getAttribute('aria-expanded') === 'true') pv.click();   // reopen at the new page
+          pv.click();
+        }
+      } else {
+        row.removeAttribute('data-page');
+        if (openA) openA.setAttribute('href', row.getAttribute('data-base-href'));
+      }
+      var reduce = false;
+      try { reduce = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+      try { row.scrollIntoView({ block: 'start', behavior: reduce ? 'auto' : 'smooth' }); } catch (e) { row.scrollIntoView(); }
+      var h3 = row.querySelector('h3');
+      say((h3 ? h3.textContent : 'Sheet') + (page ? ', page ' + page : '') + '.');
+    }
+    window.addEventListener('hashchange', routeToSheet);
+
     function render(model) {
       var byGroup = {};
       model.files.forEach(function (f) {
@@ -1147,6 +1210,7 @@
       var model = normalise(res.data);
       if (!model.files.length) { renderBroken(); return; }
       render(model);
+      routeToSheet();
     }).catch(renderBroken);
   })();
   </script>
