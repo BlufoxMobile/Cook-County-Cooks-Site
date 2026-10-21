@@ -101,10 +101,13 @@ export const HOTSPOTS = {
       x:26.96, y:24.33, w:21.66, h:21.86, label:'Win the Weekend — Chicago' },
     { slug:'wtw-big-south', kind:'screen', mode:'live', width:960,
       x:51.38, y:24.33, w:21.58, h:21.86, label:'Win the Weekend — Big South' },
-    { slug:'nps',           kind:'tool',   x:77.5, y:25.5, w:18.5, h:25.0, label:'NPS Report', edge:'right' },
+    /* v44 (2026-10-20): the client moved the NPS Report to the Break Room (a
+       rail chip there). The framed-reviews wall is decoration again. */
   ],
   prep: [
-    { slug:'porting-guide', kind:'tool', x:24.0, y:33.5, w:9.0, h:12.0, label:'PortPro — Porting Guide' },
+    /* v44 (2026-10-20): Print Outs moved here from the Training Room printer,
+       onto the ticket PortPro used to hold; PortPro went to the Break Room. */
+    { slug:'printouts',     kind:'tool', x:24.0, y:33.5, w:9.0, h:12.0, label:'Print Outs' },
     { slug:'credit-limit',  kind:'tool', x:35.0, y:33.5, w:7.5, h:11.0, label:'Credit Limit Increase' },
     { slug:'exception-report', kind:'tool', x:43.5, y:34.5, w:6.5, h:10.0, label:'Exception Report' },
     { slug:'bp-access',     kind:'tool', x:51.0, y:35.0, w:5.0, h: 9.0, label:'Request Access — How To' },
@@ -161,7 +164,7 @@ export const HOTSPOTS = {
        fall-off — are inside the safe box at every landscape test size,
        1024x768 included. The coordinates did not change: every % in this file
        is still a % of the original 2400x1340 frame. */
-    { slug:'printouts',        kind:'tool', x:78.1, y:35.0, w:7.9, h:17.2, label:'Print Outs', edge:'right' },
+    /* v44: the printer is decoration now — Print Outs hangs on the prep rail. */
     { slug:'bapis',            kind:'tool', x:85.6, y:36.8, w:4.4, h:20.0, label:'BAPIS — Scan, Pack & Pick Up', edge:'right' },
     { slug:'internet-essentials', kind:'tool', x:91.5, y:34.4, w:6.0, h:24.2, label:'Internet Essentials — Agent Portal', edge:'right' },
   ],
