@@ -19,7 +19,7 @@
       src: url(../../assets/fonts/bodoni-moda-italic-latin.b737328c13.woff2) format('woff2'); }
   </style>
   <style>
-    /* Site Tour (Oct 2026): a 3:43 motion-graphics walkthrough of every room and
+    /* Site Tour (Oct 2026): a 4:01 motion-graphics walkthrough (re-cut 2026-10-20 for the Training Room layout; files in video/v2/) of every room and
        every rep tool. The video is HLS (video/tour.m3u8, ~6 s .ts segments) because
        GitHub's web uploader caps a file at 25 MB and a single 1080p MP4 of this
        length is ~100 MB. Safari/iPad plays HLS natively; everything else uses the
@@ -59,22 +59,22 @@
     <h1>The Cook County Cooks <em>site tour</em></h1>
   </header>
   <div class="frame">
-    <video id="v" playsinline preload="metadata" poster="video/poster.jpg" controls crossorigin="anonymous">
-      <track kind="captions" src="video/captions.vtt" srclang="en" label="English">
+    <video id="v" playsinline preload="metadata" poster="video/v2/poster.jpg" controls crossorigin="anonymous">
+      <track kind="captions" src="video/v2/captions.vtt" srclang="en" label="English">
     </video>
     <button class="play" id="play" type="button" aria-label="Play the site tour">
       <span class="btn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3l16 9-16 9z" fill="#141008"/></svg></span>
       <span class="lbl">Play the tour</span>
     </button>
   </div>
-  <p class="note">Every room, every tool, in under four minutes. Turn the sound on — or tap CC for captions.</p>
+  <p class="note">Every room, every tool, in about four minutes. Turn the sound on — or tap CC for captions.</p>
   <p class="note err" id="msg" role="alert" hidden></p>
   <script src="hls.light.min.js"></script>
   <script>
     (function(){
       var v = document.getElementById('v'), play = document.getElementById('play'), msg = document.getElementById('msg');
       var lbl = play.querySelector('.lbl');
-      var SRC = 'video/tour.m3u8';
+      var SRC = 'video/v2/tour.m3u8';
       var hls = null, attached = false, failed = false;
       // Native controls stay hidden behind the big play button (they'd show a dead
       // 0:00 bar and collide with the label on a phone); they come back on Play.
