@@ -60,13 +60,6 @@ header.top{position:sticky;top:0;z-index:20;background:rgba(0,0,0,.82);backdrop-
 .search kbd{position:absolute;right:12px;top:11px;font:500 11px var(--mono);color:var(--text-3);border:1px solid var(--line-2);border-radius:4px;padding:2px 6px}
 .search .clear{position:absolute;right:6px;top:4px;width:36px;height:36px;border-radius:50%;color:var(--text-2);display:none;font-size:20px}
 .search.has .clear{display:block}.search.has kbd{display:none}
-nav.cats{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 0 12px}
-nav.cats::-webkit-scrollbar{display:none}
-nav.cats a{flex:none;display:flex;align-items:center;gap:8px;height:38px;padding:0 16px;border-radius:999px;text-decoration:none;color:var(--text-2);font:600 14px var(--sans);box-shadow:inset 0 0 0 1px var(--line);transition:.15s}
-nav.cats a i{font:700 11px var(--sans);font-style:normal;color:var(--c);letter-spacing:.06em}
-nav.cats a:hover{color:var(--text);box-shadow:inset 0 0 0 1px var(--line-2)}
-nav.cats a[aria-current]{color:#000;background:var(--c);box-shadow:none}
-nav.cats a[aria-current] i{color:#000}
 
 /* ---------- guide page ---------- */
 .g-head{padding:44px 0 28px}
@@ -117,7 +110,7 @@ figure.shot:hover::after{opacity:1}
 .panel ul{margin:0;padding-left:20px;color:var(--text-2)}
 .panel li b{color:var(--text)}
 .panel li+li{margin-top:6px}
-.src{display:inline-flex;align-items:center;gap:8px;height:30px;padding:0 12px;border-radius:999px;text-decoration:none;font-weight:600;font-size:12px;box-shadow:inset 0 0 0 1px var(--line-2)}
+.src{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 12px;border-radius:999px;text-decoration:none;font-weight:600;font-size:12px;box-shadow:inset 0 0 0 1px var(--line-2)}
 .src:hover{box-shadow:inset 0 0 0 1px var(--c);color:var(--c)}
 .tbl{margin-top:14px;border-radius:6px;overflow:auto;box-shadow:inset 0 0 0 1px var(--line)}
 .tbl table{width:100%;border-collapse:collapse;font-size:15px}
@@ -256,9 +249,117 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
   .ghost{display:none}
   .dock .meter small span{display:none}
 }
-@media(pointer:coarse){nav.cats a{height:44px}.src{height:44px}.dock{top:118px}html{scroll-padding-top:200px}}
+@media(pointer:coarse){.src{height:44px}.dock{top:118px}html{scroll-padding-top:200px}}
 @media(pointer:coarse) and (max-width:640px){.dock{top:153px}html{scroll-padding-top:242px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- simplified layout (Oct 2026) — same pattern as the CSG guide ---------- */
+.hero{padding:52px 0 26px}
+.hero h1{font:700 clamp(40px,8vw,84px)/.98 var(--display);letter-spacing:-.015em;margin:16px 0 14px;max-width:14ch}
+.hero h1 em{color:var(--c);font-style:italic}
+.hero p{max-width:56ch;color:var(--text-2);font-size:20px;margin:0}
+.pick{margin:8px 0 34px}
+.pick label{display:block;font:700 clamp(26px,5vw,36px)/1.15 var(--display);margin-bottom:14px}
+.sel{position:relative;max-width:640px}
+.sel select{appearance:none;-webkit-appearance:none;width:100%;height:60px;padding:0 52px 0 20px;background:var(--ink-2);color:var(--text);border:0;border-radius:6px;box-shadow:inset 0 0 0 1px var(--brass);font:600 19px var(--sans);cursor:pointer}
+.sel select:focus-visible{outline:2px solid var(--brass-2);outline-offset:2px}
+.sel::after{content:"";position:absolute;right:22px;top:50%;width:10px;height:10px;border-right:2px solid var(--brass-2);border-bottom:2px solid var(--brass-2);transform:translateY(-70%) rotate(45deg);pointer-events:none}
+.sel optgroup{font-weight:700;color:#111}.sel option{color:#111;font-weight:500}
+.pick small{display:block;margin-top:10px;color:var(--text-3);font-size:15px}
+.section-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:48px 0 16px;flex-wrap:wrap}
+.section-h h2{font:700 30px/1.1 var(--display);margin:0}
+.section-h span{color:var(--text-2);font-size:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:14px}
+.cat-card{position:relative;display:flex;flex-direction:column;gap:8px;padding:22px;border-radius:6px;background:linear-gradient(160deg,var(--ink-2),var(--ink-1));box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
+.cat-card::after{content:"";position:absolute;right:-60px;top:-60px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,var(--c),transparent 70%);opacity:.16;pointer-events:none}
+.cat-card .n{font:700 13px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+.cat-card h3{font:700 28px/1.08 var(--display);margin:0 0 4px}
+.cat-card .tk{display:grid;gap:2px;position:relative;z-index:1}
+.cat-card .tk a{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:48px;padding:8px 12px;margin:0 -12px;border-radius:6px;text-decoration:none;font:600 17px/1.3 var(--sans);color:var(--text)}
+.cat-card .tk a::after{content:"→";color:var(--c);font-weight:700}
+.cat-card .tk a:hover{background:var(--ink-3)}
+.cat-card .tk small{margin-left:auto;color:var(--text-3);font:500 13px var(--sans);white-space:nowrap}
+.cat-card .tk small.all{color:var(--ok)}
+.cat-card.whole .go{align-self:flex-start;margin-top:8px;position:relative;z-index:1}
+.crumbs{display:flex;gap:8px;align-items:center;padding:26px 0 0;font-size:16px;color:var(--text-3);flex-wrap:wrap}
+.crumbs a{text-decoration:none;color:var(--text-2);min-height:44px;display:inline-flex;align-items:center}.crumbs a:hover{color:var(--text)}
+.g-head{padding:12px 0 28px}
+.g-head h1{font:700 clamp(34px,6vw,64px)/1.04 var(--display);margin:12px 0 14px;max-width:20ch}
+.g-head .sum{font-size:20px;line-height:1.5}
+.g-head details.more .intro{color:var(--text-2);font-size:17px;margin:4px 0 0;max-width:62ch}
+.g-sec details.more .intro{margin:0 0 12px}
+.step-body p.do,p.do{font-size:20px}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.pager a{padding:16px;border-radius:6px;text-decoration:none;box-shadow:inset 0 0 0 1px var(--line)}
+.pager a:hover{box-shadow:inset 0 0 0 1px var(--line-2)}
+.pager small{display:block;color:var(--text-3);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.pager .nx{text-align:right}
+.toc a{min-height:44px;align-items:center}
+details.more{margin-top:10px}
+details.more>summary{display:inline-flex;align-items:center;gap:6px;min-height:44px;cursor:pointer;list-style:none;font:600 15px var(--sans);color:var(--brass-2);padding:6px 0}
+details.more>summary::-webkit-details-marker{display:none}
+details.more>summary::before{content:"+";display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 1.5px currentColor;font-size:15px;line-height:1}
+details.more[open]>summary::before{content:"–"}
+details.more[open]>summary span::after{content:" (hide)";color:var(--text-3);font-weight:500}
+details.panel>summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px}
+details.panel>summary::-webkit-details-marker{display:none}
+details.panel>summary h3{margin:0}
+details.panel>summary::after{content:"Show";flex:none;font:600 14px var(--sans);color:var(--brass-2);padding:6px 14px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--line-2)}
+details.panel[open]>summary::after{content:"Hide"}
+details.panel[open]>summary{margin-bottom:12px}
+.panel ul{font-size:17px;line-height:1.55}
+.step-body,.callout,.panel li,.tbl td,.g-sec .intro,.mrow span,figcaption{overflow-wrap:anywhere}
+/* header is one row now (the pill row is gone), so the dock and anchors sit higher */
+html{scroll-padding-top:170px}
+.dock{top:76px}
+@media(max-width:640px){
+  .bar{height:auto;flex-wrap:nowrap;padding:10px 0 8px;gap:10px}
+  .brand b{font-size:19px;line-height:1.05}
+  .brand b em{display:block}
+  .search{flex:1 1 auto;flex-basis:auto;order:0;min-width:0}
+  .search input{font-size:16px;padding-right:12px}
+  .hero{padding:32px 0 18px}
+  .hero p{font-size:18px}
+  .g-head .sum{font-size:18px}
+  .cat-card{padding:18px}
+  .cat-card h3{font-size:24px}
+  ol.steps>li{grid-template-columns:1fr}
+  .dock{top:78px}
+  html{scroll-padding-top:176px}
+  .pager{grid-template-columns:1fr}
+  .pager .nx{text-align:left}
+}
+@media(pointer:coarse){.dock{top:78px}html{scroll-padding-top:176px}}
+@media(pointer:coarse) and (max-width:640px){.dock{top:78px}html{scroll-padding-top:176px}}
+
+/* ===== shared top-right menu (Oct 2026) — verbatim from topmenu.html ===== */
+/* top-right menu: replaces the nav.cats pill row and the .top .sel jump box */
+header.top nav.cats,.top .sel{display:none!important}
+.bar{position:relative}
+.mnu-btn{flex:none;display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 18px 0 14px;margin-left:4px;border-radius:999px;background:var(--ink-2);box-shadow:inset 0 0 0 1px var(--brass);color:var(--text);font:700 15px var(--sans);letter-spacing:.06em;text-transform:uppercase;transition:background .15s,box-shadow .15s}
+.mnu-btn:hover,.mnu-btn[aria-expanded="true"]{background:var(--brass);color:#120d03}
+.mnu-btn svg{width:20px;height:20px;flex:none}
+.mnu-btn .x{display:none}
+.mnu-btn[aria-expanded="true"] .x{display:block}.mnu-btn[aria-expanded="true"] .h{display:none}
+#mnu{position:absolute;right:0;top:calc(100% + 8px);z-index:40;width:min(420px,calc(100vw - 2 * var(--gut)));max-height:calc(100svh - 96px);overflow:auto;overscroll-behavior:contain;padding:10px;border-radius:10px;background:rgba(10,13,17,.97);box-shadow:inset 0 0 0 1px var(--line-2),0 24px 60px rgba(0,0,0,.7);display:none}
+#mnu.on{display:block;animation:mnuIn .22s cubic-bezier(.16,1,.3,1)}
+@keyframes mnuIn{from{opacity:0;transform:translateY(-8px) scale(.98)}}
+#mnu a{display:flex;align-items:center;gap:12px;min-height:48px;padding:8px 12px;border-radius:6px;text-decoration:none;color:var(--text-2);font:600 17px/1.3 var(--sans)}
+#mnu a:hover{background:var(--ink-3);color:var(--text)}
+#mnu a[aria-current]{background:color-mix(in srgb,var(--c,var(--brass)) 16%,transparent);color:var(--text);box-shadow:inset 3px 0 0 var(--c,var(--brass))}
+#mnu .mnu-home{color:var(--text)}
+#mnu .mnu-g{margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+#mnu .mnu-g h6{display:flex;align-items:center;gap:10px;margin:4px 12px 4px;font:700 12px var(--sans);letter-spacing:.2em;text-transform:uppercase;color:var(--c,var(--brass))}
+#mnu .mnu-g h6 i{width:8px;height:8px;border-radius:50%;background:var(--c,var(--brass))}
+#mnu .mnu-g a{padding-left:30px;font-weight:500}
+@media(max-width:640px){
+  .mnu-btn{width:48px;padding:0;justify-content:center;margin-left:0}
+  .mnu-btn b{display:none}
+  #mnu{position:fixed;left:var(--gut);right:var(--gut);top:var(--mnu-top,70px);width:auto;max-height:calc(100svh - var(--mnu-top,70px) - 16px)}
+}
+@media(prefers-reduced-motion:reduce){#mnu.on{animation:none}}
+/* menu sits in the true top-right corner on wide screens */
+header.top>.wrap{max-width:none}
 </style>
 </head>
 <body>
@@ -273,8 +374,9 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
         <kbd>/</kbd>
         <button class="clear" id="q-clear" type="button" aria-label="Clear search">×</button>
       </div>
+      <button class="mnu-btn" id="mnu-btn" type="button" aria-expanded="false" aria-controls="mnu" aria-label="Open menu"><svg class="h" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><svg class="x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg><b>Menu</b></button>
+<nav id="mnu" aria-label="Menu"></nav>
     </div>
-    <nav class="cats" id="cats" aria-label="Sections"></nav>
   </div>
 </header>
 <main id="view" class="wrap" tabindex="-1"></main>
@@ -289,7 +391,37 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 <div id="lb" role="dialog" aria-modal="true" aria-label="Enlarged picture"><button type="button" aria-label="Close">×</button><div><img alt=""><p></p></div></div>
 
 <script>
-const G = {"id": "bapis", "code": "COMMS538", "updated": "Sep 25, 2026", "title": "BAPIS: Scan, Pack & Pick Up", "summary": "Buy Anywhere, Pick up In-store. Pack the online order before the customer walks in, hand it over the right way, and unpack it if nobody comes.", "before": ["Every BAPIS order lives in **Celestial → Store Space → Pickups**, sorted into three queues: **Ready to pack**, **Packed** and **Unpack**.", "Pack the order **at least two hours before** the customer is due in the store.", "Core and Xfinity Mobile bought together show up as **two line items**. That means two bags, and you pack and hand over each one separately.", "**Mobile** orders can only be picked up by the **primary account holder**. **Core** orders can be picked up by the primary, a manager, or an authorized user.", "Orders not picked up within **four days** move to the **Unpack** queue by themselves."], "sections": [{"title": "Find your BAPIS orders", "nav": "Find orders", "intro": "All in-store reps can see every BAPIS order in Store Space. Start here every time.", "steps": [{"text": "Open **Store Space** and select the **Pickups** tab.", "where": "Celestial → **Store** → **Pickups**", "result": "Three queues side by side: **Ready to pack**, **Packed** and **Unpack**, each with the customer's name and when they ordered or their appointment time.", "imgs": [{"f": "966ad73f44.webp", "w": 960, "h": 612, "cap": "The Pickups tab: Ready to pack, Packed and Unpack queues.", "alt": "Celestial store space pickup page. Ready to pack, packed, and unpack queues with customer name, order time and date or appointment time."}]}, {"text": "Watch for the **New pickup order received** alert.", "result": "When an order comes in through XOE or xfinity.com, store leaders get a notification in the top-right corner: “Pack their bag before they arrive.”", "imgs": [{"f": "407252b440.webp", "w": 960, "h": 614, "cap": "The new pickup order notification, top right.", "alt": "Celestial Store Space with new pickup order received notification in the top right corner."}]}]}, {"title": "Pack the order (scan and pack)", "nav": "Pack", "intro": "Do this at least two hours before the customer arrives.", "steps": [{"text": "Select the customer's name under **Ready to pack**, review the order, then select **Pack**.", "where": "**Pickups** → **Ready to pack** → customer's name", "result": "Order details: when it was placed, any pickup appointment, their services, bags to pack, items ordered, and the core and Xfinity Mobile equipment on the order.", "note": "If they ordered core **and** Xfinity Mobile, you'll see two line items. Pack two separate bags and run scan and pack once for each.", "imgs": [{"f": "8393e492c9.webp", "w": 960, "h": 614, "cap": "Customer selected in Ready to pack, with Pack in the top right.", "alt": "Celestial Store Space ready to pack queue on left side with selected customer's order details on right side. Check-in and pack button options at the top."}]}, {"text": "Select **Open scanner** and scan the SKU on each device or piece of equipment.", "result": "Scan items: a list of everything on the order marked **Not scanned**. Retrieve the items and scan them in the order they appear.", "imgs": [{"f": "09a8386e6d.webp", "w": 960, "h": 614, "cap": "Scan items list with the Open scanner button.", "alt": "Items listed to scan. Open scanner button."}]}, {"text": "Point the camera at the barcode and scan.", "result": "The scanner opens on **Barcode** for scan and pack. It opens on **QR Code** for pickups and unpacks. You can also switch to **Manual**.", "imgs": [{"f": "bff0eece85.webp", "w": 731, "h": 1000, "cap": "The scanner on its Barcode setting.", "alt": "Scanner barcode view."}]}, {"text": "Read the confirmation after each scan.", "result": "**Success:** a green check and “Scanned”. It closes by itself after five seconds, or select **Close**.", "warn": "**Error:** a red ! that stays on screen. Select **Retry** when you're ready to scan a different device.", "imgs": [{"f": "8e48523ef9.webp", "w": 571, "h": 801, "cap": "Success: green check, item scanned.", "alt": "Success confirmation message with green check icon."}, {"f": "a44ea594bc.webp", "w": 792, "h": 1106, "cap": "Error: “The device you scanned is not in the system.” Select Retry.", "alt": "Error message with red exclamation icon."}]}, {"text": "Review what you scanned, then select **Add items** to add the equipment to the customer's account.", "result": "**Add to account**: each item with its MAC address, IMEI or SIM.", "note": "If an item gets dropped or damaged after you scanned it, select **Replace** on that line and scan the new one.", "imgs": [{"f": "78fb092b84.webp", "w": 960, "h": 614, "cap": "Add to account, with Replace on the item and the Add items button.", "alt": "Items that were scanned, with replace button on list item. Add items button."}]}, {"text": "Print the packing slip: select **Open scanner** and scan the printer you want to print to.", "result": "“Items were added to the customer's order.” On orders with several devices, each one is listed with its own **Replace** button and a **Print slip** button.", "imgs": [{"f": "997fd6074d.webp", "w": 960, "h": 466, "cap": "Items added. Open scanner to scan the printer.", "alt": "Confirmation message that items were added to customer's order. Open scanner button."}, {"f": "0f4fcaedfa.webp", "w": 960, "h": 614, "cap": "An order with three devices, each with Replace, and Print slip.", "alt": "All items scanned listed with replace button on each list item. Print slip button."}]}, {"text": "Select **Done**, attach the slip, and store the order securely.", "where": "**Core orders:** attach the slip to the bag and put it in the staging cart at the front of the house. **Mobile orders:** attach the slip to the bag, or wrap it around the device with a rubber band, and store it where your store keeps devices (safe room, old-style safe, or the set-aside back-of-house area).", "result": "**Finish path** — “That's a wrap!” Select **Finish**.", "imgs": [{"f": "69ac856516.webp", "w": 1100, "h": 579, "cap": "Finish path: select Finish.", "alt": "Finish path message with finish button."}]}, {"text": "Check that the customer moved to the **Packed** queue. The order is ready for pickup.", "warn": "Look at **Ready to pack** one more time. If the customer has a second order (core or mobile), pack that one too.", "imgs": [{"f": "3ff7defb3f.webp", "w": 960, "h": 611, "cap": "The customer now sits in the Packed queue.", "alt": "Celestial store space pickup page. Ready to pack, packed, and unpack queues with customer name, order time and date or appointment time."}]}]}, {"title": "Complete the pickup", "nav": "Pick up", "intro": "When the customer arrives, check them in and find out whether it's a quick pickup or a consultative appointment. The order should be in **Packed**. If it isn't packed yet, pack it first, then come back here.", "steps": [{"text": "Select the customer's name in the **Packed** queue.", "where": "**Pickups** → **Packed** → customer's name", "note": "Look for more than one line item. That means more than one order.", "imgs": [{"f": "81e7856702.webp", "w": 960, "h": 612, "cap": "Customer selected in the Packed queue.", "alt": "Celestial store space pickup page. Ready to pack, packed, and unpack queues with customer name, order time and date or appointment time."}]}, {"text": "Select **Check-in**.", "imgs": [{"f": "aa242027ce.webp", "w": 960, "h": 611, "cap": "Order details with Check-in in the top right.", "alt": "Celestial Store Space packed queue on left side with selected customer's order details on right side. Check-in button at the top."}]}, {"text": "Go through the check-in form. It's filled in for you.", "result": "**Guest details** has the account's primary user already selected. In **Visit details**, the reason for visit is already **Online Order Pick Up**, with a **BAPIS order packed** banner.", "imgs": [{"f": "6dc825842c.webp", "w": 830, "h": 1056, "cap": "Guest details: the account holder on the account.", "alt": "Celestial check in form. Guest details: account holder selection and identifier selection."}, {"f": "596faaa37b.webp", "w": 707, "h": 833, "cap": "Visit details: BAPIS order packed, reason Online Order Pick Up.", "alt": "Celestial Store Space check in form. Visit details: BAPIS banner showing packed order and preferred consultant selection, reason for visit field populated with Online Pick Up selection."}]}, {"text": "Find the customer in the **Waiting** queue and select **Start** to begin the session.", "result": "A quick pickup goes to the top of the queue. An appointment is placed by appointment time. The customer's page shows a **BAPIS order packed** banner with how long the order stays active and that the primary account holder must pick it up.", "note": "If someone else on the account checked in (not the primary account holder), the banner says the order is waiting for the primary account holder.", "imgs": [{"f": "7fc4adf758.webp", "w": 749, "h": 617, "cap": "Customer start screen: BAPIS banner and the Start button.", "alt": "Celestial Store Space customer start screen. Start button, BAPIS banner, and customer information."}, {"f": "34c52cfc4b.webp", "w": 910, "h": 213, "cap": "The banner when the person checked in isn't the primary account holder.", "alt": "Blue notification banner BAPIS order packed order can be picked up by a primary account holder within x days. Order details link."}]}, {"text": "Select the person who is there for the pickup and ask for their photo ID. This should be the **primary account holder**.", "warn": "Mobile orders: primary account holder only. Core orders: primary, manager or authorized user. Anyone else gets an error here (see **Account owner required** below).", "imgs": [{"f": "06684d45c0.webp", "w": 1100, "h": 480, "cap": "Step 1: choose who is picking up, then Next.", "alt": "Step 1, customer option selection."}]}, {"text": "Select the type of ID the customer gave you, then **Next**.", "result": "**Customer Authentication**: Photo ID or Non-photo ID.", "imgs": [{"f": "6d26ab7980.webp", "w": 1100, "h": 502, "cap": "Customer Authentication: choose the ID type.", "alt": "Customer authentication screen. Type of id option selection."}]}, {"text": "Enter the customer's **six-digit pickup code** and select **Verify**.", "note": "The code was sent when they ordered, to the verified email on the primary account holder's profile. **An Xfinity-provided email address can't receive it.** There is no workaround for the pickup code. To add an email that can receive codes in the future, see [Add or change a customer's email or mobile number](https://celestial.cable.comcast.com/knowledge/article-info?query=HOW11614). Need it again? Select **Resend code**.", "warn": "**Three wrong codes cancel the order.**", "imgs": [{"f": "ad10de7cd6.webp", "w": 1100, "h": 746, "cap": "Verify pickup code: Attempt 1 of 3, Resend code, Verify.", "alt": "Verify pick up code screenshot. Attempt 1 of 3 and fillable field."}]}, {"text": "When you see **Pickup code accepted**, go over the equipment with the customer so they know what they're getting.", "result": "**Review order**: order summary, bags to pick up, items ordered and the device details.", "imgs": [{"f": "dff4fb9d83.webp", "w": 791, "h": 869, "cap": "Review order, then Process payment.", "alt": "Review order screen. Pickup code accepted banner, order summary details, and process payment button."}]}, {"text": "Select **Process payment** to take the customer's payment.", "result": "“Processing payment.” It can take up to four and a half minutes. When it says the process is complete, select **Next**.", "imgs": [{"f": "13232ebffa.webp", "w": 1000, "h": 467, "cap": "Processing payment, then Next.", "alt": "Processing payment screen. Language to inform of payment processing."}]}, {"text": "Select **Open scanner** and scan the order's **packing slip**.", "result": "The order's bag flips from **Not scanned** to **Scanned**. Select **Next**.", "imgs": [{"f": "43e9caede3.webp", "w": 1100, "h": 447, "cap": "Scan items: the bag is Not scanned.", "alt": "Scan items screen with order information and not scanned status. Open scanner button."}, {"f": "9e6b514e3f.webp", "w": 1075, "h": 577, "cap": "Packing slip scanned. Select Next.", "alt": "Scan items screen with order information and scanned status."}]}, {"text": "Get the customer's **signature** to confirm they received everything and the order is correct. Select **Done**.", "result": "**Collect signature**: they can **Draw** it on the touchscreen or **Type** their name.", "imgs": [{"f": "5e7a4b6d5c.webp", "w": 825, "h": 874, "cap": "Collect signature: Draw or Type.", "alt": "Collect signature screen. Field to draw or type customer signature."}]}, {"text": "Select **Finish**. The pickup is done.", "note": "If they have a core order **and** a mobile order, run the pickup twice, once for each order.", "imgs": [{"f": "5a951a9da4.webp", "w": 1100, "h": 391, "cap": "Finish path: select Finish.", "alt": "Finish path screen. Language for completed path and finish button."}]}]}, {"title": "Two orders on one account", "nav": "Two orders", "intro": "A customer with a core order and an Xfinity Mobile order has two separate pickups.", "steps": [{"text": "Look for **two BAPIS banners** on the customer's session, one for each order type.", "result": "Each banner has an **Order details** link that opens that order in the **Packed** queue.", "imgs": [{"f": "c83bf82dfd.webp", "w": 1006, "h": 880, "cap": "Two BAPIS order packed banners, one Xfinity Mobile and one Core.", "alt": "Celestial store space in progress queue screen. Multiple BAPIS order banners. Order details link to each order."}]}, {"text": "Start the pickup. On **Review orders**, pick the order to start with and select **Next**.", "warn": "Each order has to be finished on its own. Come back to Review orders for the second one.", "imgs": [{"f": "58f2b47d28.webp", "w": 1100, "h": 563, "cap": "Review orders: choose which order to start with.", "alt": "Review orders screen. Order number selection."}]}], "table": {"head": ["Order type", "After authentication you'll"], "rows": [["Xfinity Mobile", "**Verify pickup code** → **Process payment** → **Scan packing slip** → **Capture signature**"], ["Core", "**Scan packing slip** → **Capture signature**"]]}}, {"title": "Leave and come back to a pickup", "nav": "Exit & resume", "steps": [{"text": "To leave the pickup, select **Cancel**, then **Exit path**.", "result": "You go back to the customer's active Store Space session.", "warn": "Exiting loses the progress on that step.", "imgs": [{"f": "242252a197.webp", "w": 772, "h": 469, "cap": "Are you sure you want to exit this path?", "alt": "Exit path modal with exit path button and continue path button."}]}, {"text": "To pick up where you left off, select **Resume Pickup**.", "where": "Customer's session → **Continue guest session**", "imgs": [{"f": "b4c60d1b8e.webp", "w": 1100, "h": 655, "cap": "Continue guest session: Resume Pickup.", "alt": "Celestial store space in-progress screen. Customer details, end session button, BAPIS banner, continue guest session CTA buttons Point of Sale and Resume Pickup."}]}]}, {"title": "Unpack an order nobody picked up", "nav": "Unpack", "intro": "Orders must be picked up within **four days** of purchase. After that, they move to the **Unpack** queue on their own.", "steps": [{"text": "Select the customer's name in the **Unpack** queue.", "where": "**Pickups** → **Unpack** → customer's name", "imgs": [{"f": "9e67ed602a.webp", "w": 960, "h": 612, "cap": "Customer in the Unpack queue.", "alt": "Celestial store space pickup page. Ready to pack, packed, and unpack queues with customer name, order time and date or appointment time."}]}, {"text": "Select **Unpack**.", "imgs": [{"f": "cd3f5d78f6.webp", "w": 960, "h": 664, "cap": "Order details with Unpack in the top right.", "alt": "Celestial Store Space unpack queue on left side with selected customer's order details on right side. Unpack button at the top."}]}, {"text": "Select **Open scanner** and scan the packing slips.", "result": "Each bag (Xfinity Mobile bag, Core bag) flips to **Scanned** and the screen says **Scanning complete**. Select **Next**.", "imgs": [{"f": "ac0820da11.webp", "w": 960, "h": 513, "cap": "Unpack bag: Open scanner.", "alt": "Bag order list. Open scanner button."}, {"f": "3ddbe3cf02.webp", "w": 960, "h": 519, "cap": "Scanning complete: both bags scanned.", "alt": "Order list with scanned confirmation."}]}, {"text": "Make sure every device and piece of equipment is there, and put it back in the right stock area.", "result": "**Return to inventory**: the Xfinity Mobile and core equipment on the order.", "imgs": [{"f": "bcc626b177.webp", "w": 960, "h": 663, "cap": "Return to inventory list.", "alt": "Equipment list to return to inventory."}]}, {"text": "Select **Finish**.", "result": "Any money held for the customer is released, and they get a message that the order was canceled.", "imgs": [{"f": "a028c3ce83.webp", "w": 1100, "h": 388, "cap": "Finish path: select Finish.", "alt": "Finish path screen. Language for completed path and finish button."}]}]}, {"title": "Account owner required", "nav": "Owner required", "intro": "Only the primary account holder can pick up mobile orders. If someone else was checked in, you'll get this error during the pickup.", "steps": [{"text": "If the primary account holder is there with them, select **Close**, go back to Store Space, **end the current session**, and check in the account owner. Then run the pickup again.", "result": "“Account owner required. For the safety of this account, this path cannot be completed without a primary account holder.”", "imgs": [{"f": "b94a464253.webp", "w": 851, "h": 372, "cap": "The Account owner required error.", "alt": "Red account owner required error banner."}]}]}, {"title": "Reprints and getting help", "nav": "Help", "steps": [{"text": "To reprint a packing slip, open the customer's order in the **Packed** queue and select **Reprint Receipt**.", "where": "**Pickups** → **Packed** → customer's name → **Reprint Receipt**", "imgs": [{"f": "cb39df69d8.webp", "w": 878, "h": 626, "cap": "Order details in Packed with Reprint Receipt.", "alt": "Celestial Store Space check in. Customer's order details, equipment and reprint receipt button."}]}, {"text": "If Celestial gives you trouble during BAPIS, submit a **TechSpot** ticket: **Report an issue** → **Care Application Issues**.", "where": "**Application:** Celestial · **SubCategory:** Celestial Store Space · **Select Symptom:** BAPIS Issues", "note": "Attach screenshots of any errors you're seeing.", "imgs": [{"f": "9513a6370d.webp", "w": 1025, "h": 998, "cap": "The TechSpot form with Celestial, Celestial Store Space and BAPIS Issues selected.", "alt": "Ticket form. Summary, detailed description, application, subcategory, select symptom, impacted account number fields to be completed."}]}]}], "tips": ["Pack early. Two hours before arrival is the rule, so a customer who walks in early isn't left waiting while you scan.", "Core and Mobile = two bags, two scan-and-packs, two pickups.", "The pickup code only goes to a verified, non-Xfinity email on the primary account holder's profile. There's no way around it.", "Three wrong pickup codes cancel the order.", "Unclaimed orders go to Unpack after four days. Unpack them so the stock goes back on the shelf.", "For the full Celestial packing course, see the BAPIS training in Ulearn."], "source": "https://celestial.cable.comcast.com/knowledge/article-info/?query=260320161714277"};
+const topMenu=(()=>{
+  const btn=()=>document.getElementById('mnu-btn'), nav=()=>document.getElementById('mnu');
+  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  let wired=false;
+  function place(){ const h=document.querySelector('header.top'); if(h) document.documentElement.style.setProperty('--mnu-top',(h.getBoundingClientRect().bottom+8)+'px'); }
+  function open(){ place(); nav().classList.add('on'); btn().setAttribute('aria-expanded','true'); btn().setAttribute('aria-label','Close menu'); const cur=nav().querySelector('a[aria-current]')||nav().querySelector('a'); if(cur){ cur.scrollIntoView({block:'nearest'}); cur.focus({preventScroll:true}); } }
+  function close(refocus){ if(!nav().classList.contains('on')) return; nav().classList.remove('on'); btn().setAttribute('aria-expanded','false'); btn().setAttribute('aria-label','Open menu'); if(refocus) btn().focus({preventScroll:true}); }
+  function build(groups){
+    nav().innerHTML=`<a class="mnu-home" href="#/">Home</a>`+groups.map(g=>`<div class="mnu-g" style="--c:${g.c||'var(--brass)'}">${g.href&&!(g.items||[]).length?`<a href="${esc(g.href)}" style="padding-left:12px;font-weight:600">${esc(g.name)}</a>`:`<h6><i></i>${esc(g.name)}</h6>${(g.items||[]).map(it=>`<a href="${esc(it.href)}">${esc(it.label)}</a>`).join('')}`}</div>`).join('');
+    if(!wired){ wired=true;
+      btn().addEventListener('click',e=>{ e.stopPropagation(); nav().classList.contains('on')?close(true):open(); });
+      nav().addEventListener('click',e=>{ if(e.target.closest('a')) close(false); });
+      document.addEventListener('click',e=>{ if(!e.target.closest('#mnu,#mnu-btn')) close(false); });
+      document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&nav().classList.contains('on')){ e.stopImmediatePropagation(); close(true); } },true);
+      addEventListener('hashchange',()=>{ close(false); sync(); });
+      addEventListener('resize',place,{passive:true});
+    }
+    sync();
+  }
+  function sync(){
+    const h=location.hash||'#/';
+    let best=null,len=0;
+    nav().querySelectorAll('a').forEach(a=>{ a.removeAttribute('aria-current'); const href=a.getAttribute('href'); const key=href.split('~')[0];
+      if((h===href||h.split('~')[0]===key||(key!=='#/'&&h.startsWith(key+'/')))&&key.length>len){ best=a; len=key.length; } });
+    if(best) best.setAttribute('aria-current','page');
+  }
+  return {build,sync,open,close};
+})();
+</script>
+<script>
+const G = {"id": "bapis", "code": "COMMS538", "updated": "Sep 25, 2026", "title": "BAPIS: Scan, Pack & Pick Up", "summary": "Buy Anywhere, Pick up In-store. Pack the online order before the customer walks in, hand it over the right way, and unpack it if nobody comes.", "before": ["Every BAPIS order lives in **Celestial → Store Space → Pickups**, sorted into three queues: **Ready to pack**, **Packed** and **Unpack**.", "Pack the order **at least two hours before** the customer is due in the store.", "Core and Xfinity Mobile bought together show up as **two line items**. That means two bags, and you pack and hand over each one separately.", "**Mobile** orders can only be picked up by the **primary account holder**. **Core** orders can be picked up by the primary, a manager, or an authorized user.", "Orders not picked up within **four days** move to the **Unpack** queue by themselves."], "sections": [{"title": "Find your BAPIS orders", "nav": "Find orders", "intro": "All in-store reps can see every BAPIS order in Store Space. Start here every time.", "steps": [{"text": "Open **Store Space** and select the **Pickups** tab.", "where": "Celestial → **Store** → **Pickups**", "result": "Three queues side by side: **Ready to pack**, **Packed** and **Unpack**, each with the customer's name and when they ordered or their appointment time.", "imgs": [{"f": "966ad73f44.webp", "w": 960, "h": 612, "cap": "The Pickups tab: Ready to pack, Packed and Unpack queues.", "alt": "Celestial store space pickup page. Ready to pack, packed, and unpack queues with customer name, order time and date or appointment time."}]}, {"text": "Watch for the **New pickup order received** alert.", "result": "When an order comes in through XOE or xfinity.com, store leaders get a notification in the top-right corner: “Pack their bag before they arrive.”", "imgs": [{"f": "407252b440.webp", "w": 960, "h": 614, "cap": "The new pickup order notification, top right.", "alt": "Celestial Store Space with new pickup order received notification in the top right corner."}]}]}, {"title": "Pack the order (scan and pack)", "nav": "Pack", "intro": "Do this at least two hours before the customer arrives.", "steps": [{"text": "Select the customer's name under **Ready to pack**, review the order, then select **Pack**.", "where": "**Pickups** → **Ready to pack** → customer's name", "result": "Order details: when it was placed, any pickup appointment, their services, bags to pack, items ordered, and the core and Xfinity Mobile equipment on the order.", "note": "If they ordered core **and** Xfinity Mobile, you'll see two line items. Pack two separate bags and run scan and pack once for each.", "imgs": [{"f": "8393e492c9.webp", "w": 960, "h": 614, "cap": "Customer selected in Ready to pack, with Pack in the top right.", "alt": "Celestial Store Space ready to pack queue on left side with selected customer's order details on right side. Check-in and pack button options at the top."}]}, {"text": "Select **Open scanner** and scan the SKU on each device or piece of equipment.", "result": "Scan items: a list of everything on the order marked **Not scanned**. Retrieve the items and scan them in the order they appear.", "imgs": [{"f": "09a8386e6d.webp", "w": 960, "h": 614, "cap": "Scan items list with the Open scanner button.", "alt": "Items listed to scan. Open scanner button."}]}, {"text": "Point the camera at the barcode and scan.", "result": "The scanner opens on **Barcode** for scan and pack. It opens on **QR Code** for pickups and unpacks. You can also switch to **Manual**.", "imgs": [{"f": "bff0eece85.webp", "w": 731, "h": 1000, "cap": "The scanner on its Barcode setting.", "alt": "Scanner barcode view."}]}, {"text": "Read the confirmation after each scan.", "result": "**Success:** a green check and “Scanned”. It closes by itself after five seconds, or select **Close**.", "warn": "**Error:** a red ! that stays on screen. Select **Retry** when you're ready to scan a different device.", "imgs": [{"f": "8e48523ef9.webp", "w": 571, "h": 801, "cap": "Success: green check, item scanned.", "alt": "Success confirmation message with green check icon."}, {"f": "a44ea594bc.webp", "w": 792, "h": 1106, "cap": "Error: “The device you scanned is not in the system.” Select Retry.", "alt": "Error message with red exclamation icon."}]}, {"text": "Review the scanned items, then select **Add items**.", "result": "**Add to account**: each item with its MAC address, IMEI or SIM. **Add items** adds the equipment to the customer's account.", "note": "If an item gets dropped or damaged after you scanned it, select **Replace** on that line and scan the new one.", "imgs": [{"f": "78fb092b84.webp", "w": 960, "h": 614, "cap": "Add to account, with Replace on the item and the Add items button.", "alt": "Items that were scanned, with replace button on list item. Add items button."}]}, {"text": "Select **Open scanner** and scan your printer to print the **packing slip**.", "result": "“Items were added to the customer's order.” On orders with several devices, each one is listed with its own **Replace** button and a **Print slip** button.", "imgs": [{"f": "997fd6074d.webp", "w": 960, "h": 466, "cap": "Items added. Open scanner to scan the printer.", "alt": "Confirmation message that items were added to customer's order. Open scanner button."}, {"f": "0f4fcaedfa.webp", "w": 960, "h": 614, "cap": "An order with three devices, each with Replace, and Print slip.", "alt": "All items scanned listed with replace button on each list item. Print slip button."}], "note": "Scan the printer you want to print to."}, {"text": "Select **Done**, attach the slip, and store the order securely.", "where": "**Core orders:** attach the slip to the bag and put it in the staging cart at the front of the house. **Mobile orders:** attach the slip to the bag, or wrap it around the device with a rubber band, and store it where your store keeps devices (safe room, old-style safe, or the set-aside back-of-house area).", "result": "**Finish path** — “That's a wrap!” Select **Finish**.", "imgs": [{"f": "69ac856516.webp", "w": 1100, "h": 579, "cap": "Finish path: select Finish.", "alt": "Finish path message with finish button."}]}, {"text": "Check that the customer moved to the **Packed** queue.", "warn": "Look at **Ready to pack** one more time. If the customer has a second order (core or mobile), pack that one too.", "imgs": [{"f": "3ff7defb3f.webp", "w": 960, "h": 611, "cap": "The customer now sits in the Packed queue.", "alt": "Celestial store space pickup page. Ready to pack, packed, and unpack queues with customer name, order time and date or appointment time."}], "result": "The order is ready for pickup."}]}, {"title": "Complete the pickup", "nav": "Pick up", "intro": "When the customer arrives, check them in. The order should be in **Packed**.", "steps": [{"text": "Select the customer's name in the **Packed** queue.", "where": "**Pickups** → **Packed** → customer's name", "note": "Look for more than one line item. That means more than one order.", "imgs": [{"f": "81e7856702.webp", "w": 960, "h": 612, "cap": "Customer selected in the Packed queue.", "alt": "Celestial store space pickup page. Ready to pack, packed, and unpack queues with customer name, order time and date or appointment time."}]}, {"text": "Select **Check-in**.", "imgs": [{"f": "aa242027ce.webp", "w": 960, "h": 611, "cap": "Order details with Check-in in the top right.", "alt": "Celestial Store Space packed queue on left side with selected customer's order details on right side. Check-in button at the top."}]}, {"text": "Go through the check-in form. It's filled in for you.", "result": "**Guest details** has the account's primary user already selected. In **Visit details**, the reason for visit is already **Online Order Pick Up**, with a **BAPIS order packed** banner.", "imgs": [{"f": "6dc825842c.webp", "w": 830, "h": 1056, "cap": "Guest details: the account holder on the account.", "alt": "Celestial check in form. Guest details: account holder selection and identifier selection."}, {"f": "596faaa37b.webp", "w": 707, "h": 833, "cap": "Visit details: BAPIS order packed, reason Online Order Pick Up.", "alt": "Celestial Store Space check in form. Visit details: BAPIS banner showing packed order and preferred consultant selection, reason for visit field populated with Online Pick Up selection."}]}, {"text": "Find the customer in the **Waiting** queue and select **Start**.", "result": "The session begins. A quick pickup goes to the top of the queue. An appointment is placed by appointment time. The customer's page shows a **BAPIS order packed** banner with how long the order stays active and that the primary account holder must pick it up.", "note": "If someone else on the account checked in (not the primary account holder), the banner says the order is waiting for the primary account holder.", "imgs": [{"f": "7fc4adf758.webp", "w": 749, "h": 617, "cap": "Customer start screen: BAPIS banner and the Start button.", "alt": "Celestial Store Space customer start screen. Start button, BAPIS banner, and customer information."}, {"f": "34c52cfc4b.webp", "w": 910, "h": 213, "cap": "The banner when the person checked in isn't the primary account holder.", "alt": "Blue notification banner BAPIS order packed order can be picked up by a primary account holder within x days. Order details link."}]}, {"text": "Select who is there for the pickup and ask for their photo ID.", "warn": "Mobile orders: primary account holder only. Core orders: primary, manager or authorized user. Anyone else gets an error here (see **Account owner required** below).", "imgs": [{"f": "06684d45c0.webp", "w": 1100, "h": 480, "cap": "Step 1: choose who is picking up, then Next.", "alt": "Step 1, customer option selection."}], "note": "This should be the **primary account holder**."}, {"text": "Select the type of ID the customer gave you, then **Next**.", "result": "**Customer Authentication**: Photo ID or Non-photo ID.", "imgs": [{"f": "6d26ab7980.webp", "w": 1100, "h": 502, "cap": "Customer Authentication: choose the ID type.", "alt": "Customer authentication screen. Type of id option selection."}]}, {"text": "Enter the customer's **six-digit pickup code** and select **Verify**.", "note": "The code was sent when they ordered, to the verified email on the primary account holder's profile. To add an email that can receive codes in the future, see [Add or change a customer's email or mobile number](https://celestial.cable.comcast.com/knowledge/article-info?query=HOW11614). Need it again? Select **Resend code**.", "warn": "**Three wrong codes cancel the order.** An Xfinity-provided email address can't receive the code. There is no workaround for the pickup code.", "imgs": [{"f": "ad10de7cd6.webp", "w": 1100, "h": 746, "cap": "Verify pickup code: Attempt 1 of 3, Resend code, Verify.", "alt": "Verify pick up code screenshot. Attempt 1 of 3 and fillable field."}]}, {"text": "After **Pickup code accepted**, go over the equipment with the customer.", "result": "**Review order**: order summary, bags to pick up, items ordered and the device details.", "imgs": [{"f": "dff4fb9d83.webp", "w": 791, "h": 869, "cap": "Review order, then Process payment.", "alt": "Review order screen. Pickup code accepted banner, order summary details, and process payment button."}], "note": "Make sure they know what they're getting."}, {"text": "Select **Process payment** to take the customer's payment.", "result": "“Processing payment.” It can take up to four and a half minutes. When it says the process is complete, select **Next**.", "imgs": [{"f": "13232ebffa.webp", "w": 1000, "h": 467, "cap": "Processing payment, then Next.", "alt": "Processing payment screen. Language to inform of payment processing."}]}, {"text": "Select **Open scanner** and scan the order's **packing slip**.", "result": "The order's bag flips from **Not scanned** to **Scanned**. Select **Next**.", "imgs": [{"f": "43e9caede3.webp", "w": 1100, "h": 447, "cap": "Scan items: the bag is Not scanned.", "alt": "Scan items screen with order information and not scanned status. Open scanner button."}, {"f": "9e6b514e3f.webp", "w": 1075, "h": 577, "cap": "Packing slip scanned. Select Next.", "alt": "Scan items screen with order information and scanned status."}]}, {"text": "Get the customer's **signature**, then select **Done**.", "result": "**Collect signature**: they can **Draw** it on the touchscreen or **Type** their name.", "imgs": [{"f": "5e7a4b6d5c.webp", "w": 825, "h": 874, "cap": "Collect signature: Draw or Type.", "alt": "Collect signature screen. Field to draw or type customer signature."}], "note": "The signature confirms they received everything and the order is correct."}, {"text": "Select **Finish**. The pickup is done.", "note": "If they have a core order **and** a mobile order, run the pickup twice, once for each order.", "imgs": [{"f": "5a951a9da4.webp", "w": 1100, "h": 391, "cap": "Finish path: select Finish.", "alt": "Finish path screen. Language for completed path and finish button."}]}], "introMore": "Find out whether it's a quick pickup or a consultative appointment. If the order isn't packed yet, pack it first, then come back here."}, {"title": "Two orders on one account", "nav": "Two orders", "intro": "A customer with a core order and an Xfinity Mobile order has two separate pickups.", "steps": [{"text": "Look for **two BAPIS banners** on the customer's session, one for each order type.", "result": "Each banner has an **Order details** link that opens that order in the **Packed** queue.", "imgs": [{"f": "c83bf82dfd.webp", "w": 1006, "h": 880, "cap": "Two BAPIS order packed banners, one Xfinity Mobile and one Core.", "alt": "Celestial store space in progress queue screen. Multiple BAPIS order banners. Order details link to each order."}]}, {"text": "Start the pickup. On **Review orders**, pick the order to start with and select **Next**.", "warn": "Each order has to be finished on its own. Come back to Review orders for the second one.", "imgs": [{"f": "58f2b47d28.webp", "w": 1100, "h": 563, "cap": "Review orders: choose which order to start with.", "alt": "Review orders screen. Order number selection."}]}], "table": {"head": ["Order type", "After authentication you'll"], "rows": [["Xfinity Mobile", "**Verify pickup code** → **Process payment** → **Scan packing slip** → **Capture signature**"], ["Core", "**Scan packing slip** → **Capture signature**"]]}}, {"title": "Leave and come back to a pickup", "nav": "Exit & resume", "steps": [{"text": "To leave the pickup, select **Cancel**, then **Exit path**.", "result": "You go back to the customer's active Store Space session.", "warn": "Exiting loses the progress on that step.", "imgs": [{"f": "242252a197.webp", "w": 772, "h": 469, "cap": "Are you sure you want to exit this path?", "alt": "Exit path modal with exit path button and continue path button."}]}, {"text": "To pick up where you left off, select **Resume Pickup**.", "where": "Customer's session → **Continue guest session**", "imgs": [{"f": "b4c60d1b8e.webp", "w": 1100, "h": 655, "cap": "Continue guest session: Resume Pickup.", "alt": "Celestial store space in-progress screen. Customer details, end session button, BAPIS banner, continue guest session CTA buttons Point of Sale and Resume Pickup."}]}]}, {"title": "Unpack an order nobody picked up", "nav": "Unpack", "intro": "Orders must be picked up within **four days** of purchase. After that, they move to the **Unpack** queue on their own.", "steps": [{"text": "Select the customer's name in the **Unpack** queue.", "where": "**Pickups** → **Unpack** → customer's name", "imgs": [{"f": "9e67ed602a.webp", "w": 960, "h": 612, "cap": "Customer in the Unpack queue.", "alt": "Celestial store space pickup page. Ready to pack, packed, and unpack queues with customer name, order time and date or appointment time."}]}, {"text": "Select **Unpack**.", "imgs": [{"f": "cd3f5d78f6.webp", "w": 960, "h": 664, "cap": "Order details with Unpack in the top right.", "alt": "Celestial Store Space unpack queue on left side with selected customer's order details on right side. Unpack button at the top."}]}, {"text": "Select **Open scanner** and scan the packing slips.", "result": "Each bag (Xfinity Mobile bag, Core bag) flips to **Scanned** and the screen says **Scanning complete**. Select **Next**.", "imgs": [{"f": "ac0820da11.webp", "w": 960, "h": 513, "cap": "Unpack bag: Open scanner.", "alt": "Bag order list. Open scanner button."}, {"f": "3ddbe3cf02.webp", "w": 960, "h": 519, "cap": "Scanning complete: both bags scanned.", "alt": "Order list with scanned confirmation."}]}, {"text": "Make sure every item is there and put it back in the right stock area.", "result": "**Return to inventory**: the Xfinity Mobile and core equipment on the order.", "imgs": [{"f": "bcc626b177.webp", "w": 960, "h": 663, "cap": "Return to inventory list.", "alt": "Equipment list to return to inventory."}], "note": "Check every device and piece of equipment on the order."}, {"text": "Select **Finish**.", "result": "Any money held for the customer is released, and they get a message that the order was canceled.", "imgs": [{"f": "a028c3ce83.webp", "w": 1100, "h": 388, "cap": "Finish path: select Finish.", "alt": "Finish path screen. Language for completed path and finish button."}]}]}, {"title": "Account owner required", "nav": "Owner required", "intro": "Only the primary account holder can pick up mobile orders. If someone else was checked in, you'll get this error during the pickup.", "steps": [{"text": "If the primary account holder is there with them, select **Close**.", "result": "“Account owner required. For the safety of this account, this path cannot be completed without a primary account holder.”", "imgs": [{"f": "b94a464253.webp", "w": 851, "h": 372, "cap": "The Account owner required error.", "alt": "Red account owner required error banner."}]}, {"text": "Go back to Store Space, **end the current session**, and check in the account owner.", "note": "Then run the pickup again.", "imgs": []}]}, {"title": "Reprints and getting help", "nav": "Help", "steps": [{"text": "To reprint a packing slip, select **Reprint Receipt** on the customer's order.", "where": "**Pickups** → **Packed** → customer's name → **Reprint Receipt**", "imgs": [{"f": "cb39df69d8.webp", "w": 878, "h": 626, "cap": "Order details in Packed with Reprint Receipt.", "alt": "Celestial Store Space check in. Customer's order details, equipment and reprint receipt button."}]}, {"text": "Submit a **TechSpot** ticket: **Report an issue** → **Care Application Issues**.", "where": "**Application:** Celestial · **SubCategory:** Celestial Store Space · **Select Symptom:** BAPIS Issues", "note": "Use this if Celestial gives you trouble during BAPIS. Attach screenshots of any errors you're seeing.", "imgs": [{"f": "9513a6370d.webp", "w": 1025, "h": 998, "cap": "The TechSpot form with Celestial, Celestial Store Space and BAPIS Issues selected.", "alt": "Ticket form. Summary, detailed description, application, subcategory, select symptom, impacted account number fields to be completed."}]}]}], "tips": ["Pack early. Two hours before arrival is the rule, so a customer who walks in early isn't left waiting while you scan.", "Core and Mobile = two bags, two scan-and-packs, two pickups.", "The pickup code only goes to a verified, non-Xfinity email on the primary account holder's profile. There's no way around it.", "Three wrong pickup codes cancel the order.", "Unclaimed orders go to Unpack after four days. Unpack them so the stock goes back on the shelf.", "For the full Celestial packing course, see the BAPIS training in Ulearn."], "source": "https://celestial.cable.comcast.com/knowledge/article-info/?query=260320161714277", "groups": [{"name": "Before the customer arrives", "secs": [0, 1]}, {"name": "When the customer arrives", "secs": [2, 3, 4]}, {"name": "If nobody picks up", "secs": [5]}, {"name": "Problems & help", "secs": [6, 7]}]};
 const $=s=>document.querySelector(s);
 const RM=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -297,9 +429,17 @@ const rich=s=>esc(s).replace(/\[(.+?)\]\((https:\/\/[^)\s]+)\)/g,'<a href="$2" t
 const plain=s=>String(s??'').replace(/\[(.+?)\]\([^)]+\)/g,'$1').replace(/\*\*|`/g,'');
 const SV={check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',pin:'<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',eye:'<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>',arr:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'};
 
-const allSteps=()=>G.sections.flatMap((s,si)=>(s.steps||[]).map((st,ti)=>({st,si,ti,sec:s.title,id:`s${si}-${ti}`})));
-const STEPS=allSteps();
-const imgCount=G.sections.reduce((n,s)=>n+(s.steps||[]).reduce((m,st)=>m+st.imgs.length,0),0);
+const slugify=s=>s.toLowerCase().replace(/&/g,' ').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const SECS=G.sections.map((s,si)=>({s,si,slug:slugify(s.nav)}));
+const GROUPS=G.groups.map(g=>({name:g.name,secs:g.secs}));
+const groupOf=si=>GROUPS.find(g=>g.secs.includes(si));
+const ALL=G.sections.map((_,i)=>i);
+const stepsOf=sis=>sis.flatMap(si=>(G.sections[si].steps||[]).map((st,ti)=>({st,si,ti,sec:G.sections[si].title,id:`s${si}-${ti}`})));
+const imgsOf=sis=>sis.reduce((n,si)=>n+G.sections[si].steps.reduce((m,st)=>m+st.imgs.length,0),0);
+const STEPS=stepsOf(ALL);
+const imgCount=imgsOf(ALL);
+const secHref=(si,anchor)=>`#/do/${SECS[si].slug}${anchor?'~'+anchor:''}`;
+const plural=(n,w)=>`${n} ${w}${n===1?'':'s'}`;
 
 /* ---------- progress memory (this device only) ---------- */
 const DK='bapis-done-v1';
@@ -310,14 +450,14 @@ function setDone(set){ try{localStorage.setItem(DK,JSON.stringify([...set]))}cat
 function figHtml(st){
   if(!st.imgs.length) return '';
   const tall=st.imgs.length>1 && st.imgs.every(im=>im.h>im.w*1.15);
-  return `<div class="shots${tall?' pair':''}">${st.imgs.map(im=>`<figure tabindex="0" role="button" class="shot" style="width:${im.w}px"><img loading="lazy" decoding="async" src="shots/${im.f}" width="${im.w}" height="${im.h}" alt="${esc(im.alt||im.cap)}"><figcaption>${rich(im.cap)}</figcaption></figure>`).join('')}</div>`;
+  return `<div class="shots${tall?' pair':''}">${st.imgs.map(im=>`<figure tabindex="0" role="button" class="shot" style="width:${im.w}px" aria-label="Enlarge picture: ${esc(im.cap)}"><img loading="lazy" decoding="async" src="shots/${im.f}" width="${im.w}" height="${im.h}" alt="${esc(im.alt||im.cap)}"><figcaption>${rich(im.cap)}</figcaption></figure>`).join('')}</div>`;
 }
+/* CSG pattern: one action line, a visible "Heads up" only for real warnings, pictures always visible, the rest behind "More info" */
 function stepInner(st){
-  return `${st.where?`<div class="mrow">${SV.pin}<span><b>Where:</b> ${rich(st.where)}</span></div>`:''}
-    ${st.result?`<div class="mrow">${SV.eye}<span><b>You'll see:</b> ${rich(st.result)}</span></div>`:''}
-    ${st.note?`<div class="callout"><span class="lbl">Tip</span>${rich(st.note)}</div>`:''}
-    ${st.warn?`<div class="callout warn"><span class="lbl">Heads up</span>${rich(st.warn)}</div>`:''}
-    ${figHtml(st)}`;
+  const extra=`${st.where?`<div class="mrow">${SV.pin}<span><b>Where:</b> ${rich(st.where)}</span></div>`:''}${st.result?`<div class="mrow">${SV.eye}<span><b>You'll see:</b> ${rich(st.result)}</span></div>`:''}${st.note?`<div class="callout"><span class="lbl">Tip</span>${rich(st.note)}</div>`:''}`;
+  return `${st.warn?`<div class="callout warn"><span class="lbl">Heads up</span>${rich(st.warn)}</div>`:''}
+    ${figHtml(st)}
+    ${extra?`<details class="more"><summary><span>More info</span></summary>${extra}</details>`:''}`;
 }
 function stepHtml(st,id,n,done,i){
   return `<li id="${id}" class="rise${done?' done':''}" style="--i:${i}"><button class="num" type="button" data-sid="${id}" aria-pressed="${done}" aria-label="Mark step ${n} done"><span>${n}</span>${SV.check}</button><div class="step-body"><p class="do">${rich(st.text)}</p>${stepInner(st)}</div></li>`;
@@ -325,96 +465,154 @@ function stepHtml(st,id,n,done,i){
 function tableHtml(t,id){
   return `<div class="tbl" id="${id}"><table><thead><tr>${t.head.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${t.rows.map((r,ri)=>`<tr id="${id}${ri}">${r.map((c,ci)=>`<td data-h="${esc(t.head[ci]||'')}">${rich(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 }
-function guideHtml(){
-  const D=getDone();
-  return `
-  <section class="g-head">
-    <div class="eyebrow">Celestial Store Space · ${esc(G.code)}</div>
-    <h1>BAPIS: Scan, Pack <em>&amp; Pick Up</em></h1>
-    <p class="sum">${esc(G.summary)}</p>
-    <div class="meta"><span class="tag">${STEPS.length} steps</span><span class="tag">${imgCount} pictures</span><span class="tag">Celestial updated ${esc(G.updated)}</span><a class="src" href="${esc(G.source)}" target="_blank" rel="noopener">Full article in Celestial ↗</a></div>
-  </section>
-  <div class="hair"></div>
-  <div class="layout">
-    <article>
-      <div class="dock"><div class="meter"><small><span>Your progress</span><b class="cnt"></b></small><div class="bar-o"><div class="bar-i"></div></div></div><button class="go" id="go" type="button">${SV.play}<b>Start step-by-step</b></button><button class="ghost" id="reset" type="button">Reset</button></div>
-      <div class="panel" id="before"><h3>Before you start</h3><ul>${G.before.map(x=>`<li>${rich(x)}</li>`).join('')}</ul></div>
-      ${G.sections.map((s,si)=>`<section class="g-sec" id="s${si}" data-sec="${si}"><h2>${esc(s.title)}</h2>${s.intro?`<p class="intro">${rich(s.intro)}</p>`:''}
-        ${s.steps.length?`<ol class="steps">${s.steps.map((st,ti)=>stepHtml(st,`s${si}-${ti}`,ti+1,D.has(`s${si}-${ti}`),ti)).join('')}</ol>`:''}${s.table?tableHtml(s.table,`s${si}-t`):''}</section>`).join('')}
-      <div class="panel" id="tips"><h3>Good to know</h3><ul>${G.tips.map(x=>`<li>${rich(x)}</li>`).join('')}</ul></div>
-    </article>
-    <aside class="toc"><h5>On this page</h5>${G.sections.map((s,si)=>`<a href="#/~s${si}" data-a="s${si}"><span>${esc(s.title)}</span><small></small></a>`).join('')}<a href="#/~tips" data-a="tips"><span>Good to know</span></a></aside>
-  </div>`;
+const moreHtml=s=>s?`<details class="more"><summary><span>More info</span></summary><p class="intro">${rich(s)}</p></details>`:'';
+const panelHtml=(id,title,items)=>`<details class="panel" id="${id}"><summary><h3>${title}</h3></summary><ul>${items.map(x=>`<li>${rich(x)}</li>`).join('')}</ul></details>`;
+function pickOptions(){
+  return `<option value="">Choose a task…</option>`+GROUPS.map(g=>`<optgroup label="${esc(g.name)}">${g.secs.map(si=>`<option value="${esc(SECS[si].slug)}">${esc(G.sections[si].title)}</option>`).join('')}</optgroup>`).join('')
+    +`<optgroup label="Whole guide"><option value="all">Every step, start to finish</option></optgroup>`;
 }
 
 /* ---------- views ---------- */
-let VIEW='';
-function setView(html,anim){
-  const apply=()=>{ $('#view').innerHTML=html; };
+let VIEW='', CUR=null;
+function setView(html,anim,after){
+  const apply=()=>{ $('#view').innerHTML=html; if(after) after(); };
   if(anim && !RM() && document.startViewTransition && setView.ready) document.startViewTransition(apply);
   else { apply(); if(anim && !RM()){ const v=$('#view'); v.classList.remove('enter'); void v.offsetWidth; v.classList.add('enter'); } }
   setView.ready=true;
 }
-function showGuide(anchor){
-  const fresh=VIEW!=='guide';
+function renderHome(){
+  if(VIEW==='home') return;
+  VIEW='home'; CUR=null; if(IO) IO.disconnect();
+  const D=getDone();
+  setView(`
+  <section class="hero">
+    <div class="eyebrow">Celestial Store Space · ${esc(G.code)}</div>
+    <h1>BAPIS: Scan, Pack <em>&amp; Pick Up</em></h1>
+    <p>Buy Anywhere, Pick up In-store.</p>
+  </section>
+  <div class="pick">
+    <label for="pick">What are you doing today?</label>
+    <div class="sel"><select id="pick">${pickOptions()}</select></div>
+    <small>Or tap a task below, or search at the top.</small>
+  </div>
+  <div class="hair"></div>
+  <div class="section-h"><h2>Tasks</h2><span>${STEPS.length} steps · ${imgCount} pictures</span></div>
+  <div class="grid">${GROUPS.map((g,gi)=>`
+    <div class="cat-card rise" style="--i:${gi}">
+      <span class="n">${String(gi+1).padStart(2,'0')}</span>
+      <h3>${esc(g.name)}</h3>
+      <div class="tk">${g.secs.map(si=>{ const ids=G.sections[si].steps.map((_,ti)=>`s${si}-${ti}`), k=ids.filter(x=>D.has(x)).length; return `<a href="${secHref(si)}"><span>${esc(G.sections[si].title)}</span><small${k===ids.length?' class="all"':''}>${k?`${k}/`:''}${plural(ids.length,'step')}</small></a>`; }).join('')}</div>
+    </div>`).join('')}
+    <div class="cat-card whole rise" style="--i:${GROUPS.length}">
+      <span class="n">All</span>
+      <h3>Whole guide</h3>
+      <div class="tk"><a href="#/all"><span>Every step, start to finish</span><small>${STEPS.length} steps</small></a></div>
+      <button class="go" id="go-all" type="button">${SV.play}<b>Start step-by-step</b></button>
+    </div>
+  </div>
+  <div style="height:80px"></div>`,true,()=>{ const p=$('#pick'); if(p) p.addEventListener('change',()=>{ if(p.value) location.hash=p.value==='all'?'#/all':'#/do/'+p.value; }); });
+  window.scrollTo(0,0);
+}
+function guideHtml(v){
+  const D=getDone(), steps=stepsOf(v.sis), pics=imgsOf(v.sis), task=v.mode==='task';
+  const s0=G.sections[v.sis[0]], g=task?groupOf(v.sis[0]):null, k=task?SECS.findIndex(x=>x.si===v.sis[0]):-1, prev=task&&SECS[k-1], next=task&&SECS[k+1];
+  const head=task?`
+  <div class="crumbs"><a href="#/">Home</a><span>/</span><span>${esc(g.name)}</span></div>
+  <section class="g-head">
+    <div class="eyebrow">${esc(g.name)} · ${esc(G.code)}</div>
+    <h1>${esc(s0.title)}</h1>
+    ${s0.intro?`<p class="sum">${rich(s0.intro)}</p>`:''}${moreHtml(s0.introMore)}
+    <div class="meta"><span class="tag">${plural(steps.length,'step')}</span>${pics?`<span class="tag">${plural(pics,'picture')}</span>`:''}<a class="src" href="${esc(G.source)}" target="_blank" rel="noopener">Full article in Celestial ↗</a></div>
+  </section>`:`
+  <div class="crumbs"><a href="#/">Home</a><span>/</span><span>Whole guide</span></div>
+  <section class="g-head">
+    <div class="eyebrow">Celestial Store Space · ${esc(G.code)}</div>
+    <h1>BAPIS: Scan, Pack <em>&amp; Pick Up</em></h1>
+    <p class="sum">${esc(G.summary)}</p>
+    <div class="meta"><span class="tag">${steps.length} steps</span><span class="tag">${pics} pictures</span><span class="tag">Celestial updated ${esc(G.updated)}</span><a class="src" href="${esc(G.source)}" target="_blank" rel="noopener">Full article in Celestial ↗</a></div>
+  </section>`;
+  const secs=v.sis.map(si=>{ const s=G.sections[si];
+    return `<section class="g-sec" id="s${si}" data-sec="${si}">${task?'':`<h2>${esc(s.title)}</h2>${s.intro?`<p class="intro">${rich(s.intro)}</p>`:''}${moreHtml(s.introMore)}`}
+      ${s.steps.length?`<ol class="steps">${s.steps.map((st,ti)=>stepHtml(st,`s${si}-${ti}`,ti+1,D.has(`s${si}-${ti}`),ti)).join('')}</ol>`:''}${s.table?tableHtml(s.table,`s${si}-t`):''}</section>`; }).join('');
+  const toc=task?`<h5>Tasks</h5>${SECS.map(x=>`<a href="${secHref(x.si)}"${x.si===v.sis[0]?' class="on" aria-current="page"':''}><span>${esc(x.s.title)}</span><small></small></a>`).join('')}<a href="#/all"><span>Whole guide</span></a>`
+    :`<h5>On this page</h5>${v.sis.map(si=>`<a href="#/all~s${si}" data-a="s${si}"><span>${esc(G.sections[si].title)}</span><small></small></a>`).join('')}<a href="#/all~tips" data-a="tips"><span>Good to know</span></a>`;
+  return `${head}
+  <div class="hair"></div>
+  <div class="layout">
+    <article>
+      <div class="dock"><div class="meter"><small><span>Your progress</span><b class="cnt"></b></small><div class="bar-o"><div class="bar-i"></div></div></div><button class="go" id="go" type="button">${SV.play}<b>Start step-by-step</b></button><button class="ghost" id="reset" type="button">Reset</button></div>
+      ${panelHtml('before','Before you start',G.before)}
+      ${secs}
+      ${panelHtml('tips','Good to know',G.tips)}
+      ${task?`<div class="pager">${prev?`<a href="${secHref(prev.si)}"><small>← Previous</small>${esc(prev.s.title)}</a>`:'<a href="#/"><small>← Back</small>All tasks</a>'}${next?`<a class="nx" href="${secHref(next.si)}"><small>Next →</small>${esc(next.s.title)}</a>`:'<a class="nx" href="#/"><small>Done →</small>All tasks</a>'}</div>`:''}
+    </article>
+    <aside class="toc" data-mode="${v.mode}">${toc}</aside>
+  </div>`;
+}
+function showGuide(v,anchor,opts={}){
+  const key=v.mode+':'+v.path, fresh=VIEW!==key;
   /* landing on an anchor: no entrance motion — a scaled/translated view makes scrollIntoView aim short */
-  if(fresh){ setView(guideHtml(),!anchor); VIEW='guide'; paintDock(); spy(); if(anchor) document.querySelectorAll('#view .rise').forEach(x=>x.classList.remove('rise')); }
-  const go=()=>{ if(anchor){ const el=document.getElementById(anchor); if(el){ el.scrollIntoView({block:'start',behavior:fresh||RM()?'auto':'smooth'}); if(el.tagName==='LI'||el.tagName==='TR'){ el.classList.remove('hit'); void el.offsetWidth; el.classList.add('hit'); } } } else if(fresh) window.scrollTo(0,0); };
+  if(fresh){ CUR=v; VIEW=key; setView(guideHtml(v),!anchor,()=>{ paintDock(); spy(); if(anchor) document.querySelectorAll('#view .rise').forEach(x=>x.classList.remove('rise')); }); }
+  const top=!anchor||(v.mode==='task'&&anchor===`s${v.sis[0]}`);
+  const go=()=>{ if(!top){ const el=document.getElementById(anchor); if(el){ if(el.tagName==='DETAILS') el.open=true; if(el.tagName==='LI'&&!opts.quiet){ const m=el.querySelector('details.more'); if(m) m.open=true; }
+      el.scrollIntoView({block:'start',behavior:fresh||RM()?'auto':'smooth'}); if(el.tagName==='LI'||el.tagName==='TR'){ el.classList.remove('hit'); void el.offsetWidth; el.classList.add('hit'); } } } else if(fresh) window.scrollTo(0,0); };
   if(fresh){ requestAnimationFrame(()=>requestAnimationFrame(go));
     /* web fonts can re-wrap the text above the target; settle once more if the reader hasn't moved */
-    if(anchor&&document.fonts&&document.fonts.status!=='loaded'){ const y0=()=>scrollY; let y; requestAnimationFrame(()=>requestAnimationFrame(()=>{ y=y0(); })); document.fonts.ready.then(()=>{ if(Math.abs(scrollY-y)<4) go(); }); } }
+    if(!top&&document.fonts&&document.fonts.status!=='loaded'){ const y0=()=>scrollY; let y; requestAnimationFrame(()=>requestAnimationFrame(()=>{ y=y0(); })); document.fonts.ready.then(()=>{ if(Math.abs(scrollY-y)<4) go(); }); } }
   else go();
 }
 function route(){
-  const h=decodeURIComponent(location.hash.replace(/^#\/?/,''));
-  if(h.startsWith('search/')){ const q=h.slice(7); if(qi.value.trim()!==q){ qi.value=q; $('#search').classList.toggle('has',!!q); } return renderSearch(q); }
+  let h=decodeURIComponent(location.hash.replace(/^#\/?/,''));
+  if(h.startsWith('search/')){ const q=h.slice(7); if(qi.value.trim()!==q){ qi.value=q; $('#search').classList.toggle('has',!!q); } renderSearch(q); topMenu.sync(); return; }
   if(qi.value){ qi.value=''; $('#search').classList.remove('has'); }
-  showGuide(h.startsWith('~')?h.slice(1):'');
+  /* old one-page links (#/~s2, #/~s1-3, #/~tips) still land on the right task */
+  if(h.startsWith('~')){ const a=h.slice(1), m=a.match(/^s(\d+)/), tgt=m&&G.sections[+m[1]]?`do/${SECS[+m[1]].slug}~${a}`:`all~${a}`; history.replaceState(null,'','#/'+tgt); h=tgt; }
+  const [path,anchor='']=h.split('~');
+  const sec=path.startsWith('do/')&&SECS.find(x=>x.slug===path.slice(3));
+  if(sec) showGuide({mode:'task',path,sis:[sec.si]},anchor);
+  else if(path==='all') showGuide({mode:'all',path,sis:ALL},anchor);
+  else renderHome();
+  topMenu.sync();
 }
 
-/* ---------- section chips + scroll spy ---------- */
-$('#cats').innerHTML=G.sections.map((s,si)=>`<a href="#/~s${si}" data-a="s${si}"><i>${String(si+1).padStart(2,'0')}</i>${esc(s.nav)}</a>`).join('');
+/* ---------- scroll spy (whole-guide page) ---------- */
 let IO=null;
 function spy(){
   if(IO) IO.disconnect();
+  if(!CUR||CUR.mode!=='all') return;
   const secs=[...document.querySelectorAll('.g-sec')]; if(!secs.length||!('IntersectionObserver' in window)) return;
   const vis=new Map();
   IO=new IntersectionObserver(es=>{ es.forEach(e=>vis.set(e.target.id,e.isIntersecting?e.boundingClientRect.top:null));
     const on=secs.find(s=>vis.get(s.id)!=null); mark(on?on.id:null); },{rootMargin:'-200px 0px -55% 0px'});
   secs.forEach(s=>IO.observe(s));
 }
-function mark(id){
-  /* scroll the chip strip by itself: a scrollIntoView here would cancel the page's own anchor scroll */
-  const nav=$('#cats');
-  nav.querySelectorAll('a').forEach(a=>{ const m=a.dataset.a===id; if(m===a.hasAttribute('aria-current')) return; a.toggleAttribute('aria-current',m);
-    if(m&&nav.scrollWidth>nav.clientWidth) nav.scrollTo({left:a.offsetLeft-nav.offsetLeft-(nav.clientWidth-a.offsetWidth)/2,behavior:RM()?'auto':'smooth'}); });
-  document.querySelectorAll('.toc a').forEach(a=>a.classList.toggle('on',a.dataset.a===id));
-}
+function mark(id){ document.querySelectorAll('.toc[data-mode="all"] a').forEach(a=>a.classList.toggle('on',a.dataset.a===id)); }
 
 /* ---------- progress ---------- */
 function paintDock(){
-  const d=getDone(), n=STEPS.filter(x=>d.has(x.id)).length, b=$('.dock .bar-i'); if(!b) return;
-  b.style.width=(n/STEPS.length*100)+'%';
-  $('.dock .cnt').textContent=`${n} of ${STEPS.length} done`;
-  $('.dock .go b').textContent=n&&n<STEPS.length?'Resume step-by-step':'Start step-by-step';
-  G.sections.forEach((s,si)=>{ const a=document.querySelector(`.toc a[data-a="s${si}"]`); if(!a) return; const ids=s.steps.map((_,ti)=>`s${si}-${ti}`), k=ids.filter(x=>d.has(x)).length; a.querySelector('small').textContent=`${k}/${ids.length}`; a.classList.toggle('all',k===ids.length); });
+  if(!CUR) return; const steps=stepsOf(CUR.sis), d=getDone(), n=steps.filter(x=>d.has(x.id)).length, b=$('.dock .bar-i'); if(!b) return;
+  b.style.width=(n/steps.length*100)+'%';
+  $('.dock .cnt').textContent=`${n} of ${steps.length} done`;
+  $('.dock .go b').textContent=n&&n<steps.length?'Resume step-by-step':'Start step-by-step';
+  document.querySelectorAll('.toc a').forEach(a=>{ const href=a.getAttribute('href'), m=href.match(/~s(\d+)$/)||[null,(SECS.find(x=>secHref(x.si)===href)||{}).si]; if(m[1]==null) return;
+    const si=+m[1], ids=G.sections[si].steps.map((_,ti)=>`s${si}-${ti}`), k=ids.filter(x=>d.has(x)).length; const sm=a.querySelector('small'); if(sm) sm.textContent=`${k}/${ids.length}`; a.classList.toggle('all',k===ids.length); });
 }
 
-/* ---------- search ---------- */
+/* ---------- search (indexes the hidden More-info text too) ---------- */
 const IDX=[];
 G.sections.forEach((s,si)=>{
-  IDX.push({anchor:`s${si}`,kind:'Section',title:s.title,text:[s.title,s.nav,s.intro||''].join(' ')});
-  s.steps.forEach((st,ti)=>IDX.push({anchor:`s${si}-${ti}`,kind:`${s.title} · Step ${ti+1}`,title:plain(st.text),text:[st.text,st.where||'',st.result||'',st.note||'',st.warn||'',...st.imgs.map(i=>i.cap)].join(' ')}));
-  if(s.table) s.table.rows.forEach((r,ri)=>IDX.push({anchor:`s${si}-t${ri}`,kind:`${s.title} · Table`,title:plain(r[0]),text:r.join(' ')}));
+  IDX.push({href:secHref(si),kind:'Task',title:s.title,text:[s.title,s.nav,s.intro||'',s.introMore||''].join(' ')});
+  s.steps.forEach((st,ti)=>IDX.push({href:secHref(si,`s${si}-${ti}`),kind:`${s.title} · Step ${ti+1}`,title:plain(st.text),text:[st.text,st.where||'',st.result||'',st.note||'',st.warn||'',...st.imgs.map(i=>i.cap)].join(' ')}));
+  if(s.table) s.table.rows.forEach((r,ri)=>IDX.push({href:secHref(si,`s${si}-t${ri}`),kind:`${s.title} · Table`,title:plain(r[0]),text:r.join(' ')}));
 });
-G.before.forEach(t=>IDX.push({anchor:'before',kind:'Before you start',title:'Before you start',text:t}));
-G.tips.forEach(t=>IDX.push({anchor:'tips',kind:'Good to know',title:'Good to know',text:t}));
+G.before.forEach(t=>IDX.push({href:'#/all~before',kind:'Before you start',title:'Before you start',text:t}));
+G.tips.forEach(t=>IDX.push({href:'#/all~tips',kind:'Good to know',title:'Good to know',text:t}));
 IDX.forEach(r=>{ r.text=plain(r.text).replace(/\s+/g,' ').trim(); r.lc=r.text.toLowerCase(); });
 const SYN={code:['pickup code','pick up code'],slip:['packing slip','receipt'],receipt:['slip','reprint'],reprint:['receipt'],print:['printer','slip'],cancel:['exit','unpack'],id:['identification','authentication'],sign:['signature'],pay:['payment'],return:['unpack','inventory'],stock:['inventory'],scan:['scanner','barcode'],ticket:['techspot'],help:['techspot','issue'],mobile:['xfinity mobile'],error:['retry','owner required'],owner:['primary account holder'],email:['pickup code']};
 function search(q){
   const terms=q.toLowerCase().split(/\s+/).filter(Boolean); if(!terms.length) return [];
   const has=(r,t)=>r.lc.includes(t)||(SYN[t]||[]).some(x=>r.lc.includes(x))||(t.length>3&&t.endsWith('s')&&r.lc.includes(t.slice(0,-1)));
-  return IDX.filter(r=>terms.every(t=>has(r,t))).map(r=>{ let sc=0; terms.forEach(t=>{ if(r.title.toLowerCase().includes(t)) sc+=4; if(r.lc.includes(t)) sc+=2; }); if(r.kind==='Section') sc+=1; return {r,sc}; }).sort((a,b)=>b.sc-a.sc).slice(0,40);
+  return IDX.filter(r=>terms.every(t=>has(r,t))).map(r=>{ let sc=0; terms.forEach(t=>{ if(r.title.toLowerCase().includes(t)) sc+=4; if(r.lc.includes(t)) sc+=2; }); if(r.kind==='Task') sc+=1; return {r,sc}; }).sort((a,b)=>b.sc-a.sc).slice(0,40);
 }
 function snippet(text,terms){
   const lc=text.toLowerCase(); let at=-1;
@@ -424,17 +622,17 @@ function snippet(text,terms){
   return out;
 }
 function renderSearch(q){
-  const anim=VIEW!=='search'; VIEW='search'; if(IO) IO.disconnect(); mark(null);
+  const anim=VIEW!=='search'; VIEW='search'; CUR=null; if(IO) IO.disconnect();
   const terms=q.toLowerCase().split(/\s+/).filter(Boolean), res=search(q);
-  setView(`<section class="s-head"><div class="eyebrow">Search this guide</div><h1>“${esc(q)}”</h1><p>${res.length?`${res.length} match${res.length===1?'':'es'}`:'No matches. Try a shorter word: pack, code, unpack, slip, ID, signature.'}</p><button type="button" id="s-back">← Back to the guide</button></section>
-  <div class="hits">${res.map(({r},k)=>`<a class="hit${anim?' rise':''}" style="--i:${k}" href="#/~${r.anchor}"><div class="where">${esc(r.kind)}</div><h4>${esc(r.title)}</h4><p>${snippet(r.text,terms)}</p></a>`).join('')}</div>`,anim);
+  setView(`<section class="s-head"><div class="eyebrow">Search this guide</div><h1>“${esc(q)}”</h1><p>${res.length?`${res.length} match${res.length===1?'':'es'}`:'No matches. Try a shorter word: pack, code, unpack, slip, ID, signature.'}</p><button type="button" id="s-back">← Back to the tasks</button></section>
+  <div class="hits">${res.map(({r},k)=>`<a class="hit${anim?' rise':''}" style="--i:${k}" href="${r.href}"><div class="where">${esc(r.kind)}</div><h4>${esc(r.title)}</h4><p>${snippet(r.text,terms)}</p></a>`).join('')}</div>`,anim);
   window.scrollTo(0,0);
 }
 const qi=$('#q'); let qt=null;
 qi.addEventListener('input',()=>{ $('#search').classList.toggle('has',!!qi.value); clearTimeout(qt); qt=setTimeout(()=>{ const v=qi.value.trim(); if(v) history.replaceState(null,'','#/search/'+encodeURIComponent(v)); else history.replaceState(null,'','#/'); route(); },140); });
 qi.addEventListener('keydown',e=>{ if(e.key==='Enter'){ const first=$('a.hit'); if(first) first.click(); qi.blur(); } if(e.key==='Escape'){ qi.value=''; qi.dispatchEvent(new Event('input')); } });
 $('#q-clear').addEventListener('click',()=>{ qi.value=''; qi.dispatchEvent(new Event('input')); qi.focus(); });
-document.addEventListener('keydown',e=>{ const typing=/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName); if(!typing&&(e.key==='/'||((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'))&&!WK){ e.preventDefault(); qi.focus(); qi.select(); } if(e.key==='Escape'&&$('#lb').classList.contains('on')){ closeLB(); e.stopImmediatePropagation(); return; } if((e.key==='Enter'||e.key===' ')&&!typing&&document.activeElement.matches('figure.shot')){ e.preventDefault(); document.activeElement.click(); } });
+document.addEventListener('keydown',e=>{ const typing=/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName); if(!typing&&(e.key==='/'||((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'))&&!WK){ e.preventDefault(); qi.focus(); qi.select(); } if(e.key==='Escape'&&$('#lb').classList.contains('on')){ closeLB(); e.stopImmediatePropagation(); return; } if((e.key==='Enter'||e.key===' ')&&!typing&&document.activeElement.matches('figure.shot')){ e.preventDefault(); document.activeElement.click(); } });
 
 /* ---------- lightbox ---------- */
 let LBret=null;
@@ -449,10 +647,11 @@ document.addEventListener('click',e=>{
   const nb=e.target.closest('.num'); if(nb){ const d=getDone(), id=nb.dataset.sid, li=nb.closest('li');
     if(d.has(id)){ d.delete(id); li.classList.remove('done'); nb.setAttribute('aria-pressed','false'); } else { d.add(id); li.classList.add('done'); nb.setAttribute('aria-pressed','true'); burst(nb,8); }
     setDone(d); paintDock(); return; }
-  if(e.target.closest('#go')){ wkOpen(); return; }
-  if(e.target.closest('#reset')){ setDone(new Set()); document.querySelectorAll('ol.steps li.done').forEach(li=>{ li.classList.remove('done'); li.querySelector('.num').setAttribute('aria-pressed','false'); }); paintDock(); return; }
+  if(e.target.closest('#go')){ if(CUR) wkOpen(stepsOf(CUR.sis),CUR.mode==='task'?G.sections[CUR.sis[0]].title:G.title); return; }
+  if(e.target.closest('#go-all')){ wkOpen(STEPS,G.title); return; }
+  if(e.target.closest('#reset')){ const d=getDone(); if(CUR) stepsOf(CUR.sis).forEach(x=>d.delete(x.id)); setDone(d); document.querySelectorAll('ol.steps li.done').forEach(li=>{ li.classList.remove('done'); li.querySelector('.num').setAttribute('aria-pressed','false'); }); paintDock(); return; }
   /* same-hash anchor clicks still jump (hashchange won't fire) */
-  const a=e.target.closest('a[href^="#/~"]'); if(a&&a.getAttribute('href')===location.hash){ e.preventDefault(); route(); }
+  const a=e.target.closest('a[href^="#/"]'); if(a&&a.getAttribute('href').includes('~')&&a.getAttribute('href')===location.hash){ e.preventDefault(); route(); }
 });
 function burst(el,n){ if(RM()) return; const r=el.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2, cols=['#5be3a0','#f0cf86','#ff7eb6','#5cc8ff','#ffb05c'];
   for(let k=0;k<n;k++){ const p=document.createElement('i'); p.className='spark'; const a=Math.random()*Math.PI*2, d=40+Math.random()*(n>12?160:60);
@@ -460,24 +659,28 @@ function burst(el,n){ if(RM()) return; const r=el.getBoundingClientRect(), cx=r.
 
 /* ---------- step-by-step walkthrough ---------- */
 let WK=null;
-function wkOpen(){ const d=getDone(); let i=STEPS.findIndex(x=>!d.has(x.id)); if(i<0) i=0;
-  WK={i}; $('#wk-title').textContent=G.title; $('#wk').classList.add('on'); document.body.style.overflow='hidden'; wkRender(0); $('#wk-next').focus(); }
-function wkClose(){ if(!WK) return; $('#wk').classList.remove('on'); document.body.style.overflow=''; const at=STEPS[Math.min(WK.i,STEPS.length-1)]; WK=null; VIEW=''; showGuide(at?at.id:''); }
-function wkRender(dir){ const i=WK.i, stg=$('#wk-stage');
-  if(i>=STEPS.length){ $('#wk-sec').textContent='Finished'; $('#wk-bar').style.width='100%';
-    stg.innerHTML=`<div class="wk-card wk-done in-r"><div class="ring">${SV.check}</div><h2>All ${STEPS.length} steps done.</h2><p>${esc(G.title)} — nice work.</p></div>`;
+function wkOpen(list,title){ const d=getDone(); let i=list.findIndex(x=>!d.has(x.id)); if(i<0) i=0;
+  WK={i,list}; $('#wk-title').textContent=title||G.title; $('#wk').classList.add('on'); document.body.style.overflow='hidden'; wkRender(0); $('#wk-next').focus(); }
+function wkClose(){ if(!WK) return; $('#wk').classList.remove('on'); document.body.style.overflow=''; const at=WK.list[Math.min(WK.i,WK.list.length-1)]; WK=null;
+  if(CUR){ const v=CUR; VIEW=''; showGuide(v,at&&v.sis.includes(at.si)?at.id:'',{quiet:true}); } else { VIEW=''; renderHome(); } }
+function wkRender(dir){ const L=WK.list, i=WK.i, stg=$('#wk-stage');
+  if(i>=L.length){ $('#wk-sec').textContent='Finished'; $('#wk-bar').style.width='100%';
+    stg.innerHTML=`<div class="wk-card wk-done in-r"><div class="ring">${SV.check}</div><h2>All ${L.length} steps done.</h2><p>${esc($('#wk-title').textContent)} — nice work.</p></div>`;
     $('#wk-next').innerHTML='Back to the guide'; $('#wk-back').disabled=false; burst($('.wk-done .ring'),36); return; }
-  const x=STEPS[i]; $('#wk-sec').textContent=x.sec; $('#wk-bar').style.width=(i/STEPS.length*100)+'%';
-  stg.innerHTML=`<div class="wk-card ${dir<0?'in-l':'in-r'}"><div class="wk-count"><span class="big">${i+1}</span><span>Step ${i+1} of ${STEPS.length}<br>${esc(x.sec)} · ${x.ti+1}</span></div><p class="wk-text">${rich(x.st.text)}</p>${stepInner(x.st)}${wkTable(x)}<p class="wk-hint">Tap a picture to zoom · Swipe or use ← → keys</p></div>`;
+  const x=L[i]; $('#wk-sec').textContent=x.sec; $('#wk-bar').style.width=(i/L.length*100)+'%';
+  stg.innerHTML=`<div class="wk-card ${dir<0?'in-l':'in-r'}"><div class="wk-count"><span class="big">${i+1}</span><span>Step ${i+1} of ${L.length}<br>${esc(x.sec)} · ${x.ti+1}</span></div><p class="wk-text">${rich(x.st.text)}</p>${stepInner(x.st)}${wkTable(x)}<p class="wk-hint">Tap a picture to zoom · Swipe or use ← → keys</p></div>`;
   stg.scrollTop=0; $('#wk-back').disabled=i===0;
-  $('#wk-next').innerHTML=i===STEPS.length-1?`Done — finish ${SV.check}`:`Done — next step ${SV.arr}`; }
+  $('#wk-next').innerHTML=i===L.length-1?`Done — finish ${SV.check}`:`Done — next step ${SV.arr}`; }
 function wkTable(x){ const s=G.sections[x.si]; if(!s.table||!s.steps.length) return ''; const r=s.steps.findIndex(st=>/table below/i.test([st.text,st.where,st.result,st.note,st.warn].join(' '))); return x.ti===(r>=0?r:s.steps.length-1)?tableHtml(s.table,'wk-t'):''; }
-function wkNext(){ if(!WK) return; if(WK.i>=STEPS.length){ wkClose(); return; } const d=getDone(); d.add(STEPS[WK.i].id); setDone(d); WK.i++; wkRender(1); }
+function wkNext(){ if(!WK) return; if(WK.i>=WK.list.length){ wkClose(); return; } const d=getDone(); d.add(WK.list[WK.i].id); setDone(d); WK.i++; wkRender(1); }
 function wkPrev(){ if(!WK||WK.i===0) return; WK.i--; wkRender(-1); }
 $('#wk-next').addEventListener('click',wkNext); $('#wk-back').addEventListener('click',wkPrev); $('#wk-x').addEventListener('click',wkClose);
 document.addEventListener('keydown',e=>{ if(!WK||$('#lb').classList.contains('on')) return; if(e.key==='ArrowRight'){e.preventDefault();wkNext();} else if(e.key==='ArrowLeft'){e.preventDefault();wkPrev();} else if(e.key==='Escape'){wkClose();} });
 let tx=null; $('#wk-stage').addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
 $('#wk-stage').addEventListener('touchend',e=>{ if(tx==null) return; const dx=e.changedTouches[0].clientX-tx; tx=null; if(Math.abs(dx)>70){ dx<0?wkNext():wkPrev(); } },{passive:true});
+
+/* ---------- top-right menu ---------- */
+topMenu.build([...GROUPS.map(g=>({name:g.name,c:'#ff7eb6',items:g.secs.map(si=>({label:G.sections[si].title,href:secHref(si)}))})),{name:'Whole guide',c:'#ff7eb6',href:'#/all',items:[]}]);
 
 window.addEventListener('hashchange',route);
 route();

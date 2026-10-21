@@ -23,7 +23,7 @@
   --r:4px;--gut:16px;--max:1180px;
 }
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%;scroll-padding-top:150px}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:88px}
 body{margin:0;background:var(--ink);color:var(--text);font:400 18px/1.6 var(--sans);-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
 body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
   background:radial-gradient(900px 500px at 85% -10%,rgba(212,169,79,.10),transparent 60%),radial-gradient(700px 500px at -10% 110%,rgba(92,200,255,.06),transparent 60%)}
@@ -67,13 +67,6 @@ header.top{position:sticky;top:0;z-index:20;background:rgba(0,0,0,.82);backdrop-
 .search kbd{position:absolute;right:12px;top:11px;font:500 11px var(--mono);color:var(--text-3);border:1px solid var(--line-2);border-radius:4px;padding:2px 6px}
 .search .clear{position:absolute;right:6px;top:4px;width:36px;height:36px;border-radius:50%;color:var(--text-2);display:none;font-size:20px}
 .search.has .clear{display:block}.search.has kbd{display:none}
-nav.cats{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 0 12px}
-nav.cats::-webkit-scrollbar{display:none}
-nav.cats a{flex:none;display:flex;align-items:center;gap:8px;height:42px;padding:0 16px;border-radius:999px;text-decoration:none;color:var(--text-2);font:600 15px var(--sans);box-shadow:inset 0 0 0 1px var(--line);transition:.15s}
-nav.cats a i{width:8px;height:8px;border-radius:50%;background:var(--c)}
-nav.cats a:hover{color:var(--text);box-shadow:inset 0 0 0 1px var(--line-2)}
-nav.cats a[aria-current]{color:#000;background:var(--c);box-shadow:none}
-nav.cats a[aria-current] i{background:#000}
 
 /* ---------- home ---------- */
 .hero{padding:56px 0 34px}
@@ -330,8 +323,6 @@ footer button{color:var(--text-2);text-decoration:underline}
   .search{max-width:none;flex:1;min-width:0}
   .search input{height:44px;font-size:16px;padding-right:12px}
   .search svg{top:13px}
-  nav.cats{padding-bottom:10px}
-  nav.cats a{height:38px;font-size:14px;padding:0 14px}
   .search kbd{display:none}
   .hero{padding:34px 0 22px}
   .hero p{font-size:18px}
@@ -353,7 +344,7 @@ footer button{color:var(--text-2);text-decoration:underline}
   .num{width:38px;height:38px;font-size:17px}
   .step-body p.do{margin-top:4px}
   figure.shot{margin-left:-52px;max-width:calc(100% + 52px)}
-  html{scroll-padding-top:130px}
+  html{scroll-padding-top:80px}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
@@ -366,10 +357,6 @@ footer button{color:var(--text-2);text-decoration:underline}
 .sel::after{content:"";position:absolute;right:22px;top:50%;width:10px;height:10px;border-right:2px solid var(--brass-2);border-bottom:2px solid var(--brass-2);transform:translateY(-70%) rotate(45deg);pointer-events:none}
 .sel optgroup{font-weight:700;color:#111}.sel option{color:#111;font-weight:500}
 .pick small{display:block;margin-top:10px;color:var(--text-3);font-size:15px}
-.top .sel{max-width:260px;flex:0 0 260px}
-.top .sel select{height:48px;font-size:16px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--line-2);padding-left:18px}
-.top .sel::after{right:18px;width:8px;height:8px}
-@media(max-width:900px){.top .sel{display:none}}
 details.more{margin-top:10px}
 details.more>summary{display:inline-flex;align-items:center;gap:6px;cursor:pointer;list-style:none;font:600 15px var(--sans);color:var(--brass-2);padding:6px 0}
 details.more>summary::-webkit-details-marker{display:none}
@@ -383,6 +370,35 @@ details.panel>summary::after{content:"Show";font:600 14px var(--sans);color:var(
 details.panel[open]>summary::after{content:"Hide"}
 details.panel[open]>summary{margin-bottom:12px}
 p.do{font-size:20px}
+
+/* ===== SHARED TOP-RIGHT MENU (Oct 2026) — verbatim from topmenu.html part 1 ===== */
+/* top-right menu: replaces the nav.cats pill row and the .top .sel jump box */
+header.top nav.cats,.top .sel{display:none!important}
+.bar{position:relative}
+.mnu-btn{flex:none;display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 18px 0 14px;margin-left:4px;border-radius:999px;background:var(--ink-2);box-shadow:inset 0 0 0 1px var(--brass);color:var(--text);font:700 15px var(--sans);letter-spacing:.06em;text-transform:uppercase;transition:background .15s,box-shadow .15s}
+.mnu-btn:hover,.mnu-btn[aria-expanded="true"]{background:var(--brass);color:#120d03}
+.mnu-btn svg{width:20px;height:20px;flex:none}
+.mnu-btn .x{display:none}
+.mnu-btn[aria-expanded="true"] .x{display:block}.mnu-btn[aria-expanded="true"] .h{display:none}
+#mnu{position:absolute;right:0;top:calc(100% + 8px);z-index:40;width:min(420px,calc(100vw - 2 * var(--gut)));max-height:calc(100svh - 96px);overflow:auto;overscroll-behavior:contain;padding:10px;border-radius:10px;background:rgba(10,13,17,.97);box-shadow:inset 0 0 0 1px var(--line-2),0 24px 60px rgba(0,0,0,.7);display:none}
+#mnu.on{display:block;animation:mnuIn .22s cubic-bezier(.16,1,.3,1)}
+@keyframes mnuIn{from{opacity:0;transform:translateY(-8px) scale(.98)}}
+#mnu a{display:flex;align-items:center;gap:12px;min-height:48px;padding:8px 12px;border-radius:6px;text-decoration:none;color:var(--text-2);font:600 17px/1.3 var(--sans)}
+#mnu a:hover{background:var(--ink-3);color:var(--text)}
+#mnu a[aria-current]{background:color-mix(in srgb,var(--c,var(--brass)) 16%,transparent);color:var(--text);box-shadow:inset 3px 0 0 var(--c,var(--brass))}
+#mnu .mnu-home{color:var(--text)}
+#mnu .mnu-g{margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+#mnu .mnu-g h6{display:flex;align-items:center;gap:10px;margin:4px 12px 4px;font:700 12px var(--sans);letter-spacing:.2em;text-transform:uppercase;color:var(--c,var(--brass))}
+#mnu .mnu-g h6 i{width:8px;height:8px;border-radius:50%;background:var(--c,var(--brass))}
+#mnu .mnu-g a{padding-left:30px;font-weight:500}
+@media(max-width:640px){
+  .mnu-btn{width:48px;padding:0;justify-content:center;margin-left:0}
+  .mnu-btn b{display:none}
+  #mnu{position:fixed;left:var(--gut);right:var(--gut);top:var(--mnu-top,70px);width:auto;max-height:calc(100svh - var(--mnu-top,70px) - 16px)}
+}
+@media(prefers-reduced-motion:reduce){#mnu.on{animation:none}}
+/* menu sits in the true top-right corner on wide screens */
+header.top>.wrap{max-width:none}
 </style>
 </head>
 <body>
@@ -408,7 +424,6 @@ p.do{font-size:20px}
     <div class="wrap">
       <div class="bar">
         <a class="brand" href="#/"><b>CSG <em>How To</em></b><span>Blufox Mobile</span></a>
-        <div class="sel"><label class="sr" for="jump">Jump to a guide</label><select id="jump" aria-label="Jump to a guide"></select></div>
         <div class="search" id="search">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
           <label class="sr" for="q">Search every guide</label>
@@ -416,8 +431,9 @@ p.do{font-size:20px}
           <kbd>/</kbd>
           <button class="clear" id="q-clear" aria-label="Clear search">×</button>
         </div>
+        <button class="mnu-btn" id="mnu-btn" type="button" aria-expanded="false" aria-controls="mnu" aria-label="Open menu"><svg class="h" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><svg class="x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg><b>Menu</b></button>
+<nav id="mnu" aria-label="Menu"></nav>
       </div>
-      <nav class="cats" id="cats" aria-label="Product menus"></nav>
     </div>
   </header>
   <main id="view" class="wrap" tabindex="-1"></main>
@@ -432,8 +448,43 @@ p.do{font-size:20px}
 </div>
 <div id="lb" role="dialog" aria-modal="true" aria-label="Enlarged picture"><button aria-label="Close">×</button><div><img alt=""><p></p></div></div>
 
+<!-- PART 3 · JS — paste once, before your app script runs; then call
+       topMenu.build(groups)   once the data is ready
+       topMenu.sync()          at the end of every route() (it also runs on hashchange)
+     groups = [{ name:'Internet', c:'var(--internet)', items:[{ label:'Add a modem', href:'#/guide/add-modem' }, ...] }, ...]
+     A group with a single item that IS the group may pass items:[] and href:'#/x' instead. -->
 <script>
-const PAYLOAD_V = "a2a08153c85b", PAYLOAD_PARTS = 2;
+const topMenu=(()=>{
+  const btn=()=>document.getElementById('mnu-btn'), nav=()=>document.getElementById('mnu');
+  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  let wired=false;
+  function place(){ const h=document.querySelector('header.top'); if(h) document.documentElement.style.setProperty('--mnu-top',(h.getBoundingClientRect().bottom+8)+'px'); }
+  function open(){ place(); nav().classList.add('on'); btn().setAttribute('aria-expanded','true'); btn().setAttribute('aria-label','Close menu'); const cur=nav().querySelector('a[aria-current]')||nav().querySelector('a'); if(cur){ cur.scrollIntoView({block:'nearest'}); cur.focus({preventScroll:true}); } }
+  function close(refocus){ if(!nav().classList.contains('on')) return; nav().classList.remove('on'); btn().setAttribute('aria-expanded','false'); btn().setAttribute('aria-label','Open menu'); if(refocus) btn().focus({preventScroll:true}); }
+  function build(groups){
+    nav().innerHTML=`<a class="mnu-home" href="#/">Home</a>`+groups.map(g=>`<div class="mnu-g" style="--c:${g.c||'var(--brass)'}">${g.href&&!(g.items||[]).length?`<a href="${esc(g.href)}" style="padding-left:12px;font-weight:600">${esc(g.name)}</a>`:`<h6><i></i>${esc(g.name)}</h6>${(g.items||[]).map(it=>`<a href="${esc(it.href)}">${esc(it.label)}</a>`).join('')}`}</div>`).join('');
+    if(!wired){ wired=true;
+      btn().addEventListener('click',e=>{ e.stopPropagation(); nav().classList.contains('on')?close(true):open(); });
+      nav().addEventListener('click',e=>{ if(e.target.closest('a')) close(false); });
+      document.addEventListener('click',e=>{ if(!e.target.closest('#mnu,#mnu-btn')) close(false); });
+      document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&nav().classList.contains('on')){ e.stopImmediatePropagation(); close(true); } },true);
+      addEventListener('hashchange',()=>{ close(false); sync(); });
+      addEventListener('resize',place,{passive:true});
+    }
+    sync();
+  }
+  function sync(){
+    const h=location.hash||'#/';
+    let best=null,len=0;
+    nav().querySelectorAll('a').forEach(a=>{ a.removeAttribute('aria-current'); const href=a.getAttribute('href'); const key=href.split('~')[0];
+      if((h===href||h.split('~')[0]===key||(key!=='#/'&&h.startsWith(key+'/')))&&key.length>len){ best=a; len=key.length; } });
+    if(best) best.setAttribute('aria-current','page');
+  }
+  return {build,sync,open,close};
+})();
+</script>
+<script>
+const PAYLOAD_V = "cf85f38da7bd", PAYLOAD_PARTS = 2;
 let PAYLOAD_P=null;
 function loadPayload(){
   if(!PAYLOAD_P){
@@ -511,7 +562,8 @@ function start(data){
   DATA=data; buildIndex();
   const gate=$('#gate'); $('#app').hidden=false;
   if(gate){ if(RM2()) gate.remove(); else { gate.classList.add('opening'); setTimeout(()=>gate.remove(),850); } }
-  $('#cats').innerHTML=DATA.categories.map(c=>`<a href="#/${c.id}" data-cat="${c.id}" style="--c:var(--${c.id})"><i></i>${esc(c.name)}</a>`).join('');
+  topMenu.build(DATA.categories.map(c=>{ const gs=guidesIn(c.id).slice().sort((x,y)=>x.title.localeCompare(y.title));
+    return gs.length?{name:c.name,c:`var(--${c.id})`,items:gs.map(g=>({label:g.title,href:`#/guide/${g.id}`}))}:{name:c.name,c:`var(--${c.id})`,items:[],href:`#/${c.id}`}; }));
   window.addEventListener('hashchange',route); route();
 }
 function buildIndex(){
@@ -528,15 +580,15 @@ function buildIndex(){
   IDX.forEach(r=>{r.text=r.text.replace(/\{\{img:[^}]+\}\}/g,'').replace(/\s+/g,' ').trim();r.lc=r.text.toLowerCase();});
 }
 function route(){
-  row.i=0; setTimeout(syncJump,0);
+  row.i=0;
   const h=decodeURIComponent(location.hash.replace(/^#\/?/,''));
   const [a,b]=h.split('/');
-  document.querySelectorAll('#cats a').forEach(x=>x.toggleAttribute('aria-current',x.dataset.cat===(a==='guide'?DATA.guides.find(g=>g.id===(b||'').split('~')[0])?.cat:a)));
-  const curPill=document.querySelector('#cats a[aria-current]'); if(curPill){ const nv=$('#cats'), pr=curPill.getBoundingClientRect(), nr=nv.getBoundingClientRect(); if(pr.left<nr.left||pr.right>nr.right) nv.scrollLeft+=pr.left-nr.left-16; }
-  const prevA=LASTA; LASTA=a||''; if(a==='search'){ LASTA=prevA; const r=renderSearch(b||''); LASTA='search'; return r; }
-  if(a==='guide') return renderGuide(b||'');
-  if(a && catOf(a)) return renderCat(a);
-  renderHome();
+  const prevA=LASTA; LASTA=a||'';
+  if(a==='search'){ LASTA=prevA; renderSearch(b||''); LASTA='search'; }
+  else if(a==='guide') renderGuide(b||'');
+  else if(a && catOf(a)) renderCat(a);
+  else renderHome();
+  topMenu.sync();
 }
 let CUR=null;
 const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -552,12 +604,11 @@ function row(g){
   const c=g.cat;
   return `<a class="g-row rise" href="#/guide/${g.id}" style="--c:var(--${c});--i:${row.i=(row.i||0)+1}"><span class="dot"></span><div><h4>${esc(g.title)}</h4><p>${esc(g.summary)}</p><div class="meta">${ready(g)?`<span class="tag">${g.sections.reduce((n,s)=>n+(s.steps||[]).length,0)} steps</span>${g.imgCount?`<span class="tag">${g.imgCount} picture${g.imgCount===1?"":"s"}</span>`:''}`:'<span class="tag soon">Coming soon</span>'}</div></div></a>`;
 }
-function pickOptions(sel){
-  return `<option value="">${sel?'Jump to a guide…':'Choose a task…'}</option>`+DATA.categories.map(c=>{const gs=guidesIn(c.id).slice().sort((x,y)=>x.title.localeCompare(y.title)); return gs.length?`<optgroup label="${esc(c.name)}">${gs.map(g=>`<option value="${esc(g.id)}">${esc(g.title)}</option>`).join('')}</optgroup>`:'';}).join('');
+function pickOptions(){
+  return `<option value="">Choose a task…</option>`+DATA.categories.map(c=>{const gs=guidesIn(c.id).slice().sort((x,y)=>x.title.localeCompare(y.title)); return gs.length?`<optgroup label="${esc(c.name)}">${gs.map(g=>`<option value="${esc(g.id)}">${esc(g.title)}</option>`).join('')}</optgroup>`:'';}).join('');
 }
-function wirePick(el){ if(!el) return; el.addEventListener('change',()=>{ if(el.value){ location.hash='#/guide/'+el.value; } }); }
-function syncJump(){ const j=document.getElementById('jump'); if(!j) return; if(!j.options.length){ j.innerHTML=pickOptions(true); wirePick(j); } const m=location.hash.match(/#\/guide\/([^~/]+)/); j.value=m?decodeURIComponent(m[1]):''; }
-window.addEventListener('hashchange',()=>setTimeout(syncJump,0));
+function wirePick(){} /* picker is wired once by delegation below: the home view is swapped in asynchronously by the view transition, so a direct listener can land on the outgoing element */
+document.addEventListener('change',e=>{ const el=e.target; if(el&&el.id==='pick'&&el.value){ location.hash='#/guide/'+el.value; } });
 function renderHome(){
   const total=DATA.guides.length;
   setView(`
@@ -567,7 +618,7 @@ function renderHome(){
   </section>
   <div class="pick">
     <label for="pick">What are you doing today?</label>
-    <div class="sel"><select id="pick">${pickOptions(false)}</select></div>
+    <div class="sel"><select id="pick">${pickOptions()}</select></div>
     <small>Or tap a menu below, or search any code or screen name at the top.</small>
   </div>
   <div class="hair"></div>
@@ -580,7 +631,7 @@ function renderHome(){
     </a>`).join('')}
   </div>
   <div style="height:80px"></div>`);
-  wirePick(document.getElementById('pick')); syncJump();
+  wirePick(document.getElementById('pick'));
 }
 function renderCat(id){
   const c=catOf(id), gs=guidesIn(id);
@@ -626,6 +677,12 @@ function tableHtml(t,id){
 }
 function renderGuide(param){
   const [gid,anchor]=param.split('~');
+  /* guides split into one-task guides keep their old links working: send the old id (and old ~anchor, when it still has a home) to the new guide */
+  if(!DATA.guides.some(x=>x.id===gid)&&DATA.redirects&&DATA.redirects[gid]){
+    const m=(DATA.redirectAnchors||{})[gid]||{}, hit=anchor&&(m[anchor]||m[anchor.split('-')[0]]);
+    const to=hit||DATA.redirects[gid];
+    history.replaceState(null,'','#/guide/'+to); return renderGuide(to);
+  }
   const g=DATA.guides.find(x=>x.id===gid); if(!g) return renderHome();
   const c=catOf(g.cat), sib=guidesIn(g.cat), i=sib.indexOf(g), prev=sib[i-1], next=sib[i+1];
   const DONE=getDone(g); CUR=g;
