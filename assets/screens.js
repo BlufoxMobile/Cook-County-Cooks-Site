@@ -2584,7 +2584,7 @@ function holdingCard(title, note) {
  *  still gets a plausible station id rather than a blank rail. */
 const ROOM_TITLES = {
   pass: 'The Pass', host: 'Host Stand', dining: 'Dining Room', prep: 'Prep',
-  office: 'Back Office', breakroom: 'Break Room', freezer: 'Walk-In'
+  office: 'Training Room', breakroom: 'Break Room', freezer: 'Walk-In'
 };
 
 /** "THE PASS · 02" — the station id in the chrome rail. The number is the

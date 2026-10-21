@@ -150,11 +150,12 @@ const SURFACES = [
      size and in light from left to right; the sampled paper colours below carry
      that (217,204,186 on the first card, 228,219,210 on the fourth), so the
      fourth card's ink is measurably lighter than the first's. */
-  { slug: 'porting-guide', snap: true,  room: 'prep',   surface: 'card',
+  /* v44 (2026-10-20): Print Outs took PortPro's ticket (PortPro → Break Room). */
+  { slug: 'printouts', snap: true,      room: 'prep',   surface: 'card',
     quad: [[24.58, 33.36], [33.20, 34.35], [33.26, 46.82], [24.60, 47.06]],
     zone: [0.07, 0.285, 0.93, 0.715],  align: 'start',
     paper: [217, 204, 186], ramp: [-0.020, 0.073],
-    lines: ['PortPro', 'Porting Guide'], meta: 'Tap to open' },
+    lines: ['Print Outs'], meta: 'Tap to open' },
 
   { slug: 'credit-limit', snap: true,   room: 'prep',   surface: 'card',
     quad: [[34.45, 34.68], [41.60, 35.52], [41.62, 46.88], [34.56, 46.95]],
@@ -215,15 +216,8 @@ const SURFACES = [
     paper: [222, 181, 155], ramp: [-0.066, -0.068],
     lines: ['Internet', 'Essentials', 'Portal'], meta: 'Tap to open', rules: 0.5 },
 
-  /* The sheet standing in the printer's output tray. It is tipped back and lit
-     hard from the upper left — it loses 28% of its light across its width and
-     19% down its height, the steepest ramp of the eight, and the mask makes the
-     right-hand end of the word visibly softer than the left. */
-  { slug: 'printouts',       room: 'office', surface: 'printout',
-    quad: [[78.12, 38.06], [85.96, 35.0], [81.5, 52.09], [78.96, 51.79]],
-    zone: [0.10, 0.15, 0.90, 0.62],    align: 'start',
-    paper: [252, 231, 200], ramp: [-0.285, -0.190],
-    lines: ['Print Outs'], meta: 'Tap to open' },
+  /* v44 (2026-10-20): the printer-tray sheet carried Print Outs until the
+     client moved it to the prep rail; the tray sheet is blank stock again. */
 
   /* ── THE PASS · the printed card lying on the counter ──────────────────────
      A genuine ground plane: the sheet is nearly 40° off frontal, its far edge
