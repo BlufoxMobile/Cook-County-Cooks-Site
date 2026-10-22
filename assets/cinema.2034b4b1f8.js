@@ -32,7 +32,7 @@ const FIND_MODULE = optional('find',
 
 
 const ASK_MODULE = optional('ask',
-  import('./ask.596a2ab30b.js'));
+  import('./ask.3c05c7a01a.js'));
 const OPTIONAL_WAIT_MS = 1500;
  
 function within(pending, ms) {

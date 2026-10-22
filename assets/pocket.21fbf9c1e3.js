@@ -422,7 +422,7 @@ export async function boot() {
 
   const idle = window.requestIdleCallback || ((f) => setTimeout(f, 600));
   idle(() => {
-    import('./ask.596a2ab30b.js')
+    import('./ask.3c05c7a01a.js')
       .then(async (mod) => {
         await mod.loadStyles();
         window.CCC.ask = mod.mountAsk({
