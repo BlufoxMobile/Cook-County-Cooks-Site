@@ -19,7 +19,7 @@ const WORKER_TIMEOUT_MS = 8000;
 const W = { q: 300, candidates: 12, id: 120, title: 140, crumbs: 6, crumb: 60, text: 700, bytes: 24 * 1024 };
 const ID_RE = /^[A-Za-z0-9][A-Za-z0-9_\-\/~.:#]*$/;
 const HLS_LIB = 'tools/site-tour/hls.light.min.js';
-const INDEX_URL = 'data/ask-index.225b99e7c4.json';
+const INDEX_URL = 'data/ask-index.45e63ea369.json';
 const CSS_URL = 'assets/ask.fbb67fc8e1.css';
 
 

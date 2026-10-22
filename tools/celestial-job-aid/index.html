@@ -999,6 +999,260 @@ const DATA = {
 ]
 },
 {
+"id": "basics-iguard",
+"cat": "basics",
+"title": "Enter SSN and date of birth with iGuard",
+"code": "HOW21126",
+"summary": "Have the customer type their SSN and date of birth on their own phone so you never see it.",
+"keywords": [
+"iguard",
+"ssn",
+"social security",
+"date of birth",
+"dob",
+"start customer entry",
+"bypass",
+"invalid ssn or dob",
+"capture card"
+],
+"sections": [
+{
+"title": "Customer enters SSN and DOB",
+"steps": [
+{
+"text": "Open the account in Customer Space and launch **XM360**.",
+"info": "See [Launch XM360](#/guide/space-launch-xm360)."
+},
+{
+"text": "Click **Start customer entry** to text the customer a secure link.",
+"info": "The link expires after five minutes. For existing customers, the button unlocks once **Shop** is selected.",
+"imgs": [
+{
+"src": "ede7eaaf7a",
+"alt": "Primary account holder information with Date of birth and SSN fields.",
+"caption": "Start customer entry"
+}
+]
+},
+{
+"text": "Select the **SSN** field, then have the customer key it in.",
+"info": "The field turns yellow. You only see asterisks once all digits are in.",
+"imgs": [
+{
+"src": "e15c1aed5f",
+"alt": "iGuard pop-up with SSN and Date of Birth fields.",
+"caption": "iGuard fields"
+}
+]
+},
+{
+"text": "Select **Date of birth**; customer keys in MMDDYYYY.",
+"info": "Two digits for month, two for day, four for year."
+},
+{
+"text": "Mistake? Click **Clear** and have them try again.",
+"info": "The customer can also use the * key to backspace. Three tries per field."
+},
+{
+"text": "Look for the confirmation message once both fields save.",
+"imgs": [
+{
+"src": "ffdf5d9314",
+"alt": "Primary Account Holder Information page with date of birth and SSN completed.",
+"caption": "Saved"
+}
+]
+}
+],
+"note": "Taking a card instead? Click **Capture Card**, have the customer key in each field, then click **Apply**."
+},
+{
+"title": "If it won't take",
+"steps": [
+{
+"text": "Getting **invalid SSN or DOB**? Check the SSN first.",
+"info": "Use only the account holder's SSN. An SSN never starts with 9, and Tax IDs aren't accepted.",
+"imgs": [
+{
+"src": "411ba62817",
+"alt": "Error message for an invalid entry.",
+"caption": "Invalid entry error"
+}
+]
+},
+{
+"text": "Remove special characters or numbers from the name in **CSG**.",
+"info": "Example: \"Linda **&** John\". Then try the order again."
+},
+{
+"text": "Change blocked email domains: @usa.com, @gmx.com, @mail.com.",
+"info": "Existing customers also need a valid phone number and email on the **XM360** overview. Changes take up to 15 minutes."
+},
+{
+"text": "Still failing? A leader with access clicks **Bypass** and types it in.",
+"note": "**Bypass** isn't available for all users.",
+"imgs": [
+{
+"src": "7e2f37ef95",
+"alt": "iGuard pop-up with a Bypass button next to Apply and Clear.",
+"caption": "Bypass button"
+}
+]
+}
+],
+"note": "XM360 locks after three failed SSN tries. New customer: treat it as a fraud check; they can try online after two hours (no greenlight). Existing customer: open an **XM Support** ECM case, **XM360 Issues**."
+}
+]
+},
+{
+"id": "basics-notifications",
+"cat": "basics",
+"title": "Use the notification center",
+"code": "HOW22356",
+"summary": "Find XM360 error messages and track every activation and port on the account.",
+"keywords": [
+"notification center",
+"bell",
+"alerts",
+"activation status",
+"error message",
+"port pending",
+"clear all"
+],
+"sections": [
+{
+"title": "Check alerts and activations",
+"steps": [
+{
+"text": "Click the **bell icon** at the top right of XM360.",
+"info": "It also opens when you click an error message.",
+"imgs": [
+{
+"src": "9d81867419",
+"alt": "XM360 header with the bell icon highlighted.",
+"caption": "Bell icon"
+}
+]
+},
+{
+"text": "Open the **Alerts** tab to read errors and warnings.",
+"info": "Messages pop up for five seconds, then move here. Green = success, yellow = warning, red = needs your action.",
+"imgs": [
+{
+"src": "8efd116fe4",
+"alt": "Missing info error message highlighted.",
+"caption": "An alert"
+}
+]
+},
+{
+"text": "Open **Activation Status** to track each activation.",
+"info": "Green check: port complete. Yellow clock: starting activation, port pending or port confirmed. Red exclamation: error to fix.",
+"imgs": [
+{
+"src": "c1b29c8243",
+"alt": "Activation Status tab showing progress of all activations.",
+"caption": "Activation Status"
+}
+]
+},
+{
+"text": "Click **Clear** or **Clear All** to remove alerts.",
+"info": "Alerts also clear at the end of each session.",
+"imgs": [
+{
+"src": "031aa9c6f4",
+"alt": "Clear All button highlighted.",
+"caption": "Clear All"
+}
+]
+}
+]
+}
+]
+},
+{
+"id": "basics-approval",
+"cat": "basics",
+"title": "Get the customer's approval on an order",
+"code": "HOW23361",
+"summary": "Send the order review by text or email, or use verbal consent when that's the only option.",
+"keywords": [
+"customer agreement",
+"approval",
+"verbal consent",
+"order review",
+"text",
+"email",
+"docusign",
+"consent"
+],
+"sections": [
+{
+"title": "Get approval",
+"steps": [
+{
+"text": "On **Customer Agreement**, choose **Text** or **Email** and send.",
+"info": "Always try digital approval first.",
+"imgs": [
+{
+"src": "6757b6ed99",
+"alt": "Customer Agreement screen with Text and Email options and a Send button.",
+"caption": "Send by text or email"
+}
+]
+},
+{
+"text": "Wait up to 30 seconds for the customer to approve.",
+"info": "Sent more than once? Have them approve the most recent one. The latest time stamp is what saves.",
+"imgs": [
+{
+"src": "1b428126d9",
+"alt": "Customer agreement screen with a Customer agreement pending message.",
+"caption": "Approval pending"
+}
+]
+},
+{
+"text": "No text or email? Select **Verbal consent only** if shown.",
+"info": "This option appears when adding a new Xfinity Mobile line.",
+"imgs": [
+{
+"src": "cda8b2dea2",
+"alt": "Customer Agreement screen with Text, Email and Verbal consent only options.",
+"caption": "Verbal consent only"
+}
+]
+},
+{
+"text": "Read the **Order review** details to the customer.",
+"list": [
+"Monthly charges",
+"One-time charges",
+"Changes to services",
+"Terms and conditions, including the option to cancel"
+],
+"imgs": [
+{
+"src": "a923dbf494",
+"alt": "XM360 order review with plan, device, due today and estimated bill.",
+"caption": "Order review"
+}
+]
+},
+{
+"text": "Ask \"Do you approve this order?\" and finish only on yes.",
+"warn": "The customer must approve explicitly. Never assume consent."
+},
+{
+"text": "Confirm the order number and share next steps, like activation."
+}
+],
+"note": "No verbal option? Segment switch, plan change, deferred XMC, line transfer and remove a line don't allow it. In the store, use the **Docusign** process."
+}
+]
+},
+{
 "id": "basics-eligibility",
 "cat": "basics",
 "title": "Check how many lines and DPP a customer can get",
@@ -2379,6 +2633,226 @@ const DATA = {
 }
 ],
 "note": "Can't add it? Open an **XM Support** ECM case > **XM360 Issues** > **Order Entry/Action Not Available**."
+}
+]
+},
+{
+"id": "lines-wireline-fee",
+"cat": "lines",
+"title": "Add or remove the wireline fee",
+"code": "HOW20112",
+"summary": "Remove the residential (wireline) service fee for customers with active home service, or add it when it's missing.",
+"keywords": [
+"wireline fee",
+"service fee",
+"residential fee",
+"core services",
+"remove fee",
+"apply fee",
+"internet fee"
+],
+"sections": [
+{
+"title": "Before you start",
+"points": [
+{
+"text": "Remove the fee if the linked residential account is active; add it if inactive."
+},
+{
+"text": "A pending order blocks the change — complete or cancel it first.",
+"imgs": [
+{
+"src": "72811c6d2f",
+"alt": "Pending order on a line, highlighted in a red box.",
+"caption": "Pending order"
+}
+]
+},
+{
+"text": "Linked to an old account or IDs out of sync? Open an XM Support ECM case.",
+"info": "You'll see: \"You'll need to resolve the customer's account status issue\".",
+"imgs": [
+{
+"src": "eaf0a2cbac",
+"alt": "Error message saying You'll need to resolve the customer's account status issue.",
+"caption": "Account status error"
+}
+]
+}
+]
+},
+{
+"title": "Remove the fee",
+"steps": [
+{
+"text": "Open the account in Customer Space and launch **XM360**.",
+"info": "See [Launch XM360](#/guide/space-launch-xm360)."
+},
+{
+"text": "Select **Billing**, then **Remove or Apply Service Fee**.",
+"imgs": [
+{
+"src": "f540d1c21d",
+"alt": "Billing page with the Remove or Apply Service Fee button highlighted at bottom right.",
+"caption": "Remove or Apply Service Fee"
+}
+]
+},
+{
+"text": "Select **Remove service fees**, then **Save Changes**.",
+"imgs": [
+{
+"src": "0e3f3cc52c",
+"alt": "Remove service fees button highlighted.",
+"caption": "Remove service fees"
+}
+]
+},
+{
+"text": "Select **Got it** on the confirmation screen.",
+"imgs": [
+{
+"src": "39df18fec4",
+"alt": "Confirmation screen with the Got it button highlighted.",
+"caption": "Got it"
+}
+]
+}
+]
+},
+{
+"title": "Add the fee",
+"steps": [
+{
+"text": "In **Billing**, select **Remove or Apply Service Fee**."
+},
+{
+"text": "Select **Apply service fees**, then **Save changes**.",
+"imgs": [
+{
+"src": "0f6ba468f0",
+"alt": "Apply service fees button highlighted at bottom right.",
+"caption": "Apply service fees"
+}
+]
+},
+{
+"text": "Confirm the **Account status** shows service fees apply.",
+"imgs": [
+{
+"src": "d4c5563602",
+"alt": "Service fee settings section highlighted.",
+"caption": "Check the fee settings"
+}
+]
+}
+]
+}
+]
+},
+{
+"id": "lines-previous-plan",
+"cat": "lines",
+"title": "Put a customer back on their previous plan",
+"code": "HOW21122",
+"summary": "Restore a customer who moved to the sixth generation plan back to their old plan generation within 30 days.",
+"keywords": [
+"previous plan",
+"restore plan",
+"old plan",
+"legacy plan",
+"plan generation",
+"sixth generation",
+"switch back",
+"undo plan change"
+],
+"sections": [
+{
+"title": "Before you start",
+"points": [
+{
+"text": "Only within **30 days** of switching to the sixth generation plan. After that it's final."
+}
+]
+},
+{
+"title": "Restore the plan",
+"steps": [
+{
+"text": "Open the account in Customer Space and launch **XM360**.",
+"info": "See [Launch XM360](#/guide/space-launch-xm360)."
+},
+{
+"text": "On **Overview**, click **Account Details**, then **Plan Details**."
+},
+{
+"text": "Click **Restore previous plan** at the bottom.",
+"imgs": [
+{
+"src": "54578fdb4f",
+"alt": "Overview plan details comparing Mobile Plus and Mobile Select, with Restore previous plan at the bottom.",
+"caption": "Restore previous plan"
+}
+]
+},
+{
+"text": "Explain how the plans differ. If the customer agrees, click **Continue**."
+},
+{
+"text": "Read the terms, check the verify box, then click **Restore**.",
+"imgs": [
+{
+"src": "4192b0726a",
+"alt": "Restore step listing the terms, with the I verify that the customer has agreed to each term box checked and a Restore button.",
+"caption": "Verify and restore"
+}
+]
+},
+{
+"text": "Wait up to five minutes. **Don't** close or refresh.",
+"imgs": [
+{
+"src": "3d4ebcdbf5",
+"alt": "Plan restore in progress pop-up.",
+"caption": "Restore in progress"
+}
+]
+},
+{
+"text": "Look for \"This account has been restored to its previous plan.\"",
+"imgs": [
+{
+"src": "006aa864d8",
+"alt": "Summary page saying This account has been restored to its previous plan.",
+"caption": "Plan restored"
+}
+]
+},
+{
+"text": "Have the customer reboot their devices."
+}
+]
+},
+{
+"title": "Double-check it",
+"steps": [
+{
+"text": "On **Overview**, check the plan generation under the account number.",
+"info": "It should read **Second**, **Third**, **Fourth** or **Fifth generation plan**, matching the old plan.",
+"imgs": [
+{
+"src": "3feff13c08",
+"alt": "Account holder and Xfinity Mobile account number fields, with Fourth generation plan shown under the number.",
+"caption": "Generation shows here"
+}
+]
+},
+{
+"text": "On **Lines & Data**, confirm lines, plans, data used and price.",
+"info": "Third generation accounts show **Manage Shared Data** under data used."
+}
+],
+"note": "Can't make the change? Open an XM Support ECM case: **Plan/Price/Promotion** > **Change Plan Generation**."
 }
 ]
 },
@@ -3838,6 +4312,848 @@ const DATA = {
 ]
 },
 {
+"id": "devices-xmc-claim",
+"cat": "devices",
+"title": "Start an Xfinity Mobile Care (XMC) claim",
+"code": "HOW23835",
+"summary": "Start a device protection claim in XM360; the customer finishes it with Assurant.",
+"keywords": [
+"xmc",
+"claim",
+"insurance",
+"assurant",
+"broken phone",
+"cracked screen",
+"lost phone",
+"device protection",
+"xmc plus"
+],
+"sections": [
+{
+"title": "Before you start",
+"points": [
+{
+"text": "Not for Comcast Business Mobile — they file directly with Assurant."
+},
+{
+"text": "You can't update or cancel a claim after you submit it.",
+"info": "The customer must contact Assurant for changes."
+}
+]
+},
+{
+"title": "Start the claim",
+"steps": [
+{
+"text": "Open the account in Customer Space and launch **XM360**.",
+"info": "See [Launch XM360](#/guide/space-launch-xm360)."
+},
+{
+"text": "On **Devices**, select the device the claim is for."
+},
+{
+"text": "Expand **Actions**, select **Device Protection**, then **Start claim**.",
+"imgs": [
+{
+"src": "82ddbe8fef",
+"alt": "Device Protection page with the Start a claim with Assurant section and a blue Start claim button.",
+"caption": "Start claim"
+}
+]
+},
+{
+"text": "Enter the customer's phone, email and the device's phone number (MDN).",
+"imgs": [
+{
+"src": "0b681b4b3a",
+"alt": "Start a claim with Assurant form with contact info, account details and device condition questions.",
+"caption": "The claim form"
+}
+]
+},
+{
+"text": "Enter the claim date and answer the device condition questions.",
+"list": [
+"Do you still have possession of your device?",
+"Did your device come in contact with liquid?",
+"Has your device been dropped or damaged by accident?",
+"Is your device lost, misplaced or is it unable to be recovered from its known location?"
+],
+"warn": "Check the device condition with the customer first. A wrong answer can get the claim denied, delayed or charged the wrong deductible."
+},
+{
+"text": "Click **Submit**, then note the claim number.",
+"imgs": [
+{
+"src": "5a30177f02",
+"alt": "Confirmation that the claim was started, with the claim number shown below.",
+"caption": "Claim started"
+}
+]
+},
+{
+"text": "Give the customer the claim number and explain next steps.",
+"info": "Assurant texts and/or emails a link. **The customer must use it to complete and submit the claim within 30 days.**",
+"note": "No text or email? Confirm contact info in XM360 and have the customer contact Assurant. Status: Xfinity Mobile Care app, Assurant's claims website, or 1-855-884-9771."
+}
+]
+},
+{
+"title": "If XM360 blocks the claim",
+"points": [
+{
+"lead": "Duplicate claim",
+"text": "A claim is already open — customer must contact Assurant.",
+"imgs": [
+{
+"src": "a1c18cf5c5",
+"alt": "Red alert saying the claim is a duplicate or already in progress.",
+"caption": "Duplicate claim"
+}
+]
+},
+{
+"lead": "Not covered",
+"text": "The device had no coverage on the date of damage.",
+"imgs": [
+{
+"src": "1e05ca214d",
+"alt": "Red alert saying the device did not have coverage on the date of damage.",
+"caption": "Device not covered"
+}
+]
+},
+{
+"lead": "Under warranty",
+"text": "Customer contacts the manufacturer to replace the device.",
+"info": "XMC doesn't cover mechanical or electrical failure in the first year. XMC Plus covers it from day one, so those customers can also file with Assurant.",
+"imgs": [
+{
+"src": "bbafcbf778",
+"alt": "Red alert saying the device is under the manufacturer's warranty.",
+"caption": "Device under warranty"
+}
+]
+}
+]
+}
+]
+},
+{
+"id": "devices-assign-users",
+"cat": "devices",
+"title": "Assign a device to an Xfinity ID user",
+"code": "HOW23177",
+"summary": "Link an active device on the account to a specific Xfinity ID user.",
+"keywords": [
+"assign device",
+"xfinity id",
+"user",
+"manager",
+"primary",
+"account member",
+"assign a device"
+],
+"sections": [
+{
+"title": "Before you start",
+"points": [
+{
+"text": "The request must come from a **Primary** or **Manager** Xfinity ID user."
+},
+{
+"text": "Two Xfinity IDs with the same username? Have the owner update their name first."
+}
+]
+},
+{
+"title": "Assign the device",
+"steps": [
+{
+"text": "Open the account in Customer Space and launch **XM360**.",
+"info": "See [Launch XM360](#/guide/space-launch-xm360)."
+},
+{
+"text": "Click the **Devices** tab, then **Assign a device**.",
+"imgs": [
+{
+"src": "e67015f49d",
+"alt": "Devices dashboard listing active lines, with Verizon line status, Add another line and Assign a device buttons at the bottom.",
+"caption": "Assign a device"
+}
+]
+},
+{
+"text": "Pick the active device and the Xfinity ID user.",
+"imgs": [
+{
+"src": "976de3ea2e",
+"alt": "Assign a device or line to an account member pop-up with two drop-downs, plus Cancel and Save.",
+"caption": "Pick device and user"
+}
+]
+},
+{
+"text": "Select **Save** and look for the confirmation message.",
+"result": "A green confirmation shows in the top right of XM360.",
+"imgs": [
+{
+"src": "cdcb6fc7e3",
+"alt": "Green checkmark success message saying the device has been assigned.",
+"caption": "Device assigned"
+}
+]
+}
+],
+"note": "If it fails, try again later. Customers can also manage this themselves in their Xfinity account (Manage user roles and permissions)."
+}
+]
+},
+{
+"id": "devices-trade-in-label",
+"cat": "devices",
+"title": "Resend a trade-in shipping label",
+"code": "HOW23717",
+"summary": "Resend the shipping label for a trade-in promotion (TIP) or early upgrade device.",
+"keywords": [
+"trade-in label",
+"shipping label",
+"tip",
+"early upgrade",
+"resend label",
+"trade in",
+"mail in old phone"
+],
+"sections": [
+{
+"title": "Before you start",
+"points": [
+{
+"text": "The label goes to the customer's preferred email — 5 minutes to 24 hours.",
+"info": "You can print or reprint the label for the customer in the store."
+},
+{
+"text": "Button grayed out? The label isn't created yet — try after the new device ships.",
+"info": "Labels are emailed within three days after the new device ships.",
+"imgs": [
+{
+"src": "a317c006c7",
+"alt": "Resend shipping label pop-up with the Resend shipping label button not clickable.",
+"caption": "Not ready yet"
+}
+]
+}
+]
+},
+{
+"title": "Resend the label",
+"steps": [
+{
+"text": "Open the account in Customer Space and launch **XM360**.",
+"info": "See [Launch XM360](#/guide/space-launch-xm360)."
+},
+{
+"text": "Go to **Orders & Returns**, then the **Orders** tab."
+},
+{
+"text": "Scroll to the bottom and click **Resend shipping label**.",
+"imgs": [
+{
+"src": "ddd28621e0",
+"alt": "Order action buttons: Issue a refund, Cancel order, Print receipt, Trade-In Lookup, Reprint RMA-shipping label and Resend shipping label.",
+"caption": "Resend shipping label button"
+}
+]
+},
+{
+"text": "Wait while the pop-up checks whether the label was sent.",
+"imgs": [
+{
+"src": "47f77f2962",
+"alt": "Resend shipping label pop-up showing a loading icon.",
+"caption": "Checking the label"
+}
+]
+},
+{
+"text": "Click **Resend shipping label** in the pop-up.",
+"imgs": [
+{
+"src": "336039c52f",
+"alt": "Resend shipping label pop-up with the Resend shipping label button active.",
+"caption": "Resend it"
+}
+]
+},
+{
+"text": "Look for the success message.",
+"imgs": [
+{
+"src": "e8be5feeef",
+"alt": "Shipping instructions for mailing the original device to Assurant within 21 days, with device IMEI and Resend label and Close buttons.",
+"caption": "Label sent"
+}
+]
+}
+]
+}
+]
+},
+{
+"id": "orders-payment",
+"cat": "orders",
+"title": "Take a one-time payment",
+"code": "HOW13716",
+"summary": "Pay a bill balance or make an extra device payment with a card on file or a new card.",
+"keywords": [
+"payment",
+"one-time payment",
+"pay bill",
+"make a payment",
+"device payment",
+"pay off device",
+"capture card",
+"balance due"
+],
+"sections": [
+{
+"title": "Pay the bill",
+"steps": [
+{
+"text": "Open the account in Customer Space and launch **XM360**.",
+"info": "See [Launch XM360](#/guide/space-launch-xm360)."
+},
+{
+"text": "Go to **Billing** and click **Make a payment**.",
+"where": "Right of the **Bill payment** section.",
+"imgs": [
+{
+"src": "745768d1f5",
+"alt": "Billing summary with upcoming payments and the Make a payment button.",
+"caption": "Make a payment"
+}
+]
+},
+{
+"text": "Pick the amount: **Balance Due**, **Past Due** or **Another amount**.",
+"imgs": [
+{
+"src": "3c5e0b8332",
+"alt": "Make a payment screen with payment amount and method options.",
+"caption": "Amount and method"
+}
+]
+},
+{
+"text": "Pick a card on file, or add a new one.",
+"info": "New card: enter first and last name, pick the **Card Billing Address**, click **Capture Card**. The customer keys the card in with iGuard."
+},
+{
+"text": "Click **Confirm payment details**, then **Make Payment**.",
+"result": "A page confirms the payment. It shows in **Ledger** as **One-Time Balance Payment**."
+}
+]
+},
+{
+"title": "Extra device payment",
+"warn": {
+"lbl": "Tell the customer",
+"text": "Extra device payments aren't refunded and don't lower the monthly payment. Leftover credits are lost if the line is canceled or payments are sped up."
+},
+"steps": [
+{
+"text": "Go to **Devices** and pick the device.",
+"imgs": [
+{
+"src": "61a2a3721a",
+"alt": "Devices tab listing the account's devices.",
+"caption": "Pick the device"
+}
+]
+},
+{
+"text": "Under **Device balance**, click **Make Additional Payment**.",
+"imgs": [
+{
+"src": "e804b1b9a2",
+"alt": "Device balance section with the Make Additional Payment link.",
+"caption": "Make Additional Payment"
+}
+]
+},
+{
+"text": "Choose **Pay in Full** or **Enter Amount**, then the payment method.",
+"imgs": [
+{
+"src": "a8550ec6be",
+"alt": "Additional device payment screen with amount and payment method.",
+"caption": "Amount and method"
+}
+]
+},
+{
+"text": "Click **Confirm payment details**, then **Make Payment**."
+}
+]
+}
+]
+},
+{
+"id": "orders-confirm-payment",
+"cat": "orders",
+"title": "Confirm a payment went through",
+"code": "HOW12850",
+"summary": "Find a customer's payment in XM360 and see its details.",
+"keywords": [
+"confirm payment",
+"payment posted",
+"did my payment go through",
+"transactions",
+"authorization code",
+"receipt"
+],
+"sections": [
+{
+"title": "Find the payment",
+"steps": [
+{
+"text": "Open the account in Customer Space and launch **XM360**.",
+"info": "See [Launch XM360](#/guide/space-launch-xm360)."
+},
+{
+"text": "Click **Billing**, then the **Transactions** tab.",
+"imgs": [
+{
+"src": "3f1e5f7933",
+"alt": "XM360 Billing page on the Transactions tab with filters.",
+"caption": "Transactions tab"
+}
+]
+},
+{
+"text": "Uncheck **Statements** and **Credits**; keep **Transactions** checked.",
+"result": "Only the customer's payments show.",
+"imgs": [
+{
+"src": "d373d06d06",
+"alt": "Transactions tab filtered to show payments only.",
+"caption": "Payments only"
+}
+]
+},
+{
+"text": "Click the amount link to open **Billing Payment**.",
+"info": "Shows the breakdown, card used, authorization code and payment date.",
+"imgs": [
+{
+"src": "c9c12ba382",
+"alt": "Billing payment details with total, card, authorization code and date.",
+"caption": "Payment details"
+}
+]
+}
+]
+}
+]
+},
+{
+"id": "orders-view-promo",
+"cat": "orders",
+"title": "See what promotion a line has",
+"code": "HOW23370",
+"summary": "Check a line's active, pending or expired promotions and what's needed to start one.",
+"keywords": [
+"promotion",
+"promo",
+"current promotions",
+"pending promotion",
+"expired promotion",
+"discount",
+"deal"
+],
+"sections": [
+{
+"title": "View promotions",
+"steps": [
+{
+"text": "Open the account in Customer Space and launch **XM360**.",
+"info": "See [Launch XM360](#/guide/space-launch-xm360)."
+},
+{
+"text": "Go to **Devices**, pick the line, click **Current promotions**.",
+"where": "Under **Actions**.",
+"imgs": [
+{
+"src": "f78920a152",
+"alt": "Devices tab with Current promotions in the Actions list.",
+"caption": "Current promotions"
+}
+]
+},
+{
+"text": "Review the **Active**, **Pending** and **Expired** promotions.",
+"info": "The list opens filtered to the selected line. Change the filter to see other lines.",
+"imgs": [
+{
+"src": "936bda9e51",
+"alt": "Current promotions page with pending, active and expired offers.",
+"caption": "Promotions list"
+}
+]
+},
+{
+"text": "Click **Show more details** on an active promotion.",
+"info": "Shows **Date activated**, **Planned end date** and **Actual promo amount**.",
+"imgs": [
+{
+"src": "5ed25d0d1d",
+"alt": "Promotion details page for an active free line offer.",
+"caption": "Active promo details"
+}
+]
+},
+{
+"text": "Pending? Read the **Promotion Card** for what's needed to start.",
+"info": "Example: a pending trade-in. Pending promos show no promo details yet.",
+"imgs": [
+{
+"src": "3d385ee432",
+"alt": "Pending promotion card with an action required notice.",
+"caption": "Pending promo card"
+}
+]
+},
+{
+"text": "Expired? Check the **End date** and **Promo amount**.",
+"info": "Expired promos stay visible for 90 days after the end date.",
+"imgs": [
+{
+"src": "bd58f7eeb2",
+"alt": "Expired promotion details with promo details and terms.",
+"caption": "Expired promo"
+}
+]
+},
+{
+"text": "For bill detail, click **Current cycle** or **Billing** > **Statement**."
+}
+]
+}
+]
+},
+{
+"id": "orders-add-promo",
+"cat": "orders",
+"title": "Manually add a promotion",
+"code": "HOW13874",
+"summary": "Add a promotion the customer qualifies for but didn't get, including promo codes and missing BOGO.",
+"keywords": [
+"add promotion",
+"manage promotions",
+"apply promo",
+"promo code",
+"targeted offer",
+"bogo",
+"missing promotion",
+"missing discount"
+],
+"sections": [
+{
+"title": "Before you start",
+"points": [
+{
+"text": "Device bought within 14 days before the promo started."
+},
+{
+"text": "You're within 60 days of the purchase date."
+},
+{
+"text": "Device is on a device payment plan and meets all promo rules.",
+"info": "Port promos: the number must port within 30 days of shipping (new device) or activation (BYOD)."
+}
+]
+},
+{
+"title": "Add a promotion",
+"steps": [
+{
+"text": "Open the account in Customer Space and launch **XM360**.",
+"info": "See [Launch XM360](#/guide/space-launch-xm360)."
+},
+{
+"text": "Go to **Devices** and select the device.",
+"imgs": [
+{
+"src": "58d32076ea",
+"alt": "XM360 Devices section with a device selected.",
+"caption": "Select the device"
+}
+]
+},
+{
+"text": "Click **Billing Details**, then **Manage promotions**.",
+"imgs": [
+{
+"src": "ab4edc3479",
+"alt": "Billing Details with the Manage promotions option.",
+"caption": "Manage promotions"
+}
+]
+},
+{
+"text": "Select the promotion, review **Promo details**, then click **Apply promo**.",
+"result": "A summary screen shows the promotion. If it fails, XM360 asks you to try again.",
+"imgs": [
+{
+"src": "3096ed6b29",
+"alt": "Device Promos with an eligible promotion selected and Apply promo button.",
+"caption": "Pick the promo"
+}
+]
+}
+]
+},
+{
+"title": "Customer has a promo code",
+"steps": [
+{
+"text": "In **Manage promotions**, click the **dollar sign** at the top.",
+"imgs": [
+{
+"src": "708bbfcfd1",
+"alt": "Manage promotions page with the top icon highlighted.",
+"caption": "Dollar sign"
+}
+]
+},
+{
+"text": "Click **Add a promo code** and enter the customer's code.",
+"imgs": [
+{
+"src": "ef8f0b8b63",
+"alt": "Pop-up with Add a promo code and View device pricing options.",
+"caption": "Add a promo code"
+}
+]
+},
+{
+"text": "Check the box to confirm the customer agrees, then click **Apply promo**.",
+"info": "If the line or device isn't eligible, XM360 shows the reason.",
+"imgs": [
+{
+"src": "85c9ed61ce",
+"alt": "Pop-up with a checkbox to confirm adding the promotion.",
+"caption": "Confirm checkbox"
+}
+]
+}
+]
+},
+{
+"title": "Missing BOGO (Assistant Manager and above)",
+"steps": [
+{
+"text": "Select the qualifying device, then **Billing Details** > **Manage promotions**.",
+"imgs": [
+{
+"src": "7f1e272602",
+"alt": "Billing Details with the Manage promotions option.",
+"caption": "Manage promotions"
+}
+]
+},
+{
+"text": "Under **Available Promotions**, select **Buy one Unlimited, get one free**.",
+"info": "Not listed? The offer is no longer available. Some BOGOs apply only to some customers.",
+"imgs": [
+{
+"src": "90bd140ed0",
+"alt": "Manage Promotions with Buy one Unlimited, get one free selected.",
+"caption": "BOGO offer"
+}
+]
+},
+{
+"text": "Click **Apply promo** and look for the green **Success** banner.",
+"info": "Red banner? A BOB, Bonus Mobile or multi-product discount may be blocking it.",
+"imgs": [
+{
+"src": "689a833f3b",
+"alt": "Manage Promotions page with a green Success banner.",
+"caption": "Success banner"
+}
+]
+}
+],
+"note": "Trade-in promotions (TIPs) must be added by a supervisor or above. Still can't add a BOGO or Unlimited line promo? TechSpot > **Care Application Issue** > **XM — Billing & Payments** > **Credit/Promotions** > **Service Promotions**."
+}
+]
+},
+{
+"id": "orders-return-label",
+"cat": "orders",
+"title": "Resend a buyer's remorse return label",
+"code": "HOW13632",
+"summary": "Email a customer their return shipping label again for an open return (RMA).",
+"keywords": [
+"return label",
+"buyer's remorse",
+"rma",
+"resend label",
+"return shipping",
+"re-send shipping label"
+],
+"sections": [
+{
+"title": "Before you start",
+"points": [
+{
+"text": "The customer must have an open return (RMA)."
+},
+{
+"text": "Email can take 5 minutes to 24 hours.",
+"info": "You can print or reprint the label for the customer in the store."
+}
+]
+},
+{
+"title": "Resend the label",
+"steps": [
+{
+"text": "Open the account in Customer Space and launch **XM360**.",
+"info": "See [Launch XM360](#/guide/space-launch-xm360)."
+},
+{
+"text": "Go to **Orders & Returns**, then the **Orders** tab."
+},
+{
+"text": "Scroll to the bottom and click **Re-send shipping label**.",
+"imgs": [
+{
+"src": "0465ae88b2",
+"alt": "XM360 action tiles with the Resend return label tile highlighted.",
+"caption": "Re-send shipping label"
+}
+]
+},
+{
+"text": "Choose the original or an alternate email address.",
+"imgs": [
+{
+"src": "9a8079fae1",
+"alt": "Re-send return label pop-up with options for the original or an alternate email address.",
+"caption": "Pick the email"
+}
+]
+},
+{
+"text": "Click **Send** and look for the success message.",
+"imgs": [
+{
+"src": "5c7fc5e2dc",
+"alt": "Green checkmark message confirming the return label was sent to the chosen email.",
+"caption": "Label sent"
+}
+]
+}
+],
+"note": "Open RMA but can't resend? Submit an XM Shipping Issues ECM case: **Return Label Needed**, with the device's IMEI."
+}
+]
+},
+{
+"id": "orders-remorse-exception",
+"cat": "orders",
+"title": "Process a buyer's remorse exception",
+"code": "HOW24066",
+"summary": "Return and refund a device outside buyer's remorse for lost or stolen, bereavement or unsolicited returns.",
+"keywords": [
+"buyer's remorse exception",
+"lost or stolen",
+"stolen device",
+"bereavement",
+"deceased",
+"unsolicited return",
+"terminal return",
+"undelivered return",
+"dpp refund"
+],
+"sections": [
+{
+"title": "Before you start",
+"points": [
+{
+"text": "Needs buyer's remorse exception permission; works up to two years after purchase.",
+"info": "Unsolicited returns need the extended permission."
+}
+]
+},
+{
+"title": "Start the return",
+"steps": [
+{
+"text": "Open the account in Customer Space and launch **XM360**.",
+"info": "See [Launch XM360](#/guide/space-launch-xm360)."
+},
+{
+"text": "Select the device, then **Return or Exchange**.",
+"where": "Device menu"
+},
+{
+"text": "Pick the **Return Type** and **Return Reason**.",
+"info": "Usually **Terminal return**. Device never delivered? Use **Undelivered return**."
+}
+]
+},
+{
+"title": "Bereavement",
+"steps": [
+{
+"text": "Choose **Bereavement**, then **Continue** on the pop-up.",
+"info": "Remaining DPP is wiped, no damage fee, restocking fee waived."
+},
+{
+"text": "Review the **Return Summary**, then click **Submit Return**."
+}
+]
+},
+{
+"title": "Lost or stolen",
+"steps": [
+{
+"text": "Choose **Device lost or stolen** and review the pop-up.",
+"info": "Stolen after delivery (porch, mailroom) = **Terminal return**. Lost in transit = **Undelivered return**. Paid DPP is refunded, remaining DPP wiped, no fees.",
+"note": "For a new device on an existing line, a checkbox lets you keep the line active."
+},
+{
+"text": "Review the **Return Summary**, then click **Submit Return**."
+}
+]
+},
+{
+"title": "Unsolicited device return",
+"steps": [
+{
+"text": "Choose the device grade.",
+"info": "Grades A, B, C (no damage): damage fee waived. Grade C with damage: fee charged. Grade D can't be returned and goes back to the customer."
+},
+{
+"text": "In the pop-up, pick the DPP and restocking fee options.",
+"list": [
+"Wipe remaining DPP",
+"Refund paid DPP and wipe remaining DPP",
+"Waive restocking fee"
+],
+"note": "For a new device on an existing line, you can keep the line active."
+},
+{
+"text": "Review the **Return Summary**, then click **Submit Return**."
+}
+]
+}
+]
+},
+{
 "id": "orders-check",
 "cat": "orders",
 "title": "Check an order",
@@ -4857,7 +6173,7 @@ const DATA = {
 "oldAnchors": {}
 };
 
-const DIM = {"002e084607":[1019,1088],"00b2666705":[1017,435],"01ec6ef9fd":[1430,1096],"052d065431":[624,631],"074f67c30b":[889,805],"08d38d904d":[992,433],"09171de136":[471,217],"091adde379":[648,1020],"09bd629e5d":[1000,754],"0a9193e1a5":[960,665],"0acf8226ec":[1600,762],"0cf15968c3":[1600,1678],"0d26dcb0ef":[470,393],"0ea96f5540":[920,881],"0f402103ae":[1042,350],"1033d882cd":[960,702],"118f2de33e":[1201,353],"14984f23c7":[470,245],"16d32cf7be":[1132,1906],"17741b8349":[960,668],"18c43591ec":[962,583],"1e1257299c":[1104,1045],"1ee70e73e6":[936,1000],"1f9a24d591":[470,880],"200da95fb6":[778,451],"20a227f873":[310,163],"21e501867a":[1102,455],"23fe576c43":[769,1200],"2447205655":[1198,722],"2914f9e3ee":[1187,1236],"297c1571c7":[880,445],"2a612f5173":[840,506],"2c5d683812":[1146,798],"2f168696e1":[942,1014],"300f787f6b":[999,726],"31ba65886d":[1014,891],"3434a2a6f8":[606,727],"3675aa4835":[1000,754],"3729026b4a":[960,665],"375e41adce":[395,155],"37fd2b3f85":[1000,662],"39aefdd117":[961,644],"3ac2b1311e":[828,389],"3b4578ac48":[781,445],"3c1862e1f8":[1376,2958],"3d005324e7":[978,578],"408487b078":[471,217],"40b28e19bf":[1201,2800],"40badf0c48":[624,520],"40f68c5dca":[1000,465],"4397412d5b":[1002,196],"43b240f862":[1000,711],"45699cc31d":[996,693],"463312ee88":[1016,613],"47d728ab41":[1099,1547],"4855e75b57":[1196,355],"4891e683ba":[1188,1484],"48e1bc09bc":[1334,635],"49fd44002a":[968,905],"4cb7bec545":[1124,1200],"4ddabd045f":[1009,761],"4f55a581e4":[966,586],"546fc0727b":[998,245],"5473104fca":[920,618],"54ab9e3996":[920,587],"555bd54673":[742,595],"58d32076ea":[624,667],"59b1eaaa4a":[470,134],"5ae7c6eea5":[1000,655],"5baa496b27":[471,217],"5c19b80af4":[500,534],"5c683e4e3d":[1174,1061],"5d90592682":[960,413],"5e1949f9df":[1026,753],"5f0330fca2":[960,696],"601bf53971":[400,522],"609b5fa038":[960,799],"61daf45cdf":[978,1200],"61fdfc70a9":[960,482],"624ae9159f":[1199,504],"65265811bc":[1197,789],"652bfb3ec6":[960,642],"6531d9d116":[841,146],"6733589640":[921,596],"67a254a080":[1000,412],"681ed6860b":[991,819],"6b5ff4eecd":[918,385],"6d22c77a37":[966,716],"6dbddf4cd4":[771,742],"70e6d19e2c":[834,374],"71b35e4427":[1188,1266],"71d59a4d92":[1100,408],"7377daae54":[1054,1009],"74705069e7":[961,724],"7594dc7ca4":[632,789],"767e27c178":[1197,185],"76c94e6310":[960,671],"77f0c0806d":[739,821],"78137d5d86":[447,864],"78ebd3fa12":[598,428],"78ff0c643b":[822,495],"79cc19c177":[900,270],"7a6c05f8e3":[998,221],"7a8c340e68":[749,602],"7b7c5e8d6a":[624,396],"7dc5d7aa63":[1000,416],"7df4ae54c9":[811,874],"7df4c89e5a":[624,398],"7fe8eb8942":[750,120],"8155e48ed4":[1600,815],"819e6b9b76":[1032,863],"81ed2ecb94":[920,764],"8237773cef":[1016,1086],"8287dbf741":[936,798],"83657cf505":[960,547],"839f5ab2d9":[624,804],"846c67ee9c":[500,806],"85686004a5":[1062,412],"861ada4e83":[1103,1200],"864e4f8251":[700,791],"8663730da0":[830,436],"8839665bcd":[1222,878],"88489cd843":[960,690],"8a15339f3c":[1165,1194],"8a82213e2c":[806,666],"8ab9909b26":[430,450],"8b08a37ba1":[1200,807],"8d0f49ffc0":[1049,388],"8dfdade8f7":[1200,885],"8edfd2e444":[1019,1088],"8f0fb36369":[960,721],"8f37c4579e":[916,653],"906ebe4080":[977,2468],"90edea8492":[927,391],"92f40e36f1":[876,911],"9310f893cb":[960,722],"933bed0a14":[1156,805],"93cc2b1e7a":[1001,155],"95f2b7a4ce":[1186,784],"964da348d9":[1200,906],"9778271eab":[756,897],"9806d58ac8":[960,665],"9aef2607df":[921,385],"9b60be6ead":[960,700],"9c47b1f638":[1019,1088],"9cb5f1e29a":[1001,605],"9cfca14c6c":[1015,877],"9d92bcb8fc":[1320,475],"a276f9f8a8":[785,647],"a368500784":[1153,604],"a437c9e811":[430,241],"a4e8a910fe":[270,332],"a5b9ebf356":[990,703],"a893229498":[1199,266],"aa048bd84d":[920,554],"aa4704c5b3":[1125,1029],"aa7d9ada3e":[960,672],"aa9ac1eb0c":[889,1036],"ac4b9e963c":[500,442],"ae17ebc524":[1076,531],"af3581c09e":[1000,754],"b2076d639b":[864,820],"b268b1cc04":[1200,555],"b28cd1e3b0":[470,283],"b4825abc45":[364,149],"b70fdde5cd":[1019,1088],"b736a98014":[960,621],"b73e46f516":[1068,610],"b7a6d467d8":[839,719],"ba894219b6":[960,708],"bb94f4cd37":[840,408],"bba48a2303":[1000,1417],"bf71397ddb":[1111,613],"c22b2cc44d":[937,1000],"c2cd241b50":[895,912],"c338ee9d72":[835,553],"c4b5840edf":[959,436],"c4f4f4894d":[877,613],"c504033d1b":[1207,732],"c56b5a9fdf":[500,392],"c8a37c58ab":[919,656],"cab31f6f89":[960,695],"caf67bfd04":[881,511],"cd404d0936":[937,1000],"cd493c9542":[500,806],"cd7a7b8d8e":[811,874],"cfa9e84933":[1067,695],"cfad5388ab":[1000,640],"d0d2098f36":[1385,1177],"d4059e65bd":[1027,908],"d46586a8b7":[807,850],"d473d9cd90":[937,359],"d74e5b8825":[933,312],"d95db3ac54":[978,638],"daee71a334":[470,199],"dc567fa047":[1600,1028],"e462660573":[601,864],"e4a72b4722":[826,1200],"e7e725766c":[960,693],"e958479bad":[960,711],"e9f8c9a637":[1199,580],"ed67ceb049":[683,522],"edc994364c":[1158,1418],"f2f558115b":[1093,1466],"f35f8edf6f":[1019,1088],"f40d686abb":[1019,1088],"f4e117e084":[840,346],"f501dfff1e":[974,513],"f572a0e8fb":[1200,1372],"f6efccb056":[746,540],"faebf1ca76":[1051,556],"fb08afa18d":[960,389],"fc9b9913e5":[962,148],"fefe83533d":[960,57]};
+const DIM = {"002e084607":[1019,1088],"006aa864d8":[1001,659],"00b2666705":[1017,435],"01ec6ef9fd":[1430,1096],"031aa9c6f4":[1600,1053],"0465ae88b2":[1001,242],"052d065431":[624,631],"074f67c30b":[889,805],"08d38d904d":[992,433],"09171de136":[471,217],"091adde379":[648,1020],"09bd629e5d":[1000,754],"0a9193e1a5":[960,665],"0acf8226ec":[1600,762],"0b681b4b3a":[1280,1827],"0cf15968c3":[1600,1678],"0d26dcb0ef":[470,393],"0e3f3cc52c":[470,404],"0ea96f5540":[920,881],"0f402103ae":[1042,350],"0f6ba468f0":[470,420],"1033d882cd":[960,702],"118f2de33e":[1201,353],"14984f23c7":[470,245],"16d32cf7be":[1132,1906],"17741b8349":[960,668],"18c43591ec":[962,583],"1b428126d9":[960,630],"1e05ca214d":[1600,337],"1e1257299c":[1104,1045],"1ee70e73e6":[936,1000],"1f9a24d591":[470,880],"200da95fb6":[778,451],"20a227f873":[310,163],"21e501867a":[1102,455],"23fe576c43":[769,1200],"2447205655":[1198,722],"2914f9e3ee":[1187,1236],"297c1571c7":[880,445],"2a612f5173":[840,506],"2c5d683812":[1146,798],"2f168696e1":[942,1014],"300f787f6b":[999,726],"3096ed6b29":[547,653],"31ba65886d":[1014,891],"336039c52f":[920,856],"3434a2a6f8":[606,727],"3675aa4835":[1000,754],"3729026b4a":[960,665],"375e41adce":[395,155],"37fd2b3f85":[1000,662],"39aefdd117":[961,644],"39df18fec4":[469,168],"3ac2b1311e":[828,389],"3b4578ac48":[781,445],"3c1862e1f8":[1376,2958],"3c5e0b8332":[1143,774],"3d005324e7":[978,578],"3d385ee432":[642,372],"3d4ebcdbf5":[853,321],"3f1e5f7933":[468,428],"3feff13c08":[788,127],"408487b078":[471,217],"40b28e19bf":[1201,2800],"40badf0c48":[624,520],"40f68c5dca":[1000,465],"411ba62817":[960,362],"4192b0726a":[1108,865],"4397412d5b":[1002,196],"43b240f862":[1000,711],"45699cc31d":[996,693],"463312ee88":[1016,613],"47d728ab41":[1099,1547],"47f77f2962":[920,855],"4855e75b57":[1196,355],"4891e683ba":[1188,1484],"48e1bc09bc":[1334,635],"49fd44002a":[968,905],"4cb7bec545":[1124,1200],"4ddabd045f":[1009,761],"4f55a581e4":[966,586],"54578fdb4f":[982,2892],"546fc0727b":[998,245],"5473104fca":[920,618],"54ab9e3996":[920,587],"555bd54673":[742,595],"58d32076ea":[624,667],"59b1eaaa4a":[470,134],"5a30177f02":[1600,432],"5ae7c6eea5":[1000,655],"5baa496b27":[471,217],"5c19b80af4":[500,534],"5c683e4e3d":[1174,1061],"5c7fc5e2dc":[1003,139],"5d90592682":[960,413],"5e1949f9df":[1026,753],"5ed25d0d1d":[778,996],"5f0330fca2":[960,696],"601bf53971":[400,522],"609b5fa038":[960,799],"61a2a3721a":[1140,762],"61daf45cdf":[978,1200],"61fdfc70a9":[960,482],"624ae9159f":[1199,504],"65265811bc":[1197,789],"652bfb3ec6":[960,642],"6531d9d116":[841,146],"6733589640":[921,596],"6757b6ed99":[1000,420],"67a254a080":[1000,412],"681ed6860b":[991,819],"689a833f3b":[1013,819],"6b5ff4eecd":[918,385],"6d22c77a37":[966,716],"6dbddf4cd4":[771,742],"708bbfcfd1":[612,718],"70e6d19e2c":[834,374],"71b35e4427":[1188,1266],"71d59a4d92":[1100,408],"72811c6d2f":[470,430],"7377daae54":[1054,1009],"745768d1f5":[919,798],"74705069e7":[961,724],"7594dc7ca4":[632,789],"767e27c178":[1197,185],"76c94e6310":[960,671],"77f0c0806d":[739,821],"78137d5d86":[447,864],"78ebd3fa12":[598,428],"78ff0c643b":[822,495],"79cc19c177":[900,270],"7a6c05f8e3":[998,221],"7a8c340e68":[749,602],"7b7c5e8d6a":[624,396],"7dc5d7aa63":[1000,416],"7df4ae54c9":[811,874],"7df4c89e5a":[624,398],"7e2f37ef95":[500,284],"7f1e272602":[911,407],"7fe8eb8942":[750,120],"8155e48ed4":[1600,815],"819e6b9b76":[1032,863],"81ed2ecb94":[920,764],"8237773cef":[1016,1086],"8287dbf741":[936,798],"82ddbe8fef":[1600,1338],"83657cf505":[960,547],"839f5ab2d9":[624,804],"846c67ee9c":[500,806],"85686004a5":[1062,412],"85c9ed61ce":[920,310],"861ada4e83":[1103,1200],"864e4f8251":[700,791],"8663730da0":[830,436],"8839665bcd":[1222,878],"88489cd843":[960,690],"8a15339f3c":[1165,1194],"8a82213e2c":[806,666],"8ab9909b26":[430,450],"8b08a37ba1":[1200,807],"8d0f49ffc0":[1049,388],"8dfdade8f7":[1200,885],"8edfd2e444":[1019,1088],"8efd116fe4":[699,503],"8f0fb36369":[960,721],"8f37c4579e":[916,653],"906ebe4080":[977,2468],"90bd140ed0":[993,840],"90edea8492":[927,391],"92f40e36f1":[876,911],"9310f893cb":[960,722],"933bed0a14":[1156,805],"936bda9e51":[663,1100],"93cc2b1e7a":[1001,155],"95f2b7a4ce":[1186,784],"964da348d9":[1200,906],"976de3ea2e":[971,591],"9778271eab":[756,897],"9806d58ac8":[960,665],"9a8079fae1":[928,1200],"9aef2607df":[921,385],"9b60be6ead":[960,700],"9c47b1f638":[1019,1088],"9cb5f1e29a":[1001,605],"9cfca14c6c":[1015,877],"9d81867419":[1600,311],"9d92bcb8fc":[1320,475],"a1c18cf5c5":[1600,377],"a276f9f8a8":[785,647],"a317c006c7":[920,862],"a368500784":[1153,604],"a437c9e811":[430,241],"a4e8a910fe":[270,332],"a5b9ebf356":[990,703],"a8550ec6be":[1082,1056],"a893229498":[1199,266],"a923dbf494":[994,1000],"aa048bd84d":[920,554],"aa4704c5b3":[1125,1029],"aa7d9ada3e":[960,672],"aa9ac1eb0c":[889,1036],"ab4edc3479":[936,420],"ac4b9e963c":[500,442],"ae17ebc524":[1076,531],"af3581c09e":[1000,754],"b2076d639b":[864,820],"b268b1cc04":[1200,555],"b28cd1e3b0":[470,283],"b4825abc45":[364,149],"b70fdde5cd":[1019,1088],"b736a98014":[960,621],"b73e46f516":[1068,610],"b7a6d467d8":[839,719],"ba894219b6":[960,708],"bb94f4cd37":[840,408],"bba48a2303":[1000,1417],"bbafcbf778":[1280,280],"bd58f7eeb2":[881,1100],"bf71397ddb":[1111,613],"c1b29c8243":[1600,1152],"c22b2cc44d":[937,1000],"c2cd241b50":[895,912],"c338ee9d72":[835,553],"c4b5840edf":[959,436],"c4f4f4894d":[877,613],"c504033d1b":[1207,732],"c56b5a9fdf":[500,392],"c8a37c58ab":[919,656],"c9c12ba382":[936,646],"cab31f6f89":[960,695],"caf67bfd04":[881,511],"cd404d0936":[937,1000],"cd493c9542":[500,806],"cd7a7b8d8e":[811,874],"cda8b2dea2":[1039,622],"cdcb6fc7e3":[1199,243],"cfa9e84933":[1067,695],"cfad5388ab":[1000,640],"d0d2098f36":[1385,1177],"d373d06d06":[468,427],"d4059e65bd":[1027,908],"d46586a8b7":[807,850],"d473d9cd90":[937,359],"d4c5563602":[470,419],"d74e5b8825":[933,312],"d95db3ac54":[978,638],"daee71a334":[470,199],"dc567fa047":[1600,1028],"ddd28621e0":[920,214],"e15c1aed5f":[770,361],"e462660573":[601,864],"e4a72b4722":[826,1200],"e67015f49d":[1199,725],"e7e725766c":[960,693],"e804b1b9a2":[1137,1145],"e8be5feeef":[1000,670],"e958479bad":[960,711],"e9f8c9a637":[1199,580],"eaf0a2cbac":[500,421],"ed67ceb049":[683,522],"edc994364c":[1158,1418],"ede7eaaf7a":[469,226],"ef8f0b8b63":[857,550],"f2f558115b":[1093,1466],"f35f8edf6f":[1019,1088],"f40d686abb":[1019,1088],"f4e117e084":[840,346],"f501dfff1e":[974,513],"f540d1c21d":[470,480],"f572a0e8fb":[1200,1372],"f6efccb056":[746,540],"f78920a152":[691,1100],"faebf1ca76":[1051,556],"fb08afa18d":[960,389],"fc9b9913e5":[962,148],"fefe83533d":[960,57],"ffdf5d9314":[1073,409]};
 const ICONS = {
  "space": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"8\" r=\"3.5\"/><path d=\"M5 20c1.2-3.6 3.8-5.5 7-5.5s5.8 1.9 7 5.5\"/></svg>",
  "basics": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"m10 8 6 4-6 4z\"/></svg>",

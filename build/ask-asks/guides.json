@@ -497,57 +497,59 @@
   "retail360 replacement guide",
   "new system training"
  ],
- "training-pos/add-line-xm360": [
+ "training-pos/lines-add": [
   "how do i add a line",
   "add a line xfinity mobile",
   "customer wants another line",
   "aal in xm360",
-  "add a new phone line to existing mobile account",
-  "where do i add a line now that retail360 is gone"
+  "add a new phone line to existing mobile account"
  ],
- "training-pos/add-line-xoe-new": [
-  "add mobile line for new customer xoe",
-  "new customer wants xfinity mobile",
-  "first mobile line new account",
-  "sell mobile to new internet customer"
- ],
- "training-pos/cancel-line-xm360": [
+ "training-pos/lines-cancel": [
   "how do i cancel a line",
   "deactivate a mobile line",
   "customer wants to cancel a phone line",
   "cancel xfinity mobile line xm360",
   "disconnect mobile line"
  ],
- "training-pos/cancel-line-rules": [
-  "what happens when a line is cancelled",
-  "does customer still pay device after cancel",
-  "cancel line still owe phone",
-  "rules before deactivating a line"
- ],
- "training-pos/cancel-order-xm360": [
+ "training-pos/orders-cancel": [
   "cancel mobile order before it ships",
   "customer wants to cancel phone order",
   "cancel xm order"
  ],
- "training-pos/start-where-retail360-went": [
+ "training-pos/space-retail360-gone": [
   "where did retail360 go",
   "retail360 gone",
   "retail 360 not working",
   "what replaced retail360"
  ],
- "training-pos/start-launch-xm360": [
+ "training-pos/space-launch-xm360": [
   "how do i open xm360",
   "launch xm360 from celestial",
   "where is xm360"
  ],
- "training-pos/add-byod-xm360": [
+ "training-pos/space-open-account": [
+  "how do i pull up an account in celestial",
+  "customer space account lookup",
+  "find customer account celestial"
+ ],
+ "training-pos/lines-add-byod": [
   "byod in xm360",
   "customer bringing own phone xm360",
   "bring your own device new line xm360"
  ],
- "training-pos/fix-xm360-error-codes": [
+ "training-pos/fix-error-codes": [
   "xm360 error code",
   "what does this xm360 error mean",
   "xm360 error"
+ ],
+ "training-pos/basics-iguard": [
+  "iguard",
+  "customer enters ssn on keypad",
+  "how does iguard work"
+ ],
+ "training-pos/orders-payment": [
+  "take a payment in xm360",
+  "one time payment mobile",
+  "customer wants to pay mobile bill"
  ]
 }
