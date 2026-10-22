@@ -497,470 +497,57 @@
   "retail360 replacement guide",
   "new system training"
  ],
- "training-pos/overview": [
-  "what is store space",
-  "what does celestial store space do",
-  "celestial store space overview",
-  "what can i do in store space",
-  "store space basics",
-  "what is celestial",
-  "what replaced the old store queue tool"
+ "training-pos/add-line-xm360": [
+  "how do i add a line",
+  "add a line xfinity mobile",
+  "customer wants another line",
+  "aal in xm360",
+  "add a new phone line to existing mobile account",
+  "where do i add a line now that retail360 is gone"
  ],
- "training-pos/overview-2": [
-  "what does the celestial job aid cover",
-  "celestial job aid sections",
-  "can i sell services in pos",
-  "pos scope",
-  "job aid overview",
-  "what parts are in the celestial guide"
+ "training-pos/add-line-xoe-new": [
+  "add mobile line for new customer xoe",
+  "new customer wants xfinity mobile",
+  "first mobile line new account",
+  "sell mobile to new internet customer"
  ],
- "training-pos/queue": [
-  "celestial queue",
-  "queue home screen",
-  "store queue celestial",
-  "how do i see whos waiting",
-  "guests vs calendar tab",
-  "switch store in celestial",
-  "queue columns",
-  "where is the check in button"
+ "training-pos/cancel-line-xm360": [
+  "how do i cancel a line",
+  "deactivate a mobile line",
+  "customer wants to cancel a phone line",
+  "cancel xfinity mobile line xm360",
+  "disconnect mobile line"
  ],
- "training-pos/queue-appointments": [
-  "todays appointments celestial",
-  "appointments screen",
-  "see todays appts",
-  "who has an appointment today",
-  "appointment list in queue",
-  "is the appointment a new or existing customer",
-  "upcoming appts screen"
+ "training-pos/cancel-line-rules": [
+  "what happens when a line is cancelled",
+  "does customer still pay device after cancel",
+  "cancel line still owe phone",
+  "rules before deactivating a line"
  ],
- "training-pos/queue-waiting": [
-  "waiting screen",
-  "how long has guest been waiting",
-  "waiting list celestial",
-  "who is waiting in store",
-  "guest wait time",
-  "customers waiting how long",
-  "waiting column"
+ "training-pos/cancel-order-xm360": [
+  "cancel mobile order before it ships",
+  "customer wants to cancel phone order",
+  "cancel xm order"
  ],
- "training-pos/queue-inprogress": [
-  "in progress screen",
-  "which rep has which customer",
-  "who is helping that guest",
-  "in progress column",
-  "guests being helped right now",
-  "session start time for guest",
-  "is someone already helping this customer"
+ "training-pos/start-where-retail360-went": [
+  "where did retail360 go",
+  "retail360 gone",
+  "retail 360 not working",
+  "what replaced retail360"
  ],
- "training-pos/checkin-member": [
-  "check in existing customer",
-  "check in xfinity member",
-  "add customer to queue",
-  "check in member celestial",
-  "customer walked in already has xfinity",
-  "how do i check someone in",
-  "checkin existing acct"
+ "training-pos/start-launch-xm360": [
+  "how do i open xm360",
+  "launch xm360 from celestial",
+  "where is xm360"
  ],
- "training-pos/checkin-prospect": [
-  "check in new customer",
-  "check in prospect",
-  "walk in doesnt have xfinity",
-  "serviceability check at check in",
-  "check in prospective customer",
-  "new customer check in celestial"
+ "training-pos/add-byod-xm360": [
+  "byod in xm360",
+  "customer bringing own phone xm360",
+  "bring your own device new line xm360"
  ],
- "training-pos/checkin-cb": [
-  "check in comcast business customer",
-  "business customer walked in",
-  "comcast business checkin",
-  "cb customer in store",
-  "business account walk in check in",
-  "small business customer check in",
-  "check in cb guest"
- ],
- "training-pos/appointment": [
-  "create appointment celestial",
-  "book appointment for customer",
-  "schedule appt",
-  "customer wants to come back tomorrow",
-  "make a future appointment",
-  "how do i book an appt",
-  "set up appointment in store space"
- ],
- "training-pos/details": [
-  "customer details screen",
-  "what does details screen show",
-  "see why customer came in",
-  "how do i find the guest in the store",
-  "customer notes celestial",
-  "visit reason check in",
-  "attach account to check in"
- ],
- "training-pos/details-ai": [
-  "account review opportunity",
-  "recommended actions banner",
-  "ai deals for member",
-  "ai powered interaction",
-  "account review opportunity banner what is it",
-  "swivel to csg for personalized deals",
-  "member has better deal available"
- ],
- "training-pos/details-insights": [
-  "acquisition insights",
-  "ai insights prospect",
-  "likely to buy",
-  "edge out the competition",
-  "insights not showing",
-  "competitor info for prospect",
-  "persona for new customer"
- ],
- "training-pos/session-start": [
-  "start a session",
-  "how do i start session celestial",
-  "start guest session",
-  "begin helping customer celestial",
-  "start session pop up",
-  "pick point of sale when starting session",
-  "how do i start helping a guest in the queue"
- ],
- "training-pos/session-end": [
-  "end session",
-  "transfer guest to another rep",
-  "hand customer off to coworker",
-  "cant check in next guest",
-  "end the current session",
-  "transfer customer celestial"
- ],
- "training-pos/pos-what": [
-  "what is pos for",
-  "can i sell internet in pos",
-  "what can i ring in pos",
-  "pos for accessories",
-  "take bill payment pos",
-  "can i sell xfinity camera in pos",
-  "what not to ring in celestial pos"
- ],
- "training-pos/pos-rules": [
-  "pos rules",
-  "how do i do an exchange",
-  "can i take a check",
-  "check payment ipad",
-  "who gets commission on pos sale",
-  "suspended transaction at close",
-  "do ipads need to be opened",
-  "exchange in celestial pos"
- ],
- "training-pos/launch-new": [
-  "open pos from new session",
-  "launch point of sale",
-  "quick purchase no customer info",
-  "customer wont give address just buying a case",
-  "address not available pos",
-  "ring up accessory fast",
-  "how do i get into pos"
- ],
- "training-pos/launch-inprogress": [
-  "open pos during session",
-  "launch pos already helping customer",
-  "continue guest session point of sale",
-  "get to pos mid session",
-  "already in session need to ring accessory",
-  "add accessory sale while helping customer"
- ],
- "training-pos/launch-backoffice": [
-  "launch back office",
-  "open back office celestial",
-  "how to get to back office",
-  "manage store celestial",
-  "where is back office in pos",
-  "get to till and close store screen"
- ],
- "training-pos/pos-home": [
-  "pos homepage",
-  "pos tiles",
-  "quick sale",
-  "look up item",
-  "comcast services bill payment pos",
-  "resume suspended transaction",
-  "transaction history pos",
-  "find item by sku"
- ],
- "training-pos/sale-steps": [
-  "how do i ring a sale",
-  "complete a sale",
-  "sell a phone case",
-  "ring up accessories",
-  "checkout steps pos",
-  "scan item and take payment",
-  "sale steps celestial",
-  "print receipt"
- ],
- "training-pos/sale-tips": [
-  "sale tips",
-  "manually enter sku",
-  "add item without barcode",
-  "customer info not showing at checkout",
-  "edit customer details at checkout",
-  "receipt printer cash sale",
-  "skip to menu search bar"
- ],
- "training-pos/return-steps": [
-  "how do i do a return",
-  "return accessory",
-  "process refund pos",
-  "customer wants money back for charger",
-  "return steps celestial",
-  "return from transaction history",
-  "refund steps"
- ],
- "training-pos/return-tips": [
-  "exchange steps",
-  "how long for credit card refund",
-  "refund not showing on card",
-  "return then sale for exchange",
-  "customer wants to swap case for different one",
-  "exchange item"
- ],
- "training-pos/bo-home": [
-  "back office homepage",
-  "store open or closed status",
-  "till functions",
-  "back office tiles",
-  "transaction history back office",
-  "where is close store button"
- ],
- "training-pos/open-drawer": [
-  "open the store",
-  "open cash drawer",
-  "opening register",
-  "how to open store in celestial",
-  "morning opening pos",
-  "open till"
- ],
- "training-pos/fund-drawer": [
-  "fund drawer",
-  "add starting cash to drawer",
-  "drawer amount not equal at open",
-  "fund till",
-  "starting bank",
-  "load cash into drawer"
- ],
- "training-pos/settle-drawer": [
-  "settle drawer",
-  "settle till end of day",
-  "close out drawer",
-  "end of day drawer",
-  "settle the register at close",
-  "settle drawer steps"
- ],
- "training-pos/tender-count": [
-  "tender count",
-  "count the drawer",
-  "drawer short at close",
-  "drawer over",
-  "declare tender",
-  "recount drawer",
-  "deposit amount close"
- ],
- "training-pos/close-drawer": [
-  "close the store",
-  "close register",
-  "closing cash drawer",
-  "end business day pos",
-  "how do i close store celestial",
-  "closing steps"
- ],
- "training-pos/pos-help": [
-  "pos not working",
-  "register broken",
-  "techspot ticket pos",
-  "submit ticket celestial pos",
-  "pos frozen",
-  "who do i call pos issue",
-  "pos help"
- ],
- "training-pos/cs-glance": [
-  "customer space at a glance",
-  "when does customer space launch",
-  "customer space replaces retail 360",
-  "is retail360 going away",
-  "what happened to retail 360",
-  "mercury rollout"
- ],
- "training-pos/cs-what": [
-  "what is customer space",
-  "customer space benefits",
-  "customer space vs retail360",
-  "why customer space",
-  "customer space explained",
-  "one screen for customer account"
- ],
- "training-pos/cs-access": [
-  "how do i get into customer space",
-  "access customer account celestial",
-  "do i have to check in to see account",
-  "cant open customer account without check in",
-  "why check in first",
-  "account wont open in customer space"
- ],
- "training-pos/cs-lookup": [
-  "quick account lookup",
-  "look up customer account",
-  "account lookup for equipment return",
-  "find account without full check in",
-  "search account celestial",
-  "customer returning modem look up acct"
- ],
- "training-pos/cs-new": [
-  "start new sale customer space",
-  "new customer sale from queue",
-  "prospect new sale",
-  "sell new service to walk in",
-  "new sale path celestial",
-  "customer space for someone without xfinity"
- ],
- "training-pos/cs-existing": [
-  "open member account",
-  "existing customer account customer space",
-  "verify customer account celestial",
-  "pull up existing account",
-  "how do i open an existing customers account",
-  "open account from queue"
- ],
- "training-pos/cs-features": [
-  "customer profile",
-  "customer space features",
-  "tools menu customer space",
-  "customer space layout",
-  "where are the customer tools",
-  "account overview screen"
- ],
- "training-pos/cs-tools": [
-  "tools menu",
-  "get to xm360 from customer space",
-  "open einstein 360",
-  "onesupport link",
-  "xm sales buy flow from customer space",
-  "swivel to xm360"
- ],
- "training-pos/cs-account": [
-  "member account details",
-  "update customer contact info",
-  "see account number customer space",
-  "user role on account",
-  "change customer email or phone",
-  "preferred name on account"
- ],
- "training-pos/cs-billing": [
-  "billing details customer space",
-  "see customer bill",
-  "take bill payment customer space",
-  "check autopay",
-  "customer wants to pay bill",
-  "account ledger"
- ],
- "training-pos/cs-service": [
-  "service details",
-  "disconnect service customer space",
-  "cancel internet in customer space",
-  "change services customer space",
-  "see active services",
-  "serviceability info for member"
- ],
- "training-pos/cs-devices": [
-  "device details",
-  "swap modem customer space",
-  "add or remove equipment",
-  "run diagnostics",
-  "check data usage",
-  "reorder equipment",
-  "cx wants new gateway"
- ],
- "training-pos/cs-mobile": [
-  "mobile service customer space",
-  "see mobile lines",
-  "check upgrade eligibility",
-  "add a line customer space",
-  "xm plan details",
-  "how many lines does cx have"
- ],
- "training-pos/cs-mercury": [
-  "mercury assistant",
-  "what is mercury",
-  "ai panel customer space",
-  "mercury summary",
-  "mercury next steps",
-  "ai assistant in celestial"
- ],
- "training-pos/cs-agentic": [
-  "agentic tasks",
-  "bill summary mercury",
-  "summary of credits",
-  "summary of service issues",
-  "interaction summary",
-  "quick summary of customer account"
- ],
- "training-pos/cs-recommended": [
-  "recommended tasks mercury",
-  "explain my bill",
-  "explain xm due date",
-  "suggested actions customer space",
-  "mercury suggests add internet",
-  "mercury suggestions based on visit reason"
- ],
- "training-pos/cs-ama": [
-  "ask me anything",
-  "ama mercury",
-  "search knowledge in customer space",
-  "ask policy question mercury",
-  "ama product question",
-  "instead of searching knowledge"
- ],
- "training-pos/cs-training": [
-  "customer space training",
-  "ulearn customer space",
-  "mercury training",
-  "create training branded partner",
-  "where is celestial training course",
-  "customer space course"
- ],
- "training-pos/cs-faqs/q1": [
-  "mercury for prospect",
-  "can i use mercury on new customer",
-  "mercury not showing for new customer",
-  "customer space for prospect",
-  "mercury only after pending services",
-  "prospect info where"
- ],
- "training-pos/cs-faqs/q2": [
-  "ama in spanish",
-  "mercury spanish",
-  "type question in spanish",
-  "does mercury speak spanish",
-  "ask ama in espanol",
-  "spanish question mercury"
- ],
- "training-pos/cs-faqs/q3": [
-  "can mercury see account info",
-  "mercury account questions",
-  "ask mercury about customer account",
-  "mercury generic answer",
-  "mercury wont answer about account",
-  "why mercury gives general answer"
- ],
- "training-pos/cs-faqs/q4": [
-  "does customer space change xm360",
-  "still use xoe",
-  "do i still use csg",
-  "tools still the same",
-  "is xm360 still the same",
-  "core service changes still in csg"
- ],
- "training-pos/cs-faqs/q5": [
-  "report customer space issue",
-  "customer space not working",
-  "care application issue form",
-  "techspot customer space",
-  "customer space bug",
-  "mercury broken who do i tell"
+ "training-pos/fix-xm360-error-codes": [
+  "xm360 error code",
+  "what does this xm360 error mean",
+  "xm360 error"
  ]
 }

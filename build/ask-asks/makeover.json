@@ -101,68 +101,6 @@
   "change back from esim to physical sim iphone",
   "converted to esim under number"
  ],
- "training-pos/checkin-prospect/tips": [
-  "why do i need serviceability check for prospect",
-  "prospect address not available",
-  "address not serviceable at check in",
-  "mytown address check in",
-  "serviceability turns on insights"
- ],
- "training-pos/details-insights/tips": [
-  "why no acquisition insights",
-  "insights missing comcast business customer",
-  "no insights for out of footprint address",
-  "insights blank address already has account",
-  "how to use insights in conversation"
- ],
- "training-pos/transfer-guest": [
-  "transfer guest celestial",
-  "give my customer to another rep",
-  "pass guest to coworker",
-  "three dots menu transfer guest",
-  "going on break hand off guest",
-  "switch rep on a session",
-  "move guest to different rep"
- ],
- "training-pos/pos-what/tips": [
-  "check guest in and take payment same tool",
-  "is pos inside celestial",
-  "does pos fill in customer info from check in",
-  "why launch pos from check in",
-  "pos part of celestial or separate app"
- ],
- "training-pos/sale-steps/s1": [
-  "pos search bar",
-  "jump to function pos",
-  "cant find tile in pos",
-  "shortcut to quick sale",
-  "skip to specific menu items"
- ],
- "training-pos/pos-help/tips": [
-  "session id for techspot ticket",
-  "care app team links",
-  "care application issues pos",
-  "what info do i need for pos ticket"
- ],
- "training-pos/open-drawer/tips": [
-  "do i open the ipads at open",
-  "only registers need opened",
-  "open store ipad or register",
-  "business date wrong at open",
-  "store shows closed in morning"
- ],
- "training-pos/cs-access/tips": [
-  "look up account without checking in",
-  "skip check in see account",
-  "no check in quick lookup",
-  "pull account with no checkin"
- ],
- "training-pos/cs-features/tips": [
-  "change equipment from customer profile",
-  "where do i change equipment customer space",
-  "change modem from customer space",
-  "swap equipment from account features"
- ],
  "csg-how-to/wifi-ready-tv": [
   "wifi ready kit plus tv service",
   "wifi ready kit xfinity tv",
