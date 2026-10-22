@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
-<title>Celestial Retail Job Aid | C³</title>
-<meta name="description" content="Step-by-step C³ job aid for Celestial Store Space, Point of Sale and Customer Space.">
+<title>Celestial / Retail360 Guide | C³</title>
+<meta name="description" content="Step-by-step C³ guide for all Xfinity Mobile work in Celestial: adding and canceling lines, BYOD, ports, upgrades, watches, tablets, Business Mobile and troubleshooting.">
 <meta name="theme-color" content="#000000">
-<!-- Celestial Job Aid, rebuilt Oct 2026 on the CSG How To design (menus → guides → steps),
+<!-- Celestial / Retail360 Guide (mobile), rebuilt Oct 21 2026 from Celestial Knowledge articles modified in the last 12 months, on the CSG How To design (menus → guides → steps),
      no passcode. Fonts are the SITE's self-hosted files; build/fingerprint.mjs rewrites the
      ../../assets/fonts URLs to the current hashed copies. Screenshots stay in shots/<hash>.webp. -->
 <style>
@@ -457,7 +457,7 @@ header.top>.wrap{max-width:none}
   <header class="top">
     <div class="wrap">
       <div class="bar">
-        <a class="brand" href="#/"><b>Celestial <em>Job Aid</em></b><span>Blufox Mobile</span></a>
+        <a class="brand" href="#/"><b>Celestial <em>/ Retail360</em></b><span>Blufox Mobile</span></a>
         <div class="search" id="search">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
           <label class="sr" for="q">Search every guide</label>
@@ -471,7 +471,7 @@ header.top>.wrap{max-width:none}
     </div>
   </header>
   <main id="view" class="wrap" tabindex="-1"></main>
-  <footer><div class="wrap"><span>Celestial Retail Job Aid · For Blufox Mobile team members · Adapted for C³ rep training from Celestial Knowledge articles COMMS530, COMMS532, HOW22959 and HOW23418, and the Celestial Point of Sale Pilot Job Aid (August 2025). Screenshots are from those sources. Procedures change — if something on screen doesn't match, the Knowledge article is the source of truth. Private &amp; Confidential.</span></div></footer>
+  <footer><div class="wrap"><span>Celestial / Retail360 Guide · For Blufox Mobile team members · Built from Celestial Knowledge articles on Xfinity Mobile, Comcast Business Mobile, watches and tablets, all updated October 2025 – October 2026. Each guide shows its source article number; screenshots come from that article. Retail360 retired for retail on October 1, 2026 (COMMS566). Procedures change — if something on screen doesn't match, the Knowledge article is the source of truth. Private &amp; Confidential.</span></div></footer>
 </div>
 
 <div id="wk" role="dialog" aria-modal="true" aria-label="Step-by-step walkthrough">
@@ -1180,8 +1180,8 @@ function renderHome(){
   CUR=null;
   setView(`
   <section class="hero">
-    <div class="eyebrow">Blufox Mobile · Celestial Retail Job Aid</div>
-    <h1>Celestial, <em>step by step.</em></h1>
+    <div class="eyebrow">Blufox Mobile · Celestial / Retail360 Guide</div>
+    <h1>Mobile in Celestial, <em>step by step.</em></h1>
   </section>
   <div class="pick">
     <label for="pick">What are you doing today?</label>
@@ -1229,7 +1229,7 @@ function ptHtml(st,id,i){
   return `<li id="${id}" class="rise" style="--i:${i}"><span class="pmk${st.mark?' l':''}" aria-hidden="true">${st.mark?esc(st.mark):''}</span><div class="step-body">${leadHtml(st)}<p class="do">${rich(st.text)}</p>${stepInner(st)}</div></li>`;
 }
 /* progress memory (per device) */
-const doneKey=g=>'cja-done-'+g.id;
+const doneKey=g=>'cr360-done-'+g.id;
 function getDone(g){ try{return new Set(JSON.parse(localStorage.getItem(doneKey(g))||'[]'))}catch(_){return new Set()} }
 function setDone(g,set){ try{localStorage.setItem(doneKey(g),JSON.stringify([...set]))}catch(_){} }
 const allSteps=g=>g.sections.flatMap((s,si)=>(s.steps||[]).map((st,ti)=>({st,si,ti,n:(s.start||1)+ti,sec:s.title,id:`s${si}-${ti}`})));
