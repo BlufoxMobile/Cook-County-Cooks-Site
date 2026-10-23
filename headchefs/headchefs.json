@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-23T15:06:15.512Z",
+  "generated_at": "2026-10-23T15:16:57.819Z",
   "generator": "build/pull-headchefs.mjs",
   "note": "GENERATED FILE — do not hand-edit. Rebuilt from the Win-The-Weekend decks by .github/workflows/headchefs.yml every 30 minutes.",
   "policy": {
@@ -31,7 +31,7 @@
       "label": "Big South",
       "page": "https://blufoxmobile.github.io/Win-The-Weekend---Big-South/",
       "raw": "https://raw.githubusercontent.com/BlufoxMobile/Win-The-Weekend---Big-South/main/index.html",
-      "fetched_at": "2026-10-23T15:06:17.543Z",
+      "fetched_at": "2026-10-23T15:17:00.082Z",
       "bytes": 19899062,
       "head_chef_slides": 1,
       "districts": [
@@ -43,13 +43,15 @@
       "label": "Chicago",
       "page": "https://blufoxmobile.github.io/Win-The-Weekend---Chicago/",
       "raw": "https://raw.githubusercontent.com/BlufoxMobile/Win-The-Weekend---Chicago/main/index.html",
-      "fetched_at": "2026-10-23T15:06:18.667Z",
-      "bytes": 10614607,
-      "head_chef_slides": 3,
+      "fetched_at": "2026-10-23T15:17:02.728Z",
+      "bytes": 22530048,
+      "head_chef_slides": 5,
       "districts": [
         "North Side",
         "East Side",
-        "West Side"
+        "South Side",
+        "West Side",
+        "Xfinity Head Chef of the Week"
       ]
     }
   ],
@@ -62,7 +64,7 @@
       "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-10-23T15:06:15.512Z",
+      "last_confirmed": "2026-10-23T15:16:57.819Z",
       "last_changed": "2026-10-23T13:40:24.723Z",
       "days_since_confirmed": 0
     },
@@ -74,7 +76,7 @@
       "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-10-23T15:06:15.512Z",
+      "last_confirmed": "2026-10-23T15:16:57.819Z",
       "last_changed": "2026-10-23T15:06:15.512Z",
       "days_since_confirmed": 0
     },
@@ -86,7 +88,7 @@
       "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-10-23T15:06:15.512Z",
+      "last_confirmed": "2026-10-23T15:16:57.819Z",
       "last_changed": "2026-10-23T15:06:15.512Z",
       "days_since_confirmed": 0
     },
@@ -98,7 +100,7 @@
       "slide_title": "Head Chef Of The Week",
       "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-10-23T15:06:15.512Z",
+      "last_confirmed": "2026-10-23T15:16:57.819Z",
       "last_changed": "2026-10-23T15:06:15.512Z",
       "days_since_confirmed": 0
     },
@@ -108,23 +110,23 @@
       "source_deck": "chicago",
       "source_url": "https://blufoxmobile.github.io/Win-The-Weekend---Chicago/",
       "slide_title": "Head Chef Of The Week",
-      "present_this_run": false,
+      "present_this_run": true,
       "first_seen": "2026-08-28T14:30:10.145Z",
-      "last_confirmed": "2026-10-23T13:40:24.723Z",
-      "last_changed": "2026-10-09T14:59:55.316Z",
-      "days_since_confirmed": 0.1
+      "last_confirmed": "2026-10-23T15:16:57.819Z",
+      "last_changed": "2026-10-23T15:16:57.819Z",
+      "days_since_confirmed": 0
     },
     "xfinity": {
       "district": "Xfinity Head Chef of the Week",
       "district_short": "Xfinity",
       "source_deck": "chicago",
       "source_url": "https://blufoxmobile.github.io/Win-The-Weekend---Chicago/",
-      "slide_title": null,
-      "present_this_run": false,
+      "slide_title": "⭐ Xfinity Head Chef Of The Week",
+      "present_this_run": true,
       "first_seen": "2026-08-26T04:16:23.645Z",
-      "last_confirmed": "2026-10-02T13:36:23.095Z",
-      "last_changed": "2026-09-25T15:11:31.813Z",
-      "days_since_confirmed": 21.1
+      "last_confirmed": "2026-10-23T15:16:57.819Z",
+      "last_changed": "2026-10-23T15:16:57.819Z",
+      "days_since_confirmed": 0
     }
   },
   "headchefs": [
@@ -150,7 +152,7 @@
       "photo_sha": "5f589ef9bb5cdd2599359138df7ce2ead456eff0b38c7f88b74a7fda71be01f9",
       "photo_file_sha": "785a1ebea46e32a54d1c7f33d134adb130220ce7eebf127dd6156dbf7219b877",
       "photo_low_quality": false,
-      "last_confirmed": "2026-10-23T15:06:15.512Z",
+      "last_confirmed": "2026-10-23T15:16:57.819Z",
       "last_changed": "2026-10-23T13:40:24.723Z",
       "days_since_confirmed": 0,
       "stale": false
@@ -161,7 +163,7 @@
       "district_short": "West Side",
       "region_deck": "Chicago",
       "slide_title": "Head Chef Of The Week",
-      "slide_index": 2,
+      "slide_index": 3,
       "name": "Juan Padilla",
       "store_role": "Round Lake Beach • Assistant Manager/Team Lead",
       "stats": [
@@ -194,7 +196,7 @@
       "photo_sha": null,
       "photo_file_sha": null,
       "photo_low_quality": false,
-      "last_confirmed": "2026-10-23T15:06:15.512Z",
+      "last_confirmed": "2026-10-23T15:16:57.819Z",
       "last_changed": "2026-10-23T15:06:15.512Z",
       "days_since_confirmed": 0,
       "stale": false
@@ -238,7 +240,7 @@
       "photo_sha": "72348027a1b96f49749583b0e0bae789301ce75e82069c543fc42b52e42d7e58",
       "photo_file_sha": "df8dbaff8a6495be905544dfc7a662edc4f7da1299748a174fcc1fe3f65c0a4d",
       "photo_low_quality": false,
-      "last_confirmed": "2026-10-23T15:06:15.512Z",
+      "last_confirmed": "2026-10-23T15:16:57.819Z",
       "last_changed": "2026-10-23T15:06:15.512Z",
       "days_since_confirmed": 0,
       "stale": false
@@ -282,7 +284,7 @@
       "photo_sha": "37666b5116b6cd348f99e6f845c1393d107d29cf8b72a89fd6b65d37f795f850",
       "photo_file_sha": "cf0fd3056b9edd907eedc8535574cd9f0df14b265879be6ed38d3e22ba610a8a",
       "photo_low_quality": true,
-      "last_confirmed": "2026-10-23T15:06:15.512Z",
+      "last_confirmed": "2026-10-23T15:16:57.819Z",
       "last_changed": "2026-10-23T15:06:15.512Z",
       "days_since_confirmed": 0,
       "stale": false
@@ -294,79 +296,68 @@
       "region_deck": "Chicago",
       "slide_title": "Head Chef Of The Week",
       "slide_index": 2,
-      "name": "Frankfort",
-      "store_role": "Store • National Rank #41",
+      "name": "Calvin Sykes",
+      "store_role": "Tinley Park • Sales Associate",
       "stats": [
         {
-          "value": "$75,433",
-          "label": "GP $ Trend"
+          "value": "$10,496",
+          "label": "GP $"
         },
         {
-          "value": "6.69%",
-          "label": "MCR"
-        },
-        {
-          "value": "89.6%",
+          "value": "86%",
           "label": "Plus"
         },
         {
-          "value": "76.7%",
-          "label": "NPS"
+          "value": "57%",
+          "label": "GIG Attach"
         },
         {
-          "value": "69.2%",
-          "label": "GIG"
-        },
-        {
-          "value": "$11.34",
-          "label": "Accy"
-        },
-        {
-          "value": "48",
-          "label": "Mobile"
-        },
-        {
-          "value": "8.22%",
-          "label": "FCR"
+          "value": "$14.58",
+          "label": "Accy $/Box"
         }
       ],
-      "writeup": "",
+      "writeup": "Head chefs of the week for the southside\nNoah Cleveland\nCalvin Sykes\nAlicia Valdez\nTop 100 club",
       "is_xfinity": false,
-      "is_store": true,
+      "is_store": false,
       "vacant": false,
       "has_photo": true,
       "photo_file": "photos/south-side.webp",
       "photo_w": 384,
-      "photo_h": 522,
-      "photo_bytes": 35718,
-      "photo_sha": "02f31d72c47c19ac3d6ccddd2ada35abcc6645300aad5b7577a199c6d4d7e071",
-      "photo_file_sha": "79cc03c6dda23dd652f0ee6e314dcd65075dc9a59d8e68c07f688cfb9a9435f0",
-      "photo_low_quality": false,
-      "last_confirmed": "2026-10-23T13:40:24.723Z",
-      "last_changed": "2026-10-09T14:59:55.316Z",
-      "days_since_confirmed": 0.1,
-      "stale": false,
-      "source_deck": "chicago"
+      "photo_h": 205,
+      "photo_bytes": 4956,
+      "photo_sha": "67f4687ea15a28e001d82090901169ea68c2a3a3e4f3fd3d8f4554e4fa9ba912",
+      "photo_file_sha": "f18386125dc30443970d7d8726cf11893628398d8ecc5ba0f24dd900b2ddc863",
+      "photo_low_quality": true,
+      "last_confirmed": "2026-10-23T15:16:57.819Z",
+      "last_changed": "2026-10-23T15:16:57.819Z",
+      "days_since_confirmed": 0,
+      "stale": false
     },
     {
       "district": "Xfinity Head Chef of the Week",
       "district_key": "xfinity",
       "district_short": "Xfinity",
-      "region_deck": null,
-      "slide_title": null,
-      "name": null,
-      "store_role": "",
+      "region_deck": "Chicago",
+      "slide_title": "⭐ Xfinity Head Chef Of The Week",
+      "slide_index": 4,
+      "name": "NPS Winners",
+      "store_role": "Xfinity Head Chef • Greater Chicago",
       "stats": [],
       "writeup": "",
       "is_xfinity": true,
       "is_store": false,
-      "vacant": true,
-      "has_photo": false,
-      "photo_file": null,
-      "photo_file_sha": null,
+      "vacant": false,
+      "has_photo": true,
+      "photo_file": "photos/xfinity.webp",
+      "photo_w": 384,
+      "photo_h": 480,
+      "photo_bytes": 51934,
+      "photo_sha": "f9345fe7c50c327c0ac5c13eece655cbd6f18d96ba8b87d47de9cbeb9791465e",
+      "photo_file_sha": "7358529a40c0f55b44a341f9364edb629e1986337c48f4e316e2f18a4b68d633",
       "photo_low_quality": false,
-      "last_confirmed": "2026-10-02T13:36:23.095Z",
-      "days_since_confirmed": 21.1,
+      "last_confirmed": "2026-10-23T15:16:57.819Z",
+      "last_changed": "2026-10-23T15:16:57.819Z",
+      "days_since_confirmed": 0,
       "stale": false
     }
   ]
