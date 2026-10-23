@@ -5,7 +5,7 @@
 
 
  
-import { freshUrl } from './overlay.829ad8f769.js';
+import { freshUrl } from './overlay.83af713f11.js';
 
 
 import { preflight, preflightCopy } from './preflight.3928c43470.js';   
@@ -117,6 +117,9 @@ export const SCREEN_MODES = {
   'quote-upgrade':  'title',
   'quote-internet': 'title',
   'daily-sales':    'image',
+  
+
+  'mobile-promos':  'image',
   'wtw-chicago':    'live',
   'wtw-big-south':  'live'
 };
@@ -2351,7 +2354,9 @@ function makeImage(rec) {
   const bg = el('canvas', { class: 'ccc-scr-art__bg', width: '24', height: '17', 'aria-hidden': 'true' });
   const fg = el('img', { class: 'ccc-scr-art__fg', alt: '', 'aria-hidden': 'true', decoding: 'async' });
 
-  const NOTE = 'Today’s promo card has not landed yet. Tap to open the Daily Sales Report.';
+  
+
+  const NOTE = `Today’s promo card has not landed yet. Tap to open ${rec.title || 'the Daily Sales Report'}.`;
 
   
 

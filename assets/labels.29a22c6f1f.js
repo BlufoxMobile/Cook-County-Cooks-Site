@@ -1,7 +1,7 @@
 
 
 
-import { HOTSPOTS } from '../rooms.e487581eee.js';
+import { HOTSPOTS } from '../rooms.e0aa93961e.js';
 
 
 

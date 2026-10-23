@@ -75,8 +75,14 @@ export const GUESS_FLOOR = 0;
  * ────────────────────────────────────────────────────────────────────────── */
 
 const NON_ASCII = /[^\x00-\x7f]/;
+/* "+" after a letter or digit is a word: "Galaxy S24+" is the S24 Plus, not
+   the S24 (accuracy review B1 — dropping it quoted the S24's trade-in values
+   for an S24+). Folded the same way in questions and in docs, so "s24+",
+   "S24 Plus" and "s24 plus" are one thing everywhere. */
+const PLUS_AFTER = /([a-z0-9])\+/gi;
 export function fold(s) {
-  const str = String(s == null ? '' : s);
+  let str = String(s == null ? '' : s);
+  if (str.indexOf('+') !== -1) str = str.replace(PLUS_AFTER, '$1 plus ');
   // fast path: plain ASCII needs no decomposition (most guide text)
   if (!NON_ASCII.test(str)) return str.toLowerCase();
   return str.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
@@ -212,15 +218,23 @@ const NEG = new Set(['not', 'cant', 'cannot', 'wont', 'dont', 'doesnt', 'didnt',
 /* Navigation verbs: "open the dsr", "pull up wtw", "take me to the arcade". */
 const NAV = /^(?:open|launch|go to|goto|take me to|bring up|pull up|show me|show|load|where(?:'s| is)? the|where can i find|find)\s+/;
 
+/* Words a model number follows ("galaxy s 4", "z flip 4", "pixel 2", "watch 4"). */
+const MODEL_WORD = /^(?:iphone|pixel|galaxy|note|flip|fold|watch|series|ultra|pro|max|plus|razr|edge|stylus|tab|se|mini|gen|s|a|z|g|xl|fe)$/;
+
 /* Small, honest rewrites of how reps actually ask. Applied to the folded
    question before tokenising. */
 const REWRITES = [
   [/\bhow much (?:do|will|would|can|did|does|should) (?:i|we|u|you|reps?|a rep) (?:make|earn|get paid|get)\b/g, ' commission payout '],
   [/\bwhat (?:do|does|will) (?:i|we|u|reps?) (?:make|earn|get paid)\b/g, ' commission payout '],
   [/\bmy (?:pay|check|money)\b/g, ' commission pay '],
+  // "what can i get for a s21", "how much will they give for her iphone 12":
+  // the trade-in value question (Mobile Promotions, Oct 2026)
+  [/\b(?:what|wat|wut|how much) (?:can|could|will|would|do|does|did) (?:i|we|u|you|they|he|she|cx|the customer|customer|the cx) (?:get|give|pay|offer)(?: me| them| him| her| us)? for\b/g, ' trade in value for '],
+  [/\b(?:wat|wut|wht)\b/g, ' what '],
   [/\b(?:how 2|how2|hw|howto)\b/g, ' how to '],
-  [/\b2\b(?=\s+[a-z])/g, ' to '],
-  [/\b4\b(?=\s+[a-z])/g, ' for '],
+  // "how 2 add", "4 a customer" — but a model number stays a number: "z flip 4
+  // trade in", "iphone 2 …" (MODEL_WORD, Oct 2026 Mobile Promotions)
+  [/(\S+)?(\s*)\b([24])\b(?=\s+[a-z])/g, (m, prev, sp, d) => (prev && MODEL_WORD.test(prev) ? m : `${prev || ''}${sp}${d === '2' ? ' to ' : ' for '}`)],
   [/\b(?:w\/|w\/o)\b/g, ' '],
   [/([a-z0-9])&([a-z0-9])/g, '$1$2'],
   [/&/g, ' and ']
@@ -470,6 +484,9 @@ const FIELDS = ['title', 'keywords', 'crumbs', 'steps', 'text', 'inherit', 'asks
 const FW = { title: 6, keywords: 4, crumbs: 2.2, steps: 1.1, text: 1, inherit: 0.7, asks: 4.5 };
 const FB = { title: 0.35, keywords: 0.3, crumbs: 0.2, steps: 0.6, text: 0.65, inherit: 0.3, asks: 0.75 };
 const K1 = 1.2;
+/* How many docs a whole `family` of generated look-alike docs weighs in the
+   corpus statistics (see buildIndex). */
+const FAMILY_WEIGHT = 3;
 
 /* Kind priors: a little, not a lot. */
 const KIND_PRIOR = { tool: 1, section: 1, step: 0.93, printout: 1, video: 0.97, game: 0.96, room: 0.8, faq: 0.98 };
@@ -561,6 +578,22 @@ function buildIndex(docsIn, tools, rooms) {
     !(toolBySlug.get(d.tool) && toolBySlug.get(d.tool).room === 'freezer'));
   const N = docs.length;
   const NF = FIELDS.length;
+  /* FAMILIES (Oct 2026, Mobile Promotions). A generated family of look-alike
+     docs — one "Trade-in value: <phone>" per trade-in phone (150+), one "Deals
+     on the <phone>" per phone a promo sells — would otherwise outvote the
+     rest of the site in the corpus statistics: N grows by a quarter, and
+     every word they all share ("trade", "value", "deal", "new", "phone")
+     loses idf everywhere, which moved unrelated answers. A doc that carries
+     `family: '<name>'` counts as FAMILY_WEIGHT / <family size> of a doc
+     towards N, document frequency and average field length (a family of 150
+     weighs like 3 docs). Its own scoring is unchanged. Docs without `family`
+     count 1, exactly as before. */
+  const famSize = new Map();
+  for (const d of docs) if (typeof d.family === 'string' && d.family) famSize.set(d.family, (famSize.get(d.family) || 0) + 1);
+  const statW = new Float64Array(N);
+  docs.forEach((d, i) => { const m = famSize.get(d.family); statW[i] = m ? Math.min(1, FAMILY_WEIGHT / m) : 1; });
+  let Nw = 0;
+  for (let i = 0; i < N; i++) Nw += statW[i];
 
   // term string <-> integer id
   const ids = new Map();
@@ -668,11 +701,11 @@ function buildIndex(docsIn, tools, rooms) {
       termIds(f[FIELDS[k]], idOf, buf, chunkCache);
       fieldIds[i * NF + k] = Int32Array.from(buf);
       lens[i * NF + k] = buf.length;
-      sumLen[k] += buf.length;
+      sumLen[k] += buf.length * statW[i];
     }
   }
   const avg = new Float64Array(NF);
-  for (let k = 0; k < NF; k++) avg[k] = Math.max(1, sumLen[k] / Math.max(1, N));
+  for (let k = 0; k < NF; k++) avg[k] = Math.max(1, sumLen[k] / Math.max(1, Nw));
   const fw = FIELDS.map((n) => FW[n]);
   const fb = FIELDS.map((n) => FB[n]);
 
@@ -680,13 +713,14 @@ function buildIndex(docsIn, tools, rooms) {
   // into two packed buffers so postings are views, not thousands of arrays
   const V0 = terms.length;
   const df = new Int32Array(V0);
+  const dfw = new Float64Array(V0);           // df counted with family weights (idf)
   const seenIn = new Int32Array(V0).fill(-1);
   for (let i = 0; i < N; i++) {
     for (let k = 0; k < NF; k++) {
       const arr = fieldIds[i * NF + k];
       for (let j = 0; j < arr.length; j++) {
         const t = arr[j];
-        if (seenIn[t] !== i) { seenIn[t] = i; df[t]++; }
+        if (seenIn[t] !== i) { seenIn[t] = i; df[t]++; dfw[t] += statW[i]; }
       }
     }
   }
@@ -739,8 +773,9 @@ function buildIndex(docsIn, tools, rooms) {
   for (let t = 0; t < V0; t++) {
     const n = df[t];
     if (!n) continue;
-    const idf = Math.log(1 + (N - n + 0.5) / (n + 0.5));
-    post.set(terms[t], { df: n, idf, d: D.subarray(off[t], off[t + 1]), w: Wt.subarray(off[t], off[t + 1]) });
+    const nw = dfw[t];
+    const idf = Math.log(1 + (Nw - nw + 0.5) / (nw + 0.5));
+    post.set(terms[t], { df: n, dfw: nw, idf, d: D.subarray(off[t], off[t + 1]), w: Wt.subarray(off[t], off[t + 1]) });
   }
   const vocab = [...post.keys()].sort();
   const byLen = new Map();
@@ -836,7 +871,7 @@ function buildIndex(docsIn, tools, rooms) {
     const nTools = new Set(docTool).size;
     for (const [t, n] of toolsOf) if (n >= Math.max(6, nTools * 0.4)) generic.add(t);
   }
-  return { docs, N, post, vocab, byLen, toolBySlug, toolNames, toolDoc, titleTerms, hub, parent, docTool, phraseKeys, generic, listTerms, toolWords, askPairs, askSets, rooms: rooms || [] };
+  return { docs, N, Nw, post, vocab, byLen, toolBySlug, toolNames, toolDoc, titleTerms, hub, parent, docTool, phraseKeys, generic, listTerms, toolWords, askPairs, askSets, rooms: rooms || [] };
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -903,7 +938,7 @@ function prefixTerms(ix, p, limit) {
   const out = [];
   for (let i = lo; i < v.length && v[i].startsWith(p); i++) if (v[i] !== p) out.push(v[i]);
   if (out.length > limit) {
-    out.sort((a, b) => ix.post.get(b).df - ix.post.get(a).df);
+    out.sort((a, b) => ix.post.get(b).dfw - ix.post.get(a).dfw);
     out.length = limit;
   }
   return out;
@@ -922,9 +957,9 @@ function typoTerms(ix, gl, w) {
     for (const t of ix.byLen.get(L) || []) {
       if (t[0] !== w[0]) continue;
       const p = ix.post.get(t);
-      if (p.df > ix.N * 0.08 || ix.generic.has(t)) continue;
+      if (p.dfw > ix.Nw * 0.08 || ix.generic.has(t)) continue;
       const d = editWithin(w, t, max);
-      if (d <= max) found.push({ t, d, df: p.df, gloss: false });
+      if (d <= max) found.push({ t, d, df: p.dfw, gloss: false });
     }
   }
   for (const k of gl.typoKeys) {
@@ -1055,7 +1090,7 @@ function parse(ix, gl, q) {
     // two words that are one word in the guides ("pick up" -> pickup, "us
     // cellular" -> uscellular): checked before stopwords, so a brand that
     // starts with a small word still joins
-    if (i + 1 < W.length && STOP.has(w) && !STOP.has(W[i + 1]) && ix.post.has(w + W[i + 1]) && ix.post.get(w + W[i + 1]).df <= 12) {
+    if (i + 1 < W.length && STOP.has(w) && !STOP.has(W[i + 1]) && ix.post.has(w + W[i + 1]) && ix.post.get(w + W[i + 1]).dfw <= 12) {
       const j = w + W[i + 1];
       concepts.push({ text: `${w} ${W[i + 1]}`, span: 2, alts: [{ terms: [j], w: 1 }], kind: 'join', phrase: true });
       i += 2;
@@ -1119,7 +1154,10 @@ function parse(ix, gl, q) {
     // a store or channel name that only lives in a long list ("oak lawn",
     // "skokie"): place information, not a topic — weighs like an everyday word
     if (listOnly && !keepStop) { concepts.push({ text: w, span: 1, alts: [], kind: 'everyday', listOnly: true }); i++; continue; }
-    concepts.push({ text: w, span: 1, alts, kind: 'word', generic: ix.generic.has(st) || listOnly, listOnly, typo: alts.length > 0 && alts.every((a) => a.src && a.src.includes('→')) });
+    // "plus" right after a model number ("s24 plus", "note 10 plus", "s24+")
+    // names a different phone, so it is not a generic word there
+    const modelSuffix = w === 'plus' && i > 0 && /\d/.test(W[i - 1]);
+    concepts.push({ text: w, span: 1, alts, kind: 'word', generic: !modelSuffix && (ix.generic.has(st) || listOnly), listOnly, typo: alts.length > 0 && alts.every((a) => a.src && a.src.includes('→')) });
     i++;
   }
 
@@ -1173,14 +1211,14 @@ function parse(ix, gl, q) {
  * ────────────────────────────────────────────────────────────────────────── */
 
 function conceptImportance(ix, c) {
-  if (c.kind === 'offtopic') return Math.log(1 + ix.N) * 0.9;
+  if (c.kind === 'offtopic') return Math.log(1 + ix.Nw) * 0.9;
   if (c.kind === 'everyday') return 0.3;
   let best = 0;
   for (const a of c.alts) {
     if (a.w < 0.7) continue;
     for (const t of a.terms) { const p = ix.post.get(t); if (p) best = Math.max(best, p.idf * a.w); }
   }
-  if (!best) return Math.log(1 + ix.N) * 0.8; // a word nothing knows
+  if (!best) return Math.log(1 + ix.Nw) * 0.8; // a word nothing knows
   // a generic word ("phone", "order", "service") is a small part of what
   // the question is about
   return Math.max(best, 0.6) * c.span ** 0.5 * (c.generic ? 0.5 : 1);
@@ -1390,7 +1428,7 @@ export function createAsk({ index, tools, rooms } = {}) {
         for (const t of tt) {
           if (t.length < 3 || STOP.has(t) || qTerms.has(t) || ix.generic.has(t)) continue;
           const p = ix.post.get(t);
-          if (p && p.df <= ix.N * 0.03) extra++;
+          if (p && p.dfw <= ix.Nw * 0.03) extra++;
         }
         if (extra) s *= Math.pow(0.9, Math.min(extra, 3));
       }

@@ -40,6 +40,7 @@ import zlib from 'node:zlib';
 import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { promoDocs, chicagoToday, PROMO_TOOL } from '../assets/promo-docs.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, 'data/ask-index.json');
@@ -276,7 +277,7 @@ const EXT_KW = {
   'quote-internet': ['whole home bundle', 'internet plan calculator', 'now tv', 'xfinity shield', 'wifi equipment', 'unlimited data', 'cybersecure', 'parental controls', 'xfinity mobile plus', 'change speed', 'submit session', 'new customer', 'internet speeds', 'gig'],
   'tsheet-submissions': ['internet quote sheets', 'nps scan tracker', 'start stop', 'zero-scan', 'reps', 'last month', 'quotes'],
   'yesterdays-conversion': ['traffic', 'mcr', 'mobile close rate', 't-charts', 't-chart %', 'chicago north', 'chicago south', 'chicago east', 'chicago west', 'big south', 'all stores'],
-  'daily-sales': ['today', 'store numbers', 'promo of the day'],
+  'daily-sales': ['today', 'store numbers'],
   'commission-payouts': ['rate card', 'product payouts', 'store gp', 'you earn', '2 gig', 'gig', 'ie plus', 'prepaid internet kit', 'mobile plus', 'premium unlimited', 'mobile select', 'by the gig', 'tablets', 'watches', 'xm bapis', 'tv premium', 'sports & news tv', 'world soccer ticket', 'now latino', 'xpro', 'mobile upgrade', 'xfi complete', 'xumo', 'xcam', 'wifi extenders', 'mobile protection', 'shield select', 'digital voice premier', 'video upgrade', 'hsd upgrade', 'multi-play bonus'],
   'wtw-chicago': ['mobile close rate', 'fiscal close rate', 'accessory per box', 'store rankings', 'top reps', 'gig%', 'plus%', 'head chef of the week', 'top 10 nps', 'know your promos', 'quote of the week', 'north side', 'west side', 'south side', 'chicago'],
   'wtw-big-south': ['mobile close rate', 'fiscal close rate', 'accessory per box', 'store rankings', 'top reps', 'gig%', 'plus%', 'head chef of the week', 'top 10 nps', 'know your promos', 'quote of the week', 'tennessee', 'big south'],
@@ -850,17 +851,47 @@ function smallPages() {
     ['passcode', 'A guide is asking for a passcode', 'A few how-to guides (CSG How To and Request Access) need a team passcode. Ask your manager for it.', /need a passcode/, 'office', ['passcode', 'password', 'locked', 'code', 'csg how to', 'request access']],
     ['head-chef-wall', 'Head Chef wall', "The Head Chef wall in the Break Room shows this week's top performers from every district. Tap a photo to see why they won.", /Head Chef wall/, 'breakroom', ['head chef', 'employee of the week', 'top performers', 'wall of fame', 'recognition']],
     ['days-since-nps', 'Days since last bad NPS survey',  `The TV in the ${roomLabel('office')} counts the days since each store's last bad NPS survey.`, /days since each store/, 'office', ['nps', 'detractor', 'days since', 'bad survey', 'streak']],
-    ['todays-promo', "Today's mobile promo",  `The screen up front at the ${roomLabel('host')} shows today's mobile promo.`, /today's mobile promo/i, 'host', ['promo', 'promotion', 'deal of the day', 'specials']],
+    ['todays-promo', "Today's mobile promo",  `The screen up front at the ${roomLabel('host')} shows today's mobile promo. Tap it to open ${toolOf(PROMO_TOOL).label}: every current promotion explained, plus what every trade-in is worth.`, /today's mobile promo/i, 'host', ['promo', 'promotion', 'deal of the day', 'specials'], PROMO_TOOL],
   ];
-  for (const [id, title, text, re, room, k] of FAQ) {
+  for (const [id, title, text, re, room, k, tool = ''] of FAQ) {
     const start = findCue(re);
     add('site', {
-      id: `faq/${id}`, kind: 'faq', title, crumbs: ['Cook County Cooks', roomLabel(room)], tool: '', room, text,
+      id: `faq/${id}`, kind: 'faq', title, crumbs: ['Cook County Cooks', roomLabel(room)], tool, room, text,
       keywords: [k, roomLabel(room)], media: [videoMedia(tour, `Site tour — ${title}`, start)],
     });
   }
   /* tools/employee-of-week is not in data/tools.json: orphaned, not indexed */
   if (exists('tools/employee-of-week/index.html') && !TOOLS.has('employee-of-week')) note('tools/employee-of-week: not in data/tools.json (orphaned) — skipped');
+}
+
+/* ------------------------------------------------ 2h. mobile promotions
+ * The Mobile Promotions guide (tools/mobile-promos/) is a live read of the two
+ * quote sheets; data/promos.json is its saved copy (build/pull-promos.mjs).
+ * The docs are built by assets/promo-docs.js — the SAME builder ask.js runs on
+ * the live feed at run time — so the index and the live answer cannot drift.
+ * CURRENT PROMOS ONLY (Jeff): promoDocs() drops anything ended by today's
+ * Chicago date; ask.js re-prunes at run time, because this file can be days old.
+ * The docs carry extra fields the chat renders (`promo`, `trade`, `list`);
+ * they skip add()'s field whitelist, but go through every check below. */
+function mobilePromos() {
+  const S = 'mobile-promos';
+  const t = toolOf(PROMO_TOOL);
+  if (!exists('data/promos.json')) { note('mobile-promos: data/promos.json not found — no promo docs'); return; }
+  let feed;
+  try { feed = JSON.parse(read('data/promos.json')); } catch (e) { fail(`data/promos.json: not valid JSON (${e.message})`); }
+  if (!Array.isArray(feed.promos)) fail('data/promos.json: no promos array');
+  const today = process.env.PROMOS_TODAY || chicagoToday();
+  const docs = promoDocs(feed, { today, room: t.room });
+  for (const d of docs) {
+    if (d.tool !== PROMO_TOOL || !d.id.startsWith(`${PROMO_TOOL}/`)) fail(`${d.id}: promo doc outside ${PROMO_TOOL}/`);
+    if (!/^[a-z0-9][a-z0-9/_-]*$/.test(d.anchor || 'x')) fail(`${d.id}: anchor "${d.anchor}" is not a guide route`);
+    if ((d.text || '').length > 700) fail(`${d.id}: text over 700 chars`);
+    DOCS.push(d);
+    COUNTS[S] = COUNTS[S] || {};
+    COUNTS[S][d.kind] = (COUNTS[S][d.kind] || 0) + 1;
+  }
+  const ended = feed.promos.length - docs.filter(d => d.promo).length;
+  note(`mobile-promos: ${docs.length} docs from ${feed.promos.length} promos in data/promos.json (snapshot ${feed.generated_at || '?'}; ${ended} ended by ${today} and left out)`);
 }
 
 /* ----------------------------------------------------- 3. locked guides */
@@ -1052,6 +1083,7 @@ videos();
 printouts();
 arcade();
 smallPages();
+mobilePromos();
 const lockedSources = lockedGuides(prev);
 mergeAsks();
 

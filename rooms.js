@@ -28,6 +28,8 @@
      'title'  a title card — the tool's name, auto-fitted. For surfaces too
               small to render a readable web page at any zoom (the tablets).
      'image'  the daily promo card straight from the Daily Sales Report repo.
+              The picture does not depend on the slug; the slug is only where
+              a tap goes (the Host Stand TV opens `mobile-promos`).
      'feed'   the detractor-streak board, one district per slide.
      'live'   a real iframe of the tool, rendered wide and scaled down.
      'report' the Daily Sales Report's numbers, composed natively and cycled.
@@ -80,9 +82,20 @@ export const HOTSPOTS = {
   ],
   host: [
     /* The Host Stand TV hangs at an angle — this is the quad the homography in
-       screens.js is solved against. It shows the daily promo card, held frozen. */
-    { slug:'daily-sales', kind:'screen', mode:'image', x:47.0, y:5.6, w:37.0, h:53.0,
-      label:'Daily Sales Report', name:'Daily Promo Card',
+       screens.js is solved against. It shows the daily promo card, held frozen.
+
+       v47 (2026-10-23): THE TV OPENS THE MOBILE PROMOTIONS GUIDE NOW. The
+       client: clicking the promo card should explain the promos on it, not
+       open the Daily Sales Report. So the hotspot is keyed to `mobile-promos`
+       and labelled with that tool's name (screens show the title of what they
+       open). The PICTURE is unchanged: `mode:'image'` is what draws the daily
+       promo card, and screens.js fetches it from PROMO_CARD_URL whatever the
+       slug — the slug only decides where a tap goes. Same box, same quad.
+       The Daily Sales Report is still in this room, as a rail chip
+       (`chip-only` in data/tools.json), and still on the Break Room TV and the
+       Training Room monitor below. */
+    { slug:'mobile-promos', kind:'screen', mode:'image', x:47.0, y:5.6, w:37.0, h:53.0,
+      label:'Mobile Promotions', name:'Daily Promo Card',
       quad:[[47.6,21.4],[82.0,11.2],[82.0,57.8],[47.3,55.8]] },
     { slug:'yesterdays-conversion', kind:'tool', x:14.0, y:68.0, w:24.0, h:14.0, label:"Yesterday's Conversion", edge:'bottom' },
   ],

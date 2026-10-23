@@ -3182,7 +3182,8 @@ html.ccc-locked .ccc-scr-title__pip { animation-play-state: paused; }
    WHAT THE TOP LEFT HAS TO CLEAR, and why these two numbers and not others:
 
      · THE WALL DISPLAY owns the upper RIGHT. Its glass is traced at plate-x
-       47.3-82.0% (rooms.js, the `daily-sales` quad), and because the plate is
+       47.3-82.0% (rooms.js, the host TV's quad — slug `mobile-promos` since
+       v47, `daily-sales` before), and because the plate is
        cover-cropped, the narrower the viewport's aspect the further LEFT that
        edge comes: at 1600x900 it lands at x 729, at 1180x820 at x 524, at
        1024x768 at x 473. --rail-w is what keeps the card off it, and it is
@@ -3238,7 +3239,7 @@ html.ccc-locked .ccc-scr-title__pip { animation-play-state: paused; }
    ⚠ 52.0 IS A HOTSPOT LINE, NOT AN EYEBALLED ONE. It is the ticket spike's
    own top edge minus a constant. If host.webp is ever re-shot, re-derive it
    from rooms.js's `discount-close` box the same way, and re-check --rail-w
-   against the traced left edge of the `daily-sales` quad. */
+   against the traced left edge of the host TV's quad (`mobile-promos`). */
 
 /* ── THE BACK OFFICE, RETURNED TO THE BOTTOM-LEFT CARD ───────────────────
    The client, on this room: "Could we move the text on the back office down to

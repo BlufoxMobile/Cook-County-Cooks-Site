@@ -1,0 +1,462 @@
+{
+ "_provenance": "Written by the Ask agent on 2026-10-23 for the Mobile Promotions guide (tool mobile-promos). The first 15 are the coordinator's required questions; the rest were written by the same agent before tuning. Built against data/promos.json for 10/23/26: when promos end, ids here must change (current promos only). Run with PROMOS_TODAY unset only while these promos are live, or rebuild the index with PROMOS_TODAY=2026-10-23 for a stable check. Round 2 (Oct 23, after the UX and accuracy reviews): the reviewers' hedged questions plus every '+'/Plus trade-in model in both spellings, with the base models as guards.",
+ "questions": [
+  {
+   "q": "what's the trade in value of an iphone 13",
+   "expect": [
+    "mobile-promos/trade/apple-iphone-13"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "how much is a galaxy s22 worth",
+   "expect": [
+    "mobile-promos/trade/samsung-galaxy-s22-5g"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "iphone 12 pro max trade in",
+   "expect": [
+    "mobile-promos/trade/apple-iphone-12-pro-max"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "samsung promo",
+   "expect": [
+    "mobile-promos/brand/samsung"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "what promos are there for upgrades",
+   "expect": [
+    "mobile-promos/upgrades"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "upgrade anytime",
+   "expect": [
+    "mobile-promos/p/anytime_agm_200",
+    "mobile-promos/p/anytime_samsung_300"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "$930 deal",
+   "expect": [
+    "mobile-promos/p/tips_agm_930"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "is there a deal on the iphone duo",
+   "expect": [
+    "mobile-promos/device/iphoneduo",
+    "mobile-promos/p/tips_duo_1000"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "diamond smartwatch deal",
+   "expect": [
+    "mobile-promos/p/smartwatch_300_diamond"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "do they need to port in for the $400 off",
+   "expect": [
+    "mobile-promos/p/flat_agm_400"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "free line for a year",
+   "expect": [
+    "mobile-promos/p/free_line"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "visa gift card 2 lines",
+   "expect": [
+    "mobile-promos/p/visa_gc_200_2lines"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "waived activation fee",
+   "expect": [
+    "mobile-promos/p/waived_activation"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "best deal for an iphone 17 new line",
+   "expect": [
+    "mobile-promos/device/iphone17",
+    "mobile-promos/p/tips_agm_930"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "pixel 11 promo",
+   "expect": [
+    "mobile-promos/device/pixel11"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "what is a pixel 7 worth for trade",
+   "expect": [
+    "mobile-promos/trade/google-pixel-7-5g"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "galaxy s21 ultra trade in value",
+   "expect": [
+    "mobile-promos/trade/samsung-galaxy-s21-ultra-5g"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "cx has a cracked iphone 11 what can they get for it",
+   "expect": [
+    "mobile-promos/trade/apple-iphone-11"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "trade in values",
+   "expect": [
+    "mobile-promos/trade"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "what is my phone worth",
+   "expect": [
+    "mobile-promos/trade"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "what deals do we have right now",
+   "expect": [
+    "mobile-promos/current"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "current promotions",
+   "expect": [
+    "mobile-promos/current",
+    "tool/mobile-promos"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "new line promos",
+   "expect": [
+    "mobile-promos/new-lines"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "apple deals",
+   "expect": [
+    "mobile-promos/brand/apple"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "motorola razr deal",
+   "expect": [
+    "mobile-promos/device/motorazr2026"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "$1200 off samsung",
+   "expect": [
+    "mobile-promos/p/tips_samsung_1200"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "up to 700 off galaxy upgrade",
+   "expect": [
+    "mobile-promos/p/tips_samsung_700_upg"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "$500 off samsung no trade",
+   "expect": [
+    "mobile-promos/p/flat_samsung_500"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "$200 off iphone upgrade paid off phone",
+   "expect": [
+    "mobile-promos/p/flat_agm_200_upg"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "upgrade anytime samsung",
+   "expect": [
+    "mobile-promos/p/anytime_samsung_300"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "diamond iphone duo upgrade trade in",
+   "expect": [
+    "mobile-promos/p/tips_duo_1000_diamond_upg"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "cd885",
+   "expect": [
+    "mobile-promos/p/tips_agm_930"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "CD865 deal card",
+   "expect": [
+    "mobile-promos/p/tips_samsung_1200"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "does the samsung 500 off need a port",
+   "expect": [
+    "mobile-promos/p/flat_samsung_500"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "first line free 300 mbps",
+   "expect": [
+    "mobile-promos/p/free_line"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "customer adding two lines gets a gift card",
+   "expect": [
+    "mobile-promos/p/visa_gc_200_2lines"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "activation fee waived new customer",
+   "expect": [
+    "mobile-promos/p/waived_activation"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "when does the $930 trade in deal end",
+   "expect": [
+    "mobile-promos/p/tips_agm_930"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "galaxy s26 ultra deal",
+   "expect": [
+    "mobile-promos/device/galaxys26ultra"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "oneplus 9 trade in",
+   "expect": [
+    "mobile-promos/trade/oneplus-9-5g"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "apple watch deal for diamond",
+   "expect": [
+    "mobile-promos/p/smartwatch_300_diamond"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "tips promo",
+   "expect": [
+    "mobile-promos/current",
+    "mobile-promos/p/tips_agm_930",
+    "mobile-promos/trade"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "how much off pixel 11 new line",
+   "expect": [
+    "mobile-promos/device/pixel11"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "does the samsung promo need a port",
+   "expect": [
+    "mobile-promos/p/flat_samsung_500"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "how long do they have to send the trade in",
+   "expect": [
+    "mobile-promos/trade"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "wat can i get for a s21",
+   "expect": [
+    "mobile-promos/trade/samsung-galaxy-s21-5g"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "s23+ trade in",
+   "expect": [
+    "mobile-promos/trade/samsung-galaxy-s23-plus-5g"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "galaxy s23 plus trade in value",
+   "expect": [
+    "mobile-promos/trade/samsung-galaxy-s23-plus-5g"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "galaxy s24+ worth",
+   "expect": [
+    "mobile-promos/trade/samsung-galaxy-s24-plus-5g"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "s24 plus trade in",
+   "expect": [
+    "mobile-promos/trade/samsung-galaxy-s24-plus-5g"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "s24+",
+   "expect": [
+    "mobile-promos/trade/samsung-galaxy-s24-plus-5g"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "s25+ trade in",
+   "expect": [
+    "mobile-promos/trade/samsung-galaxy-s25-plus-5g"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "galaxy s25 plus worth",
+   "expect": [
+    "mobile-promos/trade/samsung-galaxy-s25-plus-5g"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "iphone 14+ trade in",
+   "expect": [
+    "mobile-promos/trade/apple-iphone-14-plus"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "iphone 14 plus worth",
+   "expect": [
+    "mobile-promos/trade/apple-iphone-14-plus"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "iphone 15+ trade in",
+   "expect": [
+    "mobile-promos/trade/apple-iphone-15-plus"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "iphone 15 plus trade in value",
+   "expect": [
+    "mobile-promos/trade/apple-iphone-15-plus"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "iphone 8+ trade in",
+   "expect": [
+    "mobile-promos/trade/apple-iphone-8-plus"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "iphone 8 plus worth",
+   "expect": [
+    "mobile-promos/trade/apple-iphone-8-plus"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "note 10+ trade in",
+   "expect": [
+    "mobile-promos/trade/samsung-note-10-plus",
+    "mobile-promos/trade/samsung-note-10-plus-5g"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "galaxy note 10 plus worth",
+   "expect": [
+    "mobile-promos/trade/samsung-note-10-plus",
+    "mobile-promos/trade/samsung-note-10-plus-5g"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "s20+ trade in value",
+   "expect": [
+    "mobile-promos/trade/samsung-galaxy-s20-plus",
+    "mobile-promos/trade/samsung-galaxy-s20-plus-5g"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "galaxy s24 worth",
+   "expect": [
+    "mobile-promos/trade/samsung-galaxy-s24-5g"
+   ],
+   "split": "promos"
+  },
+  {
+   "q": "iphone 15 trade in",
+   "expect": [
+    "mobile-promos/trade/apple-iphone-15"
+   ],
+   "split": "promos"
+  }
+ ]
+}

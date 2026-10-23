@@ -19,8 +19,8 @@ const WORKER_TIMEOUT_MS = 8000;
 const W = { q: 300, candidates: 12, id: 120, title: 140, crumbs: 6, crumb: 60, text: 700, bytes: 24 * 1024 };
 const ID_RE = /^[A-Za-z0-9][A-Za-z0-9_\-\/~.:#]*$/;
 const HLS_LIB = 'tools/site-tour/hls.light.min.js';
-const INDEX_URL = 'data/ask-index.45e63ea369.json';
-const CSS_URL = 'assets/ask.fbb67fc8e1.css';
+const INDEX_URL = 'data/ask-index.13f2530092.json';
+const CSS_URL = 'assets/ask.e15dc7d948.css';
 
 
 
@@ -215,24 +215,37 @@ export function mountAsk(opts = {}) {
   function loadBrain() {
     if (brainP) return brainP;
     const engineP =
-      import('./ask-engine.b2cb599405.js');
+      import('./ask-engine.8b6a7a77d8.js');
+    
+    const promoModP =
+      import('./promo-docs.7851a90ec0.js');
     const indexP = fetch(INDEX_URL, { credentials: 'same-origin' })
       .then((r) => (r.ok ? r.json() : null))
       .catch(() => null);
-    brainP = Promise.all([engineP, indexP]).then(([mod, index]) => {
+    brainP = Promise.all([engineP, indexP, promoModP.catch(() => null)]).then(([mod, index, pd]) => {
       if (typeof mod.LOW_CONFIDENCE === 'number') LOW_CONFIDENCE = mod.LOW_CONFIDENCE;
       if (typeof mod.HIGH_CONFIDENCE === 'number') HIGH_CONFIDENCE = mod.HIGH_CONFIDENCE;
       const tools = (data && data.tools) || [];
       const rooms = (data && data.rooms) || [];
       const docs = index && Array.isArray(index.docs) && index.docs.length ? index : { docs: toolDocs(tools, rooms) };
       const fromIndex = docs !== null && docs === index;
-      brain = { ask: mod.createAsk({ index: docs, tools, rooms }), docs: docs.docs, full: fromIndex };
+      
+      
+      
+      let list = docs.docs;
+      if (pd && typeof pd.pruneExpired === 'function') {
+        try { list = pd.pruneExpired(list, pd.chicagoToday()); } catch {   }
+      }
+      brain = { mod, pd, tools, rooms, ask: mod.createAsk({ index: { ...docs, docs: list }, tools, rooms }), docs: list, full: fromIndex, promoSource: 'index' };
       
       
       if (fromIndex && index.frame_hash_prefix && typeof index.frame_hash_prefix === 'object') {
         try { document.dispatchEvent(new CustomEvent('ccc:frame-hash-prefix', { detail: index.frame_hash_prefix })); }
         catch {   }
       }
+      
+      
+      if (!pocket) refreshPromos();
       return brain;
     }).catch((err) => {
       console.error('[ask] the engine did not load.', err);
@@ -240,6 +253,61 @@ export function mountAsk(opts = {}) {
       throw err;
     });
     return brainP;
+  }
+
+  
+
+  const PROMO_Q = /\b(promo|promos|promotions?|deals?|discounts?|offers?|specials?|trade|trade-?ins?|tips|worth|value|diamond|gift ?card|free line|activation fee|upgrade anytime|iphone|galaxy|pixel|razr|moto|samsung|motorola|cd\d{3})\b|\$\s?\d/i;
+  let promoP = null;
+  function refreshPromos() {
+    if (promoP) return promoP;
+    const feedModP =
+      import('./promos-feed.f7a59d1771.js');
+    promoP = Promise.all([feedModP, loadBrain()]).then(async ([feedMod, b]) => {
+      if (!b.pd || typeof feedMod.loadPromos !== 'function') return b;
+      const today = b.pd.chicagoToday();
+      const feed = await feedMod.loadPromos({ live: true, today });
+      if (!feed || !Array.isArray(feed.promos)) return b;
+      const fresh = b.pd.promoDocs(feed, { today });
+      
+      if (!fresh.length) return b;
+      await idle();
+      const docs = b.docs.filter((d) => !b.pd.isPromoDoc(d)).concat(fresh);
+      b.ask = b.mod.createAsk({ index: { docs }, tools: b.tools, rooms: b.rooms });
+      b.docs = docs;
+      b.promoSource = feed.source === 'live' ? 'live' : 'saved';
+      b.promoAt = feed.fetched_at || new Date().toISOString();
+      refreshPromoTurns(b);
+      return b;
+    }).catch((err) => {
+      console.warn('[ask] live promotions did not load; the saved copy stays.', err);
+      return brain;
+    });
+    return promoP;
+  }
+  const idle = () => new Promise((res) => {
+    if (typeof requestIdleCallback === 'function') requestIdleCallback(() => res(), { timeout: 600 });
+    else setTimeout(res, 0);
+  });
+  
+
+  function refreshPromoTurns(b) {
+    const t = turns[turns.length - 1];
+    const q = t && (t.raw || t.q);
+    if (!t || !t.answer || !q || t.answer._confirmed) return;
+    const old = t.answer.primary;
+    if (!old || !b.pd.isPromoDoc(old)) return;
+    const next = b.docs.find((d) => d.id === old.id);
+    if (next && JSON.stringify(next) === JSON.stringify(old)) return;
+    if (t.node.contains(document.activeElement) && document.activeElement !== t.node.querySelector(`#${t.id}-h`)) return;
+    const ans = b.ask.answer(q);
+    try { ans._scores = new Map(b.ask.search(q, { limit: 12 }).map((r) => [r.doc.id, r.score])); } catch { ans._scores = null; }
+    ans._guess = ans.mode !== 'none' && (ans.guess === true || ans.confidence < LOW_CONFIDENCE);
+    const y = log.scrollTop;
+    t.body.replaceChildren(...answerBody(ans, q, t.id));
+    t.options = ans._options || null;
+    t.answer = ans;
+    log.scrollTop = y;
   }
 
   const toolBySlug = () => new Map(((data && data.tools) || []).map((t) => [t.slug, t]));
@@ -846,6 +914,137 @@ export function mountAsk(opts = {}) {
     return first.length > 200 ? first.slice(0, 200).replace(/\s+\S*$/, '') + '…' : first;
   }
 
+  
+
+  const PROMO_TOOL_SLUG = 'mobile-promos';
+  const usDate = (iso) => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+    return m ? `${+m[2]}/${+m[3]}/${m[1].slice(2)}` : '';
+  };
+  const usd = (n) => (n == null ? '' : `$${Number(n).toLocaleString('en-US')}`);
+  function promoStamp() {
+    const src = brain && brain.promoSource;
+    let when = '';
+    if (brain && brain.promoAt) {
+      try { when = new Date(brain.promoAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); } catch { when = ''; }
+    }
+    const t = src === 'live' ? `Straight from the quote sheets${when ? `, ${when}` : ''}. Current promos only.`
+      : src === 'saved' ? 'From the saved copy of the quote sheets (the live read did not load). Current promos only.'
+        : 'Current promos only.';
+    return el('p', { class: 'ask-promo-stamp', text: t });
+  }
+  function promoSection(head, items, cls = '') {
+    const list = (items || []).filter(Boolean);
+    if (!list.length) return null;
+    return el('section', { class: `ask-promo-sec${cls ? ` ${cls}` : ''}` }, [
+      el('h4', { class: 'ask-promo-h', text: head }),
+      el('ul', { class: 'ask-promo-list' }, list.map((x) => el('li', { text: String(x) })))
+    ]);
+  }
+  function anchorLink(doc, anchor, words) {
+    const tool = toolBySlug().get(doc.tool);
+    const a2 = cleanAnchor(anchor);
+    if (!tool || !a2) return null;
+    const a = el('a', {
+      class: 'ask-open ask-open--quiet', href: `#/tool/${encodeURIComponent(tool.slug)}/${a2}`,
+      'data-tool': tool.slug, 'data-tool-anchor': a2, 'data-ask-nav': ''
+    });
+    a.append(el('span', { text: words }), svg(SEND, 'ask-ico'));
+    return a;
+  }
+  function promoNodes(doc) {
+    const P = doc.promo;
+    const out = [];
+    const facts = el('dl', { class: 'ask-facts' });
+    const fact = (k, v, cls = '') => { if (v) facts.append(el('div', { class: `ask-fact${cls ? ` ${cls}` : ''}` }, [el('dt', { text: k }), el('dd', { text: v })])); };
+    fact('Savings', P.savings, 'ask-fact--big');
+    fact('Ends', P.ends ? usDate(P.ends) : 'No end date');
+    fact('Deal card', P.deal_card);
+    fact('For', P.who ? P.who[0].toUpperCase() + P.who.slice(1) : '');
+    fact('Plan', P.plan, 'ask-fact--wide');
+    out.push(facts);
+    const flags = el('ul', { class: 'ask-flags', 'aria-label': 'Requirements' });
+    const flag = (t, on) => flags.append(el('li', { class: `ask-flag${on ? ' ask-flag--on' : ''}`, text: t }));
+    if (P.diamond) flag('Diamond members only', true);
+    flag(P.trade ? 'Trade-in required' : 'No trade-in', P.trade);
+    flag(P.port ? 'Port-in required' : 'No port-in', P.port);
+    out.push(flags);
+    if (P.hook) out.push(el('p', { class: 'ask-card-text ask-promo-hook', text: P.hook }));
+    if (P.credit) out.push(el('p', { class: 'ask-promo-credit' }, [el('strong', { text: 'Credit: ' }), document.createTextNode(P.credit)]));
+    const q = promoSection('Who qualifies', P.qualify);
+    if (q) out.push(q);
+    const steps = stepsNode(doc);
+    if (steps) out.push(el('section', { class: 'ask-promo-sec' }, [el('h4', { class: 'ask-promo-h', text: 'Steps' }), steps]));
+    const d = promoSection('Deadlines', P.deadlines, 'ask-promo-sec--warn');
+    if (d) out.push(d);
+    const w = promoSection('Watch out', P.watchouts);
+    if (w) out.push(w);
+    if (P.trade_in && P.trade_in.count) {
+      const l = anchorLink(doc, `p/${P.id}/trade-in`, `Trade-in list for this deal (${P.trade_in.count} phones)`);
+      if (l) out.push(el('div', { class: 'ask-actions' }, [l]));
+    }
+    out.push(promoStamp());
+    return out;
+  }
+  function tradeNodes(doc) {
+    const T = doc.trade;
+    const rows = (T.rows || []).filter(Boolean);
+    const table = el('table', { class: 'ask-tv' });
+    table.append(el('caption', { class: 'ask-sr', text: `${T.name || doc.title}: trade-in credit by condition on each current promo` }));
+    table.append(el('thead', {}, [el('tr', {}, [
+      el('th', { scope: 'col', text: 'Promo' }), el('th', { scope: 'col', text: 'Good' }),
+      el('th', { scope: 'col', text: 'Fair' }), el('th', { scope: 'col', text: 'Poor' })
+    ])]));
+    const tb = el('tbody');
+    for (const r of rows) {
+      const name = el('th', { scope: 'row' });
+      const b = el('button', { type: 'button', class: 'ask-tv-promo', 'data-ask-doc': r.doc, 'data-ask-nav': '' }, [
+        el('span', { class: 'ask-tv-name', text: r.label || r.title || '' }),
+        el('span', { class: 'ask-tv-ends', text: r.ends ? `Ends ${usDate(r.ends)}` : 'No end date' })
+      ]);
+      name.append(b);
+      const cell = (v) => (v == null
+        ? el('td', { class: 'ask-tv-no' }, [el('span', { 'aria-hidden': 'true', text: '—' }), el('span', { class: 'ask-sr', text: 'not accepted' })])
+        : el('td', { text: usd(v) }));
+      tb.append(el('tr', {}, [name, cell(r.good), cell(r.fair), cell(r.poor)]));
+    }
+    table.append(tb);
+    return [
+      el('p', { class: 'ask-card-text', text: `What ${/^[aeiou]/i.test(T.name || 'phone') ? 'an' : 'a'} ${T.name || 'phone'} is worth as a trade-in on each current promo. Credit is paid as 36 monthly bill credits toward an eligible new phone; — means that condition is not accepted.` }),
+      el('div', { class: 'ask-tv-wrap' }, [table]),
+      promoStamp()
+    ];
+  }
+  function listNodes(doc) {
+    const rows = doc.list.filter(Boolean);
+    const out = [];
+    if (doc._lead) out.push(el('p', { class: 'ask-card-text', text: /[.!?]$/.test(doc._lead) ? doc._lead : `${doc._lead}.` }));
+    const groups = [...new Set(rows.map((r) => r.group || ''))];
+    for (const g of groups) {
+      const mine = rows.filter((r) => (r.group || '') === g);
+      if (groups.length > 1 && g) out.push(el('p', { class: 'ask-also-head ask-promo-group', text: g }));
+      out.push(el('div', { class: 'ask-opts' }, mine.map((r) => {
+        const b = el('button', { type: 'button', class: 'ask-opt', 'data-ask-doc': r.doc, 'data-ask-nav': '' });
+        b.append(el('span', { class: 'ask-opt-words' }, [
+          el('span', { class: 'ask-opt-title', text: r.title }),
+          el('span', { class: 'ask-opt-crumbs', text: `${r.savings}${r.savings ? ' · ' : ''}${r.ends ? `ends ${usDate(r.ends)}` : 'no end date'}` })
+        ]));
+        return b;
+      })));
+    }
+    out.push(promoStamp());
+    return out;
+  }
+  function promoBody(doc) {
+    if (doc.tool !== PROMO_TOOL_SLUG) return null;
+    try {
+      if (doc.promo && typeof doc.promo === 'object') return promoNodes(doc);
+      if (doc.trade && Array.isArray(doc.trade.rows)) return tradeNodes(doc);
+      if (Array.isArray(doc.list) && doc.list.length) return listNodes(doc);
+    } catch (err) { console.warn('[ask] promo card fell back to text', err); }
+    return null;
+  }
+
    
   function docCard(doc, { headingId, alternates = [], related = false, guess = false, level = 'h3' } = {}) {
     const art = el('article', { class: 'ask-card', 'aria-labelledby': headingId });
@@ -880,7 +1079,11 @@ export function mountAsk(opts = {}) {
       return art;
     }
 
-    if (doc.kind === 'video') {
+    const promo = promoBody(doc);
+    if (promo) {
+      art.classList.add('ask-card--promo');
+      for (const n of promo) art.append(n);
+    } else if (doc.kind === 'video') {
       
       
       const line = videoLine(doc);
@@ -890,8 +1093,10 @@ export function mountAsk(opts = {}) {
     } else if (doc.text) {
       art.append(el('p', { class: 'ask-card-text', text: doc.text }));
     }
-    const steps = stepsNode(doc);
-    if (steps) art.append(steps);
+    if (!promo) {
+      const steps = stepsNode(doc);
+      if (steps) art.append(steps);
+    }
     for (const n of mediaNodes(doc)) art.append(n);
     const o = openLink(doc);
     if (o) art.append(el('div', { class: 'ask-actions' }, [o]));
@@ -1037,6 +1242,8 @@ export function mountAsk(opts = {}) {
       return `${ans._guess ? 'Best guess: ' : 'Possibly '}${ans.primary.title}${n ? `, or ${n} other ${n === 1 ? 'option' : 'options'}` : ''}.`;
     }
     if (ans.mode === 'direct' && ans.primary) {
+      const pr = ans.primary.promo;
+      if (pr) return `${ans.primary.title}. ${pr.savings}${pr.ends ? `, ends ${usDate(pr.ends)}` : ''}.`;
       const n = Array.isArray(ans.primary.steps) ? ans.primary.steps.length : 0;
       return `${ans.primary.title}${ans.primary.locked ? ', passcode required' : ''}${n ? `, ${n} steps` : ''}.`;
     }
@@ -1053,7 +1260,7 @@ export function mountAsk(opts = {}) {
     const body = el('div', { class: 'ask-a' });
     node.append(ql, body);
     log.append(node);
-    const turn = { id, node, body, q };
+    const turn = { id, node, body, q };   
     turns.push(turn);
     while (turns.length > TURNS_MAX) {
       const old = turns.shift();
@@ -1100,7 +1307,9 @@ export function mountAsk(opts = {}) {
     }
 
     rememberRecent(text);
+    if (pocket && PROMO_Q.test(text)) refreshPromos();
     const turn = addTurn(redact(text));
+    turn.raw = text;          
     turn.body.append(el('p', { class: 'ask-wait', text: 'Looking…' }));
     scrollToTurn(turn);
 
@@ -1115,6 +1324,7 @@ export function mountAsk(opts = {}) {
     const ans = b.ask.answer(text);
     try { ans._scores = new Map(b.ask.search(text, { limit: 12 }).map((r) => [r.doc.id, r.score])); }
     catch { ans._scores = null; }
+    if (b.pd && ans.primary && b.pd.isPromoDoc(ans.primary)) refreshPromos();
     
     
     

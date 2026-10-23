@@ -1,0 +1,1332 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="data:,">
+<title>Mobile Promotions | Cook County Cooks</title>
+<style>
+  @font-face { font-family: 'Archivo'; font-style: normal; font-weight: 300 700; font-stretch: 62% 125%; font-display: swap;
+    src: url(../../assets/fonts/archivo-latin.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'Bodoni Moda'; font-style: normal; font-weight: 400 900; font-display: swap;
+    src: url(../../assets/fonts/bodoni-moda-latin.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'Bodoni Moda'; font-style: italic; font-weight: 400 700; font-display: swap;
+    src: url(../../assets/fonts/bodoni-moda-italic-latin.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+</style>
+<style>
+/* Mobile Promotions — built on the CSG How To Guides design system (tools/csg-how-to),
+   so it reads as a sibling of CSG How To: same tokens, header, menu, hero, cards, steps,
+   callouts, panels and motion. Classes this page adds are prefixed mp-.
+   Accents: New lines = CSG "internet" blue, Upgrades = CSG "tv" violet, trade-in = brass. */
+:root{
+  --ink:#000;--ink-1:#07090c;--ink-2:#0d1116;--ink-3:#151b22;
+  --line:rgba(255,255,255,.08);--line-2:rgba(255,255,255,.14);
+  --text:#f2efe8;--text-2:#b9b4aa;--text-3:#7d7a74;
+  --brass:#d4a94f;--brass-2:#f0cf86;--brass-dim:rgba(212,169,79,.16);
+  --new:#5cc8ff;--upg:#b48cff;--other:#d4a94f;--diamond:#9fe6ff;
+  --warn:#ff8a65;--ok:#5be3a0;
+  --label:#a39f97; /* small-caps labels: >=5.8:1 on every surface here (CSG's --text-3 is 4.4:1 on ink-2) */
+  --display:'Bodoni Moda',Didot,'Times New Roman',serif;
+  --sans:'Archivo',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:ui-monospace,'JetBrains Mono',Consolas,monospace;
+  --r:4px;--gut:16px;--max:1180px;--c:var(--brass);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:calc(var(--hdr,65px) + 24px)}
+body{margin:0;background:var(--ink);color:var(--text);font:400 18px/1.6 var(--sans);-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(900px 500px at 85% -10%,rgba(212,169,79,.10),transparent 60%),radial-gradient(700px 500px at -10% 110%,rgba(92,200,255,.06),transparent 60%)}
+a{color:inherit}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--brass-2);outline-offset:2px;border-radius:2px}
+#view:focus{outline:none}
+.wrap{position:relative;z-index:1;max-width:var(--max);margin:0 auto;padding:0 var(--gut)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.hair{height:1px;background:linear-gradient(90deg,transparent,var(--brass) 20%,var(--brass) 80%,transparent);opacity:.45}
+
+/* ---------- header (CSG) ---------- */
+header.top{position:sticky;top:0;z-index:20;background:rgba(0,0,0,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.bar{position:relative;display:flex;align-items:center;gap:14px;height:64px}
+.brand{display:flex;align-items:baseline;gap:10px;text-decoration:none;white-space:nowrap;padding:10px 0}
+.brand b{font:700 24px/1 var(--display)}
+.brand b em{color:var(--brass-2)}
+.brand span{font:600 10px/1 var(--sans);letter-spacing:.28em;text-transform:uppercase;color:var(--text-3)}
+.search{position:relative;flex:1;max-width:520px;margin-left:auto}
+.search input{width:100%;height:48px;padding:0 44px 0 42px;background:var(--ink-2);border:0;box-shadow:inset 0 0 0 1px var(--line-2);border-radius:999px;color:var(--text);font:500 17px var(--sans);-webkit-appearance:none;appearance:none}
+.search input::placeholder{color:var(--text-3)}
+.search input:focus{outline:none;box-shadow:inset 0 0 0 1px var(--brass)}
+.search input::-webkit-search-cancel-button{display:none}
+.search svg{position:absolute;left:15px;top:15px;width:18px;height:18px;stroke:var(--text-3)}
+.search kbd{position:absolute;right:12px;top:13px;font:500 11px var(--mono);color:var(--text-3);border:1px solid var(--line-2);border-radius:4px;padding:2px 6px}
+.search .clear{position:absolute;right:6px;top:4px;width:40px;height:40px;border-radius:50%;color:var(--text-2);display:none;font-size:22px}
+.search.has .clear{display:block}.search.has kbd{display:none}
+
+/* top-right menu (CSG shared menu, verbatim) */
+.mnu-btn{flex:none;display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 18px 0 14px;margin-left:4px;border-radius:999px;background:var(--ink-2);box-shadow:inset 0 0 0 1px var(--brass);color:var(--text);font:700 15px var(--sans);letter-spacing:.06em;text-transform:uppercase;transition:background .15s,box-shadow .15s}
+.mnu-btn:hover,.mnu-btn[aria-expanded="true"]{background:var(--brass);color:#120d03}
+.mnu-btn svg{width:20px;height:20px;flex:none}
+.mnu-btn .x{display:none}
+.mnu-btn[aria-expanded="true"] .x{display:block}.mnu-btn[aria-expanded="true"] .h{display:none}
+#mnu{position:absolute;right:0;top:calc(100% + 8px);z-index:40;width:min(420px,calc(100vw - 2 * var(--gut)));max-height:calc(100svh - 96px);overflow:auto;overscroll-behavior:contain;padding:10px;border-radius:10px;background:rgba(10,13,17,.97);box-shadow:inset 0 0 0 1px var(--line-2),0 24px 60px rgba(0,0,0,.7);display:none}
+#mnu.on{display:block;animation:mnuIn .22s cubic-bezier(.16,1,.3,1)}
+@keyframes mnuIn{from{opacity:0;transform:translateY(-8px) scale(.98)}}
+#mnu a{display:flex;align-items:center;gap:12px;min-height:48px;padding:8px 12px;border-radius:6px;text-decoration:none;color:var(--text-2);font:600 17px/1.3 var(--sans)}
+#mnu a:hover{background:var(--ink-3);color:var(--text)}
+#mnu a[aria-current]{background:color-mix(in srgb,var(--c,var(--brass)) 16%,transparent);color:var(--text);box-shadow:inset 3px 0 0 var(--c,var(--brass))}
+#mnu .mnu-home{color:var(--text)}
+#mnu .mnu-g{margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+#mnu .mnu-g h6{display:flex;align-items:center;gap:10px;margin:4px 12px 4px;font:700 12px var(--sans);letter-spacing:.2em;text-transform:uppercase;color:var(--c,var(--brass))}
+#mnu .mnu-g h6 i{width:8px;height:8px;border-radius:50%;background:var(--c,var(--brass))}
+#mnu .mnu-g a{padding-left:30px;font-weight:500}
+header.top>.wrap{max-width:none}
+
+/* ---------- home (CSG) ---------- */
+.hero{padding:56px 0 30px}
+.eyebrow{font:600 12px/1 var(--sans);letter-spacing:.28em;text-transform:uppercase;color:var(--brass)}
+.hero h1{font:700 clamp(42px,8.4vw,92px)/.98 var(--display);letter-spacing:-.015em;margin:18px 0 18px;max-width:14ch}
+.hero h1 em{background:linear-gradient(100deg,var(--brass) 0%,var(--brass-2) 40%,#fff6dc 50%,var(--brass-2) 60%,var(--brass) 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sheen 5s ease-in-out infinite}
+@keyframes sheen{0%,100%{background-position:100% 0}50%{background-position:0 0}}
+.hero p{max-width:56ch;color:var(--text-2);font-size:20px;margin:0}
+.pick{margin:8px 0 34px}
+.pick label{display:block;font:700 clamp(26px,5vw,36px)/1.15 var(--display);margin-bottom:14px}
+.pick small{display:block;margin-top:10px;color:var(--text-3);font-size:15px}
+.section-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:56px 0 16px}
+.section-h h2{display:flex;align-items:center;gap:12px;font:700 30px/1.1 var(--display);margin:0}
+.section-h h2 i{width:10px;height:10px;border-radius:50%;background:var(--c);box-shadow:0 0 12px var(--c)}
+.section-h span{color:var(--text-2);font-size:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:14px}
+.cat-card{position:relative;display:flex;flex-direction:column;gap:10px;min-height:190px;padding:24px;border-radius:6px;text-decoration:none;background:linear-gradient(160deg,var(--ink-2),var(--ink-1));box-shadow:inset 0 0 0 1px var(--line);overflow:hidden;transition:transform .2s,box-shadow .2s;--mx:50%;--my:50%}
+.cat-card::after{content:"";position:absolute;right:-60px;top:-60px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,var(--c),transparent 70%);opacity:.18;transition:.3s;pointer-events:none}
+.cat-card::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .25s;background:radial-gradient(260px circle at var(--mx) var(--my),color-mix(in srgb,var(--c) 22%,transparent),transparent 60%)}
+.cat-card:hover{transform:translateY(-2px);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 55%,transparent)}
+.cat-card:hover::after{opacity:.32}.cat-card:hover::before{opacity:1}
+.cat-card p{margin:0;color:var(--text-2);font-size:17px;line-height:1.5}
+.cat-card .n{margin-top:auto;font:700 13px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--c)}
+.tag{display:inline-flex;align-items:center;gap:6px;font:700 12px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;padding:6px 8px;border-radius:3px;background:var(--ink-3);color:var(--text-2)}
+
+/* ---------- guide page (CSG) ---------- */
+.crumbs{display:flex;gap:8px;align-items:center;padding:20px 0 0;font-size:16px;color:var(--text-3);flex-wrap:wrap}
+.crumbs a{text-decoration:none;color:var(--text-2);min-height:44px;min-width:44px;display:inline-flex;align-items:center}.crumbs a:hover{color:var(--text)}
+.g-head{padding:12px 0 28px}
+.g-head h1{font:700 clamp(34px,6vw,60px)/1.04 var(--display);margin:12px 0 14px;max-width:22ch}
+.g-head h1 em{color:var(--c);font-style:italic}
+.g-head .sum{font-size:21px;line-height:1.5;color:var(--text-2);max-width:62ch;margin:0}
+.g-head .eyebrow{line-height:1.45}
+.g-head .meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:18px}
+.layout{display:grid;grid-template-columns:1fr;gap:32px;padding-bottom:80px}
+@media(min-width:980px){.layout{grid-template-columns:minmax(0,1fr) 260px}}
+.toc{display:none}
+@media(min-width:980px){.toc{display:block;position:sticky;top:calc(var(--hdr,65px) + 24px);align-self:start}}
+.toc h5{margin:0 0 10px;font:600 11px var(--sans);letter-spacing:.24em;text-transform:uppercase;color:var(--text-3)}
+.toc a{display:flex;align-items:center;min-height:44px;padding:8px 0 8px 14px;border-left:1px solid var(--line-2);text-decoration:none;color:var(--text-2);font-size:16px;line-height:1.3}
+.toc a:hover,.toc a.on{color:var(--text);border-color:var(--c)}
+.toc a.mp-out{color:var(--brass-2)}
+.g-sec{margin-bottom:44px;scroll-margin-top:calc(var(--hdr,65px) + 20px)}
+.g-sec h2{display:flex;align-items:flex-start;gap:12px;font:700 32px/1.15 var(--display);margin:0 0 6px}
+.g-sec h2::before{content:"";flex:none;width:22px;height:2px;margin-top:.6em;background:var(--c)}
+.g-sec h2 small{margin-left:auto;flex:none;font:700 13px var(--sans);letter-spacing:.1em;color:var(--c);margin-top:.8em;text-transform:uppercase}
+.g-sec .intro{color:var(--text-2);margin:0 0 18px;font-size:19px}
+ol.steps{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+ol.steps>li{position:relative;display:grid;grid-template-columns:52px 1fr;gap:14px;padding:18px;border-radius:6px;background:var(--ink-1);box-shadow:inset 0 0 0 1px var(--line);transition:background .25s,box-shadow .25s}
+.step-body{min-width:0}
+.step-body p.do{margin:8px 0 0;font-size:21px;line-height:1.45;font-weight:500}
+.num{position:relative;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;font:700 19px var(--display);color:#000;background:var(--c);transition:transform .2s cubic-bezier(.3,1.6,.5,1),background .2s}
+.num:hover{transform:scale(1.08)}
+.num svg{position:absolute;width:22px;height:22px;opacity:0;transform:scale(.4);transition:.25s cubic-bezier(.3,1.6,.5,1)}
+.num span{transition:.2s}
+li.done .num{background:var(--ok);animation:pop .45s cubic-bezier(.3,1.6,.5,1)}
+li.done .num span{opacity:0;transform:scale(.4)}
+li.done .num svg{opacity:1;transform:scale(1)}
+@keyframes pop{40%{transform:scale(1.25);box-shadow:0 0 0 10px rgba(91,227,160,.18)}}
+li.done{background:rgba(91,227,160,.035)!important;box-shadow:inset 0 0 0 1px rgba(91,227,160,.28)!important}
+li.done .do{color:var(--text-2)}
+.callout{margin-top:14px;padding:14px 16px;border-radius:4px;font-size:18px;line-height:1.55;background:var(--ink-2);box-shadow:inset 3px 0 0 var(--brass)}
+.callout.warn{box-shadow:inset 3px 0 0 var(--warn)}
+.callout .lbl{display:block;font:700 13px var(--sans);letter-spacing:.18em;text-transform:uppercase;margin-bottom:4px;color:var(--brass-2)}
+.callout.warn .lbl{color:var(--warn)}
+.panel{padding:20px;border-radius:6px;background:var(--ink-1);box-shadow:inset 0 0 0 1px var(--line);margin-bottom:28px}
+.panel h3{margin:0 0 12px;font:700 26px var(--display)}
+.src{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;text-decoration:none;font-weight:600;font-size:16px;box-shadow:inset 0 0 0 1px var(--line-2)}
+.src:hover{box-shadow:inset 0 0 0 1px var(--brass);color:var(--brass-2)}
+.go{display:inline-flex;align-items:center;gap:10px;min-height:50px;padding:0 22px;border-radius:999px;background:var(--c);color:#000;font-weight:700;font-size:17px;letter-spacing:.02em;position:relative;overflow:hidden;transition:transform .15s;text-decoration:none}
+.go:hover{transform:translateY(-1px)}
+.go::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%);transform:translateX(-120%);animation:sweep 3.2s 1s ease-in-out infinite}
+@keyframes sweep{60%,100%{transform:translateX(120%)}}
+.go svg{width:18px;height:18px;flex:none}
+.ghost{display:inline-flex;align-items:center;min-height:46px;padding:0 16px;border-radius:999px;color:var(--text-2);font-size:15px;box-shadow:inset 0 0 0 1px var(--line-2);text-decoration:none}
+.ghost:hover{color:var(--text)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.pager a{padding:16px;border-radius:6px;text-decoration:none;box-shadow:inset 0 0 0 1px var(--line)}
+.pager a:hover{box-shadow:inset 0 0 0 1px var(--line-2)}
+.pager small{display:block;color:var(--text-3);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.pager .nx{text-align:right}
+.s-head{padding:40px 0 20px}
+.s-head h1{font:700 clamp(32px,5vw,48px)/1.1 var(--display);margin:10px 0 0}
+.s-head p{color:var(--text-2);margin:8px 0 0}
+.hits{display:grid;gap:10px;padding-bottom:30px}
+.hit{position:relative;display:block;padding:18px;border-radius:6px;text-decoration:none;background:var(--ink-1);box-shadow:inset 0 0 0 1px var(--line)}
+.hit:hover{background:var(--ink-2)}
+.hit .where{display:flex;gap:8px;align-items:center;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--c);font-weight:600}
+.hit h4{margin:6px 0 6px;font:600 20px/1.3 var(--sans)}
+.hit p{margin:0;color:var(--text-2);font-size:17px;line-height:1.55}
+mark{background:rgba(240,207,134,.25);color:var(--brass-2);border-radius:2px;padding:0 2px}
+.empty{padding:48px 24px;text-align:center;border-radius:6px;box-shadow:inset 0 0 0 1px var(--line);color:var(--text-2);background:linear-gradient(160deg,var(--ink-2),var(--ink-1))}
+.empty b{display:block;font:700 28px/1.15 var(--display);color:var(--text);margin-bottom:10px}
+.empty p{margin:0 auto 22px;max-width:46ch}
+footer{padding:40px 0 60px;color:var(--text-3);font-size:15px;border-top:1px solid var(--line)}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+/* ---------- motion (CSG) ---------- */
+#view{view-transition-name:view}
+::view-transition-old(view){animation:vtOut .28s cubic-bezier(.4,0,1,1) both}
+::view-transition-new(view){animation:vtIn .55s cubic-bezier(.16,1,.3,1) both}
+@keyframes vtOut{to{opacity:0;transform:translateY(-14px) scale(.985);filter:blur(6px)}}
+@keyframes vtIn{from{opacity:0;transform:translateY(28px) scale(.975);filter:blur(10px)}}
+#view.enter{animation:vtIn .55s cubic-bezier(.16,1,.3,1) backwards}
+.rise{animation:rise .6s cubic-bezier(.16,1,.3,1) backwards;animation-delay:calc(min(var(--i,0),14) * 45ms)}
+@keyframes rise{from{opacity:0;transform:translateY(22px) scale(.98)}}
+.spark{position:fixed;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:80;animation:spark 1.1s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes spark{to{transform:translate(var(--dx),var(--dy)) rotate(var(--r));opacity:0}}
+
+/* =====================================================================
+   Mobile Promotions additions (mp-)
+   ===================================================================== */
+/* the trade-in finder: CSG's ".pick" box, but a search field instead of a select */
+.mp-find{position:relative;max-width:640px}
+.mp-find input{width:100%;height:60px;padding:0 52px 0 54px;background:var(--ink-2);color:var(--text);border:0;border-radius:6px;box-shadow:inset 0 0 0 1px var(--brass);font:600 19px var(--sans);-webkit-appearance:none;appearance:none}
+.mp-find input::placeholder{color:var(--text-3);font-weight:500}
+.mp-find input:focus{outline:none;box-shadow:inset 0 0 0 2px var(--brass-2)}
+.mp-find input::-webkit-search-cancel-button{display:none}
+.mp-find>svg{position:absolute;left:20px;top:20px;width:20px;height:20px;stroke:var(--brass-2);pointer-events:none}
+.mp-find .clear{position:absolute;right:8px;top:8px;width:44px;height:44px;border-radius:50%;color:var(--text-2);font-size:24px;display:none}
+.mp-find.has .clear{display:block}
+.mp-sugg{max-width:640px;margin-top:8px;border-radius:6px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line-2);background:var(--ink-1)}
+.mp-sugg:empty{display:none}
+.mp-sugg .more{display:flex;align-items:center;justify-content:center;min-height:48px;color:var(--brass-2);font-weight:600;font-size:16px;text-decoration:none;border-top:1px solid var(--line)}
+
+/* device rows (lookup + suggestions) */
+.mp-dev{display:flex;align-items:center;gap:14px;min-height:60px;padding:10px 16px;text-decoration:none;border-top:1px solid var(--line);transition:background .15s}
+.mp-dev:first-child{border-top:0}
+.mp-dev:hover,.mp-dev.sel{background:var(--ink-2)}
+.mp-dev .nm{flex:1;min-width:0}
+.mp-dev .nm b{display:block;font:600 18px/1.3 var(--sans)}
+.mp-dev .nm small{display:block;color:var(--label);font-size:14px;letter-spacing:.04em}
+.mp-dev .best{text-align:right;white-space:nowrap}
+.mp-dev .best b{display:block;font:700 22px/1.1 var(--display);color:var(--brass-2)}
+.mp-dev .best small{display:block;color:var(--label);font-size:13px}
+.mp-dev .arr{color:var(--brass);font-weight:700}
+.mp-bests{display:grid;grid-template-columns:repeat(2,minmax(150px,210px));gap:10px;text-align:left}
+.mp-b{display:block;min-width:0;padding-left:12px;box-shadow:inset 2px 0 0 var(--c)}
+.mp-b small{display:block;font:700 12px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--c);margin-bottom:5px}
+.mp-b b{display:block;font:700 22px/1.05 var(--display);color:var(--text)}
+.mp-b b.na{font:600 14px/1.3 var(--sans);color:var(--label)}
+.mp-b i{display:block;font:500 13px/1.35 var(--sans);font-style:normal;color:var(--text-2);margin-top:3px}
+.mp-b i+i{color:var(--label);margin-top:2px}
+.mp-b i em{font-style:normal;color:var(--diamond)}
+@media(max-width:600px){
+  .mp-dev{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 10px;padding:12px 14px}
+  .mp-dev .nm{grid-column:1}.mp-dev .arr{grid-column:2;grid-row:1}
+  .mp-dev .mp-bests{grid-column:1/-1;grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+/* device page: the two answers, side by side, above everything else */
+.mp-sum{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 8px}
+.mp-sumc{scroll-margin-top:calc(var(--hdr,65px) + 16px);position:relative;padding:20px 22px;border-radius:6px;background:linear-gradient(160deg,var(--ink-2),var(--ink-1));box-shadow:inset 0 0 0 1px var(--line),inset 0 3px 0 var(--c);overflow:hidden}
+.mp-sumc::after{content:"";position:absolute;right:-60px;top:-60px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,var(--c),transparent 70%);opacity:.14;pointer-events:none}
+.mp-sumc h2{margin:0 0 10px;font:700 13px/1 var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--c)}
+.mp-sumc .v{font:700 54px/.95 var(--display);letter-spacing:-.01em}
+.mp-sumc .v small{font:600 17px var(--sans);color:var(--text-2);letter-spacing:0;margin-right:6px}
+.mp-sumc .v.na{font:600 20px/1.3 var(--sans);color:var(--label)}
+.mp-sumc p{margin:10px 0 0;color:var(--text-2);font-size:16px;line-height:1.5;position:relative;z-index:1}
+.mp-sumc p a{color:var(--text);text-underline-offset:3px}
+.mp-gfp{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;position:relative;z-index:1}
+.mp-gfp span{font:600 14px/1 var(--sans);padding:8px 10px;border-radius:4px;background:var(--ink-3);color:var(--text)}
+.mp-gfp span small{font:700 12px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--label);margin-right:6px}
+.mp-sumc .x{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.mp-sumc .x b{color:var(--brass-2);font:700 20px var(--display)}
+.mp-dia{display:inline-flex;align-items:center;gap:5px;font:700 12px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--diamond);padding:5px 7px;border-radius:3px;background:rgba(159,230,255,.12);vertical-align:2px}
+.mp-dia svg{width:12px;height:12px}
+/* phones: both answers side by side before the detail cards, so the upgrade value is above the fold */
+.mp-quick{display:none}
+@media(max-width:600px){
+  .mp-sum{grid-template-columns:1fr}.mp-sumc .v{font-size:46px}
+  .mp-quick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 14px}
+  .mp-quick a{display:block;padding:12px 12px 14px;border-radius:6px;text-decoration:none;background:linear-gradient(160deg,var(--ink-2),var(--ink-1));box-shadow:inset 0 0 0 1px var(--line),inset 0 3px 0 var(--c)}
+  .mp-quick small{display:block;font:700 12px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--c);margin-bottom:8px}
+  .mp-quick b{display:block;font:700 34px/1 var(--display)}
+  .mp-quick b.na{font:600 15px/1.3 var(--sans);color:var(--label)}
+  .mp-quick i{display:block;font:500 13px/1.35 var(--sans);font-style:normal;color:var(--text-2);margin-top:6px}
+  .mp-quick i+i{color:var(--label);margin-top:2px}
+  .mp-quick em{font-style:normal;color:var(--diamond)}
+}
+.mp-devlist{border-radius:6px;box-shadow:inset 0 0 0 1px var(--line);background:var(--ink-1);overflow:hidden}
+
+/* promo cards */
+.mp-card{min-height:0;gap:12px;padding:22px 22px 20px}
+.mp-amt{display:flex;align-items:baseline;flex-wrap:wrap;gap:0 8px;position:relative;z-index:1}
+.mp-amt small{flex-basis:100%;font:700 12px/1 var(--sans);letter-spacing:.2em;text-transform:uppercase;color:var(--c);margin-bottom:6px}
+.mp-amt b{font:700 50px/.95 var(--display);letter-spacing:-.01em}
+.mp-amt span{font:600 17px/1.2 var(--sans);color:var(--text-2)}
+.mp-card h3{margin:2px 0 0;font:600 19px/1.3 var(--sans);position:relative;z-index:1}
+.mp-card p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;position:relative;z-index:1}
+.mp-card .n{display:flex;justify-content:space-between;gap:10px;align-items:center;padding-top:12px;border-top:1px solid var(--line);position:relative;z-index:1}
+.mp-card .n .soon{color:var(--warn)}
+.mp-chips{display:flex;flex-wrap:wrap;gap:6px;position:relative;z-index:1}
+.mp-chip{display:inline-flex;align-items:center;gap:6px;font:700 12px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;padding:7px 9px;border-radius:3px;background:var(--ink-3);color:var(--text-2);white-space:nowrap}
+.mp-chip svg{width:13px;height:13px;flex:none}
+.mp-chip.ti{background:var(--brass-dim);color:var(--brass-2)}
+.mp-chip.port{background:rgba(92,200,255,.13);color:#9fdcff}
+.mp-chip.dia{background:rgba(159,230,255,.12);color:var(--diamond);box-shadow:inset 0 0 0 1px rgba(159,230,255,.35)}
+.mp-chip.plan{background:none;box-shadow:inset 0 0 0 1px var(--line-2)}
+.mp-trade-entry{display:grid;grid-template-columns:minmax(0,1fr);gap:0}
+
+/* loading */
+.mp-skel{position:relative;overflow:hidden;background:var(--ink-2);border-radius:6px}
+.mp-skel::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.05) 50%,transparent 70%);transform:translateX(-100%);animation:shim 1.4s ease-in-out infinite}
+@keyframes shim{to{transform:translateX(100%)}}
+.mp-loadnote{display:flex;align-items:center;gap:12px;color:var(--text-2);font-size:17px;margin:4px 0 26px}
+.mp-dots{display:inline-flex;gap:5px}
+.mp-dots i{width:7px;height:7px;border-radius:50%;background:var(--brass);animation:dot 1.1s ease-in-out infinite}
+.mp-dots i:nth-child(2){animation-delay:.15s}.mp-dots i:nth-child(3){animation-delay:.3s}
+@keyframes dot{0%,80%,100%{opacity:.25;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+
+/* updated line */
+.mp-upd{display:inline-flex;align-items:center;gap:8px;color:var(--label);font-size:14px;margin-top:16px}
+.mp-upd i{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok)}
+.mp-upd.saved i{background:var(--brass);box-shadow:0 0 10px var(--brass)}
+
+/* detail: key facts */
+.mp-facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;margin:0 0 22px;border-radius:6px;overflow:hidden;background:var(--line);box-shadow:inset 0 0 0 1px var(--line)}
+.mp-facts>div{padding:18px 18px 20px;background:linear-gradient(160deg,var(--ink-2),var(--ink-1))}
+.mp-facts dt{font:700 12px/1 var(--sans);letter-spacing:.2em;text-transform:uppercase;color:var(--label);margin-bottom:10px}
+.mp-facts dd{margin:0;font-size:17px;line-height:1.45;color:var(--text)}
+.mp-facts .big{font:700 40px/1 var(--display);color:var(--c)}
+.mp-facts .big small{display:block;font:600 15px/1.3 var(--sans);color:var(--text-2);margin-top:8px}
+.mp-facts dd.soon{color:var(--warn)}
+.mp-facts dd small{display:block;color:var(--label);font-size:14px;margin-top:4px}
+.mp-acts{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 40px}
+.mp-acts .go{--c:var(--brass)}
+
+/* checklist (who qualifies) */
+ul.mp-checks{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+ul.mp-checks li{display:grid;grid-template-columns:32px 1fr;gap:14px;align-items:start;padding:16px 18px;border-radius:6px;background:var(--ink-1);box-shadow:inset 0 0 0 1px var(--line);font-size:19px;line-height:1.5}
+ul.mp-checks li>i{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok);margin-top:1px}
+ul.mp-checks li>i svg{width:16px;height:16px}
+
+/* deadlines + watch-outs: CSG callouts as a list */
+.mp-callouts{display:grid;gap:10px}
+.mp-callouts .callout{margin:0;display:grid;grid-template-columns:24px 1fr;gap:12px;align-items:start}
+.mp-callouts .callout svg{width:22px;height:22px;margin-top:2px;stroke:var(--brass-2)}
+.mp-callouts .callout.warn svg{stroke:var(--warn)}
+
+/* eligible devices */
+.mp-brands{display:grid;gap:16px}
+.mp-brand h4{margin:0 0 8px;font:700 13px var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--c)}
+.mp-brand h4 span{color:var(--label);letter-spacing:.08em;margin-left:6px}
+.mp-dchips{display:flex;flex-wrap:wrap;gap:8px}
+.mp-dchip{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border-radius:999px;background:var(--ink-2);box-shadow:inset 0 0 0 1px var(--line-2);font:500 16px/1.2 var(--sans);color:var(--text)}
+.mp-note{margin:12px 0 0;color:var(--text-2);font-size:16px}
+
+/* trade-in ladder */
+.mp-ladder{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 14px}
+.mp-step{display:flex;flex-direction:column;justify-content:flex-end;min-width:86px;padding:12px 14px;border-radius:6px;background:var(--ink-2);box-shadow:inset 0 0 0 1px var(--line-2)}
+.mp-step b{font:700 28px/1 var(--display)}
+.mp-step small{font:700 12px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--label);margin-top:8px}
+.mp-step.top{background:var(--brass-dim);box-shadow:inset 0 0 0 1px var(--brass)}
+.mp-step.top b,.mp-step.top small{color:var(--brass-2)}
+.mp-step.floor small{color:var(--ok)}
+.mp-plain{font-size:18px;color:var(--text-2);margin:0 0 18px;max-width:64ch}
+.mp-plain b{color:var(--text)}
+
+/* trade-in list */
+.mp-bar{position:sticky;top:calc(var(--hdr,65px) + 8px - var(--barhide,0px));z-index:12;display:grid;gap:12px;margin:0 0 14px;padding:12px;border-radius:8px;background:rgb(10,13,17);box-shadow:inset 0 0 0 1px var(--line-2),0 10px 30px rgba(0,0,0,.4)}
+.mp-bar::before{content:"";position:absolute;left:-1px;right:-1px;top:-9px;height:10px;background:var(--ink);z-index:-1}
+.mp-bar .mp-find{max-width:none}
+.mp-bar .mp-find input{height:52px;font-size:18px}
+.mp-bar .mp-find>svg{top:16px}
+.mp-bar .mp-find .clear{top:4px}
+.mp-brandf{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin:0 -12px;padding:0 12px}
+.mp-brandf::-webkit-scrollbar{display:none}
+.mp-brandf button{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--line-2);font:600 15px var(--sans);color:var(--text-2);transition:background .15s,color .15s}
+.mp-brandf button small{color:var(--label);font-size:13px}
+.mp-brandf button[aria-pressed="true"]{background:var(--brass);color:#120d03;box-shadow:none}
+.mp-brandf button[aria-pressed="true"] small{color:rgba(18,13,3,.7)}
+.mp-count{color:var(--label);font-size:14px;margin:0 2px 10px}
+.mp-tbl{border-radius:6px;box-shadow:inset 0 0 0 1px var(--line);background:var(--ink-1)}
+.mp-tbl table{width:100%;border-collapse:separate;border-spacing:0;font-size:17px}
+.mp-tbl th{position:sticky;top:calc(var(--hdr,65px) + var(--barh,130px) + 8px - var(--barhide,0px));z-index:2;text-align:right;font:700 12px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--brass-2);background:var(--ink-2);padding:12px 16px;border-bottom:1px solid var(--line-2)}
+.mp-tbl th:first-child{text-align:left;border-top-left-radius:6px}.mp-tbl th:last-child{border-top-right-radius:6px}
+.mp-tbl td{padding:0 16px;height:58px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.mp-tbl tr:last-child td{border-bottom:0}
+.mp-tbl td:first-child{text-align:left;white-space:normal;width:100%}
+.mp-tbl td:first-child a{display:block;padding:10px 0;text-decoration:none;font-weight:600;line-height:1.3}
+.mp-tbl td:first-child small{display:block;font-weight:500;font-size:13px;color:var(--label);letter-spacing:.04em}
+.mp-tbl tbody tr{cursor:pointer;transition:background .12s}
+.mp-tbl tbody tr:hover td{background:rgba(255,255,255,.025)}
+.mp-v{font:700 20px var(--display)}
+.mp-v.t0{color:var(--brass-2)}
+.mp-v.na{font:600 13px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--warn);opacity:.85}
+.mp-tbl tr.hide{display:none}
+.mp-none{display:none;padding:28px 18px;text-align:center;color:var(--text-2)}
+.mp-none.on{display:block}
+
+/* trade lookup: one device across every promo */
+.mp-pays{display:grid;gap:12px}
+.mp-pay{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center;padding:20px;border-radius:6px;background:linear-gradient(160deg,var(--ink-2),var(--ink-1));box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
+.mp-pay.best{box-shadow:inset 0 0 0 1px var(--brass),0 0 40px rgba(212,169,79,.08)}
+.mp-pay h3{margin:0 0 6px;font:600 20px/1.3 var(--sans)}
+.mp-pay h3 a{text-decoration:none;display:inline-block;padding:10px 0;margin:-10px 0}
+.mp-pick-more{display:inline-block;padding:13px 0;margin:-13px 0;color:var(--brass-2)}
+.mp-pay h3 a:hover{text-decoration:underline;text-underline-offset:3px}
+.mp-pay p{margin:0 0 10px;color:var(--text-2);font-size:16px;line-height:1.5}
+.mp-pay .mp-chips{margin-bottom:2px}
+.mp-vals{display:grid;grid-template-columns:repeat(3,92px);gap:6px}
+.mp-val{padding:12px 8px;border-radius:6px;text-align:center;background:var(--ink-3)}
+.mp-val small{display:block;font:700 12px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--label);margin-bottom:8px}
+.mp-val b{font:700 26px/1 var(--display)}
+.mp-val.hi{background:var(--brass-dim);box-shadow:inset 0 0 0 1px var(--brass)}
+.mp-val.hi b{color:var(--brass-2)}
+.mp-val.na b{font:600 12px/1.2 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--warn)}
+.mp-bestlbl{display:inline-flex;align-items:center;gap:6px;font:700 11px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:#120d03;background:var(--brass);padding:6px 8px;border-radius:3px;margin-bottom:10px}
+.mp-pay .lk{display:flex;gap:16px;flex-wrap:wrap;margin-top:6px}
+.mp-pay .lk a{display:inline-flex;align-items:center;min-height:44px;color:var(--brass-2);font-weight:600;font-size:15px;text-decoration:none}
+.mp-pay .lk a:hover{text-decoration:underline;text-underline-offset:3px}
+.mp-grp-h{display:flex;align-items:center;gap:12px;font:700 26px/1.1 var(--display);margin:34px 0 14px}
+.mp-grp-h i{width:10px;height:10px;border-radius:50%;background:var(--c);box-shadow:0 0 12px var(--c)}
+.mp-grp-h span{margin-left:auto;font:500 15px var(--sans);color:var(--label)}
+
+@media(max-width:900px){.mp-facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* phones: the brand chips go ABOVE the search box and the bar sticks with that row tucked under
+   the header, so once scrolled only the search field stays (header 79 + search 64 + column head 36). */
+@media(max-width:600px){
+  :root{--barhide:60px}
+  .mp-bar{padding:8px;gap:8px}
+  .mp-bar .mp-brandf{order:-1;margin:0 -8px;padding:0 8px}
+  .mp-bar .mp-find input{height:48px;font-size:17px}
+  .mp-bar .mp-find>svg{top:14px}
+  .mp-bar .mp-find .clear{top:2px}
+  .mp-tbl th{padding:9px 8px}
+}
+@media(max-width:760px){
+  .mp-pay{grid-template-columns:1fr}
+  .mp-vals{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:640px){
+  .bar{height:auto;flex-wrap:nowrap;padding:10px 0 8px;gap:10px}
+  .brand b{font-size:19px;line-height:1.05}
+  .brand b em{display:block}
+  .brand span{display:none}
+  .search{max-width:none;flex:1;min-width:0}
+  .search input{height:44px;font-size:16px;padding-right:12px}
+  .search svg{top:13px}
+  .search .clear{top:2px}
+  .search kbd{display:none}
+  .mnu-btn{width:48px;padding:0;justify-content:center;margin-left:0}
+  .mnu-btn b{display:none}
+  #mnu{position:fixed;left:var(--gut);right:var(--gut);top:var(--mnu-top,70px);width:auto;max-height:calc(100svh - var(--mnu-top,70px) - 16px)}
+  .hero{padding:34px 0 22px}
+  .hero p{font-size:18px}
+  body{font-size:17px}
+  .g-head .sum{font-size:19px}
+  .g-sec h2{font-size:27px}
+  .step-body p.do{font-size:20px;margin-top:4px}
+  ol.steps>li{grid-template-columns:44px 1fr;gap:12px;padding:14px 14px 16px}
+  .num{width:44px;height:44px;font-size:18px}
+  .callout{font-size:17px}
+  ul.mp-checks li{font-size:17px;padding:14px;gap:12px}
+  .mp-amt b{font-size:44px}
+  .mp-facts .big{font-size:34px}
+  .mp-facts>div{padding:14px}
+  .section-h{margin-top:44px}
+  .pager{grid-template-columns:1fr}.pager .nx{text-align:left}
+  .mp-tbl td{padding:0 10px;height:56px}
+  .mp-tbl th{padding:10px}
+  .mp-tbl table{font-size:16px}
+  .mp-v{font-size:18px}
+  .mp-v.na{font-size:11px;letter-spacing:.02em}
+  .mp-dev .best b{font-size:20px}
+  .mp-acts .go,.mp-acts .src{width:100%;justify-content:center}
+}
+@media(max-width:640px){
+  .mp-tbl table{table-layout:fixed}
+  .mp-tbl col.v{width:76px}
+  .mp-tbl td{white-space:normal}
+  .mp-v.na{display:block;font-size:10.5px;line-height:1.15;letter-spacing:.04em}
+  .crumbs{flex-wrap:nowrap}
+  .crumbs a{flex:none}
+  .crumbs a:last-child:not(:first-child){flex:1;min-width:0;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:44px}
+}
+@media(max-width:400px){
+  .mp-tbl col.v{width:66px}
+  .mp-tbl td{padding:0 8px}.mp-tbl th{padding:10px 8px;font-size:11px;letter-spacing:.08em}
+  .mp-facts{grid-template-columns:1fr}
+  .mp-tbl td:first-child small{display:none}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}::view-transition-old(view),::view-transition-new(view){animation:none!important}}
+.step-body,.callout,.mp-checks li,.g-sec .intro,.hit p{overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="bar">
+      <a class="brand" href="#/"><b>Mobile <em>Promotions</em></b><span>Blufox Mobile</span></a>
+      <div class="search" id="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <label class="sr" for="q">Search the promotions</label>
+        <input id="q" type="search" placeholder="Search deals or a phone…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+        <kbd>/</kbd>
+        <button class="clear" id="q-clear" type="button" aria-label="Clear search">×</button>
+      </div>
+      <button class="mnu-btn" id="mnu-btn" type="button" aria-expanded="false" aria-controls="mnu" aria-label="Open menu"><svg class="h" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><svg class="x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><b>Menu</b></button>
+      <nav id="mnu" aria-label="Menu"></nav>
+    </div>
+  </div>
+</header>
+<main id="view" class="wrap" tabindex="-1" aria-live="polite"></main>
+<footer><div class="wrap"><span>Mobile Promotions · For Blufox Mobile team members · Always confirm the deal card in Celestial.</span><span id="upd-foot"></span></div></footer>
+
+<script>
+/* CSG shared top-right menu (verbatim from tools/csg-how-to) */
+const topMenu=(()=>{
+  const btn=()=>document.getElementById('mnu-btn'), nav=()=>document.getElementById('mnu');
+  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  let wired=false;
+  function place(){ const h=document.querySelector('header.top'); if(h) document.documentElement.style.setProperty('--mnu-top',(h.getBoundingClientRect().bottom+8)+'px'); }
+  function open(){ place(); nav().classList.add('on'); btn().setAttribute('aria-expanded','true'); btn().setAttribute('aria-label','Close menu'); const cur=nav().querySelector('a[aria-current]')||nav().querySelector('a'); if(cur){ cur.scrollIntoView({block:'nearest'}); cur.focus({preventScroll:true}); } }
+  function close(refocus){ if(!nav().classList.contains('on')) return; nav().classList.remove('on'); btn().setAttribute('aria-expanded','false'); btn().setAttribute('aria-label','Open menu'); if(refocus) btn().focus({preventScroll:true}); }
+  function build(groups){
+    nav().innerHTML=`<a class="mnu-home" href="#/">Home</a>`+groups.map(g=>`<div class="mnu-g" style="--c:${g.c||'var(--brass)'}">${g.href&&!(g.items||[]).length?`<a href="${esc(g.href)}" style="padding-left:12px;font-weight:600">${esc(g.name)}</a>`:`<h6><i></i>${esc(g.name)}</h6>${(g.items||[]).map(it=>`<a href="${esc(it.href)}">${esc(it.label)}</a>`).join('')}`}</div>`).join('');
+    if(!wired){ wired=true;
+      btn().addEventListener('click',e=>{ e.stopPropagation(); nav().classList.contains('on')?close(true):open(); });
+      nav().addEventListener('click',e=>{ if(e.target.closest('a')) close(false); });
+      document.addEventListener('click',e=>{ if(!e.target.closest('#mnu,#mnu-btn')) close(false); });
+      document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&nav().classList.contains('on')){ e.stopImmediatePropagation(); close(true); } },true);
+      addEventListener('hashchange',()=>{ close(false); sync(); });
+      addEventListener('resize',place,{passive:true});
+    }
+    sync();
+  }
+  function isOpen(){ return nav().classList.contains('on'); }
+  function sync(){
+    const h=location.hash||'#/';
+    let best=null,len=0;
+    nav().querySelectorAll('a').forEach(a=>{ a.removeAttribute('aria-current'); const key=a.getAttribute('href');
+      if((h===key||(key!=='#/'&&h.startsWith(key+'/')))&&key.length>len){ best=a; len=key.length; } });
+    if(best) best.setAttribute('aria-current','page');
+  }
+  return {build,sync,open,close,isOpen};
+})();
+</script>
+<script type="module">
+/* =============================================================================
+ * Mobile Promotions — tools/mobile-promos/
+ * Reads today's promotions from assets/promos-feed.js (live from the two quote
+ * sheets, falling back to the saved copy data/promos.json) and explains each one.
+ * Routes (own hash; the site overlay forwards #/tool/mobile-promos/<rest>):
+ *   #/  #/p/<id>  #/p/<id>/trade-in  #/trade  #/trade/<deviceSlug>  (+ #/search/<q>)
+ * Renders ONLY fields of the promo object; never the sheets' internal notes.
+ * ========================================================================== */
+const FEED_URL = '../../assets/promos-feed.js';
+const SHEET_TOOL = { new_line_sheet: 'quote-6th-gen', upgrade_sheet: 'quote-upgrade' };
+const SHEET_FALLBACK = {
+  new_line_sheet: { label: '6th Gen Mobile Quote Sheet' },
+  upgrade_sheet: { label: 'Upgrade Quote Sheet' }
+};
+const GROUPS = [
+  { id: 'new_line', name: 'New lines', c: 'var(--new)', blurb: 'Adding a line to Xfinity Mobile' },
+  { id: 'upgrade', name: 'Upgrades', c: 'var(--upg)', blurb: 'A new phone on a line they already have' },
+  { id: 'other', name: 'Other deals', c: 'var(--other)', blurb: '' }
+];
+const BRAND_ORDER = ['Apple', 'Samsung', 'Google', 'Motorola', 'OnePlus'];
+
+const $ = s => document.querySelector(s);
+const RM = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const money = n => '$' + Number(n).toLocaleString('en-US', { maximumFractionDigits: 2 });
+const plural = (n, w, ws) => `${n} ${n === 1 ? w : (ws || w + 's')}`;
+const SV = {
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
+  arr: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  ext: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  warn: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></svg>',
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+  swap: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4 3 8l4 4M3 8h13M17 20l4-4-4-4M21 16H8"/></svg>',
+  port: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 0 0 7 7L16 14l5 2v3a2 2 0 0 1-2 2A17 17 0 0 1 3 5a2 2 0 0 1 2-2z"/></svg>',
+  dia: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M9 3l3 18 3-18"/></svg>'
+};
+
+/* ---------- state ---------- */
+let F = null;          // the feed module
+let FEED = null;       // last good loadPromos() result
+let PROMOS = [];
+let DEV = new Map();   // deviceSlug -> device record (union over every trade-in promo)
+let DEVLIST = [];
+let LOADING = null, LOAD_ERR = null, LOADED_AT = 0, INDEXED_DAY = '';
+let TQ = '';           // the trade lookup's query, carried between home and #/trade
+
+/* ---------- dates (store day = America/Chicago, as the feed filters) ---------- */
+function todayISO() {
+  if (F && typeof F.chicagoToday === 'function') { try { return F.chicagoToday(); } catch { /* below */ } }
+  try { return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()); }
+  catch { return new Date().toISOString().slice(0, 10); }
+}
+const dOf = iso => { const [y, m, d] = iso.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)); };
+const daysUntil = iso => Math.round((dOf(iso) - dOf(todayISO())) / 864e5);
+function fmtDay(iso, withDow) {
+  const d = dOf(iso), sameYear = iso.slice(0, 4) === todayISO().slice(0, 4);
+  return d.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', ...(sameYear ? {} : { year: 'numeric' }), ...(withDow ? { weekday: 'short' } : {}) });
+}
+function endInfo(p) {
+  const end = p.dates && p.dates.end;
+  if (!end) return { short: 'No end date', long: 'Always on — no end date', soon: false };
+  const n = daysUntil(end);
+  if (n < 0) return { short: 'Ended', long: `Ended ${fmtDay(end)}`, soon: true, ended: true };
+  if (n === 0) return { short: 'Last day today', long: `Last day today (${fmtDay(end)})`, soon: true };
+  if (n === 1) return { short: 'Ends tomorrow', long: `Ends tomorrow, ${fmtDay(end, true)}`, soon: true };
+  return { short: `Ends ${fmtDay(end)} · ${n} days left`, long: `Ends ${fmtDay(end, true)}`, sub: `${n} days left`, soon: n <= 7 };
+}
+function isActiveLocal(p) {
+  if (F && typeof F.isActive === 'function') { try { return F.isActive(p, todayISO()); } catch { /* fall through */ } }
+  const t = todayISO(), s = p.dates && p.dates.start, e = p.dates && p.dates.end;
+  return (!s || s <= t) && (!e || e >= t);
+}
+
+/* ---------- text helpers ---------- */
+const plainTitle = p => String(p.title || '')
+  .replace(/^TIPs\s*[—–-]\s*/i, '')
+  .replace(/\s*\((?:no trade-in|upgrades?|new lines?)\)\s*$/i, '')
+  .replace(/^./, c => c.toUpperCase());
+/* the card already shows the amount big, so its title drops a leading "Up to $930 off" */
+function cardTitle(p) {
+  const t = plainTitle(p), rest = t.replace(/^(up to\s+)?\$[\d,.]+\s+(off\s+)?/i, '');
+  return rest !== t && rest.length >= 6 ? (/^i[A-Z]/.test(rest) ? rest : rest.replace(/^./, c => c.toUpperCase())) : t;
+}
+function amount(p) {
+  const s = String(p.savings || '').trim();
+  const m = /^(up to\s+)?(\$[\d,]+(?:\.\d+)?)\s*(.*)$/i.exec(s);
+  if (!m) return { pre: '', big: s, post: '' };
+  return { pre: m[1] ? 'Up to' : '', big: m[2], post: m[3] || '' };
+}
+const grpOf = p => GROUPS.find(g => g.id === p.audience) || GROUPS[2];
+const groupLabel = p => p.line_type_label || (p.audience === 'new_line' ? 'New line' : p.audience === 'upgrade' ? 'Upgrade' : 'Deal');
+function chips(p, { plan = true } = {}) {
+  const out = [];
+  if (p.diamond_only) out.push(`<span class="mp-chip dia">${SV.dia}Diamond only</span>`);
+  if (p.trade_in_required) out.push(`<span class="mp-chip ti">${SV.swap}Trade-in</span>`);
+  else if (/no[ -]trade/i.test(`${p.title} ${p.hook}`)) out.push(`<span class="mp-chip">No trade-in</span>`);
+  if (p.port_required) out.push(`<span class="mp-chip port">${SV.port}Port-in required</span>`);
+  (p.badges || []).forEach(b => out.push(`<span class="mp-chip">${esc(b)}</span>`));
+  if (plan && p.plan) out.push(`<span class="mp-chip plan">${esc(p.plan)}</span>`);
+  return out.join('');
+}
+function sheetLink(key, cls) {
+  const tool = SHEET_TOOL[key];
+  const label = (F && F.SHEETS && F.SHEETS[key] && F.SHEETS[key].label) || (SHEET_FALLBACK[key] || {}).label || 'Quote sheet';
+  const href = tool ? `../../#/tool/${tool}` : ((F && F.SHEETS && F.SHEETS[key] && F.SHEETS[key].url) || '#/');
+  return `<a class="${cls || 'src'}" href="${esc(href)}" target="_top">Open the ${esc(label)} ${SV.ext}</a>`;
+}
+
+/* ---------- deal card ----------
+   Same first step as assets/promo-docs.js dealCard() (drop "· …something.pdf…"), then keep only real
+   Celestial card numbers (CD885, DEALS122). "DEALS18 (no separate card)" is a routing note, not a card. */
+function dealCard(p) {
+  const s = String((p && p.deal_card) || '').replace(/\s*·\s*[^·]*\.pdf\b[^·]*/gi, '').trim();
+  if (!s || /no separate card|\.pdf\b/i.test(s)) return '';
+  const m = /^([A-Z]{2,}\d{2,})$/.exec(s);
+  return m ? m[1] : '';
+}
+
+/* ---------- device names + forgiving search ---------- */
+const BRAND_PREFIX = /^(apple|google|samsung)\s+/i;   // Motorola / OnePlus keep the brand: "Razr 2024" alone reads oddly
+const KEEP_CAPS = new Set(['UW', 'FE', 'XR', 'XS', 'SE', 'XL', 'TB', 'GB']);
+function tidy(model) {
+  return String(model).replace(BRAND_PREFIX, '').split(/\s+/).map(w =>
+    (/^[A-Z]{3,}$/.test(w) && !KEEP_CAPS.has(w)) ? w[0] + w.slice(1).toLowerCase() : w
+  ).join(' ').replace(/^Oneplus\b/, 'OnePlus');
+}
+function prettyNames(models) {
+  const base = new Map(models.map(m => [m, tidy(m)]));
+  const taken = new Set(base.values());
+  const out = new Map();
+  for (const [m, t] of base) {
+    const short = t.replace(/\s5G\b/, '').replace(/\s{2,}/g, ' ').trim();
+    const clash = short !== t && (taken.has(short) || [...base.values()].some(o => o !== t && o.replace(/\s[45]G\b/, '') === short));
+    out.set(m, clash ? t : short);
+  }
+  return out;
+}
+const normQ = s => String(s || '').toLowerCase()
+  .replace(/\b[45]g\b/g, ' ')            // "5G" is noise: it must not satisfy a typed "5"
+  .replace(/\+/g, ' plus ')
+  .replace(/fan edition/g, 'fe')
+  .replace(/([a-z])(\d)/g, '$1 $2').replace(/(\d)([a-z])/g, '$1 $2')
+  .replace(/[^a-z0-9]+/g, ' ').trim();
+const toks = s => normQ(s).split(' ').filter(Boolean);
+const compact = s => normQ(s).replace(/ /g, '');
+function devScore(d, q) {
+  const qt = toks(q); if (!qt.length) return 0;
+  const mt = d.toks;
+  let j = 0, exact = 0;
+  for (const t of qt) {
+    let hit = false;
+    for (; j < mt.length; j++) { if (mt[j].startsWith(t)) { if (mt[j] === t) exact++; hit = true; j++; break; } }
+    if (!hit) {
+      const cq = compact(q);
+      if (cq.length >= 5 && d.compact.includes(cq)) return 1 + 1 / (1 + d.name.length);
+      return 0;
+    }
+  }
+  const nameToks = toks(d.name).filter(t => !['5', 'g', '4'].includes(t));
+  return 2 + exact * 2 + (exact === qt.length && nameToks.length === qt.length ? 3 : 0) + 1 / (1 + d.name.length);
+}
+function findDevices(q, brand) {
+  const list = brand ? DEVLIST.filter(d => d.brand === brand) : DEVLIST;
+  if (!q.trim()) return list;
+  return list.map(d => [d, devScore(d, q)]).filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]).map(x => x[0]);
+}
+
+/* ---------- best values ----------
+   A trade-in counts on the deal that matches what the customer BUYS, so "best" is answered twice:
+   new line and upgrade. The headline is the best open deal: not Diamond-only and not tied to one
+   phone. Deals tied to one phone (the iPhone Duo) and Diamond-only deals are listed under it with labels,
+   so a rep never quotes the Duo's $1,000 to someone buying an iPhone 17. */
+const topOf = o => { const v = [o.good, o.fair, o.poor].filter(x => x != null); return v.length ? Math.max(...v) : null; };
+function onlyPhone(p) {
+  const sc = parseScope(p.device_scope);
+  if (!sc || sc.total !== 1) return '';
+  const name = sc.groups[0][1][0].replace(/\s*\(.*\)\s*$/, '');
+  return /^(iphone|galaxy|pixel|moto|razr)/i.test(name) ? name : `${sc.groups[0][0]} ${name}`;
+}
+/* what the customer must be BUYING for this deal to take the trade-in: "a Samsung", "an Apple, Google or Motorola", "the iPhone Duo" */
+function toward(p) {
+  const ph = onlyPhone(p); if (ph) return `the ${ph}`;
+  const b = (p.brands || []).filter(Boolean);
+  if (!b.length) return '';
+  const list = b.length > 1 ? b.slice(0, -1).join(', ') + ' or ' + b[b.length - 1] : b[0];
+  return (/^[AEIOU]/.test(list) ? 'an ' : 'a ') + list;
+}
+/* one row per deal for this kind of sale, best first; open deals before Diamond-only ones at the same value */
+function answer(r, aud) {
+  const os = r.offers.filter(o => o.p.audience === aud && topOf(o) != null)
+    .map(o => ({ o, v: topOf(o), dia: !!o.p.diamond_only, one: !!onlyPhone(o.p), to: toward(o.p) }))
+    .sort((a, b) => (a.dia - b.dia) || (b.v - a.v));
+  if (!os.length) return null;
+  // the headline is the best deal open to everyone on any of its phones; one-phone and Diamond deals follow, labelled
+  const top = os.find(x => !x.dia && !x.one) || os.find(x => !x.dia) || os[0];
+  return { rows: [top, ...os.filter(x => x !== top)], top };
+}
+function bestsHtml(d) {
+  const one = (aud, a) => {
+    const g = GROUPS.find(x => x.id === aud);
+    const lbl = aud === 'upgrade' ? 'Upgrade' : 'New line';
+    if (!a) return `<span class="mp-b" style="--c:${g.c}"><small>${lbl}</small><b class="na">Not accepted</b></span>`;
+    const t = a.top, rest = a.rows.filter(x => x !== t);
+    return `<span class="mp-b" style="--c:${g.c}"><small>${lbl}</small><b>Up to ${money(t.v)}</b><i>toward ${esc(t.to.replace(/^an? /, ''))}${t.dia ? ' <em>· Diamond</em>' : ''}${rest.length ? '' : ''}</i>${rest.map(x => `<i>${money(x.v)} toward ${esc(x.to.replace(/^an? /, ''))}${x.dia ? ' <em>· Diamond</em>' : ''}</i>`).join('')}</span>`;
+  };
+  return `<span class="mp-bests">${one('new_line', d.nl)}${one('upgrade', d.up)}</span>`;
+}
+
+/* ---------- data ---------- */
+const slugOf = m => (F && typeof F.deviceSlug === 'function') ? F.deviceSlug(m) : String(m || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+function index() {
+  PROMOS = (FEED.promos || []).filter(isActiveLocal);
+  DEV = new Map();
+  const byId = new Map(PROMOS.map(p => [p.id, p]));
+  const names = prettyNames(PROMOS.flatMap(p => (p.trade_in && p.trade_in.devices || []).map(d => d.model)).filter((m, i, a) => a.indexOf(m) === i));
+  // one grouping shared with Ask the Chef: the feed's tradeDevices(); a local fallback keeps the page alive if it is missing
+  const base = (F && typeof F.tradeDevices === 'function') ? F.tradeDevices(PROMOS)
+    : (() => { const m = new Map(); for (const p of PROMOS) for (const d of (p.trade_in && p.trade_in.devices) || []) { const k = slugOf(d.model); if (!m.has(k)) m.set(k, { slug: k, model: d.model, brand: d.brand, offers: [] }); m.get(k).offers.push({ promo_id: p.id, good: d.good, fair: d.fair, poor: d.poor }); } return [...m.values()]; })();
+  for (const t of base) {
+    const r = { slug: t.slug, model: t.model, brand: t.brand || 'Other', name: names.get(t.model) || tidy(t.model),
+      offers: t.offers.map(o => ({ p: byId.get(o.promo_id), good: o.good ?? null, fair: o.fair ?? null, poor: o.poor ?? null })).filter(o => o.p) };
+    if (!r.offers.length) continue;
+    r.toks = toks(`${r.brand} ${t.model} ${r.name}`);
+    r.compact = compact(`${r.brand} ${t.model}`);
+    DEV.set(r.slug, r);
+  }
+  for (const r of DEV.values()) {
+    r.best = Math.max(0, ...r.offers.map(o => topOf(o)).filter(v => v != null));
+    r.nl = answer(r, 'new_line'); r.up = answer(r, 'upgrade');
+  }
+  INDEXED_DAY = todayISO();
+  const bo = b => { const i = BRAND_ORDER.indexOf(b); return i < 0 ? 99 : i; };
+  DEVLIST = [...DEV.values()].sort((a, b) => bo(a.brand) - bo(b.brand) || a.name.localeCompare(b.name, 'en', { numeric: true }));
+  buildMenu();
+}
+/* The live read can take 20 s on store Wi-Fi. If it hasn't answered in SAVED_AFTER_MS, the saved copy is
+   shown straight away and the live list is swapped in quietly when it lands (same page, same scroll). */
+const SAVED_AFTER_MS = 2500;
+let PENDING_LIVE = false, LIVE_GEN = 0;
+const usable = feed => {
+  if (!feed || !Array.isArray(feed.promos)) return false;
+  const from = feed.sheets_from ? Object.values(feed.sheets_from) : [];
+  return !!feed.promos.length || !(from.length && from.every(v => v === 'missing'));
+};
+function adopt(feed) {
+  if ((feed.warnings || []).length) console.warn('[mobile-promos]', feed.warnings.join(' | '));
+  FEED = feed; LOADED_AT = Date.now(); index();
+}
+async function load(force) {
+  if (LOADING && !force) return LOADING;
+  LOAD_ERR = null;
+  const gen = ++LIVE_GEN;
+  LOADING = (async () => {
+    if (!F) F = await import(FEED_URL);
+    const live = F.loadPromos(force ? { fresh: true } : {}).then(f => ({ f }), err => ({ err }));
+    const first = await Promise.race([live, new Promise(r => setTimeout(() => r(null), SAVED_AFTER_MS))]);
+    if (first) {                                   // live (or its own fallback) answered in time
+      if (first.err || !usable(first.f)) throw (first.err || new Error('Nothing could be read.'));
+      adopt(first.f); return;
+    }
+    // slow: show the saved copy now, keep waiting for the live read
+    const saved = await F.loadPromos({ live: false }).catch(() => null);
+    const settled = await Promise.race([live, Promise.resolve(null)]);
+    if (settled) { if (settled.err || !usable(settled.f)) throw (settled.err || new Error('Nothing could be read.')); adopt(settled.f); return; }
+    if (saved && usable(saved) && saved.promos.length) { PENDING_LIVE = true; adopt(saved); }
+    live.then(res => {
+      if (gen !== LIVE_GEN) return;               // a newer load took over
+      PENDING_LIVE = false;
+      if (res.f && usable(res.f) && (res.f.source === 'live' || !FEED)) { adopt(res.f); quietRefresh(); }
+      else renderFoot(), refreshUpd();
+    });
+    if (!FEED) { const res = await live; PENDING_LIVE = false; if (res.err || !usable(res.f)) throw (res.err || new Error('Nothing could be read.')); adopt(res.f); }
+  })().catch(err => { LOAD_ERR = err; console.error('[mobile-promos]', err); }).finally(() => { LOADING = null; });
+  return LOADING;
+}
+/* re-draw the current page in place: no animation, no focus jump, same scroll, a focused search box keeps its text */
+let QUIET = false;
+async function quietRefresh() {
+  const a = document.activeElement, id = a && a.id && a.tagName === 'INPUT' ? a.id : '', sel = id ? [a.selectionStart, a.selectionEnd] : null;
+  QUIET = true;
+  try { await route(); } finally { QUIET = false; }
+  if (id) { const n = document.getElementById(id); if (n) { n.focus({ preventScroll: true }); try { n.setSelectionRange(sel[0], sel[1]); } catch { /* search inputs in old Safari */ } } }
+  renderFoot();
+}
+function refreshUpd() { const u = document.querySelector('.mp-upd'); if (u) u.outerHTML = updLine(); }
+const fromSaved = () => FEED && (FEED.source === 'snapshot' || Object.values(FEED.sheets_from || {}).some(v => v === 'snapshot'));
+function updatedText() {
+  if (!FEED) return '';
+  const iso = FEED.source === 'snapshot' ? (FEED.generated_at || FEED.fetched_at) : (FEED.fetched_at || FEED.generated_at);
+  let when = '';
+  try {
+    const d = new Date(iso);
+    const t = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    const sameDay = d.toDateString() === new Date().toDateString();
+    when = sameDay ? t : `${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, ${t}`;
+  } catch { /* no time */ }
+  const part = FEED.source !== 'snapshot' && fromSaved();
+  return `Updated from the quote sheets${when ? ' · ' + when : ''}${fromSaved() ? (part ? ' (partly from the saved copy)' : ' (saved copy)') : ''}${PENDING_LIVE ? ' · checking the quote sheets for changes…' : ''}`;
+}
+function updLine() {
+  const t = updatedText();
+  return t ? `<div class="mp-upd${fromSaved() ? ' saved' : ''}"><i></i>${esc(t)}</div>` : '';
+}
+
+/* ---------- menu ---------- */
+function buildMenu() {
+  const g = GROUPS.map(gr => ({ gr, ps: PROMOS.filter(p => grpOf(p) === gr) })).filter(x => x.ps.length);
+  topMenu.build([
+    { name: 'Trade-in lookup', c: 'var(--brass)', items: [], href: '#/trade' },
+    ...g.map(({ gr, ps }) => ({ name: gr.name, c: gr.c, items: ps.map(p => ({ label: `${amount(p).pre ? 'Up to ' : ''}${amount(p).big} · ${cardTitle(p)}`, href: `#/p/${p.id}` })) }))
+  ]);
+}
+
+/* ---------- view plumbing (CSG setView + history-aware scroll) ---------- */
+const STACK = []; const SCROLL = new Map(); let FIRST = true;
+function setView(html, { anim = true, restore = null, focus = true, after } = {}) {
+  if (QUIET) { anim = false; focus = false; restore = window.scrollY; }
+  const apply = () => {
+    $('#view').innerHTML = html;
+    if (restore != null) window.scrollTo(0, restore); else window.scrollTo(0, 0);
+    if (after) after();
+    measure();
+  };
+  if (!anim || RM()) apply();
+  else if (document.startViewTransition && setView.ready) document.startViewTransition(apply);
+  else { apply(); const v = $('#view'); v.classList.remove('enter'); void v.offsetWidth; v.classList.add('enter'); }
+  setView.ready = true;
+  if (focus && !FIRST) $('#view').focus({ preventScroll: true });
+  FIRST = false;
+}
+function measure() {
+  const h = document.querySelector('header.top');
+  if (h) document.documentElement.style.setProperty('--hdr', Math.round(h.getBoundingClientRect().height) + 'px');
+  const b = document.querySelector('.mp-bar');
+  if (b) document.documentElement.style.setProperty('--barh', Math.round(b.getBoundingClientRect().height) + 'px');
+}
+addEventListener('resize', measure, { passive: true });
+
+function parseHash() {
+  const raw = (location.hash || '').replace(/^#\/?/, '');
+  const parts = raw.split('/').map(s => { try { return decodeURIComponent(s); } catch { return s; } });
+  return parts;
+}
+let LAST_ROUTE = '';
+async function route() {
+  const h = location.hash || '#/';
+  // remember where we were; restore on the way back
+  const prev = STACK[STACK.length - 1];
+  if (prev && !QUIET) SCROLL.set(prev, window.scrollY);
+  let restore = null;
+  if (STACK.length > 1 && STACK[STACK.length - 2] === h) { STACK.pop(); restore = SCROLL.get(h) ?? null; }
+  else if (prev !== h) STACK.push(h);
+  if (STACK.length > 60) STACK.splice(0, STACK.length - 60);
+
+  if (!FEED) {
+    if (!LOAD_ERR) renderLoading();
+    await load();
+    if (!FEED) return renderError();
+  }
+  if (INDEXED_DAY && todayISO() !== INDEXED_DAY) { index(); if (!LOADING) load(true).then(() => { if (FEED) quietRefresh(); }); }
+  const [a, b, c] = parseHash();
+  const kind = a || 'home';
+  const sameKind = LAST_ROUTE === 'search' && kind === 'search';
+  LAST_ROUTE = kind;
+  if (a === 'p' && b) { const p = PROMOS.find(x => x.id === b); if (!p) renderGone(); else if (c === 'trade-in') renderTradeList(p, restore); else renderPromo(p, restore); }
+  else if (a === 'trade') { if (b) renderDevice(b, restore); else renderLookup(restore); }
+  else if (a === 'search') renderSearch(b || '', !sameKind);
+  else renderHome(restore);
+  topMenu.sync();
+}
+
+/* ---------- loading / error / gone ---------- */
+let slowT = null;
+function renderLoading() {
+  const sk = (h, w, mb) => `<div class="mp-skel" style="height:${h}px;${w ? `width:${w};` : ''}margin-bottom:${mb || 0}px"></div>`;
+  $('#view').innerHTML = `
+  <section class="hero">
+    <div class="eyebrow">Blufox Mobile · Xfinity Mobile</div>
+    <h1>Today’s <em>deals.</em></h1>
+    <div class="mp-loadnote" role="status"><span class="mp-dots" aria-hidden="true"><i></i><i></i><i></i></span><span id="mp-loadmsg">Reading today’s promotions from the quote sheets…</span></div>
+  </section>
+  ${sk(60, 'min(640px,100%)', 46)}
+  <div class="grid">${Array.from({ length: 6 }, () => `<div class="mp-skel" style="height:250px"></div>`).join('')}</div>
+  <div style="height:80px"></div>`;
+  clearTimeout(slowT);
+  slowT = setTimeout(() => { const m = document.getElementById('mp-loadmsg'); if (m) m.textContent = 'Still reading — store Wi-Fi can take a few seconds…'; }, 6000);
+  measure();
+  painted();
+}
+function renderError() {
+  clearTimeout(slowT);
+  setView(`
+  <section class="hero"><div class="eyebrow">Mobile Promotions</div><h1>We couldn’t load <em>the deals.</em></h1></section>
+  <div class="empty"><b>Something went wrong reading the promotions.</b><p>Check the store Wi-Fi and try again. The quote sheets themselves still work if a customer is waiting.</p>
+  <button class="go" type="button" id="retry" style="--c:var(--brass)">Try again</button>
+  <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">${sheetLink('new_line_sheet', 'ghost')}${sheetLink('upgrade_sheet', 'ghost')}</div></div>
+  <div style="height:80px"></div>`, { anim: false });
+  painted();
+}
+function renderGone() {
+  setView(`
+  <div class="crumbs"><a href="#/">Home</a></div>
+  <section class="g-head"><div class="eyebrow">Mobile Promotions</div><h1>This promotion has <em>ended or changed.</em></h1>
+  <p class="sum">It isn’t on the quote sheets today. Deals end, and sometimes they’re replaced with a new version under a new name.</p></section>
+  <div class="empty"><b>See what’s running now.</b><p>Every current promotion is on the home page.</p><a class="go" href="#/" style="--c:var(--brass)">All current promotions ${SV.arr}</a></div>
+  <div style="height:80px"></div>`);
+}
+
+/* ---------- home ---------- */
+function promoCard(p, i) {
+  const a = amount(p), e = endInfo(p), g = grpOf(p);
+  return `<a class="cat-card mp-card rise" href="#/p/${encodeURIComponent(p.id)}" style="--c:${g.c};--i:${i}">
+    <div class="mp-amt">${a.pre ? `<small>${a.pre}</small>` : `<small>${esc(groupLabel(p))}</small>`}<b>${esc(a.big)}</b>${a.post ? `<span>${esc(a.post)}</span>` : ''}</div>
+    <h3>${esc(cardTitle(p))}</h3>
+    <p>${esc(p.hook)}</p>
+    <div class="mp-chips">${chips(p, { plan: false })}</div>
+    <span class="n"><span class="${e.soon ? 'soon' : ''}">${esc(e.short)}</span><span aria-hidden="true">→</span></span>
+  </a>`;
+}
+function renderHome(restore) {
+  const groups = GROUPS.map(g => ({ g, ps: PROMOS.filter(p => grpOf(p) === g) })).filter(x => x.ps.length);
+  const tradeCount = PROMOS.filter(p => p.trade_in).length;
+  let i = 0;
+  setView(`
+  <section class="hero">
+    <div class="eyebrow">Blufox Mobile · Xfinity Mobile</div>
+    <h1>Today’s <em>deals.</em></h1>
+    <p>Every mobile promotion running today. Tap one to see who qualifies, how to ring it up and what to watch for.</p>
+    ${updLine()}
+  </section>
+  ${tradeCount ? `<div class="pick">
+    <label for="tq">What’s my customer’s trade-in worth?</label>
+    <div class="mp-find" id="tq-box">${SV.search}<input id="tq" type="search" placeholder="Type the phone — iPhone 13, S23, Pixel 7…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-describedby="tq-help" aria-controls="tq-sugg"><button class="clear" type="button" data-clear="tq" aria-label="Clear">×</button></div>
+    <div class="mp-sugg" id="tq-sugg"></div>
+    <small id="tq-help">Shows the best value for a new line and for an upgrade, across all ${plural(tradeCount, 'trade-in deal')} running today. <a class="mp-pick-more" href="#/trade">Browse every phone</a></small>
+  </div>` : ''}
+  <div class="hair"></div>
+  ${PROMOS.length ? groups.map(({ g, ps }) => `
+    <div class="section-h" style="--c:${g.c}"><h2><i></i>${esc(g.name)}</h2><span>${plural(ps.length, 'deal')}</span></div>
+    <div class="grid">${ps.map(p => promoCard(p, i++)).join('')}</div>`).join('')
+    : `<div class="empty" style="margin-top:40px"><b>No mobile promotions are running today.</b><p>When a new deal goes on the quote sheets, it shows up here automatically.</p></div>`}
+  <div style="height:80px"></div>`, { restore, after: () => { const q = $('#tq'); if (q && TQ) { q.value = TQ; q.closest('.mp-find').classList.add('has'); paintSugg(); } } });
+}
+function devRow(d, { cls = '' } = {}) {
+  return `<a class="mp-dev ${cls}" href="#/trade/${encodeURIComponent(d.slug)}"><span class="nm"><b>${esc(d.name)}</b><small>${esc(d.brand)} · on ${plural(d.offers.length, 'deal')}</small></span>${bestsHtml(d)}<span class="arr" aria-hidden="true">→</span></a>`;
+}
+function paintSugg() {
+  const q = $('#tq'), box = $('#tq-sugg'); if (!q || !box) return;
+  const v = q.value.trim(); TQ = q.value;
+  if (!v) { box.innerHTML = ''; return; }
+  const res = findDevices(v);
+  box.innerHTML = res.length
+    ? res.slice(0, 5).map((d, k) => devRow(d, { cls: k === 0 ? 'sel' : '' })).join('') + `<a class="more" href="#/trade">${res.length > 5 ? `See all ${res.length} matches` : 'Open the trade-in lookup'} →</a>`
+    : `<div class="mp-dev"><span class="nm"><b>No phone matches “${esc(v)}”</b><small>Try just the model number, like “13” or “S23”.</small></span></div>`;
+}
+
+/* ---------- promo detail ---------- */
+function splitTop(s, sep) {
+  const out = []; let depth = 0, cur = '';
+  for (const ch of s) {
+    if (ch === '(') depth++; else if (ch === ')') depth = Math.max(0, depth - 1);
+    if (ch === sep && depth === 0) { out.push(cur); cur = ''; } else cur += ch;
+  }
+  out.push(cur); return out.map(x => x.trim()).filter(Boolean);
+}
+function brandOfItem(t) {
+  if (/^(apple|iphone|watch ultra|apple watch)/i.test(t)) return 'Apple';
+  if (/^(google|pixel)/i.test(t)) return 'Google';
+  if (/^(samsung|galaxy)/i.test(t)) return 'Samsung';
+  if (/^(motorola|moto|razr|edge)/i.test(t)) return 'Motorola';
+  if (/^oneplus/i.test(t)) return 'OnePlus';
+  return null;
+}
+function parseScope(scope) {
+  const s = String(scope || '').trim(); if (!s) return null;
+  const notes = []; const by = new Map(); let unknown = 0, total = 0;
+  for (const part of splitTop(s, ';')) {
+    for (let it of splitTop(part, ',')) {
+      const m = /^(.*?)\s*\(([^)]*\bnot\b[^)]*)\)\s*$/i.exec(it);
+      if (m) { it = m[1]; notes.push(m[2].replace(/^./, c => c.toUpperCase()) + '.'); }
+      const br = brandOfItem(it);
+      if (!br) { unknown++; continue; }
+      let name = it.replace(/^(apple|google|samsung|motorola)\s+/i, '');
+      if (br === 'Motorola' && /^edge/i.test(name)) name = 'motorola ' + name;
+      if (!by.has(br)) by.set(br, []);
+      if (!by.get(br).includes(name)) { by.get(br).push(name); total++; }
+    }
+  }
+  if (unknown || !total) return null;   // a sentence, not a device list: show it as text
+  const order = b => { const i = BRAND_ORDER.indexOf(b); return i < 0 ? 99 : i; };
+  return { groups: [...by.entries()].sort((a, b) => order(a[0]) - order(b[0])), total, notes };
+}
+const devNoun = p => p.device_type === 'watch' ? ['watch', 'watches'] : p.device_type === 'tablet' ? ['tablet', 'tablets'] : ['phone', 'phones'];
+function ladderLine(t) {
+  const L = (t.ladder || []).filter(v => v != null);
+  if (!L.length) return '';
+  const list = L.map(money);
+  const words = ['', 'one step', 'two steps', 'three steps', 'four steps', 'five steps', 'six steps', 'seven steps'][L.length] || `${L.length} steps`;
+  const listTxt = list.length > 1 ? list.slice(0, -1).join(', ') + ' and ' + list[list.length - 1] : list[0];
+  const floor = t.floor != null ? t.floor : Math.min(...L);
+  return `Values come in ${words}: <b>${listTxt}</b>. Every accepted phone gets at least <b>${money(floor)}</b>.`;
+}
+function ladderHtml(t) {
+  const L = (t.ladder || []).filter(v => v != null); const floor = t.floor != null ? t.floor : Math.min(...L);
+  return `<div class="mp-ladder" aria-hidden="true">${L.map((v, k) => `<div class="mp-step${k === 0 ? ' top' : ''}${v === floor ? ' floor' : ''}"><b>${money(v)}</b><small>${k === 0 ? 'Top value' : v === floor ? 'Floor' : 'Step ' + (k + 1)}</small></div>`).join('')}</div>`;
+}
+function renderPromo(p, restore) {
+  const g = grpOf(p), a = amount(p), e = endInfo(p), t = p.trade_in;
+  const scope = parseScope(p.device_scope);
+  const [one, many] = devNoun(p);
+  const sibs = PROMOS.filter(x => grpOf(x) === g), i = sibs.indexOf(p), prev = sibs[i - 1], next = sibs[i + 1];
+  const secs = [];
+  if ((p.qualify || []).length) secs.push(['who', 'Who qualifies', `<ul class="mp-checks">${p.qualify.map((x, k) => `<li class="rise" style="--i:${k}"><i>${SV.check}</i><span>${esc(x)}</span></li>`).join('')}</ul>`, plural(p.qualify.length, 'check')]);
+  if ((p.steps || []).length) secs.push(['ring', 'How to ring it up', `<p class="intro">Tap a number to tick it off as you go.</p><ol class="steps">${p.steps.map((x, k) => `<li class="rise" style="--i:${k}"><button class="num" type="button" aria-pressed="false" aria-label="Mark step ${k + 1} done"><span>${k + 1}</span>${SV.check}</button><div class="step-body"><p class="do">${esc(x)}</p></div></li>`).join('')}</ol>`, plural(p.steps.length, 'step')]);
+  if ((p.deadlines || []).length) secs.push(['dates', 'Deadlines', `<div class="mp-callouts">${p.deadlines.map(x => `<div class="callout">${SV.clock}<span>${esc(x)}</span></div>`).join('')}</div>`]);
+  if ((p.watchouts || []).length) secs.push(['watch', 'Watch out for', `<div class="mp-callouts">${p.watchouts.map(x => `<div class="callout warn">${SV.warn}<span>${esc(x)}</span></div>`).join('')}</div>`, plural(p.watchouts.length, 'note')]);
+  if (p.device_scope) secs.push(['devices', `Eligible ${many}`, scope
+    ? `<div class="mp-brands">${scope.groups.map(([br, list]) => `<div class="mp-brand"><h4>${esc(br)}<span>${list.length}</span></h4><div class="mp-dchips">${list.map(n => `<span class="mp-dchip">${esc(n)}</span>`).join('')}</div></div>`).join('')}</div>${scope.notes.map(n => `<p class="mp-note">${esc(n)}</p>`).join('')}`
+    : `<div class="callout">${esc(p.device_scope)}</div>`, scope ? plural(scope.total, one, many) : '']);
+  if (t) secs.push(['tradein', 'Trade-in values', `
+    <p class="mp-plain">${ladderLine(t)} What a phone gets depends on the model and its condition (Good, Fair or Poor).</p>
+    ${ladderHtml(t)}
+    <div class="mp-acts" style="margin:18px 0 0"><a class="go" href="#/p/${encodeURIComponent(p.id)}/trade-in">${SV.swap}<b>See the trade-in list (${plural(t.devices.length, 'phone')})</b></a>${t.list_updated ? `<span class="tag">List updated ${esc(fmtDay(t.list_updated))}</span>` : ''}</div>`]);
+  const sheets = (p.sheets || []).filter(k => SHEET_TOOL[k] || (F && F.SHEETS && F.SHEETS[k]));
+
+  setView(`
+  <div style="--c:${g.c}">
+  <div class="crumbs"><a href="#/">Home</a><span>/</span><a href="#/">${esc(g.name)}</a></div>
+  <section class="g-head">
+    <div class="eyebrow" style="color:var(--c)">${esc(groupLabel(p))}${p.mechanism ? ` · ${esc(p.mechanism)}` : ''}</div>
+    <h1>${esc(plainTitle(p))}</h1>
+    <p class="sum">${esc(p.hook)}</p>
+    <div class="meta"><div class="mp-chips">${chips(p, { plan: false })}</div>${dealCard(p) ? `<span class="tag">Celestial deal card ${esc(dealCard(p))}</span>` : ''}</div>
+  </section>
+  <dl class="mp-facts">
+    <div><dt>The deal</dt><dd class="big">${esc(a.pre ? 'Up to ' : '')}${esc(a.big)}${a.post ? `<small>${esc(a.post)}</small>` : ''}</dd></div>
+    <div><dt>Credit</dt><dd>${esc(p.credit_amount || p.mechanism || '—')}</dd></div>
+    <div><dt>Plan</dt><dd>${esc(p.plan || 'Any plan')}${(p.mobile_service || []).length ? `<small>${esc(p.mobile_service.map(s => s === 'XM' ? 'Xfinity Mobile' : s === 'CBM' ? 'Comcast Business Mobile' : s).join(' · '))}</small>` : ''}</dd></div>
+    <div><dt>Ends</dt><dd class="${e.soon ? 'soon' : ''}">${esc(e.long)}${e.sub ? `<small>${esc(e.sub)}</small>` : ''}${p.dates && p.dates.start ? `<small>Started ${esc(fmtDay(p.dates.start))}</small>` : ''}</dd></div>
+  </dl>
+  <div class="mp-acts">
+    ${t ? `<a class="go" href="#/p/${encodeURIComponent(p.id)}/trade-in">${SV.swap}<b>See the trade-in list (${plural(t.devices.length, 'phone')})</b></a>` : ''}
+    ${sheets.map(k => sheetLink(k)).join('')}
+  </div>
+  <div class="layout">
+    <article>
+      ${secs.map(([id, h, body, n]) => `<section class="g-sec" id="${id}"><h2>${esc(h)}${n ? `<small>${esc(n)}</small>` : ''}</h2>${body}</section>`).join('')}
+      ${sheets.length ? `<section class="g-sec" id="sheet"><h2>Where it lives</h2><p class="intro">This deal is built into the ${sheets.map(k => esc((F && F.SHEETS && F.SHEETS[k] && F.SHEETS[k].label) || SHEET_FALLBACK[k].label)).join(' and the ')}. The sheet shows it when the customer’s answers qualify.${dealCard(p) ? ` In Celestial, look for <b style="color:var(--text)">${esc(dealCard(p))}</b>.` : ''}</p><div style="display:flex;gap:10px;flex-wrap:wrap">${sheets.map(k => sheetLink(k)).join('')}</div></section>` : ''}
+      <div class="pager">${prev ? `<a href="#/p/${encodeURIComponent(prev.id)}"><small>← Previous</small>${esc(plainTitle(prev))}</a>` : '<span></span>'}${next ? `<a class="nx" href="#/p/${encodeURIComponent(next.id)}"><small>Next →</small>${esc(plainTitle(next))}</a>` : ''}</div>
+    </article>
+    <aside class="toc"><h5>On this page</h5>${secs.map(([id, h]) => `<a href="#/p/${encodeURIComponent(p.id)}" data-jump="${id}">${esc(h)}</a>`).join('')}${t ? `<a class="mp-out" href="#/p/${encodeURIComponent(p.id)}/trade-in">Trade-in list →</a>` : ''}<a href="#/">← All promotions</a></aside>
+  </div></div>
+  <div style="height:20px"></div>`, { restore });
+}
+
+/* ---------- one promo's trade-in list ---------- */
+let TL = { brand: '', q: '' };
+function valCell(v, ladder) {
+  if (v == null) return `<td><span class="mp-v na">Not accepted</span></td>`;
+  return `<td><span class="mp-v${ladder && v === ladder[0] ? ' t0' : ''}">${money(v)}</span></td>`;
+}
+function brandFilter(devs, active) {
+  const counts = new Map(); devs.forEach(d => counts.set(d.brand, (counts.get(d.brand) || 0) + 1));
+  const bo = b => { const i = BRAND_ORDER.indexOf(b); return i < 0 ? 99 : i; };
+  const brands = [...counts.keys()].sort((a, b) => bo(a) - bo(b));
+  return `<div class="mp-brandf" role="group" aria-label="Filter by brand"><button type="button" data-brand="" aria-pressed="${!active}">All <small>${devs.length}</small></button>${brands.map(b => `<button type="button" data-brand="${esc(b)}" aria-pressed="${active === b}">${esc(b)} <small>${counts.get(b)}</small></button>`).join('')}</div>`;
+}
+function renderTradeList(p, restore) {
+  const g = grpOf(p), t = p.trade_in;
+  if (!t) { location.replace(`#/p/${encodeURIComponent(p.id)}`); return; }
+  const recs = t.devices.map(d => DEV.get(slugOf(d.model))).filter(Boolean);
+  const vals = new Map(t.devices.map(d => [slugOf(d.model), d]));
+  const bo = b => { const i = BRAND_ORDER.indexOf(b); return i < 0 ? 99 : i; };
+  recs.sort((a, b) => bo(a.brand) - bo(b.brand) || a.name.localeCompare(b.name, 'en', { numeric: true }));
+  if (TL.pid !== p.id) TL = { pid: p.id, brand: '', q: '' };
+  TL.recs = recs;
+  setView(`
+  <div style="--c:${g.c}">
+  <div class="crumbs"><a href="#/">Home</a><span>/</span><a href="#/p/${encodeURIComponent(p.id)}">${esc(plainTitle(p))}</a></div>
+  <section class="g-head">
+    <div class="eyebrow" style="color:var(--c)">Trade-in list · ${esc(groupLabel(p))}${dealCard(p) ? ` · ${esc(dealCard(p))}` : ''}</div>
+    <h1>What each phone <em>is worth</em></h1>
+    <p class="sum">On the <b style="color:var(--text)">${esc(plainTitle(p))}</b> deal. ${ladderLine(t)}</p>
+    <div class="meta"><span class="tag">${plural(recs.length, 'phone')}</span>${t.list_updated ? `<span class="tag">List updated ${esc(fmtDay(t.list_updated))}</span>` : ''}<a class="src" href="#/p/${encodeURIComponent(p.id)}">Deal details</a><a class="src" href="#/trade">Compare every deal</a></div>
+  </section>
+  <div class="mp-bar">
+    <div class="mp-find">${SV.search}<label class="sr" for="tl-q">Find a phone</label><input id="tl-q" type="search" placeholder="Find a phone — 13 Pro, S23, Pixel 7…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" value="${esc(TL.q)}"><button class="clear" type="button" data-clear="tl-q" aria-label="Clear">×</button></div>
+    ${brandFilter(recs, TL.brand)}
+  </div>
+  <p class="mp-count" id="tl-count" role="status"></p>
+  <div class="mp-tbl"><table>
+    <caption class="sr">Trade-in values by condition for ${esc(plainTitle(p))}</caption>
+    <colgroup><col><col class="v"><col class="v"><col class="v"></colgroup>
+    <thead><tr><th scope="col">Phone</th><th scope="col">Good</th><th scope="col">Fair</th><th scope="col">Poor</th></tr></thead>
+    <tbody>${recs.map(d => { const v = vals.get(d.slug); return `<tr data-slug="${esc(d.slug)}" data-brand="${esc(d.brand)}"><td><a href="#/trade/${encodeURIComponent(d.slug)}">${esc(d.name)}<small>${esc(d.brand)}</small></a></td>${valCell(v.good, t.ladder)}${valCell(v.fair, t.ladder)}${valCell(v.poor, t.ladder)}</tr>`; }).join('')}</tbody>
+  </table><div class="mp-none" id="tl-none">No phone on this list matches. Check the spelling, or try just the model number. A phone that isn’t on the list isn’t accepted on this deal.</div></div>
+  <p class="mp-count" style="margin-top:14px">Tap a phone to see what it pays on every current deal. “Not accepted” means that condition can’t be traded in on this deal.</p>
+  </div><div style="height:60px"></div>`, { restore, after: () => filterTable(recs) });
+}
+function filterTable(recs) {
+  const tb = document.querySelector('.mp-tbl tbody'); if (!tb) return;
+  const q = TL.q.trim();
+  const ok = new Set((q ? findDevices(q, TL.brand) : recs.filter(d => !TL.brand || d.brand === TL.brand)).map(d => d.slug));
+  let n = 0;
+  const rows = [...tb.rows];
+  rows.forEach(tr => { const show = ok.has(tr.dataset.slug) && (!TL.brand || tr.dataset.brand === TL.brand); tr.classList.toggle('hide', !show); if (show) n++; });
+  if (q) { // best matches first while searching
+    const order = findDevices(q, TL.brand).map(d => d.slug); const pos = new Map(order.map((s, k) => [s, k]));
+    rows.filter(r => !r.classList.contains('hide')).sort((a, b) => pos.get(a.dataset.slug) - pos.get(b.dataset.slug)).forEach(r => tb.appendChild(r));
+  } else if (filterTable.sorted) {
+    recs.forEach(d => { const r = rows.find(x => x.dataset.slug === d.slug); if (r) tb.appendChild(r); });
+  }
+  filterTable.sorted = !!q;
+  const c = document.getElementById('tl-count'); if (c) c.textContent = n === rows.length ? `All ${rows.length} phones` : `Showing ${n} of ${rows.length} phones`;
+  document.getElementById('tl-none').classList.toggle('on', n === 0);
+}
+
+/* ---------- trade-in lookup across every deal ---------- */
+let LK = { brand: '' };
+function renderLookup(restore) {
+  const tps = PROMOS.filter(p => p.trade_in);
+  setView(`
+  <div class="crumbs"><a href="#/">Home</a></div>
+  <section class="g-head">
+    <div class="eyebrow">Trade-in lookup</div>
+    <h1>What’s my customer’s <em style="color:var(--brass-2)">trade-in worth?</em></h1>
+    <p class="sum">Type the phone. You’ll see what it pays on each of the ${plural(tps.length, 'trade-in deal')} running today, by condition.</p>
+  </section>
+  ${tps.length ? `<div class="mp-bar">
+    <div class="mp-find">${SV.search}<label class="sr" for="lk-q">Type the customer’s phone</label><input id="lk-q" type="search" placeholder="Type the phone — iPhone 13, S23, Pixel 7…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go" value="${esc(TQ)}"><button class="clear" type="button" data-clear="lk-q" aria-label="Clear">×</button></div>
+    ${brandFilter(DEVLIST, LK.brand)}
+  </div>
+  <p class="mp-count" id="lk-count" role="status"></p>
+  <div class="mp-devlist" id="lk-list"></div>` : `<div class="empty"><b>No trade-in deals are running today.</b><p>Today’s deals don’t take a trade-in.</p><a class="go" href="#/" style="--c:var(--brass)">All current promotions ${SV.arr}</a></div>`}
+  <div style="height:80px"></div>`, { restore, after: () => { paintLookup(); const q = $('#lk-q'); if (q) { if (TQ) q.closest('.mp-find').classList.add('has'); if (matchMedia('(pointer:fine)').matches && restore == null && window.parent === window) q.focus({ preventScroll: true }); } } });
+}
+function paintLookup() {
+  const box = document.getElementById('lk-list'); if (!box) return;
+  const res = findDevices(TQ, LK.brand);
+  box.innerHTML = res.length ? res.map(d => devRow(d)).join('') : `<div class="mp-dev"><span class="nm"><b>No current trade-in deal takes “${esc(TQ.trim())}”.</b><small>Check the spelling or try just the model number. A phone that isn’t listed isn’t accepted on any deal running today.</small></span></div>`;
+  const c = document.getElementById('lk-count');
+  if (c) c.textContent = TQ.trim() ? `${plural(res.length, 'match', 'matches')}` : `${plural(res.length, 'phone')} accepted on at least one deal · tap one for every value`;
+}
+function renderDevice(slug, restore) {
+  const d = DEV.get(slug);
+  if (!d) {
+    setView(`<div class="crumbs"><a href="#/">Home</a><span>/</span><a href="#/trade">Trade-in lookup</a></div>
+    <section class="g-head"><div class="eyebrow">Trade-in lookup</div><h1>That phone isn’t on <em style="color:var(--brass-2)">today’s lists.</em></h1><p class="sum">No trade-in deal running today accepts it, or the link is out of date.</p></section>
+    <div class="empty"><b>Look it up again.</b><p>Search by model, like “iPhone 13” or “S23”.</p><a class="go" href="#/trade" style="--c:var(--brass)">Trade-in lookup ${SV.arr}</a></div><div style="height:80px"></div>`, { restore });
+    return;
+  }
+  const tps = PROMOS.filter(p => p.trade_in);
+  const offerOf = p => d.offers.find(o => o.p === p);
+  const groups = GROUPS.map(g => ({ g, ps: tps.filter(p => grpOf(p) === g) })).filter(x => x.ps.length);
+  const sumCard = (aud, a) => {
+    const g = GROUPS.find(x => x.id === aud);
+    const lbl = aud === 'upgrade' ? 'If they’re upgrading' : 'If it’s a new line';
+    if (!a) return `<div class="mp-sumc" id="sum-${aud}" style="--c:${g.c}"><h2>${lbl}</h2><div class="v na">Not accepted on any ${aud === 'upgrade' ? 'upgrade' : 'new-line'} deal today</div></div>`;
+    const gfp = o => `<div class="mp-gfp">${[['Good', o.good], ['Fair', o.fair], ['Poor', o.poor]].map(([l, v]) => `<span><small>${l}</small>${v == null ? 'Not accepted' : money(v)}</span>`).join('')}</div>`;
+    const dia = `<span class="mp-dia">${SV.dia}Diamond only</span>`;
+    const t = a.top;
+    return `<div class="mp-sumc" id="sum-${aud}" style="--c:${g.c}"><h2>${lbl}</h2>
+      <div class="v"><small>Up to</small>${money(t.v)}</div>
+      <p>When they buy ${esc(t.to)} ${t.dia ? dia : ''} · <a href="#/p/${encodeURIComponent(t.o.p.id)}">${esc(plainTitle(t.o.p))}</a></p>${gfp(t.o)}
+      ${a.rows.filter(x => x !== t).map(x => `<div class="x"><p style="margin:0"><b>${money(x.v)}</b> when they buy ${esc(x.to)} ${x.dia ? dia : ''}</p><p style="margin-top:2px"><a href="#/p/${encodeURIComponent(x.o.p.id)}">${esc(plainTitle(x.o.p))}</a></p>${gfp(x.o)}</div>`).join('')}
+    </div>`;
+  };
+  const card = (p, hi, k) => {
+    const o = offerOf(p); const sc = parseScope(p.device_scope);
+    const buying = sc ? `${sc.total} ${sc.total === 1 ? 'phone' : 'phones'}: ${sc.groups.map(x => x[0]).join(', ').replace(/, ([^,]*)$/, ' or $1')}` : (p.device_scope || '');
+    const cell = (lbl, v, key) => `<div class="mp-val${v == null ? ' na' : hi[key] != null && v === hi[key] ? ' hi' : ''}"><small>${lbl}</small><b>${v == null ? 'Not accepted' : money(v)}</b></div>`;
+    return `<div class="mp-pay rise" style="--i:${k}">
+      <div>
+        <h3><a href="#/p/${encodeURIComponent(p.id)}">${esc(plainTitle(p))}</a></h3>
+        <p>${esc(groupLabel(p))} buying ${p.device_scope && sc && sc.total === 1 ? `the ${esc(sc.groups[0][1][0])}` : `one of ${esc(buying)}`}.</p>
+        <div class="mp-chips">${chips(p)}</div>
+        <div class="lk"><a href="#/p/${encodeURIComponent(p.id)}">Deal details →</a><a href="#/p/${encodeURIComponent(p.id)}/trade-in">Whole list →</a></div>
+      </div>
+      ${o ? `<div class="mp-vals">${cell('Good', o.good, 'good')}${cell('Fair', o.fair, 'fair')}${cell('Poor', o.poor, 'poor')}</div>` : `<div class="mp-vals"><div class="mp-val na" style="grid-column:1/-1"><small>On this deal</small><b>Not on this deal’s list</b></div></div>`}
+    </div>`;
+  };
+  let k = 0;
+  setView(`
+  <div class="crumbs"><a href="#/">Home</a><span>/</span><a href="#/trade">Trade-in lookup</a></div>
+  <section class="g-head">
+    <div class="eyebrow">Trade-in value · ${esc(d.brand)}</div>
+    <h1>${esc(d.name)}</h1>
+    <p class="sum">A trade-in counts on one deal only — the one that matches what the customer is buying.</p>
+  </section>
+  <div class="mp-quick">${[['new_line', d.nl, 'New line'], ['upgrade', d.up, 'Upgrade']].map(([aud, a, l]) => { const g = GROUPS.find(x => x.id === aud); return `<a href="#sum-${aud}" data-jump="sum-${aud}" style="--c:${g.c}"><small>${l}</small>${a ? `<b>${money(a.top.v)}</b><i>toward ${esc(a.top.to.replace(/^an? /, ''))}${a.top.dia ? ' <em>· Diamond</em>' : ''}</i>${a.rows.filter(x => x !== a.top).map(x => `<i>${money(x.v)} toward ${esc(x.to.replace(/^an? /, ''))}${x.dia ? ' <em>· Diamond</em>' : ''}</i>`).join('')}` : '<b class="na">Not accepted</b>'}</a>`; }).join('')}</div>
+  <div class="mp-sum">${sumCard('new_line', d.nl)}${sumCard('upgrade', d.up)}</div>
+  <h2 class="mp-grp-h" style="--c:var(--brass);font-size:22px;margin-top:40px"><i></i>Every deal, by condition<span>On ${plural(d.offers.length, 'deal')} of ${tps.length}</span></h2>
+  ${groups.map(({ g, ps }) => {
+    const hi = {}; ['good', 'fair', 'poor'].forEach(c => { const vs = ps.map(p => offerOf(p)).filter(Boolean).map(o => o[c]).filter(v => v != null); hi[c] = vs.length ? Math.max(...vs) : null; });
+    const multi = ps.filter(p => offerOf(p)).length > 1;
+    return `<h2 class="mp-grp-h" style="--c:${g.c}"><i></i>${g.id === 'upgrade' ? 'If they’re upgrading' : g.id === 'new_line' ? 'If it’s a new line' : esc(g.name)}<span>${plural(ps.length, 'deal')}</span></h2>
+    <div class="mp-pays">${ps.map(p => card(p, multi ? hi : {}, k++)).join('')}</div>`;
+  }).join('')}
+  <div class="pager" style="margin-top:36px"><a href="#/trade"><small>← Back</small>Look up another phone</a><span></span></div>
+  <div style="height:80px"></div>`, { restore });
+}
+
+/* ---------- header search (CSG pattern: #/search/<q>, replaceState while typing) ---------- */
+function renderSearch(q, anim) {
+  const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
+  const hay = p => [p.title, p.hook, p.savings, p.plan, p.device_scope, dealCard(p), p.mechanism, p.credit_amount, ...(p.qualify || []), ...(p.steps || []), ...(p.deadlines || []), ...(p.watchouts || []), ...(p.badges || [])].filter(Boolean).join(' · ');
+  const ps = terms.length ? PROMOS.map(p => { const h = hay(p), lc = h.toLowerCase(); if (!terms.every(t => lc.includes(t))) return null; let s = 0; terms.forEach(t => { if (p.title.toLowerCase().includes(t)) s += 5; if (p.hook.toLowerCase().includes(t)) s += 2; }); return { p, h, s }; }).filter(Boolean).sort((a, b) => b.s - a.s) : [];
+  const ds = q.trim() ? findDevices(q).slice(0, 6) : [];
+  const snip = (text) => { const lc = text.toLowerCase(); let at = -1; for (const t of terms) { const k = lc.indexOf(t); if (k >= 0 && (at < 0 || k < at)) at = k; } let s = at > 60 ? '…' + text.slice(at - 50) : text; if (s.length > 190) s = s.slice(0, 190) + '…'; let out = esc(s); for (const t of terms) { if (t.length < 2) continue; out = out.replace(new RegExp('(' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig'), '<mark>$1</mark>'); } return out; };
+  setView(`<section class="s-head"><div class="eyebrow">Search</div><h1>“${esc(q)}”</h1><p>${ps.length || ds.length ? [ps.length ? plural(ps.length, 'promotion') : '', ds.length ? plural(ds.length, 'trade-in phone') : ''].filter(Boolean).join(' · ') : 'No matches. Try a shorter word, a phone model, or a deal card number like CD885.'}</p></section>
+  ${ds.length ? `<h2 class="mp-grp-h" style="--c:var(--brass);font-size:22px;margin-top:6px"><i></i>Trade-in values</h2><div class="mp-devlist" style="margin-bottom:26px">${ds.map(d => devRow(d)).join('')}</div>` : ''}
+  ${ps.length ? `${ds.length ? `<h2 class="mp-grp-h" style="--c:var(--new);font-size:22px"><i></i>Promotions</h2>` : ''}<div class="hits">${ps.map(({ p, h }, k) => `<a class="hit${anim ? ' rise' : ''}" style="--c:${grpOf(p).c};--i:${k}" href="#/p/${encodeURIComponent(p.id)}"><div class="where">${esc(grpOf(p).name)} · ${esc(p.savings)}</div><h4>${esc(plainTitle(p))}</h4><p>${snip(h)}</p></a>`).join('')}</div>` : ''}
+  <div style="height:80px"></div>`, { anim, focus: false });
+}
+
+/* ---------- events (delegated: views are swapped inside view transitions) ---------- */
+let st = null;
+const qi = $('#q');
+qi.addEventListener('input', () => {
+  $('#search').classList.toggle('has', !!qi.value); clearTimeout(st);
+  st = setTimeout(() => { const v = qi.value.trim(); if (v) { const h = '#/search/' + encodeURIComponent(v); if ((location.hash || '').startsWith('#/search/')) { history.replaceState(null, '', h); route(); } else location.hash = h; } else if ((location.hash || '').startsWith('#/search/')) history.back(); }, 140);
+});
+qi.addEventListener('keydown', e => { if (e.key === 'Enter') { const f = document.querySelector('.mp-dev[href], .hit'); if (f) f.click(); qi.blur(); } });
+$('#q-clear').addEventListener('click', () => { qi.value = ''; qi.dispatchEvent(new Event('input')); qi.focus(); });
+addEventListener('hashchange', () => { if (!(location.hash || '').startsWith('#/search/') && qi.value) { qi.value = ''; $('#search').classList.remove('has'); } });
+
+document.addEventListener('input', e => {
+  const el = e.target; if (!el || !el.id) return;
+  const box = el.closest('.mp-find'); if (box) box.classList.toggle('has', !!el.value);
+  if (el.id === 'tq') paintSugg();
+  else if (el.id === 'tl-q') { TL.q = el.value; if (TL.recs) filterTable(TL.recs); }
+  else if (el.id === 'lk-q') { TQ = el.value; paintLookup(); }
+});
+document.addEventListener('keydown', e => {
+  const el = e.target;
+  if (e.key === 'Enter' && el && (el.id === 'tq' || el.id === 'lk-q' || el.id === 'tl-q')) {
+    e.preventDefault();
+    const first = el.id === 'tq' ? document.querySelector('#tq-sugg .mp-dev[href]') : el.id === 'lk-q' ? document.querySelector('#lk-list .mp-dev[href]') : document.querySelector('.mp-tbl tbody tr:not(.hide) a');
+    if (first) first.click(); else el.blur();
+  }
+  if (e.key === '/' && document.activeElement !== qi && !/INPUT|TEXTAREA/.test((document.activeElement || {}).tagName || '')) { e.preventDefault(); qi.focus(); }
+  if (e.key === 'Escape' && !e.defaultPrevented && !topMenu.isOpen()) {
+    // a search box with text: the first Escape clears it; an empty one (or anywhere else) closes the viewer
+    if (el && el.tagName === 'INPUT' && el.type === 'search') {
+      e.preventDefault();
+      if (el.value) { el.value = ''; el.dispatchEvent(new Event('input', { bubbles: true })); return; }
+      el.blur();
+    } else if (el && /INPUT|TEXTAREA|SELECT/.test(el.tagName)) return;
+    closeViewer();
+  }
+});
+document.addEventListener('click', e => {
+  const clr = e.target.closest('[data-clear]');
+  if (clr) { const inp = document.getElementById(clr.dataset.clear); if (inp) { inp.value = ''; inp.dispatchEvent(new Event('input', { bubbles: true })); inp.focus(); } return; }
+  const bf = e.target.closest('.mp-brandf button');
+  if (bf) {
+    const b = bf.dataset.brand || '';
+    bf.parentElement.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String((x.dataset.brand || '') === b)));
+    if (document.getElementById('lk-q')) { LK.brand = b; paintLookup(); }
+    else { TL.brand = b; document.getElementById('tl-q').dispatchEvent(new Event('input', { bubbles: true })); }
+    return;
+  }
+  const row = e.target.closest('.mp-tbl tbody tr');
+  if (row && !e.target.closest('a')) { location.hash = '#/trade/' + encodeURIComponent(row.dataset.slug); return; }
+  const j = e.target.closest('[data-jump]');
+  if (j) { e.preventDefault(); const el = document.getElementById(j.dataset.jump); if (el) el.scrollIntoView({ behavior: RM() ? 'auto' : 'smooth', block: 'start' }); return; }
+  const nb = e.target.closest('.num');
+  if (nb) { const li = nb.closest('li'); const on = !li.classList.contains('done'); li.classList.toggle('done', on); nb.setAttribute('aria-pressed', String(on)); if (on) burst(nb, 8); return; }
+  if (e.target.closest('#retry')) { renderLoading(); load(true).then(route); }
+});
+document.addEventListener('pointermove', e => { const c = e.target.closest && e.target.closest('.cat-card'); if (!c) return; const r = c.getBoundingClientRect(); c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); c.style.setProperty('--my', (e.clientY - r.top) + 'px'); }, { passive: true });
+function burst(el, n) {
+  if (RM()) return; const r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2, cols = ['#5be3a0', '#f0cf86', '#5cc8ff', '#b48cff', '#ffb05c'];
+  for (let k = 0; k < n; k++) { const p = document.createElement('i'); p.className = 'spark'; const a = Math.random() * Math.PI * 2, d = 40 + Math.random() * 60; p.style.cssText = `left:${cx}px;top:${cy}px;background:${cols[k % cols.length]};--dx:${Math.cos(a) * d}px;--dy:${Math.sin(a) * d}px;--r:${Math.random() * 540}deg`; document.body.appendChild(p); setTimeout(() => p.remove(), 1200); }
+}
+
+function closeViewer() {
+  if (window.parent === window) return;
+  try { window.parent.postMessage({ source: 'ccc-tool', action: 'escape' }, location.origin); } catch { /* not ours */ }
+}
+/* tell the site's tool viewer we've drawn (overlay.js contract C6) */
+let paintedSent = false;
+function painted() {
+  if (paintedSent || window.parent === window) return; paintedSent = true;
+  try { window.parent.postMessage({ source: 'ccc-tool', state: 'painted' }, location.origin); } catch { /* not framed by us */ }
+}
+
+/* a page left open on the iPad: re-read after 10 minutes away, so ended deals drop off */
+/* a store iPad left on this page overnight: past midnight (Chicago) ended deals drop off on their own */
+setInterval(() => { if (FEED && INDEXED_DAY && todayISO() !== INDEXED_DAY && document.visibilityState === 'visible') { index(); quietRefresh(); if (!LOADING) load(true).then(() => { if (FEED) quietRefresh(); }); } }, 60 * 1000);
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState === 'visible' && FEED && INDEXED_DAY && todayISO() !== INDEXED_DAY) { index(); quietRefresh(); }
+  if (document.visibilityState !== 'visible' || !FEED || LOADING || Date.now() - LOADED_AT < 10 * 60 * 1000) return;
+  await load(true);
+  if (FEED) quietRefresh();
+});
+if (matchMedia('(max-width:640px)').matches) qi.placeholder = 'Search…';
+const shortPh = () => { if (matchMedia('(max-width:640px)').matches) document.querySelectorAll('#tq,#lk-q').forEach(i => { i.placeholder = 'iPhone 13, S23, Pixel 7…'; }); };
+new MutationObserver(shortPh).observe(document.getElementById('view'), { childList: true });
+function renderFoot() { const f = document.getElementById('upd-foot'); if (f) f.textContent = updatedText(); }
+
+addEventListener('hashchange', () => { route().then(renderFoot); });
+route().then(() => { renderFoot(); painted(); });
+</script>
+</body>
+</html>

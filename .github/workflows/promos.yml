@@ -1,0 +1,217 @@
+# =============================================================================
+# Cook County Cooks — Mobile Promotions saved copy
+# -----------------------------------------------------------------------------
+# Re-reads Jeff's two quote sheets and refreshes data/promos.json, committing
+# ONLY when the promotions actually changed.
+#
+# WHAT THIS IS — AND IS NOT — RESPONSIBLE FOR
+#   The Mobile Promotions guide and Ask the Chef read the two sheets LIVE every
+#   time somebody opens them (assets/promos-feed.js). They do not wait for this
+#   job. data/promos.json is only the SAFETY NET they fall back to when a sheet
+#   will not download or will not read. So a late or skipped run here never
+#   makes the guide stale; it only makes the net a little older. That is why
+#   this job is relaxed about failures (below) where headchefs.yml cannot be.
+#
+# WHEN IT RUNS
+#   · schedule — every 30 minutes from 12:00 to 01:59 UTC, which is roughly
+#     7 am to 9 pm Chicago in either half of the year. Minutes 17 and 47, not
+#     :00/:30, because GitHub's scheduler queues heavily on the hour and half
+#     hour. GitHub treats this as best-effort and often delivers hours late
+#     (measured for headchefs.yml: median ~2.4 h) — fine for a safety net.
+#   · workflow_dispatch — the button, for "I just changed a sheet, refresh the
+#     saved copy now".
+#
+# HOW IT FAILS (the part that matters)
+#   build/pull-promos.mjs never overwrites data/promos.json with a broken or
+#   empty read, whatever happens. Then:
+#     · a sheet will not DOWNLOAD (GitHub hiccup, slow network) — exit 2.
+#       Normal, fixes itself next run. The run stays GREEN with a yellow
+#       warning note. No email.
+#     · a sheet downloads but its promo data will not READ, or shows no promos
+#       — exit 1. That means an edit broke the sheet, and it will not fix
+#       itself. The run still stays GREEN (a red X every 30 minutes would be an
+#       email every 30 minutes), but this job opens ONE issue on the repository
+#       saying which sheet and why. That emails the owner once. Later runs
+#       REWRITE that issue instead of commenting, and the first good run closes
+#       it. Same idea as headchefs-watchdog.yml.
+#     · the push itself fails three times — RED. That is a real, rare problem
+#       with the repository, not with the sheets.
+#
+# NO EMPTY COMMITS, NO FIGHTS
+#   The script writes nothing unless the promos changed (the time stamp alone
+#   does not count), and only data/promos.json is ever staged. A concurrent
+#   push is handled by re-reading on top of the other commit, never by a
+#   rebase of a generated file and never by a force push.
+# =============================================================================
+
+name: Mobile promos
+
+on:
+  schedule:
+    # 12:17-23:47 UTC and 00:17-01:47 UTC, every 30 minutes.
+    - cron: '17,47 12-23 * * *'
+    - cron: '17,47 0-1 * * *'
+  workflow_dispatch:
+
+# Least privilege at the top; the one job raises only what it needs.
+permissions:
+  contents: read
+
+# One run at a time, and a run that is already committing is allowed to
+# finish (see the matching note in headchefs.yml — do not set this to true).
+concurrency:
+  group: promos-pull
+  cancel-in-progress: false
+
+env:
+  ALARM_TITLE: "A quote sheet's promo data could not be read"
+  ISSUE_LABEL: promos-unreadable
+
+jobs:
+  pull:
+    name: Re-read the quote sheets
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    permissions:
+      contents: write   # commit data/promos.json
+      issues: write     # open, rewrite and close the one alarm issue
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v5
+        with:
+          # The branch tip, not the event's commit — a run that waited in the
+          # queue must start from whatever the run before it committed.
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Pull the promos
+        id: pull
+        run: |
+          # Exit codes are read below instead of failing the step — see
+          # "HOW IT FAILS" at the top of this file.
+          set +e
+          node build/pull-promos.mjs 2>&1 | tee "$RUNNER_TEMP/pull.log"
+          CODE=${PIPESTATUS[0]}
+          set -e
+          echo "code=$CODE" >> "$GITHUB_OUTPUT"
+          case "$CODE" in
+            0) ;;
+            2) echo "::warning::A quote sheet could not be downloaded this run. Nothing was changed; the next run will try again, and the live guide reads the sheets itself anyway." ;;
+            *) echo "::warning::A quote sheet downloaded but its promo data could not be read. data/promos.json was NOT changed. See the alarm issue for which sheet and why." ;;
+          esac
+          exit 0
+
+      - name: Anything to commit?
+        id: diff
+        run: |
+          if [ -n "$(git status --porcelain -- data/promos.json)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "The promos have not changed. Nothing to commit."
+          fi
+
+      - name: Commit and push
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          git config user.name  'ccc-promos-bot'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          summary() {
+            node -e '
+              const d = require("./data/promos.json");
+              process.stdout.write(d.promos.length + " promos: " + d.promos.map((p) => p.id).join(", "));
+            '
+          }
+
+          git add -- data/promos.json
+          if git diff --cached --quiet; then echo "Nothing staged after all."; exit 0; fi
+          git commit -q -m "promos: follow the quote sheets" -m "$(summary)"
+
+          # Someone may have pushed meanwhile. Never force, never rebase a
+          # generated file: take their commit and re-read on top of it.
+          for attempt in 1 2 3; do
+            if git push; then echo "pushed on attempt $attempt"; exit 0; fi
+            echo "push rejected (attempt $attempt); re-reading on top of the newer commit."
+            git fetch --depth=20 origin "${GITHUB_REF_NAME}"
+            git reset -q --hard "origin/${GITHUB_REF_NAME}"
+            node build/pull-promos.mjs || { echo "Re-read did not succeed; leaving it to the next run."; exit 0; }
+            if [ -z "$(git status --porcelain -- data/promos.json)" ]; then
+              echo "Their commit already has these promos. Nothing left to push."
+              exit 0
+            fi
+            git add -- data/promos.json
+            git commit -q -m "promos: follow the quote sheets" -m "$(summary)"
+          done
+          echo "::error::could not push data/promos.json after 3 attempts"
+          exit 1
+
+      # One issue, rewritten in place, closed when the sheets read again.
+      # Only exit code 1 (a sheet that will not READ) opens it; a download
+      # hiccup (2) neither opens nor closes it, because it tells us nothing
+      # about whether the sheet itself is fixed.
+      - name: Open, update or close the alarm
+        if: always() && steps.pull.outputs.code != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CODE: ${{ steps.pull.outputs.code }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set +e
+          NUM=$(gh issue list --state open --limit 100 --json number,title 2>/dev/null \
+                  | jq -r --arg t "$ALARM_TITLE" 'map(select(.title == $t)) | .[0].number // ""' 2>/dev/null)
+
+          if [ "$CODE" = "1" ]; then
+            {
+              echo "The Mobile Promotions guide on cookcountycooks.com reads Jeff's two quote sheets."
+              echo "As of $(date -u '+%Y-%m-%d %H:%M') UTC, one of them downloads but its promo data does not read:"
+              echo ""
+              echo '```'
+              grep -E '^\s*!|FAILED' "$RUNNER_TEMP/pull.log" | head -20
+              echo '```'
+              echo ""
+              echo "**What reps see meanwhile:** the guide keeps the other sheet's promos live and shows this sheet's promos from the last good saved copy (\`data/promos.json\`), so nothing goes blank — but this sheet's edits are not showing."
+              echo ""
+              echo "**What to check:** the sheet's \`PROMO_GUIDE\` (both sheets), \`TIPS_PROMOS\` (6th Gen) or \`UPG_TIPS_BUCKETS\` / \`UPG_TIPS_TABLE\` (Upgrade) — usually a missing comma, quote or bracket from the last edit. The line number above points at it."
+              echo ""
+              echo "[This run]($RUN_URL). _Rewritten on every run and closed automatically once the sheet reads again — by \`.github/workflows/promos.yml\`._"
+            } > "$RUNNER_TEMP/body.md"
+            gh label create "$ISSUE_LABEL" --color 'B60205' --description 'A quote sheet could not be read' >/dev/null 2>&1 || true
+            if [ -n "$NUM" ]; then
+              gh issue edit "$NUM" --body-file "$RUNNER_TEMP/body.md" && echo "updated alarm issue #$NUM"
+            else
+              gh issue create --title "$ALARM_TITLE" --label "$ISSUE_LABEL" --body-file "$RUNNER_TEMP/body.md" \
+                || gh issue create --title "$ALARM_TITLE" --body-file "$RUNNER_TEMP/body.md"
+            fi
+          elif [ "$CODE" = "0" ] && [ -n "$NUM" ]; then
+            gh issue comment "$NUM" --body "Both quote sheets read again as of $(date -u '+%Y-%m-%d %H:%M') UTC. Closing." >/dev/null 2>&1
+            gh issue close "$NUM" >/dev/null 2>&1 && echo "closed alarm issue #$NUM"
+          fi
+          exit 0
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Mobile promos"
+            echo ""
+            case "${{ steps.pull.outputs.code }}" in
+              0) echo "Both quote sheets read. Committed: \`${{ steps.diff.outputs.changed }}\`." ;;
+              2) echo "**A sheet could not be downloaded this run.** Nothing changed; the next run will retry." ;;
+              1) echo "**A sheet's promo data could not be read.** \`data/promos.json\` was left as it was. See the open issue titled \"$ALARM_TITLE\"." ;;
+              *) echo "The pull step did not finish." ;;
+            esac
+            echo ""
+            echo '```'
+            tail -30 "$RUNNER_TEMP/pull.log" 2>/dev/null
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

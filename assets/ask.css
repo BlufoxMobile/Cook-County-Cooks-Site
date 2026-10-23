@@ -618,3 +618,69 @@ html[data-motion="off"] .ask-hero-hint { animation: none !important; transition:
 .ask-thinking--solo { margin: 2px 0 0; font-size: 15px; }
 /* two ways on from "couldn't find" */
 .ask-actions--stack { flex-direction: column; gap: 8px; }
+
+/* ═══ MOBILE PROMOTIONS ANSWERS (Oct 2026) ════════════════════════════════
+   A promo answer "breaks it down": the facts as a small ledger, the flags as
+   pills, then who qualifies / steps / deadlines / watch-outs; a trade-in
+   answer is a Good / Fair / Poor table, one row per current promo. Same
+   plate as every other answer — brass for figures, bone for words. */
+.ask-facts {
+  margin: 2px 0 0; display: flex; flex-wrap: wrap; gap: 1px;
+  border-radius: var(--r-md, 6px); overflow: hidden;
+  background: var(--ask-line); box-shadow: inset 0 0 0 1px var(--ask-line);
+}
+.ask-fact { flex: 1 1 96px; margin: 0; padding: 10px 12px; background: var(--ask-raised); min-inline-size: 0; }
+.ask-fact dt { margin: 0 0 4px; font: 600 12px/1 var(--ask-text); letter-spacing: .04em; text-transform: uppercase; color: var(--ask-bone-3); }
+.ask-fact dd { margin: 0; font: 600 15.5px/1.3 var(--ask-text); color: var(--ask-bone); overflow-wrap: anywhere; }
+.ask-fact--big, .ask-fact--wide { flex-basis: 100%; }
+.ask-fact--big dd { font: 500 26px/1.1 var(--ask-display); color: var(--ask-brass-hi); }
+.ask-flags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.ask-flag {
+  padding: 6px 10px; border-radius: 999px; font: 600 13px/1 var(--ask-text);
+  color: var(--ask-bone-2); box-shadow: inset 0 0 0 1px var(--ask-line);
+}
+.ask-flag--on { color: #141008; background: var(--ask-plate); box-shadow: none; }
+.ask-promo-hook { color: var(--ask-bone); font-size: 16.5px; }
+.ask-promo-credit { margin: 0; color: var(--ask-bone-2); font: 400 15px/1.5 var(--ask-text); }
+.ask-promo-credit strong { color: var(--ask-bone); font-weight: 700; }
+.ask-promo-sec { display: grid; gap: 6px; padding-block-start: 12px; border-block-start: 1px solid var(--ask-line); }
+.ask-promo-h { margin: 0; font: 700 13px/1.2 var(--ask-text); letter-spacing: .04em; text-transform: uppercase; color: var(--ask-brass-hi); }
+.ask-promo-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.ask-promo-list li {
+  position: relative; padding-inline-start: 18px; color: var(--ask-bone);
+  font: 400 15.5px/1.5 var(--ask-text); overflow-wrap: anywhere;
+}
+.ask-promo-list li::before {
+  content: ""; position: absolute; inset-inline-start: 3px; inset-block-start: .66em;
+  inline-size: 6px; block-size: 6px; border-radius: 50%; background: var(--ask-brass);
+}
+.ask-promo-sec--warn .ask-promo-list li::before { background: #e98a5a; border-radius: 1px; }
+.ask-promo-sec .ask-steps { margin-block-start: 0; }
+.ask-promo-group { margin-block-start: 6px; }
+.ask-promo-stamp { margin: 0; color: var(--ask-bone-3); font: 400 12.5px/1.4 var(--ask-text); }
+
+/* the trade-in value table */
+.ask-tv-wrap { overflow-x: auto; border-radius: var(--r-md, 6px); box-shadow: inset 0 0 0 1px var(--ask-line); }
+.ask-tv { inline-size: 100%; border-collapse: collapse; font: 500 15px/1.3 var(--ask-text); color: var(--ask-bone); }
+.ask-tv th, .ask-tv td { padding: 9px 10px; text-align: end; border-block-start: 1px solid var(--ask-line); }
+.ask-tv thead th {
+  border-block-start: 0; background: var(--ask-raised);
+  font: 700 12px/1 var(--ask-text); letter-spacing: .04em; text-transform: uppercase; color: var(--ask-bone-3);
+}
+.ask-tv th:first-child { text-align: start; }
+.ask-tv td { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--ask-brass-hi); white-space: nowrap; }
+.ask-tv td.ask-tv-no { color: var(--ask-bone-3); font-weight: 400; }
+.ask-tv-promo {
+  display: grid; gap: 2px; padding: 0; margin: 0; border: 0; background: none; cursor: pointer;
+  text-align: start; color: var(--ask-bone); font: 600 14.5px/1.3 var(--ask-text);
+}
+.ask-tv-promo:hover .ask-tv-name { text-decoration: underline; text-decoration-color: var(--ask-brass); }
+.ask-tv-promo:focus-visible { outline: 3px solid var(--ask-brass-hi); outline-offset: 2px; border-radius: 2px; }
+.ask-tv-ends { font: 500 12px/1.2 var(--ask-text); color: var(--ask-bone-3); }
+@media (max-width: 560px) {
+  .ask-tv th, .ask-tv td { padding: 8px 6px; }
+  .ask-tv { font-size: 14px; }
+  .ask-tv-promo { font-size: 13.5px; }
+  .ask-fact--big dd { font-size: 23px; }
+}
+.ask-promo-devices { margin: 0; color: var(--ask-bone-2); font: 400 14.5px/1.55 var(--ask-text); overflow-wrap: anywhere; }

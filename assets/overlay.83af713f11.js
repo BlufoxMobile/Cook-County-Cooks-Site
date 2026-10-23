@@ -2162,7 +2162,7 @@ function onDocumentKeydown(ev) {
 export function initOverlay(options = {}) {
   const {
     tools = null,
-    toolsUrl = 'data/tools.cb5174f1d8.json',
+    toolsUrl = 'data/tools.db98375731.json',
     deepLink = true,
     canOpen = null,
     onRefused = null

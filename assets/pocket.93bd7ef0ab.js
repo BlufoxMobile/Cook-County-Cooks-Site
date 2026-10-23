@@ -2,7 +2,7 @@
 
 
 import { el, fill, $ } from './dom.d7b1df3700.js';
-import { initOverlay } from './overlay.829ad8f769.js';
+import { initOverlay } from './overlay.83af713f11.js';
 import { ROOM_ORDER } from './roomorder.e9125c1800.js';
 import {
   initColdGate, setAdopt, coldTools, isFreezerUnlocked, sealedCount,
@@ -19,7 +19,7 @@ import { buildIndex, query as findQuery, touchesFreezer, readRecent, mountFind }
 async function loadTools() {
   const inline = window.__CCC_INLINE__;
   if (inline && inline.tools) return inline.tools;
-  const res = await fetch('data/tools.cb5174f1d8.json');
+  const res = await fetch('data/tools.db98375731.json');
   return res.json();
 }
 
@@ -422,7 +422,7 @@ export async function boot() {
 
   const idle = window.requestIdleCallback || ((f) => setTimeout(f, 600));
   idle(() => {
-    import('./ask.83d87b5416.js')
+    import('./ask.82f9a0960e.js')
       .then(async (mod) => {
         await mod.loadStyles();
         window.CCC.ask = mod.mountAsk({

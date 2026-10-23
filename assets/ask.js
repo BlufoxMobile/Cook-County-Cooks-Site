@@ -45,6 +45,14 @@
  *   with href `#/tool/<slug>/<anchor>`, so overlay.js's delegated handler opens
  *   it and forwards the anchor into the framed guide (overlay.js HASH_RE).
  *
+ * MOBILE PROMOTIONS (Oct 2026). Promo and trade-in answers come from the
+ *   Mobile Promotions guide, which reads Jeff's two quote sheets live. The
+ *   static index carries a snapshot of them (built by assets/promo-docs.js from
+ *   data/promos.json); see refreshPromos() for how the live copy replaces it
+ *   and why the phone waits for a promo-ish question before fetching ~1.4 MB.
+ *   Only CURRENT promos are ever shown: snapshot docs are re-dated against
+ *   today's Chicago date the moment the brain loads.
+ *
  * Every class and id is prefixed `ask-` (theme.css grepped clear). Styles are
  * assets/ask.css, which THIS module links (see loadStyles) — index.html is not
  * edited, and nothing render-blocking is added for the phone or the curtain.
@@ -286,23 +294,37 @@ export function mountAsk(opts = {}) {
     if (brainP) return brainP;
     const engineP =
       import('./ask-engine.js');
+    // Small and DOM-free; a failure only means promo docs are not re-dated.
+    const promoModP =
+      import('./promo-docs.js');
     const indexP = fetch(INDEX_URL, { credentials: 'same-origin' })
       .then((r) => (r.ok ? r.json() : null))
       .catch(() => null);
-    brainP = Promise.all([engineP, indexP]).then(([mod, index]) => {
+    brainP = Promise.all([engineP, indexP, promoModP.catch(() => null)]).then(([mod, index, pd]) => {
       if (typeof mod.LOW_CONFIDENCE === 'number') LOW_CONFIDENCE = mod.LOW_CONFIDENCE;
       if (typeof mod.HIGH_CONFIDENCE === 'number') HIGH_CONFIDENCE = mod.HIGH_CONFIDENCE;
       const tools = (data && data.tools) || [];
       const rooms = (data && data.rooms) || [];
       const docs = index && Array.isArray(index.docs) && index.docs.length ? index : { docs: toolDocs(tools, rooms) };
       const fromIndex = docs !== null && docs === index;
-      brain = { ask: mod.createAsk({ index: docs, tools, rooms }), docs: docs.docs, full: fromIndex };
+      // CURRENT PROMOS ONLY: the index may be days old; a deal that ended since
+      // it was built is dropped before the first answer (aggregate docs lose
+      // that row). Then the live read may replace them all (refreshPromos).
+      let list = docs.docs;
+      if (pd && typeof pd.pruneExpired === 'function') {
+        try { list = pd.pruneExpired(list, pd.chicagoToday()); } catch { /* keep the index as built */ }
+      }
+      brain = { mod, pd, tools, rooms, ask: mod.createAsk({ index: { ...docs, docs: list }, tools, rooms }), docs: list, full: fromIndex, promoSource: 'index',
+        prunedFor: pd && typeof pd.chicagoToday === 'function' ? pd.chicagoToday() : '' };
       // How each guide spells its own hash (`#/~s3` vs `#checkin`), for
       // overlay.js's anchor forwarding. The indexer knows; the viewer is told.
       if (fromIndex && index.frame_hash_prefix && typeof index.frame_hash_prefix === 'object') {
         try { document.dispatchEvent(new CustomEvent('ccc:frame-hash-prefix', { detail: index.frame_hash_prefix })); }
         catch { /* noop: every guide gets the default spelling */ }
       }
+      // The store iPad (cinema) reads the live sheets as soon as the brain is
+      // up; the phone waits for a promo-ish question (see refreshPromos).
+      if (!pocket) refreshPromos();
       return brain;
     }).catch((err) => {
       console.error('[ask] the engine did not load.', err);
@@ -310,6 +332,93 @@ export function mountAsk(opts = {}) {
       throw err;
     });
     return brainP;
+  }
+
+  /* ---- the live promotions --------------------------------------------
+     The static index already answers promo questions from the snapshot, so
+     nothing waits for this. When the live read of the two quote sheets
+     arrives (promos-feed.js loadPromos(): ~1.4 MB, a few seconds, cached 5
+     min; it falls back to data/promos.json by itself), every `mobile-promos/`
+     doc is replaced by promoDocs(feed) — the same builder the index used — and
+     the engine is rebuilt off the input path, in an idle slot.
+     WHEN: cinema (store iPads, wifi) starts it as the brain loads. The phone
+     starts it only when a question looks like a promo question (PROMO_Q) or
+     the answer turned out to be a promo doc: most phone questions are how-tos,
+     and 1.4 MB on a rep's data plan for nothing is the wrong default. The
+     first promo answer on a phone is the snapshot's (pruned to today); if the
+     live read changes that very answer, the card is refreshed in place.
+     If the live read fails entirely, the pruned snapshot docs stay. */
+  const PROMO_Q = /\b(promo|promos|promotions?|deals?|discounts?|offers?|specials?|trade|trade-?ins?|tips|worth|value|diamond|gift ?card|free line|activation fee|upgrade anytime|iphone|galaxy|pixel|razr|moto|samsung|motorola|cd\d{3})\b|\$\s?\d/i;
+  let promoP = null;
+  function refreshPromos() {
+    if (promoP) return promoP;
+    const feedModP =
+      import('./promos-feed.js');
+    promoP = Promise.all([feedModP, loadBrain()]).then(async ([feedMod, b]) => {
+      if (!b.pd || typeof feedMod.loadPromos !== 'function') return b;
+      const today = b.pd.chicagoToday();
+      const feed = await feedMod.loadPromos({ live: true, today });
+      if (!feed || !Array.isArray(feed.promos)) return b;
+      const fresh = b.pd.promoDocs(feed, { today });
+      // An empty feed is a failed read, not "no promos": keep what we have.
+      if (!fresh.length) return b;
+      await idle();
+      const docs = b.docs.filter((d) => !b.pd.isPromoDoc(d)).concat(fresh);
+      b.ask = b.mod.createAsk({ index: { docs }, tools: b.tools, rooms: b.rooms });
+      b.docs = docs;
+      b.prunedFor = today;
+      b.promoSource = feed.source === 'live' ? 'live' : 'saved';
+      b.promoAt = feed.fetched_at || new Date().toISOString();
+      refreshPromoTurns(b);
+      return b;
+    }).catch((err) => {
+      console.warn('[ask] live promotions did not load; the saved copy stays.', err);
+      return brain;
+    });
+    return promoP;
+  }
+  /* CURRENT PROMOS, EVERY QUESTION (accuracy review M5). A store iPad can sit
+     on the site overnight: before each answer, if the Chicago date has moved
+     since the docs were last pruned, drop what ended (cheap: a filter over the
+     promo docs, and an engine rebuild only when something actually left), and
+     ask the live sheets again on a cinema. */
+  function ensureCurrent(b) {
+    if (!b || !b.pd || typeof b.pd.chicagoToday !== 'function') return;
+    const today = b.pd.chicagoToday();
+    if (b.prunedFor === today) return;
+    b.prunedFor = today;
+    try {
+      const next = b.pd.pruneExpired(b.docs, today);
+      const changed = next.length !== b.docs.length || next.some((d, i) => d !== b.docs[i]);
+      if (changed) { b.docs = next; b.ask = b.mod.createAsk({ index: { docs: next }, tools: b.tools, rooms: b.rooms }); }
+    } catch { /* keep what we have */ }
+    promoP = null;                       // a new day: the live read may run again
+    if (!pocket) refreshPromos();
+  }
+  const idle = () => new Promise((res) => {
+    if (typeof requestIdleCallback === 'function') requestIdleCallback(() => res(), { timeout: 600 });
+    else setTimeout(res, 0);
+  });
+  /** A promo answer on screen whose doc the live read changed (or ended):
+   *  re-ask the same question into the same turn. Quietly, and only the
+   *  newest turn, and only if the rep is not reading something inside it. */
+  function refreshPromoTurns(b) {
+    const t = turns[turns.length - 1];
+    const q = t && (t.raw || t.q);
+    if (!t || !t.answer || !q || t.answer._confirmed) return;
+    const old = t.answer.primary;
+    if (!old || !b.pd.isPromoDoc(old)) return;
+    const next = b.docs.find((d) => d.id === old.id);
+    if (next && JSON.stringify(next) === JSON.stringify(old)) return;
+    if (t.node.contains(document.activeElement) && document.activeElement !== t.node.querySelector(`#${t.id}-h`)) return;
+    const ans = b.ask.answer(q);
+    try { ans._scores = new Map(b.ask.search(q, { limit: 12 }).map((r) => [r.doc.id, r.score])); } catch { ans._scores = null; }
+    ans._guess = ans.mode !== 'none' && (ans.guess === true || ans.confidence < LOW_CONFIDENCE);
+    const y = log.scrollTop;
+    t.body.replaceChildren(...answerBody(ans, q, t.id));
+    t.options = ans._options || null;
+    t.answer = ans;
+    log.scrollTop = y;
   }
 
   const toolBySlug = () => new Map(((data && data.tools) || []).map((t) => [t.slug, t]));
@@ -946,6 +1055,150 @@ export function mountAsk(opts = {}) {
     return first.length > 200 ? first.slice(0, 200).replace(/\s+\S*$/, '') + '…' : first;
   }
 
+  /* ── MOBILE PROMOTIONS CARDS ("breaks it down") ──────────────────────────
+     A promo doc (doc.promo), a trade-in value doc (doc.trade) and a promo list
+     doc (doc.list) carry their facts as data, built by assets/promo-docs.js.
+     The card shows those facts laid out — savings, end date, deal card, the
+     flags, who qualifies, the steps, the deadlines, the watch-outs, or the
+     Good / Fair / Poor table — instead of the index's one-paragraph text. */
+  const PROMO_TOOL_SLUG = 'mobile-promos';
+  const usDate = (iso) => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+    return m ? `${+m[2]}/${+m[3]}/${m[1].slice(2)}` : '';
+  };
+  const usd = (n) => (n == null ? '' : `$${Number(n).toLocaleString('en-US')}`);
+  function promoStamp() {
+    const src = brain && brain.promoSource;
+    let when = '';
+    if (brain && brain.promoAt) {
+      try { when = new Date(brain.promoAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); } catch { when = ''; }
+    }
+    const t = src === 'live' ? `Straight from the quote sheets${when ? `, ${when}` : ''}. Current promos only.`
+      : src === 'saved' ? 'From the saved copy of the quote sheets (the live read did not load). Current promos only.'
+        : 'Current promos only.';
+    return el('p', { class: 'ask-promo-stamp', text: t });
+  }
+  function promoSection(head, items, cls = '') {
+    const list = (items || []).filter(Boolean);
+    if (!list.length) return null;
+    return el('section', { class: `ask-promo-sec${cls ? ` ${cls}` : ''}` }, [
+      el('h4', { class: 'ask-promo-h', text: head }),
+      el('ul', { class: 'ask-promo-list' }, list.map((x) => el('li', { text: String(x) })))
+    ]);
+  }
+  function anchorLink(doc, anchor, words) {
+    const tool = toolBySlug().get(doc.tool);
+    const a2 = cleanAnchor(anchor);
+    if (!tool || !a2) return null;
+    const a = el('a', {
+      class: 'ask-open ask-open--quiet', href: `#/tool/${encodeURIComponent(tool.slug)}/${a2}`,
+      'data-tool': tool.slug, 'data-tool-anchor': a2, 'data-ask-nav': ''
+    });
+    a.append(el('span', { text: words }), svg(SEND, 'ask-ico'));
+    return a;
+  }
+  function promoNodes(doc) {
+    const P = doc.promo;
+    const out = [];
+    const facts = el('dl', { class: 'ask-facts' });
+    const fact = (k, v, cls = '') => { if (v) facts.append(el('div', { class: `ask-fact${cls ? ` ${cls}` : ''}` }, [el('dt', { text: k }), el('dd', { text: v })])); };
+    fact('Savings', P.savings, 'ask-fact--big');
+    fact('Ends', P.ends ? usDate(P.ends) : 'No end date');
+    fact('Deal card', /\.pdf\b|no separate card/i.test(P.deal_card || '') ? '' : P.deal_card);
+    fact('For', P.who ? P.who[0].toUpperCase() + P.who.slice(1) : '');
+    fact('Plan', P.plan, 'ask-fact--wide');
+    out.push(facts);
+    const flags = el('ul', { class: 'ask-flags', 'aria-label': 'Requirements' });
+    const flag = (t, on) => flags.append(el('li', { class: `ask-flag${on ? ' ask-flag--on' : ''}`, text: t }));
+    if (P.diamond) flag('Diamond members only', true);
+    flag(P.trade ? 'Trade-in required' : 'No trade-in', P.trade);
+    flag(P.port ? 'Port-in required' : 'No port-in', P.port);
+    out.push(flags);
+    if (P.hook) out.push(el('p', { class: 'ask-card-text ask-promo-hook', text: P.hook }));
+    if (P.credit) out.push(el('p', { class: 'ask-promo-credit' }, [el('strong', { text: 'Credit: ' }), document.createTextNode(P.credit)]));
+    const q = promoSection('Who qualifies', P.qualify);
+    if (q) out.push(q);
+    /* ELIGIBLE DEVICES (accuracy review m2), compact: the sheet's own list as
+       one wrapped line — the upgrade promos' qualify text only says "an
+       eligible phone" */
+    if (P.devices) {
+      out.push(el('section', { class: 'ask-promo-sec' }, [
+        el('h4', { class: 'ask-promo-h', text: 'Eligible devices' }),
+        el('p', { class: 'ask-promo-devices', text: P.devices })
+      ]));
+    }
+    const steps = stepsNode(doc);
+    if (steps) out.push(el('section', { class: 'ask-promo-sec' }, [el('h4', { class: 'ask-promo-h', text: 'Steps' }), steps]));
+    const d = promoSection('Deadlines', P.deadlines, 'ask-promo-sec--warn');
+    if (d) out.push(d);
+    const w = promoSection('Watch out', P.watchouts);
+    if (w) out.push(w);
+    if (P.trade_in && P.trade_in.count) {
+      const l = anchorLink(doc, `p/${P.id}/trade-in`, `Trade-in list for this deal (${P.trade_in.count} phones)`);
+      if (l) out.push(el('div', { class: 'ask-actions' }, [l]));
+    }
+    out.push(promoStamp());
+    return out;
+  }
+  function tradeNodes(doc) {
+    const T = doc.trade;
+    const rows = (T.rows || []).filter(Boolean);
+    const table = el('table', { class: 'ask-tv' });
+    table.append(el('caption', { class: 'ask-sr', text: `${T.name || doc.title}: trade-in credit by condition on each current promo` }));
+    table.append(el('thead', {}, [el('tr', {}, [
+      el('th', { scope: 'col', text: 'Promo' }), el('th', { scope: 'col', text: 'Good' }),
+      el('th', { scope: 'col', text: 'Fair' }), el('th', { scope: 'col', text: 'Poor' })
+    ])]));
+    const tb = el('tbody');
+    for (const r of rows) {
+      const name = el('th', { scope: 'row' });
+      const b = el('button', { type: 'button', class: 'ask-tv-promo', 'data-ask-doc': r.doc, 'data-ask-nav': '' }, [
+        el('span', { class: 'ask-tv-name', text: r.label || r.title || '' }),
+        el('span', { class: 'ask-tv-ends', text: r.ends ? `Ends ${usDate(r.ends)}` : 'No end date' })
+      ]);
+      name.append(b);
+      const cell = (v) => (v == null
+        ? el('td', { class: 'ask-tv-no' }, [el('span', { 'aria-hidden': 'true', text: '—' }), el('span', { class: 'ask-sr', text: 'not accepted' })])
+        : el('td', { text: usd(v) }));
+      tb.append(el('tr', {}, [name, cell(r.good), cell(r.fair), cell(r.poor)]));
+    }
+    table.append(tb);
+    return [
+      el('p', { class: 'ask-card-text', text: `What ${/^[aeiou]/i.test(T.name || 'phone') ? 'an' : 'a'} ${T.name || 'phone'} is worth as a trade-in on each current promo. Credit is paid as 36 monthly bill credits toward an eligible new phone; — means that condition is not accepted.` }),
+      el('div', { class: 'ask-tv-wrap' }, [table]),
+      promoStamp()
+    ];
+  }
+  function listNodes(doc) {
+    const rows = doc.list.filter(Boolean);
+    const out = [];
+    if (doc._lead) out.push(el('p', { class: 'ask-card-text', text: /[.!?]$/.test(doc._lead) ? doc._lead : `${doc._lead}.` }));
+    const groups = [...new Set(rows.map((r) => r.group || ''))];
+    for (const g of groups) {
+      const mine = rows.filter((r) => (r.group || '') === g);
+      if (groups.length > 1 && g) out.push(el('p', { class: 'ask-also-head ask-promo-group', text: g }));
+      out.push(el('div', { class: 'ask-opts' }, mine.map((r) => {
+        const b = el('button', { type: 'button', class: 'ask-opt', 'data-ask-doc': r.doc, 'data-ask-nav': '' });
+        b.append(el('span', { class: 'ask-opt-words' }, [
+          el('span', { class: 'ask-opt-title', text: r.title }),
+          el('span', { class: 'ask-opt-crumbs', text: `${r.savings}${r.savings ? ' · ' : ''}${r.ends ? `ends ${usDate(r.ends)}` : 'no end date'}` })
+        ]));
+        return b;
+      })));
+    }
+    out.push(promoStamp());
+    return out;
+  }
+  function promoBody(doc) {
+    if (doc.tool !== PROMO_TOOL_SLUG) return null;
+    try {
+      if (doc.promo && typeof doc.promo === 'object') return promoNodes(doc);
+      if (doc.trade && Array.isArray(doc.trade.rows)) return tradeNodes(doc);
+      if (Array.isArray(doc.list) && doc.list.length) return listNodes(doc);
+    } catch (err) { console.warn('[ask] promo card fell back to text', err); }
+    return null;
+  }
+
   /** The full answer for one doc. */
   function docCard(doc, { headingId, alternates = [], related = false, guess = false, level = 'h3' } = {}) {
     const art = el('article', { class: 'ask-card', 'aria-labelledby': headingId });
@@ -982,7 +1235,11 @@ export function mountAsk(opts = {}) {
       return art;
     }
 
-    if (doc.kind === 'video') {
+    const promo = promoBody(doc);
+    if (promo) {
+      art.classList.add('ask-card--promo');
+      for (const n of promo) art.append(n);
+    } else if (doc.kind === 'video') {
       // A video's index text carries its transcript (for search). The card
       // shows a one-line description instead, never the narration.
       const line = videoLine(doc);
@@ -992,8 +1249,10 @@ export function mountAsk(opts = {}) {
     } else if (doc.text) {
       art.append(el('p', { class: 'ask-card-text', text: doc.text }));
     }
-    const steps = stepsNode(doc);
-    if (steps) art.append(steps);
+    if (!promo) {
+      const steps = stepsNode(doc);
+      if (steps) art.append(steps);
+    }
     for (const n of mediaNodes(doc)) art.append(n);
     const o = openLink(doc);
     if (o) art.append(el('div', { class: 'ask-actions' }, [o]));
@@ -1148,6 +1407,8 @@ export function mountAsk(opts = {}) {
       return `${ans._guess ? 'Best guess: ' : 'Possibly '}${ans.primary.title}${n ? `, or ${n} other ${n === 1 ? 'option' : 'options'}` : ''}.`;
     }
     if (ans.mode === 'direct' && ans.primary) {
+      const pr = ans.primary.promo;
+      if (pr) return `${ans.primary.title}. ${pr.savings}${pr.ends ? `, ends ${usDate(pr.ends)}` : ''}.`;
       const n = Array.isArray(ans.primary.steps) ? ans.primary.steps.length : 0;
       return `${ans.primary.title}${ans.primary.locked ? ', passcode required' : ''}${n ? `, ${n} steps` : ''}.`;
     }
@@ -1164,7 +1425,7 @@ export function mountAsk(opts = {}) {
     const body = el('div', { class: 'ask-a' });
     node.append(ql, body);
     log.append(node);
-    const turn = { id, node, body, q };
+    const turn = { id, node, body, q };   // q: as typed, only ever re-asked locally (refreshPromoTurns)
     turns.push(turn);
     while (turns.length > TURNS_MAX) {
       const old = turns.shift();
@@ -1212,7 +1473,9 @@ export function mountAsk(opts = {}) {
     }
 
     rememberRecent(text);
+    if (pocket && PROMO_Q.test(text)) refreshPromos();
     const turn = addTurn(redact(text));
+    turn.raw = text;          // as typed, kept in memory only: refreshPromoTurns re-asks it locally
     turn.body.append(el('p', { class: 'ask-wait', text: 'Looking…' }));
     scrollToTurn(turn);
 
@@ -1224,9 +1487,11 @@ export function mountAsk(opts = {}) {
       return;
     }
 
+    ensureCurrent(b);
     const ans = b.ask.answer(text);
     try { ans._scores = new Map(b.ask.search(text, { limit: 12 }).map((r) => [r.doc.id, r.score])); }
     catch { ans._scores = null; }
+    if (b.pd && ans.primary && b.pd.isPromoDoc(ans.primary)) refreshPromos();
     // The engine's own best guess ('choices', guess: true — a weak but clean
     // match between GUESS_FLOOR and NONE_BELOW) and any answer under
     // LOW_CONFIDENCE get the same treatment: "Is it one of these?" + Best guess.

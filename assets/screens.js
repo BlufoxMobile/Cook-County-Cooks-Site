@@ -18,7 +18,9 @@
  *          shimmer and a CRT power-on that rides the engine.
  *
  *   image  the Host Stand TV. The daily promo card straight out of the Daily
- *          Sales Report's own data directory, on its plain URL: the HTTP cache
+ *          Sales Report's own data directory, on its plain URL (PROMO_CARD_URL,
+ *          whatever the screen's slug — since v47 a tap opens the Mobile
+ *          Promotions guide, `mobile-promos`, not the report): the HTTP cache
  *          (max-age=300 + ETag) decides freshness, so a repeat visit is a 304,
  *          not 390 KB. Held frozen — no rotation. Fitted with a tiny, pre-darkened
  *          thumbnail of the same card as its backdrop (one full decode, not two)
@@ -359,6 +361,11 @@ export const SCREEN_MODES = {
   'quote-upgrade':  'title',
   'quote-internet': 'title',
   'daily-sales':    'image',
+  /* v47: the Host Stand TV. Same promo card, same `image` renderer — only the
+     tap target moved from the Daily Sales Report to the Mobile Promotions
+     guide. rooms.js passes mode:'image' explicitly; this is the default for a
+     host that carries no data-screen-mode. */
+  'mobile-promos':  'image',
   'wtw-chicago':    'live',
   'wtw-big-south':  'live'
 };
@@ -2755,7 +2762,10 @@ function makeImage(rec) {
   const bg = el('canvas', { class: 'ccc-scr-art__bg', width: '24', height: '17', 'aria-hidden': 'true' });
   const fg = el('img', { class: 'ccc-scr-art__fg', alt: '', 'aria-hidden': 'true', decoding: 'async' });
 
-  const NOTE = 'Today’s promo card has not landed yet. Tap to open the Daily Sales Report.';
+  /* The sentence names what a tap OPENS, which is the screen's own tool —
+     since v47 that is the Mobile Promotions guide, not the Daily Sales Report
+     the card is published by. rec.title is the hotspot's label (rooms.js). */
+  const NOTE = `Today’s promo card has not landed yet. Tap to open ${rec.title || 'the Daily Sales Report'}.`;
 
   /* ⚠ THE HOLDING CARD GOES OVER THE IMAGES, NEVER INSTEAD OF THEM.
      It used to be `node.replaceChildren(holdingCard(...))`, which took both

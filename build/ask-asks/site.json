@@ -117,7 +117,6 @@
   "how is my store doing today",
   "store rankings today",
   "where do i log my sales",
-  "whats the promo of the day",
   "where we rank today",
   "sales numbers by store"
  ],
@@ -701,5 +700,15 @@
   "set store as delivery location",
   "supplies shipping to wrong store",
   "change delivery location for orders"
+ ],
+ "tool/mobile-promos": [
+  "whats the promo of the day",
+  "promo guide",
+  "where are the promos explained",
+  "current xfinity mobile promotions",
+  "what is this trade in worth",
+  "trade in values list",
+  "mobile promotions page",
+  "deal card explained"
  ]
 }

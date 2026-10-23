@@ -25,8 +25,8 @@ export const HOTSPOTS = {
   host: [
     
 
-    { slug:'daily-sales', kind:'screen', mode:'image', x:47.0, y:5.6, w:37.0, h:53.0,
-      label:'Daily Sales Report', name:'Daily Promo Card',
+    { slug:'mobile-promos', kind:'screen', mode:'image', x:47.0, y:5.6, w:37.0, h:53.0,
+      label:'Mobile Promotions', name:'Daily Promo Card',
       quad:[[47.6,21.4],[82.0,11.2],[82.0,57.8],[47.3,55.8]] },
     { slug:'yesterdays-conversion', kind:'tool', x:14.0, y:68.0, w:24.0, h:14.0, label:"Yesterday's Conversion", edge:'bottom' },
   ],

@@ -1,0 +1,7133 @@
+{
+ "version": 1,
+ "generated_at": "2026-10-23T17:01:24Z",
+ "source": "snapshot",
+ "promos": [
+  {
+   "id": "tips_agm_930",
+   "title": "TIPs — Up to $930 off select Apple, Google and Motorola",
+   "deal_card": "CD885",
+   "audience": "new_line",
+   "line_type_label": null,
+   "sheets": [
+    "new_line_sheet"
+   ],
+   "savings": "up to $930 off",
+   "mechanism": "36-month trade-in DPP bill credits",
+   "dates": {
+    "start": "2026-10-09",
+    "end": "2026-11-10"
+   },
+   "plan": "Mobile Plus or Premium Unlimited",
+   "brands": [
+    "Apple",
+    "Google",
+    "Motorola"
+   ],
+   "device_scope": "iPhone 15, iPhone 16, iPhone 17, iPhone 17 Pro, iPhone 17 Pro Max, iPhone 17e, iPhone Air, iPhone 18 Pro, iPhone 18 Pro Max, Pixel 10, Pixel 10 Pro, Pixel 10 Pro XL, Pixel 11, Pixel 11 Pro, Pixel 11 Pro XL, Pixel 11 Pro Fold, moto razr – 2026, Razr fold",
+   "device_type": "phone",
+   "diamond_only": false,
+   "trade_in_required": true,
+   "port_required": false,
+   "mobile_service": [
+    "XM",
+    "CBM"
+   ],
+   "badges": [],
+   "hook": "Trade in almost any phone and get up to $930 off a new iPhone, Pixel or Motorola razr on a new line.",
+   "qualify": [
+    "Activate a NEW line on Mobile Plus or Premium Unlimited (Unlimited Premium Flex / Pro on Comcast Business Mobile). Existing-line upgrades are NOT eligible.",
+    "Buy one of the 18 eligible phones on a 36-month Device Payment Plan: iPhone 15, iPhone 16, iPhone 17, iPhone 17 Pro, iPhone 17 Pro Max, iPhone 17e, iPhone Air, iPhone 18 Pro, iPhone 18 Pro Max, Pixel 10, Pixel 10 Pro, Pixel 10 Pro XL, Pixel 11, Pixel 11 Pro, Pixel 11 Pro XL, Pixel 11 Pro Fold, moto razr – 2026, Razr fold.",
+    "Trade in a qualifying device — 153 phones across Apple, Google, Motorola, OnePlus and Samsung. Good, Fair and Poor are accepted (the original Motorola RAZR is Poor only, the Galaxy S8 Good only).",
+    "No number transfer required — this deal does NOT need a port-in."
+   ],
+   "steps": [
+    "Activate the new Mobile Plus or Premium Unlimited line.",
+    "Add the phone to the cart on a 36-month DPP.",
+    "Complete the trade-in through Xfinity Mobile / Assurant within 21 days of the order shipping."
+   ],
+   "deadlines": [
+    "Trade-in must reach Assurant within 21 DAYS of the order ship date or the credits are gone.",
+    "Offer ends 11/10/26."
+   ],
+   "watchouts": [
+    "Mobile Plus or Premium Unlimited only. No device deal works on Mobile Select or NOW Mobile this cycle.",
+    "Not on this list: Pixel 10a, Pixel 9, Pixel 9a, Pixel 10 Pro Fold, moto razr – 2025, every moto g and both edges. The moto g family and the edges take the $400 no-trade deal with a port; Pixel 10a, Pixel 9 / 9a, Pixel 10 Pro Fold and razr 2025 have NO new-line deal this cycle.",
+    "Any qualifying trade pays at least $500, which beats the $400 no-trade deal — so with a trade-in this is always the better path.",
+    "Not combinable with the no-trade deal on the same line.",
+    "Credit is spread over 36 monthly bill credits. Cancel the line or pay the phone off early and the remaining credits are forfeited.",
+    "The credit can never exceed the retail price of the phone being bought.",
+    "Out-of-stock phones are not eligible. Back-orders ARE eligible."
+   ],
+   "credit_amount": "Trade-in tiers: up to $930 / $700 / $600 / $550 / $500 by device and condition. Floor $500.",
+   "trade_in": {
+    "bucket": "tips_agm_930",
+    "ladder": [
+     930,
+     700,
+     600,
+     550,
+     500
+    ],
+    "max": 930,
+    "floor": 500,
+    "list_updated": "2026-10-16",
+    "devices": [
+     {
+      "model": "Apple iPhone 11",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 11 Pro",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 11 Pro Max",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 12",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 12 Mini",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 12 Pro",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 12 Pro Max",
+      "brand": "Apple",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 13",
+      "brand": "Apple",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 13 Mini",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 13 Pro",
+      "brand": "Apple",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 13 Pro Max",
+      "brand": "Apple",
+      "good": 700,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 14",
+      "brand": "Apple",
+      "good": 930,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 14 Plus",
+      "brand": "Apple",
+      "good": 930,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 14 Pro",
+      "brand": "Apple",
+      "good": 930,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 14 Pro Max",
+      "brand": "Apple",
+      "good": 930,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 15",
+      "brand": "Apple",
+      "good": 930,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 15 Plus",
+      "brand": "Apple",
+      "good": 930,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 15 Pro",
+      "brand": "Apple",
+      "good": 930,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 15 Pro Max",
+      "brand": "Apple",
+      "good": 930,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 16",
+      "brand": "Apple",
+      "good": 930,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 16 Plus",
+      "brand": "Apple",
+      "good": 930,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 16 Pro",
+      "brand": "Apple",
+      "good": 930,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 16 Pro Max",
+      "brand": "Apple",
+      "good": 930,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 16e",
+      "brand": "Apple",
+      "good": 930,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 17",
+      "brand": "Apple",
+      "good": 930,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 17 Pro",
+      "brand": "Apple",
+      "good": 930,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 17 Pro Max",
+      "brand": "Apple",
+      "good": 930,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 17e",
+      "brand": "Apple",
+      "good": 700,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 18 Pro",
+      "brand": "Apple",
+      "good": 930,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 18 Pro Max",
+      "brand": "Apple",
+      "good": 930,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 8",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 8 PLUS",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone Air",
+      "brand": "Apple",
+      "good": 930,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone SE 2",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone SE 3",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone X",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone XR",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone XS",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone XS Max",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 10 5G",
+      "brand": "Google",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 10 Pro 5G",
+      "brand": "Google",
+      "good": 700,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 10 Pro Fold",
+      "brand": "Google",
+      "good": 930,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 10 Pro XL 5G",
+      "brand": "Google",
+      "good": 700,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 10a 5G",
+      "brand": "Google",
+      "good": 700,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 11 5G",
+      "brand": "Google",
+      "good": 930,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 11 Pro 5G",
+      "brand": "Google",
+      "good": 930,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 11 Pro Fold 5G",
+      "brand": "Google",
+      "good": 930,
+      "fair": 930,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 11 Pro XL 5G",
+      "brand": "Google",
+      "good": 930,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 5 5G",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 5A 5G",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 6",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 6 Pro",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 6A",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 7 5G",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 7 Pro 5G",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 7A 5G",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 8 5G",
+      "brand": "Google",
+      "good": 550,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 8 Pro 5G",
+      "brand": "Google",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 8A 5G",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 9 5G",
+      "brand": "Google",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 9 Pro 5G",
+      "brand": "Google",
+      "good": 700,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 9 Pro Fold 5G",
+      "brand": "Google",
+      "good": 700,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 9 Pro XL 5G",
+      "brand": "Google",
+      "good": 700,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 9A 5G",
+      "brand": "Google",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Edge 5G 2025",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Edge 70 5G",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Moto G 5G 2026",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Moto G Play 5G 2026",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola RAZR",
+      "brand": "Motorola",
+      "good": null,
+      "fair": null,
+      "poor": 500
+     },
+     {
+      "model": "Motorola RAZR Ultra 5G 2025",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Razr 5G 2024",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Razr 5G 2025",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Razr 5G 2026",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Razr Fold 5G 2026",
+      "brand": "Motorola",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Razr Plus 5G 2023",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "ONEPLUS 8 PRO 5G",
+      "brand": "OnePlus",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "ONEPLUS 8T",
+      "brand": "OnePlus",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "ONEPLUS 8T PLUS 5G",
+      "brand": "OnePlus",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "ONEPLUS 9 5G",
+      "brand": "OnePlus",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "ONEPLUS 9 PRO 5G",
+      "brand": "OnePlus",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A16 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A17 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A25 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A26 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A27 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A35 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A36 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A37 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A57 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Note 10",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Note 10 Lite (6GB)",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Note 20 4G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Note 20 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Note 20 Ultra 4G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Note 20 Ultra 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Note 9",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S10",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S10 Lite",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S10 Plus",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S10E",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S20 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S20 5G UW",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S20 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S20 Plus",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S20 Plus 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S20 Ultra 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S21 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S21 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S21 Plus 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S21 Ultra 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S22 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S22 Plus 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S22 Ultra 5G",
+      "brand": "Samsung",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S23 5G",
+      "brand": "Samsung",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S23 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S23 Plus 5G",
+      "brand": "Samsung",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S23 Ultra 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S24 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S24 FE 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S24 Plus 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S24 Ultra 5G",
+      "brand": "Samsung",
+      "good": 930,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S25 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S25 Edge 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S25 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S25 Plus 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S25 Ultra 5G",
+      "brand": "Samsung",
+      "good": 930,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S26 5G",
+      "brand": "Samsung",
+      "good": 930,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S26 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S26 Plus 5G",
+      "brand": "Samsung",
+      "good": 930,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S26 Ultra 5G",
+      "brand": "Samsung",
+      "good": 930,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S8",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": null,
+      "poor": null
+     },
+     {
+      "model": "Samsung Galaxy Z Flip",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 3 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 3 5G Thom Browne",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 3 Bespoke",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 4 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 4 Bespoke",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 5 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 6 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 7 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 7 FE 5G",
+      "brand": "Samsung",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 8 5G",
+      "brand": "Samsung",
+      "good": 930,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 3 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 4 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 5 5G",
+      "brand": "Samsung",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 6 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 7 5G",
+      "brand": "Samsung",
+      "good": 930,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 8 5G",
+      "brand": "Samsung",
+      "good": 930,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 8 Ultra 5G",
+      "brand": "Samsung",
+      "good": 930,
+      "fair": 930,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold2 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Note 10 Plus",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Note 10 Plus 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     }
+    ]
+   }
+  },
+  {
+   "id": "tips_samsung_1200",
+   "title": "TIPs — Up to $1,200 off select Samsung",
+   "deal_card": "CD865",
+   "audience": "new_line",
+   "line_type_label": null,
+   "sheets": [
+    "new_line_sheet"
+   ],
+   "savings": "up to $1,200 off",
+   "mechanism": "36-month trade-in DPP bill credits",
+   "dates": {
+    "start": "2026-08-26",
+    "end": "2026-11-10"
+   },
+   "plan": "Mobile Plus or Premium Unlimited",
+   "brands": [
+    "Samsung"
+   ],
+   "device_scope": "Galaxy S25 Edge, Galaxy S25 FE, Galaxy A37, Galaxy S26, Galaxy S26+, Galaxy S26 Ultra, Galaxy S26 FE, Galaxy Z Flip8, Galaxy Z Fold8, Galaxy Z Fold8 Ultra",
+   "device_type": "phone",
+   "diamond_only": false,
+   "trade_in_required": true,
+   "port_required": false,
+   "mobile_service": [
+    "XM",
+    "CBM"
+   ],
+   "badges": [],
+   "hook": "Trade in and get up to $1,200 off a new Galaxy on a new line — and this deal's floor is $550, the highest on the board.",
+   "qualify": [
+    "Activate a NEW line on Mobile Plus or Premium Unlimited (Unlimited Premium Flex / Pro on Comcast Business Mobile). Existing-line upgrades are NOT eligible.",
+    "Buy one of the 10 eligible Samsung phones on a 36-month DPP: Galaxy S25 Edge, Galaxy S25 FE, Galaxy A37, Galaxy S26, Galaxy S26+, Galaxy S26 Ultra, Galaxy S26 FE, Galaxy Z Flip8, Galaxy Z Fold8, Galaxy Z Fold8 Ultra.",
+    "Trade in a qualifying device — 139 phones across Apple, Google, Motorola, OnePlus and Samsung. Good, Fair and Poor are accepted (the original Motorola RAZR is Poor only, the Galaxy S8 Good only).",
+    "No port-in required."
+   ],
+   "steps": [
+    "Activate the new Mobile Plus or Premium Unlimited line.",
+    "Add the Samsung to the cart on a 36-month DPP.",
+    "Complete the trade-in through Xfinity Mobile / Assurant within 21 days of the order shipping."
+   ],
+   "deadlines": [
+    "Trade-in must reach Assurant within 21 DAYS of the order ship date or the credits are gone.",
+    "Offer ends 11/10/26."
+   ],
+   "watchouts": [
+    "Mobile Plus or Premium Unlimited only. No device deal works on Mobile Select or NOW Mobile this cycle.",
+    "Galaxy A57 is NOT on this list — an A57 has no TIPs path. It takes the $500 no-trade Samsung deal with a port instead.",
+    "Tier assignments are not identical to the $930 Apple/Google/Motorola deal: 18 older trade-ins (e.g. iPhone 11–14 models, Pixel 7 Pro / 8 / 8a, Galaxy S22 Ultra / S23 / S23+, Z Flip6, Z Fold3 / Fold4) sit lower here in Good or Fair.",
+    "Not combinable with the no-trade deal on the same line.",
+    "Credit is spread over 36 monthly bill credits. Cancel the line or pay the phone off early and the remaining credits are forfeited.",
+    "The credit can never exceed the retail price of the phone being bought.",
+    "Out-of-stock phones are not eligible. Back-orders ARE eligible."
+   ],
+   "credit_amount": "Trade-in tiers: up to $1,200 / $800 / $700 / $600 / $550 by device and condition. Floor $550.",
+   "trade_in": {
+    "bucket": "tips_samsung_1200",
+    "ladder": [
+     1200,
+     800,
+     700,
+     600,
+     550
+    ],
+    "max": 1200,
+    "floor": 550,
+    "list_updated": null,
+    "devices": [
+     {
+      "model": "Apple iPhone 11",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 11 Pro",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 11 Pro Max",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 12",
+      "brand": "Apple",
+      "good": 600,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 12 Mini",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 12 Pro",
+      "brand": "Apple",
+      "good": 600,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 12 Pro Max",
+      "brand": "Apple",
+      "good": 700,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 13",
+      "brand": "Apple",
+      "good": 700,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 13 Mini",
+      "brand": "Apple",
+      "good": 700,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 13 Pro",
+      "brand": "Apple",
+      "good": 700,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 13 Pro Max",
+      "brand": "Apple",
+      "good": 800,
+      "fair": 600,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 14",
+      "brand": "Apple",
+      "good": 700,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 14 Plus",
+      "brand": "Apple",
+      "good": 700,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 14 Pro",
+      "brand": "Apple",
+      "good": 800,
+      "fair": 700,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 14 Pro Max",
+      "brand": "Apple",
+      "good": 800,
+      "fair": 700,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 15",
+      "brand": "Apple",
+      "good": 800,
+      "fair": 700,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 15 Plus",
+      "brand": "Apple",
+      "good": 800,
+      "fair": 700,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 15 Pro",
+      "brand": "Apple",
+      "good": 1200,
+      "fair": 700,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 15 Pro Max",
+      "brand": "Apple",
+      "good": 1200,
+      "fair": 800,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 16",
+      "brand": "Apple",
+      "good": 1200,
+      "fair": 800,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 16 Plus",
+      "brand": "Apple",
+      "good": 1200,
+      "fair": 800,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 16 Pro",
+      "brand": "Apple",
+      "good": 1200,
+      "fair": 800,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 16 Pro Max",
+      "brand": "Apple",
+      "good": 1200,
+      "fair": 800,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 16e",
+      "brand": "Apple",
+      "good": 800,
+      "fair": 700,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 17",
+      "brand": "Apple",
+      "good": 1200,
+      "fair": 800,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 17 Pro",
+      "brand": "Apple",
+      "good": 1200,
+      "fair": 800,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 17 Pro Max",
+      "brand": "Apple",
+      "good": 1200,
+      "fair": 1200,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 17e",
+      "brand": "Apple",
+      "good": 800,
+      "fair": 700,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 8",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone 8 PLUS",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone Air",
+      "brand": "Apple",
+      "good": 1200,
+      "fair": 800,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone SE 2",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone SE 3",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone X",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone XR",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone XS",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Apple iPhone XS Max",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Google Pixel 10 5G",
+      "brand": "Google",
+      "good": 800,
+      "fair": 700,
+      "poor": 550
+     },
+     {
+      "model": "Google Pixel 10 Pro 5G",
+      "brand": "Google",
+      "good": 800,
+      "fair": 700,
+      "poor": 550
+     },
+     {
+      "model": "Google Pixel 10 Pro Fold",
+      "brand": "Google",
+      "good": 1200,
+      "fair": 800,
+      "poor": 550
+     },
+     {
+      "model": "Google Pixel 10 Pro XL 5G",
+      "brand": "Google",
+      "good": 1200,
+      "fair": 800,
+      "poor": 550
+     },
+     {
+      "model": "Google Pixel 10a 5G",
+      "brand": "Google",
+      "good": 800,
+      "fair": 600,
+      "poor": 550
+     },
+     {
+      "model": "Google Pixel 5 5G",
+      "brand": "Google",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Google Pixel 5A 5G",
+      "brand": "Google",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Google Pixel 6",
+      "brand": "Google",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Google Pixel 6 Pro",
+      "brand": "Google",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Google Pixel 6A",
+      "brand": "Google",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Google Pixel 7 5G",
+      "brand": "Google",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Google Pixel 7 Pro 5G",
+      "brand": "Google",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Google Pixel 7A 5G",
+      "brand": "Google",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Google Pixel 8 5G",
+      "brand": "Google",
+      "good": 700,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Google Pixel 8 Pro 5G",
+      "brand": "Google",
+      "good": 700,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Google Pixel 8A 5G",
+      "brand": "Google",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Google Pixel 9 5G",
+      "brand": "Google",
+      "good": 800,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Google Pixel 9 Pro 5G",
+      "brand": "Google",
+      "good": 800,
+      "fair": 700,
+      "poor": 550
+     },
+     {
+      "model": "Google Pixel 9 Pro Fold 5G",
+      "brand": "Google",
+      "good": 800,
+      "fair": 700,
+      "poor": 550
+     },
+     {
+      "model": "Google Pixel 9 Pro XL 5G",
+      "brand": "Google",
+      "good": 800,
+      "fair": 700,
+      "poor": 550
+     },
+     {
+      "model": "Google Pixel 9A 5G",
+      "brand": "Google",
+      "good": 700,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Motorola Edge 5G 2025",
+      "brand": "Motorola",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Motorola Edge 70 5G",
+      "brand": "Motorola",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Motorola Moto G 5G 2026",
+      "brand": "Motorola",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Motorola Moto G Play 5G 2026",
+      "brand": "Motorola",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Motorola RAZR",
+      "brand": "Motorola",
+      "good": null,
+      "fair": null,
+      "poor": 550
+     },
+     {
+      "model": "Motorola RAZR Ultra 5G 2025",
+      "brand": "Motorola",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Motorola Razr 5G 2024",
+      "brand": "Motorola",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Motorola Razr 5G 2025",
+      "brand": "Motorola",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Motorola Razr Plus 5G 2023",
+      "brand": "Motorola",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "ONEPLUS 8 PRO 5G",
+      "brand": "OnePlus",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "ONEPLUS 8T",
+      "brand": "OnePlus",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "ONEPLUS 8T PLUS 5G",
+      "brand": "OnePlus",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "ONEPLUS 9 5G",
+      "brand": "OnePlus",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "ONEPLUS 9 PRO 5G",
+      "brand": "OnePlus",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy A16 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy A17 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy A25 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy A26 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy A35 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy A36 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy A37 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy Note 10",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy Note 10 Lite (6GB)",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy Note 20 4G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy Note 20 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy Note 20 Ultra 4G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy Note 20 Ultra 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy Note 9",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S10",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S10 Lite",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S10 Plus",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S10E",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S20 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S20 5G UW",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S20 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S20 Plus",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S20 Plus 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S20 Ultra 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S21 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S21 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S21 Plus 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S21 Ultra 5G",
+      "brand": "Samsung",
+      "good": 600,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S22 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S22 Plus 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S22 Ultra 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S23 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S23 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 600,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S23 Plus 5G",
+      "brand": "Samsung",
+      "good": 800,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S23 Ultra 5G",
+      "brand": "Samsung",
+      "good": 800,
+      "fair": 700,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S24 5G",
+      "brand": "Samsung",
+      "good": 800,
+      "fair": 600,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S24 FE 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S24 Plus 5G",
+      "brand": "Samsung",
+      "good": 800,
+      "fair": 700,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S24 Ultra 5G",
+      "brand": "Samsung",
+      "good": 1200,
+      "fair": 800,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S25 5G",
+      "brand": "Samsung",
+      "good": 800,
+      "fair": 700,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S25 Edge 5G",
+      "brand": "Samsung",
+      "good": 1200,
+      "fair": 700,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S25 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S25 Plus 5G",
+      "brand": "Samsung",
+      "good": 1200,
+      "fair": 700,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S25 Ultra 5G",
+      "brand": "Samsung",
+      "good": 1200,
+      "fair": 800,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S26 5G",
+      "brand": "Samsung",
+      "good": 1200,
+      "fair": 800,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S26 Plus 5G",
+      "brand": "Samsung",
+      "good": 1200,
+      "fair": 800,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S26 Ultra 5G",
+      "brand": "Samsung",
+      "good": 1200,
+      "fair": 800,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy S8",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": null,
+      "poor": null
+     },
+     {
+      "model": "Samsung Galaxy Z Flip",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 3 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 3 5G Thom Browne",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 3 Bespoke",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 4 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 4 Bespoke",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 5 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 6 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 7 5G",
+      "brand": "Samsung",
+      "good": 800,
+      "fair": 700,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 7 FE 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 3 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 4 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 5 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 6 5G",
+      "brand": "Samsung",
+      "good": 800,
+      "fair": 700,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 7 5G",
+      "brand": "Samsung",
+      "good": 1200,
+      "fair": 800,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Galaxy Z Fold2 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Note 10 Plus",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     },
+     {
+      "model": "Samsung Note 10 Plus 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 550,
+      "poor": 550
+     }
+    ]
+   }
+  },
+  {
+   "id": "tips_duo_1000",
+   "title": "TIPs — Up to $1,000 off iPhone Duo (new lines)",
+   "deal_card": null,
+   "audience": "new_line",
+   "line_type_label": null,
+   "sheets": [
+    "new_line_sheet"
+   ],
+   "savings": "up to $1,000 off",
+   "mechanism": "36-month trade-in DPP bill credits",
+   "dates": {
+    "start": "2026-10-16",
+    "end": "2026-11-10"
+   },
+   "plan": "Mobile Plus or Premium Unlimited",
+   "brands": [
+    "Apple"
+   ],
+   "device_scope": "Apple iPhone Duo (256GB, 512GB, 1TB, 2TB)",
+   "device_type": "phone",
+   "diamond_only": false,
+   "trade_in_required": true,
+   "port_required": false,
+   "mobile_service": [
+    "XM",
+    "CBM"
+   ],
+   "badges": [],
+   "hook": "Trade in almost any phone and get up to $1,000 off the new iPhone Duo on a new line.",
+   "qualify": [
+    "Activate a NEW line on Mobile Plus or Premium Unlimited (Unlimited Premium Flex / Pro on Comcast Business Mobile). Existing-line upgrades are NOT eligible.",
+    "Buy the iPhone Duo (256GB, 512GB, 1TB or 2TB) on a 36-month Device Payment Plan.",
+    "Trade in a qualifying device — 153 phones across Apple, Google, Motorola, OnePlus and Samsung. Good, Fair and Poor are accepted (the original Motorola RAZR is Poor only, the Galaxy S8 Good only).",
+    "No number transfer required — this deal does NOT need a port-in."
+   ],
+   "steps": [
+    "Activate the new Mobile Plus or Premium Unlimited line.",
+    "Add the iPhone Duo to the cart on a 36-month DPP.",
+    "Complete the trade-in through Xfinity Mobile / Assurant within 21 days of the order shipping."
+   ],
+   "deadlines": [
+    "Trade-in must reach Assurant within 21 DAYS of the order ship date or the credits are gone.",
+    "Pre-orders open 10/16; the iPhone Duo is available 10/23.",
+    "Offer ends 11/10/26."
+   ],
+   "watchouts": [
+    "Mobile Plus or Premium Unlimited only. No device deal works on Mobile Select or NOW Mobile.",
+    "The iPhone Duo has no no-trade deal on a new line — without a qualifying trade-in there is no device discount.",
+    "Not combinable with other device offers on the same line.",
+    "Credit is spread over 36 monthly bill credits. Cancel the line or pay the phone off early and the remaining credits are forfeited.",
+    "The credit can never exceed the retail price of the phone being bought."
+   ],
+   "credit_amount": "Trade-in tiers: up to $1,000 / $700 / $600 / $550 / $500 by device and condition. Floor $500.",
+   "trade_in": {
+    "bucket": "tips_duo_1000",
+    "ladder": [
+     1000,
+     700,
+     600,
+     550,
+     500
+    ],
+    "max": 1000,
+    "floor": 500,
+    "list_updated": null,
+    "devices": [
+     {
+      "model": "Apple iPhone 11",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 11 Pro",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 11 Pro Max",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 12",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 12 Mini",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 12 Pro",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 12 Pro Max",
+      "brand": "Apple",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 13",
+      "brand": "Apple",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 13 Mini",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 13 Pro",
+      "brand": "Apple",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 13 Pro Max",
+      "brand": "Apple",
+      "good": 700,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 14",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 14 Plus",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 14 Pro",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 14 Pro Max",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 15",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 15 Plus",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 15 Pro",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 15 Pro Max",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 16",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 16 Plus",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 16 Pro",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 16 Pro Max",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 16e",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 17",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 17 Pro",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 17 Pro Max",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 17e",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 18 Pro",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 18 Pro Max",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 1000,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 8",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 8 PLUS",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone Air",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone SE 2",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone SE 3",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone X",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone XR",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone XS",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone XS Max",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 10 5G",
+      "brand": "Google",
+      "good": 700,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 10 Pro 5G",
+      "brand": "Google",
+      "good": 700,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 10 Pro Fold",
+      "brand": "Google",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 10 Pro XL 5G",
+      "brand": "Google",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 10a 5G",
+      "brand": "Google",
+      "good": 700,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 11 5G",
+      "brand": "Google",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 11 Pro 5G",
+      "brand": "Google",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 11 Pro Fold 5G",
+      "brand": "Google",
+      "good": 1000,
+      "fair": 1000,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 11 Pro XL 5G",
+      "brand": "Google",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 5 5G",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 5A 5G",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 6",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 6 Pro",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 6A",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 7 5G",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 7 Pro 5G",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 7A 5G",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 8 5G",
+      "brand": "Google",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 8 Pro 5G",
+      "brand": "Google",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 8A 5G",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 9 5G",
+      "brand": "Google",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 9 Pro 5G",
+      "brand": "Google",
+      "good": 700,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 9 Pro Fold 5G",
+      "brand": "Google",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 9 Pro XL 5G",
+      "brand": "Google",
+      "good": 700,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 9A 5G",
+      "brand": "Google",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Edge 5G 2025",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Edge 70 5G",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Moto G 5G 2026",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Moto G Play 5G 2026",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola RAZR",
+      "brand": "Motorola",
+      "good": null,
+      "fair": null,
+      "poor": 500
+     },
+     {
+      "model": "Motorola RAZR Ultra 5G 2025",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Razr 5G 2024",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Razr 5G 2025",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Razr 5G 2026",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Razr Fold 5G 2026",
+      "brand": "Motorola",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Razr Plus 5G 2023",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "ONEPLUS 8 PRO 5G",
+      "brand": "OnePlus",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "ONEPLUS 8T",
+      "brand": "OnePlus",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "ONEPLUS 8T PLUS 5G",
+      "brand": "OnePlus",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "ONEPLUS 9 5G",
+      "brand": "OnePlus",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "ONEPLUS 9 PRO 5G",
+      "brand": "OnePlus",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A16 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A17 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A25 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A26 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A27 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A35 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A36 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A37 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A57 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Note 10",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Note 10 Lite (6GB)",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Note 20 4G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Note 20 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Note 20 Ultra 4G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Note 20 Ultra 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Note 9",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S10",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S10 Lite",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S10 Plus",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S10E",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S20 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S20 5G UW",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S20 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S20 Plus",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S20 Plus 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S20 Ultra 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S21 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S21 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S21 Plus 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S21 Ultra 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S22 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S22 Plus 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S22 Ultra 5G",
+      "brand": "Samsung",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S23 5G",
+      "brand": "Samsung",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S23 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S23 Plus 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S23 Ultra 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S24 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S24 FE 5G",
+      "brand": "Samsung",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S24 Plus 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S24 Ultra 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S25 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S25 Edge 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S25 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S25 Plus 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S25 Ultra 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S26 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S26 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S26 Plus 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S26 Ultra 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S8",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": null,
+      "poor": null
+     },
+     {
+      "model": "Samsung Galaxy Z Flip",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 3 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 3 5G Thom Browne",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 3 Bespoke",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 4 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 4 Bespoke",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 5 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 6 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 7 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 7 FE 5G",
+      "brand": "Samsung",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 8 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 3 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 4 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 5 5G",
+      "brand": "Samsung",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 6 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 7 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 8 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 1000,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 8 Ultra 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 1000,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold2 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Note 10 Plus",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Note 10 Plus 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     }
+    ]
+   }
+  },
+  {
+   "id": "flat_agm_400",
+   "title": "$400 off select Apple, Google and Motorola devices (no trade-in)",
+   "deal_card": "CD881",
+   "audience": "new_line",
+   "line_type_label": null,
+   "sheets": [
+    "new_line_sheet"
+   ],
+   "savings": "$400 off",
+   "mechanism": "36-month DPP bill credits",
+   "dates": {
+    "start": "2026-10-09",
+    "end": "2026-11-10"
+   },
+   "plan": "Mobile Plus or Premium Unlimited",
+   "brands": [
+    "Apple",
+    "Google",
+    "Motorola"
+   ],
+   "device_scope": "iPhone 15, iPhone 16, iPhone 17, iPhone 17 Pro, iPhone 17 Pro Max, iPhone 17e, iPhone Air, iPhone 18 Pro, iPhone 18 Pro Max, Pixel 10, Pixel 10 Pro, Pixel 10 Pro XL, Pixel 11, Pixel 11 Pro, Pixel 11 Pro XL, Pixel 11 Pro Fold, moto razr – 2026, Razr fold, moto g stylus – 2025, edge – 2025, moto g – 2026, moto g play – 2026, edge – 2026, moto g stylus – 2026",
+   "device_type": "phone",
+   "diamond_only": false,
+   "trade_in_required": false,
+   "port_required": true,
+   "mobile_service": [
+    "XM",
+    "CBM"
+   ],
+   "badges": [],
+   "hook": "No trade-in? Port the number in and take $400 off a new iPhone, Pixel or Motorola.",
+   "qualify": [
+    "Activate a NEW line on Mobile Plus or Premium Unlimited (Unlimited Premium Flex / Pro on Comcast Business Mobile). Existing-line upgrades are NOT eligible.",
+    "TRANSFER THE NUMBER from another carrier — mandatory.",
+    "Buy one of the 24 eligible phones on a 36-month DPP: iPhone 15, iPhone 16, iPhone 17, iPhone 17 Pro, iPhone 17 Pro Max, iPhone 17e, iPhone Air, iPhone 18 Pro, iPhone 18 Pro Max, Pixel 10, Pixel 10 Pro, Pixel 10 Pro XL, Pixel 11, Pixel 11 Pro, Pixel 11 Pro XL, Pixel 11 Pro Fold, moto razr – 2026, Razr fold, moto g stylus – 2025, edge – 2025, moto g – 2026, moto g play – 2026, edge – 2026, moto g stylus – 2026.",
+    "No trade-in required."
+   ],
+   "steps": [
+    "Activate the new Mobile Plus or Premium Unlimited line AND start the number transfer.",
+    "Add the phone to the cart on a 36-month DPP."
+   ],
+   "deadlines": [
+    "Number transfer must COMPLETE within 30 DAYS of purchase.",
+    "Offer ends 11/10/26."
+   ],
+   "watchouts": [
+    "Mobile Plus or Premium Unlimited only. No device deal works on Mobile Select or NOW Mobile this cycle.",
+    "moto g stylus – 2026 is on this list — it gets the $400 (with a port-in) like every other phone here.",
+    "With a qualifying trade-in, the $930 TIPs deal pays at least $500 on the 18 phones on both lists (all nine iPhones, the Pixel 10 and 11 series, razr – 2026, razr fold).",
+    "Not on this list: Pixel 10a, Pixel 9, Pixel 9a, Pixel 10 Pro Fold, moto razr – 2025 — no new-line deal this cycle.",
+    "Port-in is mandatory; a new line with a brand-new number does not qualify.",
+    "Credits forfeited on cancellation or early payoff.",
+    "The credit can never exceed the retail price of the phone being bought."
+   ],
+   "credit_amount": "$400 spread evenly across 36 monthly bill credits.",
+   "trade_in": null
+  },
+  {
+   "id": "flat_samsung_500",
+   "title": "$500 off select Samsung devices (no trade-in)",
+   "deal_card": "CD862",
+   "audience": "new_line",
+   "line_type_label": null,
+   "sheets": [
+    "new_line_sheet"
+   ],
+   "savings": "$500 off",
+   "mechanism": "36-month DPP bill credits",
+   "dates": {
+    "start": "2026-08-26",
+    "end": "2026-11-10"
+   },
+   "plan": "Mobile Plus or Premium Unlimited",
+   "brands": [
+    "Samsung"
+   ],
+   "device_scope": "Galaxy S25 Edge, Galaxy S25 FE, Galaxy A37, Galaxy S26, Galaxy S26+, Galaxy S26 Ultra, Galaxy S26 FE, Galaxy Z Flip8, Galaxy Z Fold8, Galaxy Z Fold8 Ultra, Galaxy A57",
+   "device_type": "phone",
+   "diamond_only": false,
+   "trade_in_required": false,
+   "port_required": true,
+   "mobile_service": [
+    "XM",
+    "CBM"
+   ],
+   "badges": [],
+   "hook": "No trade-in? Port the number in and take $500 off a new Galaxy.",
+   "qualify": [
+    "Activate a NEW line on Mobile Plus or Premium Unlimited (Unlimited Premium Flex / Pro on Comcast Business Mobile). Existing-line upgrades are NOT eligible.",
+    "TRANSFER THE NUMBER from another carrier — mandatory.",
+    "Buy one of the 11 eligible Samsung phones on a 36-month DPP: Galaxy S25 Edge, Galaxy S25 FE, Galaxy A37, Galaxy S26, Galaxy S26+, Galaxy S26 Ultra, Galaxy S26 FE, Galaxy Z Flip8, Galaxy Z Fold8, Galaxy Z Fold8 Ultra, Galaxy A57.",
+    "No trade-in required."
+   ],
+   "steps": [
+    "Activate the new Mobile Plus or Premium Unlimited line AND start the number transfer.",
+    "Add the Samsung to the cart on a 36-month DPP."
+   ],
+   "deadlines": [
+    "Number transfer must COMPLETE within 30 DAYS of purchase.",
+    "Offer ends 11/10/26."
+   ],
+   "watchouts": [
+    "Mobile Plus or Premium Unlimited only. No device deal works on Mobile Select or NOW Mobile this cycle.",
+    "This list DOES include the Galaxy A57 — the only Samsung deal an A57 gets on a new line (it has no TIPs path).",
+    "With a qualifying trade-in, the $1,200 Samsung TIPs deal pays at least $550 on the other 10 phones.",
+    "Port-in is mandatory; a new line with a brand-new number does not qualify.",
+    "Credits forfeited on cancellation or early payoff.",
+    "The credit can never exceed the retail price of the phone being bought."
+   ],
+   "credit_amount": "$500 spread evenly across 36 monthly bill credits.",
+   "trade_in": null
+  },
+  {
+   "id": "smartwatch_300_diamond",
+   "title": "Diamond members: $300 off Apple, Samsung, Google smartwatches",
+   "deal_card": "CD824",
+   "audience": "new_line",
+   "line_type_label": null,
+   "sheets": [
+    "new_line_sheet",
+    "upgrade_sheet"
+   ],
+   "savings": "$299.99 off",
+   "mechanism": "36-month bill credits, first credit applied at purchase",
+   "dates": {
+    "start": "2026-05-11",
+    "end": "2026-10-30"
+   },
+   "plan": "Smartwatch plan, Diamond only",
+   "brands": [
+    "Apple",
+    "Samsung",
+    "Google"
+   ],
+   "device_scope": "Apple Watch Series 10 Aluminum 42mm/46mm, Watch Ultra 2, Apple Watch Series 11 Aluminum 42mm/46mm, Apple Watch Ultra 3, Apple Watch SE 3 Aluminum 40mm/44mm; Galaxy Watch Ultra 47mm, Galaxy Watch8 40mm/44mm, Galaxy Watch8 Classic, Galaxy Watch9, Galaxy Watch Ultra 2; Pixel Watch 4 41mm/45mm, Pixel Watch 5 series",
+   "device_type": "watch",
+   "diamond_only": true,
+   "trade_in_required": false,
+   "port_required": false,
+   "mobile_service": [
+    "XM"
+   ],
+   "badges": [],
+   "hook": "DIAMOND ONLY — $300 off any eligible Apple, Samsung or Google smartwatch on a new watch line.",
+   "qualify": [
+    "Customer must be a DIAMOND tier Xfinity member with an account in good standing.",
+    "Activate a NEW smartwatch line on a Smartwatch Data Plan.",
+    "Buy an eligible watch on a 36-month DPP.",
+    "No trade-in and no port required.",
+    "XM only — Comcast Business Mobile is not in scope for this one."
+   ],
+   "steps": [
+    "REDEEM THE MEMBERSHIP BENEFIT FIRST — the member must claim the offer in the Membership portal BEFORE starting the Xfinity Mobile buy flow.",
+    "Enter the offer code IN ALL CAPS at XM checkout.",
+    "Add the watch on a 36-month DPP and activate the new watch line."
+   ],
+   "deadlines": [
+    "New watch line must be activated within 30 DAYS of the purchase date.",
+    "Offer ends 10/30/26."
+   ],
+   "watchouts": [
+    "Order matters: if the rep starts the buy flow before the member redeems the benefit, the discount will not apply.",
+    "The offer code MUST be typed in ALL CAPS.",
+    "One code per member account/household, MAX TWO TRANSACTIONS per code. Multiple watches can go on a single transaction, up to the account line limit.",
+    "First credit lands at time of purchase, the rest across 36 months.",
+    "Not combinable with other device offers.",
+    "This is the ONLY Diamond-gated promo on the board."
+   ],
+   "credit_amount": "$299.99 off retail, applied over 36 months with the first credit at purchase.",
+   "trade_in": null
+  },
+  {
+   "id": "visa_gc_200_2lines",
+   "title": "$200 Virtual Visa gift card — add 2+ new phone lines",
+   "deal_card": null,
+   "audience": "new_line",
+   "line_type_label": null,
+   "sheets": [
+    "new_line_sheet",
+    "upgrade_sheet"
+   ],
+   "savings": "$200 Visa gift card",
+   "mechanism": "virtual Visa gift card, fulfilled automatically — not a bill credit",
+   "dates": {
+    "start": "2026-10-16",
+    "end": "2026-11-02"
+   },
+   "plan": "Any XM plan — Select included",
+   "brands": [],
+   "device_scope": "Any new phone line — bring your own, paid in full or new on a Device Payment Plan; at least one new line buys a new phone on a 36-month Device Payment Plan. Smartwatch and tablet lines do not count.",
+   "device_type": "phone",
+   "diamond_only": false,
+   "trade_in_required": false,
+   "port_required": false,
+   "mobile_service": [
+    "XM"
+   ],
+   "badges": [],
+   "hook": "Add 2 or more new phone lines on the same day in a retail store and get a $200 Virtual Visa gift card — on top of First Line Free and the device deals.",
+   "qualify": [
+    "Add at least 2 NEW mobile phone lines on the same day, in a retail store. New and existing Xfinity Mobile customers qualify.",
+    "At least one of the new lines must buy a new phone on a 36-month Device Payment Plan. The other new line(s) can be on a Device Payment Plan, bring their own phone or pay in full.",
+    "All Xfinity Mobile phone plans qualify: Mobile Select, Mobile Plus or Premium Unlimited.",
+    "No number transfer and no trade-in required.",
+    "Smartwatch and tablet lines do not count toward the 2 lines."
+   ],
+   "steps": [
+    "Activate the new phone lines in the same visit, in a retail store.",
+    "Put at least one new phone on a 36-month Device Payment Plan.",
+    "The $200 Virtual Visa gift card is fulfilled automatically — nothing to redeem in store. Allow up to 75 days for it to arrive."
+   ],
+   "deadlines": [
+    "All the new lines must be added on the same day, in a retail store.",
+    "Every new line must be activated within 30 days of purchase.",
+    "Offer runs 10/16 – 11/2/26."
+   ],
+   "watchouts": [
+    "Watches and tablets do not count — 2 phone lines minimum.",
+    "An existing customer with one line who adds only one new line does not qualify — it takes 2 new phone lines.",
+    "$200 per account, not per line.",
+    "It is a gift card, not a bill credit: monthly prices and savings do not change.",
+    "Stacks with First Line Free and with the device deals.",
+    "Customers who redeemed a 2026 Mastercard offer are still eligible.",
+    "NOW Mobile is a separate prepaid service and is not eligible."
+   ],
+   "credit_amount": "$200 Virtual Visa gift card per account, fulfilled automatically (allow up to 75 days). Not a bill credit.",
+   "trade_in": null
+  },
+  {
+   "id": "waived_activation",
+   "title": "One-time waived Xfinity Mobile line activation fee",
+   "deal_card": "CD790",
+   "audience": "new_line",
+   "line_type_label": null,
+   "sheets": [
+    "new_line_sheet"
+   ],
+   "savings": "$25 activation fee credit per line",
+   "mechanism": "one-time credit",
+   "dates": {
+    "start": "2026-05-11",
+    "end": "2026-10-30"
+   },
+   "plan": "Any XM plan — Select included",
+   "brands": [],
+   "device_scope": "",
+   "device_type": "any",
+   "diamond_only": false,
+   "trade_in_required": false,
+   "port_required": false,
+   "mobile_service": [
+    "XM"
+   ],
+   "badges": [],
+   "hook": "$25 activation fee waived on EVERY line of a new customer's first order — and it stacks with every device deal.",
+   "qualify": [
+    "Customer must be NEW to Xfinity Mobile — defined as having no active, pending or suspended XM lines at the moment the first order is placed.",
+    "Any data plan qualifies. No device, trade-in or port requirement.",
+    "Applies to every line in that FIRST order — phones, tablets and watches alike."
+   ],
+   "steps": [
+    "Place the customer's first XM order. The $25 fee is waived automatically on every line in it."
+   ],
+   "deadlines": [
+    "Offer ends 10/30/26."
+   ],
+   "watchouts": [
+    "FIRST ORDER ONLY. Lines added in a second or later order pay the $25.",
+    "If the customer wants 3 lines, put all 3 on the same order — splitting them costs $25 each on the later ones.",
+    "NOW Mobile and Comcast Business Mobile are NOT eligible.",
+    "Employees and bulk ARE eligible.",
+    "Stacks with TIPs, the flat device deals, the smartwatch and tablet deals — and with the free line."
+   ],
+   "credit_amount": "$25 per line on the first order.",
+   "trade_in": null
+  },
+  {
+   "id": "free_line",
+   "title": "Try Xfinity Mobile free for a year (first Mobile Select line)",
+   "deal_card": "DEALS122",
+   "audience": "new_line",
+   "line_type_label": null,
+   "sheets": [
+    "new_line_sheet"
+   ],
+   "savings": "$0 for 12 months on the first line",
+   "mechanism": "12 monthly line credits",
+   "dates": {
+    "start": null,
+    "end": null
+   },
+   "plan": "Mobile Select ($0) or Mobile Plus ($15) — first line",
+   "brands": [],
+   "device_scope": "",
+   "device_type": "phone",
+   "diamond_only": false,
+   "trade_in_required": false,
+   "port_required": false,
+   "mobile_service": [
+    "XM"
+   ],
+   "badges": [],
+   "hook": "New to Xfinity Mobile with 300 Mbps internet or better? The first Mobile Select line is $0 for 12 months — and it stacks with the device deals.",
+   "qualify": [
+    "Customer must be NEW to Xfinity Mobile; the deal applies to their first mobile line.",
+    "Requires Xfinity Internet at 300 Mbps or higher — new or existing, Next Gen or legacy.",
+    "No new device, no port and no DPP required.",
+    "Returning XM members: eligible immediately if they never redeemed First Line Free; eligible again after being disconnected over 12 months if they did."
+   ],
+   "steps": [
+    "Confirm the internet tier is 300 Mbps or higher and the customer is new to XM.",
+    "Add the first line on Mobile Select — $0 × 12 months. The member may instead upgrade that line to Mobile Plus for $15 × 12 months.",
+    "Deal is available in XM360; a manual promo add may be required."
+   ],
+   "deadlines": [
+    "Always-on deal — no end date. After 12 months regular rates apply."
+   ],
+   "watchouts": [
+    "Limit ONE free line per account.",
+    "Data-plan taxes and fees are included for the 12 months on Mobile Select — but NOT if the line is upgraded to Mobile Plus.",
+    "The $25 activation fee still applies with its taxes and fees — unless the waived-activation promo is live, in which case the two stack.",
+    "Does NOT stack with BOGO, Internet Essentials / IE Plus, ACP, Military Free Line, BYOD offers, or any other free-line promo including the Next Gen Unlimited line deal.",
+    "Tablets and smartwatches are not eligible.",
+    "Forfeited if the member removes XM, cancels internet, drops below the required speed tier, or moves to Internet Essentials / IE Plus.",
+    "Bulk: non-upgradable bulk is NOT eligible; upgradable bulk internet (300 Mbps+) and upgradable bulk TV/Home/Voice that add qualifying internet ARE. Managed WiFi customers need 400 Mbps or higher."
+   ],
+   "credit_amount": "One Mobile Select line at $0 × 12 months ($30/mo value), or Mobile Plus at $15 × 12 months.",
+   "trade_in": null
+  },
+  {
+   "id": "tips_agm_500_upg",
+   "title": "TIPs — Up to $500 off Apple, Google & Motorola (upgrade)",
+   "deal_card": "CD882",
+   "audience": "upgrade",
+   "line_type_label": null,
+   "sheets": [
+    "upgrade_sheet"
+   ],
+   "savings": "up to $500 off",
+   "mechanism": "36-month trade-in DPP bill credits",
+   "dates": {
+    "start": "2026-10-09",
+    "end": "2026-11-10"
+   },
+   "plan": "Mobile Plus or Premium Unlimited",
+   "brands": [
+    "Apple",
+    "Google",
+    "Motorola"
+   ],
+   "device_scope": "Apple iPhone 15, iPhone 16, iPhone 17, iPhone 17 Pro, iPhone 17 Pro Max, iPhone 17e, iPhone Air, iPhone 18 Pro, iPhone 18 Pro Max; Google Pixel 10, Pixel 10 Pro, Pixel 10 Pro XL, Pixel 11, Pixel 11 Pro, Pixel 11 Pro XL, Pixel 11 Pro Fold; Motorola moto razr – 2026, razr fold",
+   "device_type": "phone",
+   "diamond_only": false,
+   "trade_in_required": true,
+   "port_required": false,
+   "mobile_service": [
+    "XM",
+    "CBM"
+   ],
+   "badges": [],
+   "hook": "Upgrading to an iPhone, Pixel or Motorola? Trade in almost any phone and get up to $500 off.",
+   "qualify": [
+    "Upgrade the phone on an EXISTING Mobile Plus or Premium Unlimited line whose current phone is paid off (no remaining device balance). New lines are NOT eligible.",
+    "Buy an eligible Apple, Google or Motorola phone on a 36-month Device Payment Plan.",
+    "Trade in a qualifying device — 139 Apple, Google, Motorola, OnePlus and Samsung models. Good, Fair and Poor are accepted for most models (a Motorola RAZR is accepted in Poor condition only, a Galaxy S8 in Good condition only).",
+    "No number transfer required.",
+    "Mobile Select and NOW Mobile do NOT qualify."
+   ],
+   "steps": [
+    "Start the upgrade on the existing Mobile Plus / Premium Unlimited line.",
+    "Add the new phone to the cart on a 36-month DPP.",
+    "Send the trade-in to Assurant within 21 days of the order shipping."
+   ],
+   "deadlines": [
+    "The trade-in must reach Assurant within 21 DAYS of the order ship date or the credits are lost.",
+    "Offer ends 11/10/26."
+   ],
+   "watchouts": [
+    "The trade-in is valued on the table of the phone being BOUGHT: on an iPhone, Pixel or Motorola upgrade it pays $500 / $450 / $400 / $350 / $300 by tier, whatever brand the trade-in is.",
+    "Even the $300 floor beats the $200 no-trade credit, so any qualifying trade-in wins. The two are not combinable — the line gets one or the other.",
+    "Pixel 10a, moto g stylus, moto g, moto g play and both motorola edges are NOT on this list — those upgrades get the $200 no-trade credit only.",
+    "Credit is spread over 36 monthly bill credits — cancel the line or pay the phone off early and the remaining credits are forfeited.",
+    "The credit can never exceed the retail price of the phone being bought.",
+    "Not combinable with any other device offer."
+   ],
+   "credit_amount": "Trade-in tiers: $500 / $450 / $400 / $350 / $300 by trade-in device and condition (floor $300).",
+   "trade_in": {
+    "bucket": "tips_agm_500_upg",
+    "ladder": [
+     500,
+     450,
+     400,
+     350,
+     300
+    ],
+    "max": 500,
+    "floor": 300,
+    "list_updated": null,
+    "devices": [
+     {
+      "model": "Apple iPhone 11",
+      "brand": "Apple",
+      "good": 350,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 11 Pro",
+      "brand": "Apple",
+      "good": 350,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 11 Pro Max",
+      "brand": "Apple",
+      "good": 350,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 12",
+      "brand": "Apple",
+      "good": 350,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 12 Mini",
+      "brand": "Apple",
+      "good": 350,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 12 Pro",
+      "brand": "Apple",
+      "good": 350,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 12 Pro Max",
+      "brand": "Apple",
+      "good": 400,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 13",
+      "brand": "Apple",
+      "good": 400,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 13 Mini",
+      "brand": "Apple",
+      "good": 350,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 13 Pro",
+      "brand": "Apple",
+      "good": 400,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 13 Pro Max",
+      "brand": "Apple",
+      "good": 450,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 14",
+      "brand": "Apple",
+      "good": 400,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 14 Plus",
+      "brand": "Apple",
+      "good": 450,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 14 Pro",
+      "brand": "Apple",
+      "good": 450,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 14 Pro Max",
+      "brand": "Apple",
+      "good": 450,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 15",
+      "brand": "Apple",
+      "good": 450,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 15 Plus",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 400,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 15 Pro",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 400,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 15 Pro Max",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 400,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 16",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 400,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 16 Plus",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 400,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 16 Pro",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 450,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 16 Pro Max",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 450,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 16e",
+      "brand": "Apple",
+      "good": 450,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 17",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 450,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 17 Pro",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 450,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 17 Pro Max",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 17e",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 400,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 8",
+      "brand": "Apple",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone 8 PLUS",
+      "brand": "Apple",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone Air",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 450,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone SE 2",
+      "brand": "Apple",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone SE 3",
+      "brand": "Apple",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone X",
+      "brand": "Apple",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone XR",
+      "brand": "Apple",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone XS",
+      "brand": "Apple",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Apple iPhone XS Max",
+      "brand": "Apple",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Google Pixel 10 5G",
+      "brand": "Google",
+      "good": 450,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Google Pixel 10 Pro 5G",
+      "brand": "Google",
+      "good": 450,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Google Pixel 10 Pro Fold",
+      "brand": "Google",
+      "good": 500,
+      "fair": 450,
+      "poor": 300
+     },
+     {
+      "model": "Google Pixel 10 Pro XL 5G",
+      "brand": "Google",
+      "good": 500,
+      "fair": 400,
+      "poor": 300
+     },
+     {
+      "model": "Google Pixel 10a 5G",
+      "brand": "Google",
+      "good": 450,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Google Pixel 5 5G",
+      "brand": "Google",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Google Pixel 5A 5G",
+      "brand": "Google",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Google Pixel 6",
+      "brand": "Google",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Google Pixel 6 Pro",
+      "brand": "Google",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Google Pixel 6A",
+      "brand": "Google",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Google Pixel 7 5G",
+      "brand": "Google",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Google Pixel 7 Pro 5G",
+      "brand": "Google",
+      "good": 350,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Google Pixel 7A 5G",
+      "brand": "Google",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Google Pixel 8 5G",
+      "brand": "Google",
+      "good": 400,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Google Pixel 8 Pro 5G",
+      "brand": "Google",
+      "good": 400,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Google Pixel 8A 5G",
+      "brand": "Google",
+      "good": 350,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Google Pixel 9 5G",
+      "brand": "Google",
+      "good": 400,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Google Pixel 9 Pro 5G",
+      "brand": "Google",
+      "good": 450,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Google Pixel 9 Pro Fold 5G",
+      "brand": "Google",
+      "good": 450,
+      "fair": 400,
+      "poor": 300
+     },
+     {
+      "model": "Google Pixel 9 Pro XL 5G",
+      "brand": "Google",
+      "good": 450,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Google Pixel 9A 5G",
+      "brand": "Google",
+      "good": 400,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Motorola Edge 5G 2025",
+      "brand": "Motorola",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Motorola Edge 70 5G",
+      "brand": "Motorola",
+      "good": 350,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Motorola Moto G 5G 2026",
+      "brand": "Motorola",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Motorola Moto G Play 5G 2026",
+      "brand": "Motorola",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Motorola RAZR",
+      "brand": "Motorola",
+      "good": null,
+      "fair": null,
+      "poor": 300
+     },
+     {
+      "model": "Motorola RAZR Ultra 5G 2025",
+      "brand": "Motorola",
+      "good": 350,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Motorola Razr 5G 2024",
+      "brand": "Motorola",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Motorola Razr 5G 2025",
+      "brand": "Motorola",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Motorola Razr Plus 5G 2023",
+      "brand": "Motorola",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "ONEPLUS 8 PRO 5G",
+      "brand": "OnePlus",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "ONEPLUS 8T",
+      "brand": "OnePlus",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "ONEPLUS 8T PLUS 5G",
+      "brand": "OnePlus",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "ONEPLUS 9 5G",
+      "brand": "OnePlus",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "ONEPLUS 9 PRO 5G",
+      "brand": "OnePlus",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy A16 5G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy A17 5G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy A25 5G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy A26 5G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy A35 5G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy A36 5G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy A37 5G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy Note 10",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy Note 10 Lite (6GB)",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy Note 20 4G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy Note 20 5G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy Note 20 Ultra 4G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy Note 20 Ultra 5G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy Note 9",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S10",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S10 Lite",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S10 Plus",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S10E",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S20 5G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S20 5G UW",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S20 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S20 Plus",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S20 Plus 5G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S20 Ultra 5G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S21 5G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S21 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S21 Plus 5G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S21 Ultra 5G",
+      "brand": "Samsung",
+      "good": 350,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S22 5G",
+      "brand": "Samsung",
+      "good": 350,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S22 Plus 5G",
+      "brand": "Samsung",
+      "good": 350,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S22 Ultra 5G",
+      "brand": "Samsung",
+      "good": 400,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S23 5G",
+      "brand": "Samsung",
+      "good": 400,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S23 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 350,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S23 Plus 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S23 Ultra 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S24 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S24 FE 5G",
+      "brand": "Samsung",
+      "good": 400,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S24 Plus 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 400,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S24 Ultra 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 450,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S25 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 400,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S25 Edge 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 400,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S25 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S25 Plus 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 400,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S25 Ultra 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 450,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S26 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 450,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S26 Plus 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 450,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S26 Ultra 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy S8",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": null,
+      "poor": null
+     },
+     {
+      "model": "Samsung Galaxy Z Flip",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 3 5G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 3 5G Thom Browne",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 3 Bespoke",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 4 5G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 4 Bespoke",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 5 5G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 5G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 6 5G",
+      "brand": "Samsung",
+      "good": 350,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 7 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 400,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 7 FE 5G",
+      "brand": "Samsung",
+      "good": 400,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 3 5G",
+      "brand": "Samsung",
+      "good": 350,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 4 5G",
+      "brand": "Samsung",
+      "good": 350,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 5 5G",
+      "brand": "Samsung",
+      "good": 400,
+      "fair": 350,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 6 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 400,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 7 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 450,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Galaxy Z Fold2 5G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Note 10 Plus",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     },
+     {
+      "model": "Samsung Note 10 Plus 5G",
+      "brand": "Samsung",
+      "good": 300,
+      "fair": 300,
+      "poor": 300
+     }
+    ]
+   }
+  },
+  {
+   "id": "tips_samsung_700_upg",
+   "title": "TIPs — Up to $700 off Samsung (upgrade)",
+   "deal_card": "CD883",
+   "audience": "upgrade",
+   "line_type_label": null,
+   "sheets": [
+    "upgrade_sheet"
+   ],
+   "savings": "up to $700 off",
+   "mechanism": "36-month trade-in DPP bill credits",
+   "dates": {
+    "start": "2026-10-09",
+    "end": "2026-11-10"
+   },
+   "plan": "Mobile Plus or Premium Unlimited",
+   "brands": [
+    "Samsung"
+   ],
+   "device_scope": "Galaxy S25 Edge, Galaxy S25 FE, Galaxy A37, Galaxy S26, Galaxy S26+, Galaxy S26 Ultra, Galaxy S26 FE, Galaxy Z Flip8, Galaxy Z Fold8, Galaxy Z Fold8 Ultra (Galaxy A57 is not included)",
+   "device_type": "phone",
+   "diamond_only": false,
+   "trade_in_required": true,
+   "port_required": false,
+   "mobile_service": [
+    "XM",
+    "CBM"
+   ],
+   "badges": [],
+   "hook": "Upgrading to a Galaxy? Trade in almost any phone and get up to $700 off.",
+   "qualify": [
+    "Upgrade the phone on an EXISTING Mobile Plus or Premium Unlimited line whose current phone is paid off (no remaining device balance). New lines are NOT eligible.",
+    "Buy one of the 10 eligible Samsung phones on a 36-month Device Payment Plan — the Galaxy A57 is not one of them.",
+    "Trade in a qualifying device — 139 Apple, Google, Motorola, OnePlus and Samsung models. Good, Fair and Poor are accepted for most models (a Motorola RAZR is accepted in Poor condition only, a Galaxy S8 in Good condition only).",
+    "No number transfer required.",
+    "Mobile Select and NOW Mobile do NOT qualify."
+   ],
+   "steps": [
+    "Start the upgrade on the existing Mobile Plus / Premium Unlimited line.",
+    "Add the Galaxy to the cart on a 36-month DPP.",
+    "Send the trade-in to Assurant within 21 days of the order shipping."
+   ],
+   "deadlines": [
+    "The trade-in must reach Assurant within 21 DAYS of the order ship date or the credits are lost.",
+    "Offer ends 11/10/26."
+   ],
+   "watchouts": [
+    "The trade-in is valued on the Samsung table because a Galaxy is being bought: $700 / $600 / $550 / $500 / $450 by tier, whatever brand the trade-in is.",
+    "Even the $450 floor beats the $300 no-trade credit, so any qualifying trade-in wins. The two are not combinable — the line gets one or the other.",
+    "Galaxy A57 is NOT on this list — an A57 upgrade gets the $300 no-trade credit only.",
+    "Credit is spread over 36 monthly bill credits — cancel the line or pay the phone off early and the remaining credits are forfeited.",
+    "The credit can never exceed the retail price of the phone being bought.",
+    "Not combinable with any other device offer."
+   ],
+   "credit_amount": "Trade-in tiers: $700 / $600 / $550 / $500 / $450 by trade-in device and condition (floor $450).",
+   "trade_in": {
+    "bucket": "tips_samsung_700_upg",
+    "ladder": [
+     700,
+     600,
+     550,
+     500,
+     450
+    ],
+    "max": 700,
+    "floor": 450,
+    "list_updated": null,
+    "devices": [
+     {
+      "model": "Apple iPhone 11",
+      "brand": "Apple",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 11 Pro",
+      "brand": "Apple",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 11 Pro Max",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 12",
+      "brand": "Apple",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 12 Mini",
+      "brand": "Apple",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 12 Pro",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 12 Pro Max",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 13",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 13 Mini",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 13 Pro",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 13 Pro Max",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 14",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 14 Plus",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 14 Pro",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 14 Pro Max",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 500,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 15",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 500,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 15 Plus",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 500,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 15 Pro",
+      "brand": "Apple",
+      "good": 600,
+      "fair": 500,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 15 Pro Max",
+      "brand": "Apple",
+      "good": 700,
+      "fair": 500,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 16",
+      "brand": "Apple",
+      "good": 600,
+      "fair": 500,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 16 Plus",
+      "brand": "Apple",
+      "good": 600,
+      "fair": 500,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 16 Pro",
+      "brand": "Apple",
+      "good": 700,
+      "fair": 550,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 16 Pro Max",
+      "brand": "Apple",
+      "good": 700,
+      "fair": 550,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 16e",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 500,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 17",
+      "brand": "Apple",
+      "good": 700,
+      "fair": 550,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 17 Pro",
+      "brand": "Apple",
+      "good": 700,
+      "fair": 550,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 17 Pro Max",
+      "brand": "Apple",
+      "good": 700,
+      "fair": 600,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 17e",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 500,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 8",
+      "brand": "Apple",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone 8 PLUS",
+      "brand": "Apple",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone Air",
+      "brand": "Apple",
+      "good": 700,
+      "fair": 550,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone SE 2",
+      "brand": "Apple",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone SE 3",
+      "brand": "Apple",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone X",
+      "brand": "Apple",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone XR",
+      "brand": "Apple",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone XS",
+      "brand": "Apple",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Apple iPhone XS Max",
+      "brand": "Apple",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Google Pixel 10 5G",
+      "brand": "Google",
+      "good": 550,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Google Pixel 10 Pro 5G",
+      "brand": "Google",
+      "good": 550,
+      "fair": 500,
+      "poor": 450
+     },
+     {
+      "model": "Google Pixel 10 Pro Fold",
+      "brand": "Google",
+      "good": 700,
+      "fair": 600,
+      "poor": 450
+     },
+     {
+      "model": "Google Pixel 10 Pro XL 5G",
+      "brand": "Google",
+      "good": 600,
+      "fair": 500,
+      "poor": 450
+     },
+     {
+      "model": "Google Pixel 10a 5G",
+      "brand": "Google",
+      "good": 550,
+      "fair": 500,
+      "poor": 450
+     },
+     {
+      "model": "Google Pixel 5 5G",
+      "brand": "Google",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Google Pixel 5A 5G",
+      "brand": "Google",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Google Pixel 6",
+      "brand": "Google",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Google Pixel 6 Pro",
+      "brand": "Google",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Google Pixel 6A",
+      "brand": "Google",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Google Pixel 7 5G",
+      "brand": "Google",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Google Pixel 7 Pro 5G",
+      "brand": "Google",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Google Pixel 7A 5G",
+      "brand": "Google",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Google Pixel 8 5G",
+      "brand": "Google",
+      "good": 500,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Google Pixel 8 Pro 5G",
+      "brand": "Google",
+      "good": 500,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Google Pixel 8A 5G",
+      "brand": "Google",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Google Pixel 9 5G",
+      "brand": "Google",
+      "good": 500,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Google Pixel 9 Pro 5G",
+      "brand": "Google",
+      "good": 550,
+      "fair": 500,
+      "poor": 450
+     },
+     {
+      "model": "Google Pixel 9 Pro Fold 5G",
+      "brand": "Google",
+      "good": 550,
+      "fair": 500,
+      "poor": 450
+     },
+     {
+      "model": "Google Pixel 9 Pro XL 5G",
+      "brand": "Google",
+      "good": 550,
+      "fair": 500,
+      "poor": 450
+     },
+     {
+      "model": "Google Pixel 9A 5G",
+      "brand": "Google",
+      "good": 500,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Motorola Edge 5G 2025",
+      "brand": "Motorola",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Motorola Edge 70 5G",
+      "brand": "Motorola",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Motorola Moto G 5G 2026",
+      "brand": "Motorola",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Motorola Moto G Play 5G 2026",
+      "brand": "Motorola",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Motorola RAZR",
+      "brand": "Motorola",
+      "good": null,
+      "fair": null,
+      "poor": 450
+     },
+     {
+      "model": "Motorola RAZR Ultra 5G 2025",
+      "brand": "Motorola",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Motorola Razr 5G 2024",
+      "brand": "Motorola",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Motorola Razr 5G 2025",
+      "brand": "Motorola",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Motorola Razr Plus 5G 2023",
+      "brand": "Motorola",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "ONEPLUS 8 PRO 5G",
+      "brand": "OnePlus",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "ONEPLUS 8T",
+      "brand": "OnePlus",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "ONEPLUS 8T PLUS 5G",
+      "brand": "OnePlus",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "ONEPLUS 9 5G",
+      "brand": "OnePlus",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "ONEPLUS 9 PRO 5G",
+      "brand": "OnePlus",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy A16 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy A17 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy A25 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy A26 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy A35 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy A36 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy A37 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy Note 10",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy Note 10 Lite (6GB)",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy Note 20 4G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy Note 20 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy Note 20 Ultra 4G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy Note 20 Ultra 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy Note 9",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S10",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S10 Lite",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S10 Plus",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S10E",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S20 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S20 5G UW",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S20 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S20 Plus",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S20 Plus 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S20 Ultra 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S21 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S21 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S21 Plus 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S21 Ultra 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S22 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S22 Plus 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S22 Ultra 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S23 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S23 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S23 Plus 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S23 Ultra 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 500,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S24 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 500,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S24 FE 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S24 Plus 5G",
+      "brand": "Samsung",
+      "good": 600,
+      "fair": 500,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S24 Ultra 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 550,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S25 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 500,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S25 Edge 5G",
+      "brand": "Samsung",
+      "good": 600,
+      "fair": 500,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S25 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S25 Plus 5G",
+      "brand": "Samsung",
+      "good": 600,
+      "fair": 500,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S25 Ultra 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 550,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S26 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 550,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S26 Plus 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 550,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S26 Ultra 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 600,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy S8",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": null,
+      "poor": null
+     },
+     {
+      "model": "Samsung Galaxy Z Flip",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 3 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 3 5G Thom Browne",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 3 Bespoke",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 4 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 4 Bespoke",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 5 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 6 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 7 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 500,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 7 FE 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 3 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 4 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 5 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 6 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 500,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 7 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 550,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Galaxy Z Fold2 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Note 10 Plus",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     },
+     {
+      "model": "Samsung Note 10 Plus 5G",
+      "brand": "Samsung",
+      "good": 450,
+      "fair": 450,
+      "poor": 450
+     }
+    ]
+   }
+  },
+  {
+   "id": "flat_agm_200_upg",
+   "title": "$200 off Apple, Google & Motorola — paid-off phone upgrade (no trade-in)",
+   "deal_card": "CD888",
+   "audience": "upgrade",
+   "line_type_label": null,
+   "sheets": [
+    "upgrade_sheet"
+   ],
+   "savings": "$200 off",
+   "mechanism": "36-month DPP bill credits",
+   "dates": {
+    "start": "2026-10-09",
+    "end": "2026-11-10"
+   },
+   "plan": "Mobile Plus or Premium Unlimited",
+   "brands": [
+    "Apple",
+    "Google",
+    "Motorola"
+   ],
+   "device_scope": "Apple iPhone 15, iPhone 16, iPhone 17, iPhone 17 Pro, iPhone 17 Pro Max, iPhone 17e, iPhone Air, iPhone 18 Pro, iPhone 18 Pro Max, iPhone Duo; Google Pixel 10, Pixel 10 Pro, Pixel 10 Pro XL, Pixel 11, Pixel 11 Pro, Pixel 11 Pro XL, Pixel 11 Pro Fold; Motorola moto g stylus – 2025, motorola edge – 2025, moto g – 2026, moto g play – 2026, moto razr – 2026, motorola edge – 2026, razr fold, moto g stylus – 2026",
+   "device_type": "phone",
+   "diamond_only": false,
+   "trade_in_required": false,
+   "port_required": false,
+   "mobile_service": [
+    "XM",
+    "CBM"
+   ],
+   "badges": [
+    "Paid-off phone"
+   ],
+   "hook": "No trade-in? $200 off a new iPhone, Pixel or Motorola when the current phone is paid off — no waiting period.",
+   "qualify": [
+    "Upgrade the phone on an EXISTING Mobile Plus or Premium Unlimited line.",
+    "The current phone on that line must be PAID OFF — no remaining device balance.",
+    "Buy an eligible Apple, Google or Motorola phone on a 36-month Device Payment Plan.",
+    "No trade-in and no number transfer required.",
+    "No 60-day waiting period between upgrades.",
+    "Mobile Select and NOW Mobile do NOT qualify."
+   ],
+   "steps": [
+    "Confirm the current phone on the line is paid off.",
+    "Start the upgrade on the existing Mobile Plus / Premium Unlimited line.",
+    "Add the new phone to the cart on a 36-month DPP."
+   ],
+   "deadlines": [
+    "Offer ends 11/10/26."
+   ],
+   "watchouts": [
+    "Still owes on the current phone? Use Upgrade Anytime instead — the same $200, but it needs 60 days since the last upgrade or 50% of the current phone’s payment plan paid.",
+    "With a qualifying trade-in the TIPs deal pays at least $300 instead — not combinable with this credit.",
+    "Pixel 10a is NOT on this list — it gets the $200 through Upgrade Anytime only.",
+    "Credit is spread over 36 monthly bill credits — cancel the line or pay the phone off early and the remaining credits are forfeited.",
+    "The credit can never exceed the retail price of the phone being bought."
+   ],
+   "credit_amount": "$200 over 36 monthly bill credits.",
+   "trade_in": null
+  },
+  {
+   "id": "anytime_agm_200",
+   "title": "Upgrade Anytime — $200 off Apple, Google & Motorola (no trade-in)",
+   "deal_card": "CD886",
+   "audience": "upgrade",
+   "line_type_label": null,
+   "sheets": [
+    "upgrade_sheet"
+   ],
+   "savings": "$200 off",
+   "mechanism": "36-month DPP bill credits",
+   "dates": {
+    "start": "2026-10-09",
+    "end": "2026-11-10"
+   },
+   "plan": "Mobile Plus or Premium Unlimited",
+   "brands": [
+    "Apple",
+    "Google",
+    "Motorola"
+   ],
+   "device_scope": "Apple iPhone 15, iPhone 16, iPhone 17, iPhone 17 Pro, iPhone 17 Pro Max, iPhone 17e, iPhone Air, iPhone 18 Pro, iPhone 18 Pro Max, iPhone Duo; Google Pixel 10, Pixel 10 Pro, Pixel 10 Pro XL, Pixel 11, Pixel 11 Pro, Pixel 11 Pro XL, Pixel 11 Pro Fold, Pixel 10a; Motorola moto g stylus – 2025, motorola edge – 2025, moto g – 2026, moto g play – 2026, moto razr – 2026, motorola edge – 2026, razr fold, moto g stylus – 2026",
+   "device_type": "phone",
+   "diamond_only": false,
+   "trade_in_required": false,
+   "port_required": false,
+   "mobile_service": [
+    "XM",
+    "CBM"
+   ],
+   "badges": [
+    "60-day rule"
+   ],
+   "hook": "No trade-in? $200 off a new iPhone, Pixel or Motorola on an Upgrade Anytime — even with a balance left on the current phone.",
+   "qualify": [
+    "Upgrade the phone on an EXISTING Mobile Plus or Premium Unlimited line as an Upgrade Anytime.",
+    "At least 60 DAYS since the line’s last upgrade — OR at least 50% of the current phone’s payment plan already paid.",
+    "Buy an eligible Apple, Google or Motorola phone on a 36-month Device Payment Plan (the Pixel 10a is included).",
+    "No trade-in and no number transfer required.",
+    "Mobile Select and NOW Mobile do NOT qualify."
+   ],
+   "steps": [
+    "Confirm the line meets the 60-day rule (or has 50% of the current payment plan paid).",
+    "Start the Upgrade Anytime on the existing Mobile Plus / Premium Unlimited line.",
+    "Add the new phone to the cart on a 36-month DPP."
+   ],
+   "deadlines": [
+    "Offer ends 11/10/26."
+   ],
+   "watchouts": [
+    "Current phone already paid off? The paid-off upgrade deal pays the same $200 with no 60-day rule.",
+    "With a qualifying trade-in the TIPs deal pays at least $300 instead — not combinable with this credit.",
+    "Credit is spread over 36 monthly bill credits — cancel the line or pay the phone off early and the remaining credits are forfeited.",
+    "The credit can never exceed the retail price of the phone being bought."
+   ],
+   "credit_amount": "$200 over 36 monthly bill credits.",
+   "trade_in": null
+  },
+  {
+   "id": "flat_samsung_300_upg",
+   "title": "$300 off Samsung — paid-off phone upgrade (no trade-in)",
+   "deal_card": "CD880",
+   "audience": "upgrade",
+   "line_type_label": null,
+   "sheets": [
+    "upgrade_sheet"
+   ],
+   "savings": "$300 off",
+   "mechanism": "36-month DPP bill credits",
+   "dates": {
+    "start": "2026-10-09",
+    "end": "2026-11-10"
+   },
+   "plan": "Mobile Plus or Premium Unlimited",
+   "brands": [
+    "Samsung"
+   ],
+   "device_scope": "Galaxy S25 Edge, Galaxy S25 FE, Galaxy A37, Galaxy A57, Galaxy S26, Galaxy S26+, Galaxy S26 Ultra, Galaxy S26 FE, Galaxy Z Flip8, Galaxy Z Fold8, Galaxy Z Fold8 Ultra",
+   "device_type": "phone",
+   "diamond_only": false,
+   "trade_in_required": false,
+   "port_required": false,
+   "mobile_service": [
+    "XM",
+    "CBM"
+   ],
+   "badges": [
+    "Paid-off phone"
+   ],
+   "hook": "No trade-in? $300 off a new Galaxy when the current phone is paid off — no waiting period.",
+   "qualify": [
+    "Upgrade the phone on an EXISTING Mobile Plus or Premium Unlimited line.",
+    "The current phone on that line must be PAID OFF — no remaining device balance.",
+    "Buy one of the 11 eligible Samsung phones on a 36-month Device Payment Plan (the Galaxy A57 is included).",
+    "No trade-in and no number transfer required.",
+    "No 60-day waiting period between upgrades.",
+    "Mobile Select and NOW Mobile do NOT qualify."
+   ],
+   "steps": [
+    "Confirm the current phone on the line is paid off.",
+    "Start the upgrade on the existing Mobile Plus / Premium Unlimited line.",
+    "Add the Galaxy to the cart on a 36-month DPP."
+   ],
+   "deadlines": [
+    "Offer ends 11/10/26."
+   ],
+   "watchouts": [
+    "Still owes on the current phone? Use Upgrade Anytime instead — the same $300, but it needs 60 days since the last upgrade or 50% of the current phone’s payment plan paid.",
+    "With a qualifying trade-in the TIPs deal pays at least $450 instead (not on the Galaxy A57) — not combinable with this credit.",
+    "Credit is spread over 36 monthly bill credits — cancel the line or pay the phone off early and the remaining credits are forfeited.",
+    "The credit can never exceed the retail price of the phone being bought."
+   ],
+   "credit_amount": "$300 over 36 monthly bill credits.",
+   "trade_in": null
+  },
+  {
+   "id": "anytime_samsung_300",
+   "title": "Upgrade Anytime — $300 off Samsung (no trade-in)",
+   "deal_card": "CD887",
+   "audience": "upgrade",
+   "line_type_label": null,
+   "sheets": [
+    "upgrade_sheet"
+   ],
+   "savings": "$300 off",
+   "mechanism": "36-month DPP bill credits",
+   "dates": {
+    "start": "2026-10-09",
+    "end": "2026-11-10"
+   },
+   "plan": "Mobile Plus or Premium Unlimited",
+   "brands": [
+    "Samsung"
+   ],
+   "device_scope": "Galaxy S25 Edge, Galaxy S25 FE, Galaxy A37, Galaxy A57, Galaxy S26, Galaxy S26+, Galaxy S26 Ultra, Galaxy S26 FE, Galaxy Z Flip8, Galaxy Z Fold8, Galaxy Z Fold8 Ultra",
+   "device_type": "phone",
+   "diamond_only": false,
+   "trade_in_required": false,
+   "port_required": false,
+   "mobile_service": [
+    "XM",
+    "CBM"
+   ],
+   "badges": [
+    "60-day rule"
+   ],
+   "hook": "No trade-in? $300 off a new Galaxy on an Upgrade Anytime — even with a balance left on the current phone.",
+   "qualify": [
+    "Upgrade the phone on an EXISTING Mobile Plus or Premium Unlimited line as an Upgrade Anytime.",
+    "At least 60 DAYS since the line’s last upgrade — OR at least 50% of the current phone’s payment plan already paid.",
+    "Buy one of the 11 eligible Samsung phones on a 36-month Device Payment Plan (the Galaxy A57 is included).",
+    "No trade-in and no number transfer required.",
+    "Mobile Select and NOW Mobile do NOT qualify."
+   ],
+   "steps": [
+    "Confirm the line meets the 60-day rule (or has 50% of the current payment plan paid).",
+    "Start the Upgrade Anytime on the existing Mobile Plus / Premium Unlimited line.",
+    "Add the Galaxy to the cart on a 36-month DPP."
+   ],
+   "deadlines": [
+    "Offer ends 11/10/26."
+   ],
+   "watchouts": [
+    "Current phone already paid off? The paid-off upgrade deal pays the same $300 with no 60-day rule.",
+    "With a qualifying trade-in the TIPs deal pays at least $450 instead (not on the Galaxy A57) — not combinable with this credit.",
+    "Credit is spread over 36 monthly bill credits — cancel the line or pay the phone off early and the remaining credits are forfeited.",
+    "The credit can never exceed the retail price of the phone being bought."
+   ],
+   "credit_amount": "$300 over 36 monthly bill credits.",
+   "trade_in": null
+  },
+  {
+   "id": "tips_duo_1000_diamond_upg",
+   "title": "TIPs — Diamond members: up to $1,000 off iPhone Duo (upgrades)",
+   "deal_card": "DEALS18 (no separate card)",
+   "audience": "upgrade",
+   "line_type_label": null,
+   "sheets": [
+    "upgrade_sheet"
+   ],
+   "savings": "up to $1,000 off",
+   "mechanism": "36-month trade-in DPP bill credits",
+   "dates": {
+    "start": "2026-10-16",
+    "end": "2026-11-10"
+   },
+   "plan": "Mobile Plus or Premium Unlimited",
+   "brands": [
+    "Apple"
+   ],
+   "device_scope": "Apple iPhone Duo (256GB, 512GB, 1TB, 2TB)",
+   "device_type": "phone",
+   "diamond_only": true,
+   "trade_in_required": true,
+   "port_required": false,
+   "mobile_service": [
+    "XM",
+    "CBM"
+   ],
+   "badges": [],
+   "hook": "Diamond members upgrading to the iPhone Duo: trade in almost any phone and get up to $1,000 off.",
+   "qualify": [
+    "Customer must be a DIAMOND tier Xfinity member.",
+    "Upgrade the phone on an EXISTING Mobile Plus or Premium Unlimited line whose current phone is paid off (no remaining device balance). New lines are NOT eligible.",
+    "Buy the iPhone Duo on a 36-month Device Payment Plan.",
+    "Trade in a qualifying device — 153 Apple, Google, Motorola, OnePlus and Samsung models, including the newest (iPhone 18 Pro, Pixel 11 series, Galaxy Z Flip 8 and Z Fold 8). Good, Fair and Poor are accepted for most models (a Motorola RAZR is accepted in Poor condition only, a Galaxy S8 in Good condition only).",
+    "No number transfer required.",
+    "Mobile Select and NOW Mobile do NOT qualify."
+   ],
+   "steps": [
+    "Confirm the customer is a Diamond member.",
+    "Start the upgrade on the existing Mobile Plus / Premium Unlimited line.",
+    "Add the iPhone Duo to the cart on a 36-month DPP.",
+    "Send the trade-in to Assurant within 21 days of the order shipping."
+   ],
+   "deadlines": [
+    "The trade-in must reach Assurant within 21 DAYS of the order ship date or the credits are lost.",
+    "Offer runs 10/16/26 – 11/10/26. iPhone Duo pre-orders open 10/16; available 10/23."
+   ],
+   "watchouts": [
+    "The trade-in pays $1,000 / $700 / $600 / $550 / $500 by tier, whatever brand the trade-in is.",
+    "Even the $500 floor beats the $200 no-trade credit, so any qualifying trade-in wins. The two are not combinable — the line gets one or the other.",
+    "The iPhone Duo has its own trade-in list: 14 newer phones on it (such as the iPhone 18 Pro, Pixel 11 and Galaxy Z Flip 8) are taken only on this deal, not on the other upgrade trade-in deals.",
+    "Not available through Upgrade Anytime — the current phone must be paid off.",
+    "Not a Diamond member? An iPhone Duo upgrade gets the $200 no-trade credit only — there is no trade-in deal on it.",
+    "Credit is spread over 36 monthly bill credits — cancel the line or pay the phone off early and the remaining credits are forfeited.",
+    "The credit can never exceed the retail price of the phone being bought.",
+    "Not combinable with any other device offer."
+   ],
+   "credit_amount": "Trade-in tiers: $1,000 / $700 / $600 / $550 / $500 by trade-in device and condition (floor $500).",
+   "trade_in": {
+    "bucket": "tips_duo_1000_diamond_upg",
+    "ladder": [
+     1000,
+     700,
+     600,
+     550,
+     500
+    ],
+    "max": 1000,
+    "floor": 500,
+    "list_updated": null,
+    "devices": [
+     {
+      "model": "Apple iPhone 11",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 11 Pro",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 11 Pro Max",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 12",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 12 Mini",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 12 Pro",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 12 Pro Max",
+      "brand": "Apple",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 13",
+      "brand": "Apple",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 13 Mini",
+      "brand": "Apple",
+      "good": 550,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 13 Pro",
+      "brand": "Apple",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 13 Pro Max",
+      "brand": "Apple",
+      "good": 700,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 14",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 14 Plus",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 14 Pro",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 14 Pro Max",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 15",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 15 Plus",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 15 Pro",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 15 Pro Max",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 16",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 16 Plus",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 16 Pro",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 16 Pro Max",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 16e",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 17",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 17 Pro",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 17 Pro Max",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 17e",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 18 Pro",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 18 Pro Max",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 1000,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 8",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone 8 PLUS",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone Air",
+      "brand": "Apple",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone SE 2",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone SE 3",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone X",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone XR",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone XS",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Apple iPhone XS Max",
+      "brand": "Apple",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 10 5G",
+      "brand": "Google",
+      "good": 700,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 10 Pro 5G",
+      "brand": "Google",
+      "good": 700,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 10 Pro Fold",
+      "brand": "Google",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 10 Pro XL 5G",
+      "brand": "Google",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 10a 5G",
+      "brand": "Google",
+      "good": 700,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 11 5G",
+      "brand": "Google",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 11 Pro 5G",
+      "brand": "Google",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 11 Pro Fold 5G",
+      "brand": "Google",
+      "good": 1000,
+      "fair": 1000,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 11 Pro XL 5G",
+      "brand": "Google",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 5 5G",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 5A 5G",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 6",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 6 Pro",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 6A",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 7 5G",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 7 Pro 5G",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 7A 5G",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 8 5G",
+      "brand": "Google",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 8 Pro 5G",
+      "brand": "Google",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 8A 5G",
+      "brand": "Google",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 9 5G",
+      "brand": "Google",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 9 Pro 5G",
+      "brand": "Google",
+      "good": 700,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 9 Pro Fold 5G",
+      "brand": "Google",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 9 Pro XL 5G",
+      "brand": "Google",
+      "good": 700,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Google Pixel 9A 5G",
+      "brand": "Google",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Edge 5G 2025",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Edge 70 5G",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Moto G 5G 2026",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Moto G Play 5G 2026",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola RAZR",
+      "brand": "Motorola",
+      "good": null,
+      "fair": null,
+      "poor": 500
+     },
+     {
+      "model": "Motorola RAZR Ultra 5G 2025",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Razr 5G 2024",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Razr 5G 2025",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Razr 5G 2026",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Razr Fold 5G 2026",
+      "brand": "Motorola",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Motorola Razr Plus 5G 2023",
+      "brand": "Motorola",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "ONEPLUS 8 PRO 5G",
+      "brand": "OnePlus",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "ONEPLUS 8T",
+      "brand": "OnePlus",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "ONEPLUS 8T PLUS 5G",
+      "brand": "OnePlus",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "ONEPLUS 9 5G",
+      "brand": "OnePlus",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "ONEPLUS 9 PRO 5G",
+      "brand": "OnePlus",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A16 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A17 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A25 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A26 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A27 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A35 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A36 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A37 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy A57 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Note 10",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Note 10 Lite (6GB)",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Note 20 4G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Note 20 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Note 20 Ultra 4G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Note 20 Ultra 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Note 9",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S10",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S10 Lite",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S10 Plus",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S10E",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S20 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S20 5G UW",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S20 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S20 Plus",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S20 Plus 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S20 Ultra 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S21 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S21 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S21 Plus 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S21 Ultra 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S22 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S22 Plus 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S22 Ultra 5G",
+      "brand": "Samsung",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S23 5G",
+      "brand": "Samsung",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S23 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 550,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S23 Plus 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S23 Ultra 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S24 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 550,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S24 FE 5G",
+      "brand": "Samsung",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S24 Plus 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S24 Ultra 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S25 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S25 Edge 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S25 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S25 Plus 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S25 Ultra 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S26 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S26 Fan Edition 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S26 Plus 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S26 Ultra 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy S8",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": null,
+      "poor": null
+     },
+     {
+      "model": "Samsung Galaxy Z Flip",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 3 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 3 5G Thom Browne",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 3 Bespoke",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 4 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 4 Bespoke",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 5 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 6 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 7 5G",
+      "brand": "Samsung",
+      "good": 700,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 7 FE 5G",
+      "brand": "Samsung",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Flip 8 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 3 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 4 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 5 5G",
+      "brand": "Samsung",
+      "good": 600,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 6 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 600,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 7 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 700,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 8 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 1000,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold 8 Ultra 5G",
+      "brand": "Samsung",
+      "good": 1000,
+      "fair": 1000,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Galaxy Z Fold2 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Note 10 Plus",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     },
+     {
+      "model": "Samsung Note 10 Plus 5G",
+      "brand": "Samsung",
+      "good": 500,
+      "fair": 500,
+      "poor": 500
+     }
+    ]
+   }
+  }
+ ]
+}
